@@ -9,14 +9,15 @@ First thing first, you should do the [Remult SvelteKit tutorial](https://remult.
 ## Installation
 
 ```bash
-# Create a skeleton sveltekit app (typescript)
+# Create a sveltekit app (skeleton & typescript)
+# Pro tip: replace 'remult-kit-demo' by your project name!
 npm create svelte@latest remult-kit-demo
 
 # Go to the project
-cd remult-kit-demo
+cd remult-kit-demo # or your project name...
 
 # add remult & remult-kit
-pnpm add remult@exp remult-kit@exp -D
+pnpm add remult-kit@exp -D
 
 # Now you should probably git init & commit.
 # GIT GIT GIT
@@ -24,14 +25,17 @@ pnpm add remult@exp remult-kit@exp -D
 # Then run => Generate a few files
 pnpm remult-kit
 
+# Install all the dependencies
+pnpm i
+
 # Start the dev server
 pnpm dev
 ```
 
 ## Concepts
 
-- Store `kitStoreList` to manage list
-- Store `kitStoreItem` to manage item
+- Store `kitStoreList` to manage list of an entity (w/wo pagination)
+- Store `kitStoreItem` to manage item (CRUD)
 - Using `Field` component to display a remult field
 - `KitBaseEnum` to create an enum
 - `KitBaseItemLight` to hold a "magic" object usefull in many situations
