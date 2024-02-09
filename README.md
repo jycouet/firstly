@@ -28,10 +28,17 @@ pnpm remult-kit
 pnpm dev
 ```
 
-## Todos
+## Concepts
 
-- [ ] Add code here
-- [ ] Speak about it everywhere
+- Store `kitStoreList` to manage list
+- Store `kitStoreItem` to manage item
+- Using `Field` component to display a remult field
+- `KitBaseEnum` to create an enum
+- `KitBaseItemLight` to hold a "magic" object usefull in many situations
+- `kitBuilder` to build forms!
+- `dialog`
+
+OMG, we have so much to explain :) It will be fun!
 
 ## FAQ
 
@@ -39,6 +46,11 @@ pnpm dev
   - `remultKit` from `remult-kit/vite` => for vite `vite.config.ts`
   - `remultKit` from `remult-kit/api` => for route `./src/routes/[...remult].ts`
   - `remultKit` from `remult-kit/handle` => for `hooks.servers.ts`
+
+## Todos
+
+- [ ] Add code here
+- [ ] Speak about it everywhere
 
 ## Notes
 
