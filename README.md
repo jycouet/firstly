@@ -16,37 +16,12 @@ npm create svelte@latest remult-kit-demo
 cd remult-kit-demo
 
 # add remult & remult-kit
-pnpm add remult@exp remult-kit@exp @iconify-json/mdi unplugin-icons -D
-```
+pnpm add remult@exp remult-kit@exp -D
 
-Don't forget to add the `experimentalDecorators` in your `tsconfig.json`:
+# Now you should probably git init & commit.
+# GIT GIT GIT
 
-```json
-{
-  "compilerOptions": {
-    "experimentalDecorators": true
-  }
-}
-```
-
-In `vite.config.ts` add `remultKit` plugin:
-
-```ts
-import { sveltekit } from "@sveltejs/kit/vite";
-import Icons from "unplugin-icons/vite";
-import { defineConfig } from "vite";
-import { remultKit } from "remult-kit/vite";
-
-export default defineConfig({
-  plugins: [remultKit(), Icons({ compiler: "svelte" }), sveltekit()],
-});
-```
-
-_Yes, for now, there is 0 option, you can only follow. Let's speak about it later._
-
-```bash
-# Maybe git init now?
-# Generate a few files
+# Then run => Generate a few files
 pnpm remult-kit
 
 # Start the dev server
@@ -57,6 +32,13 @@ pnpm dev
 
 - [ ] Add code here
 - [ ] Speak about it everywhere
+
+## FAQ
+
+- Why `remultKit` \* 3 ?
+  - `remultKit` from `remult-kit/vite` => for vite `vite.config.ts`
+  - `remultKit` from `remult-kit/api` => for route `./src/routes/[...remult].ts`
+  - `remultKit` from `remult-kit/handle` => for `hooks.servers.ts`
 
 ## Notes
 
