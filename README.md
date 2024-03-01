@@ -6,6 +6,8 @@ _This is early, you should not use it ! 😉_
 
 First thing first, you should do the [Remult SvelteKit tutorial](https://remult.dev/tutorials/sveltekit/) to understand the basics. Now that you know most of the things, you can use `remult-kit` to build your application and enjoy a few tweaks to make your life easier in SvelteKit.
 
+## 🌐 [Check the doc](https://remult-kit-static.onrender.com/)
+
 ## Installation
 
 ```bash
@@ -39,22 +41,15 @@ pnpm dev
 - Using `Field` component to display a remult field
 - `KitBaseEnum` to create an enum
 - `KitBaseItemLight` to hold a "magic" object usefull in many situations
-- `kitBuilder` to build forms!
+- `kitCellsBuilder` to build forms!
 - `dialog`
 
 OMG, we have so much to explain :) It will be fun!
 
-## FAQ
-
-- Why `remultKit` \* 3 ?
-  - `remultKit` from `remult-kit/vite` => for vite `vite.config.ts`
-  - `remultKit` from `remult-kit/api` => for route `./src/routes/[...remult].ts`
-  - `remultKit` from `remult-kit/handle` => for `hooks.servers.ts`
-
 ## Todos
 
 - [ ] Add code here
-- [ ] Speak about it everywhere
+- [ ] Speak about it everywhere 😅
 
 ## Notes
 
