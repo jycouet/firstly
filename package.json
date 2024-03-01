@@ -1,0 +1,38 @@
+{
+  "name": "remult-kit",
+  "version": "0.0.0",
+  "description": "An opinionated Remult setup !",
+  "keywords": [
+    "remult",
+    "svelte",
+    "sveltekit"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": "./esm/bin/cmd.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jycouet/remult-kit",
+    "homepage": "https://github.com/jycouet/remult-kit"
+  },
+  "scripts": {
+    "//// ---- TODO ---- ////": ""
+  },
+  "peerDependencies": {},
+  "devDependencies": {},
+  "dependencies": {},
+  "sideEffects": false,
+  "publishConfig": {
+    "directory": "dist",
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*"
+  ],
+  "exports": {},
+  "engines": {
+    "node": ">=18"
+  }
+}

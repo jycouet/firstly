@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: remult-kit-static
+    env: static
+    repo: https://github.com/jycouet/remult-kit
+    # region: frankfurt
+    # plan: Free
+    branch: main
+    buildCommand: npm i -g pnpm; pnpm install --production=false; pnpm -F docs build
+    staticPublishPath: ./docs/build
+    # numInstances: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 21.2.0
+    #   - key: TZ
+    #     value: utc
+    #   - key: NODE_ENV
+    #     value: production

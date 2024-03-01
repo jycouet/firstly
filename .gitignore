@@ -1,0 +1,29 @@
+node_modules
+build
+dist
+.svelte-kit
+.env
+.env.*
+!.env.example
+!.env.test
+# temp file - automatically generated running the project on windows
+vite.config.ts.timestamp*
+.sveltepress
+
+# very app centric
+coverage
+playwright-report
+DEPLOY_AUTHOR
+DEPLOY_DATETIME
+$kitql
+$houdini
+test-results
+.turbo
+.nx/cache
+dev-dist
+.DS_Store
+
+# Sentry
+.sentryclirc
+sentry.properties
+node_modules
