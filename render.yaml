@@ -7,7 +7,7 @@ services:
     # plan: Free
     branch: main
     buildCommand: npm i -g pnpm; pnpm install --production=false; pnpm -F docs build
-    staticPublishPath: ./docs/build
+    staticPublishPath: ./docs/dist
     # numInstances: 1
     envVars:
       - key: NODE_VERSION
