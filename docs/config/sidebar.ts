@@ -1,14 +1,14 @@
 export const sidebar = {
-  "/guide/": [
+  '/guide/': [
     {
-      title: "Introduction",
+      title: 'Introduction',
       collapsible: true,
       items: [
         {
-          title: "Getting Started",
-          to: "/guide/getting-started/",
+          title: 'Getting Started',
+          to: '/guide/getting-started/',
         },
       ],
     },
   ],
-};
+}

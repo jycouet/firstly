@@ -15,12 +15,10 @@
     "url": "https://github.com/jycouet/remult-kit",
     "homepage": "https://github.com/jycouet/remult-kit"
   },
-  "scripts": {
-    "//// ---- TODO ---- ////": ""
+  "scripts": {},
+  "devDependencies": {
+    "@kitql/eslint-config": "^0.3.1"
   },
-  "peerDependencies": {},
-  "devDependencies": {},
-  "dependencies": {},
   "sideEffects": false,
   "publishConfig": {
     "directory": "dist",

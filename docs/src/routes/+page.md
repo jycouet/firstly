@@ -1,7 +1,9 @@
 ---
 title: Welcome to Remult Kit
 heroImage: /remult-kit.svg
-tagline: Transform your development workflow with built-in essentials Modules like Auth, Media, ... supercharge them with community modules and your own custom ones!
+tagline:
+  Transform your development workflow with built-in essentials Modules like Auth, Media, ...
+  supercharge them with community modules and your own custom ones!
 actions:
   - label: View on github
     type: primary

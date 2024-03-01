@@ -10,7 +10,21 @@ const config = {
   kit: {
     adapter: adapter({
       pages: 'dist',
+      fallback: '404.html',
     }),
+    prerender: {
+      // handleMissingId: "ignore",
+      handleHttpError: ({ path, _referrer, message }) => {
+        // TODO Why it's like this?
+        // ignore deliberate link to shiny 404 page
+        if (path === '/.https://github.com/jycouet/remult-kit') {
+          return
+        }
+
+        // otherwise fail the build
+        throw new Error(message)
+      },
+    },
   },
 }
 
