@@ -10,22 +10,22 @@ import { remultKit } from './src/lib/vite'
 
 /** @type {import('vite').UserConfig} */
 const config = defineConfig({
-	plugins: [
-		remultKit(),
-		sveltekit(),
-		kitRoutes<KIT_ROUTES>({
-			logs: {
-				post_update_run: false,
-				update: false,
-			},
-			LINKS: {
-				remult_admin: '/api/admin',
-			},
-		}),
-	],
-	test: {
-		include: ['src/**/*.{test,spec}.{js,ts}'],
-	},
+  plugins: [
+    remultKit(),
+    sveltekit(),
+    kitRoutes<KIT_ROUTES>({
+      logs: {
+        post_update_run: false,
+        update: false,
+      },
+      LINKS: {
+        remult_admin: '/api/admin',
+      },
+    }),
+  ],
+  test: {
+    include: ['src/**/*.{test,spec}.{js,ts}'],
+  },
 })
 
 export default config

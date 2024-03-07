@@ -24,42 +24,42 @@ import { logAuth, type KitOAuth2Provider } from '../'
  * _FYI: STRAVA_REDIRECT_URI is optional as auth module will default to "${origin}/api/auth_callback"._
  */
 export function strava(options?: {
-	clientID: string
-	secret: string
-	redirectURI?: string
-	authorizationURLOptions?: ReturnType<
-		KitOAuth2Provider<'strava', Strava>['authorizationURLOptions']
-	>
-	log?: boolean
+  clientID: string
+  secret: string
+  redirectURI?: string
+  authorizationURLOptions?: ReturnType<
+    KitOAuth2Provider<'strava', Strava>['authorizationURLOptions']
+  >
+  log?: boolean
 }): KitOAuth2Provider<'strava', Strava> {
-	const name = 'strava'
+  const name = 'strava'
 
-	const clientID = options?.clientID ?? env.GITHUB_CLIENT_ID ?? ''
-	const secret = options?.secret ?? env.GITHUB_CLIENT_SECRET ?? ''
-	checkOAuthConfig(name, clientID, secret, false)
+  const clientID = options?.clientID ?? env.GITHUB_CLIENT_ID ?? ''
+  const secret = options?.secret ?? env.GITHUB_CLIENT_SECRET ?? ''
+  checkOAuthConfig(name, clientID, secret, false)
 
-	return {
-		name,
-		isPKCE: false,
-		getArcticProvider: () => {
-			const redirectURI = options?.redirectURI || `${remult.context.url.origin}/api/auth_callback`
-			checkOAuthConfig(name, clientID, secret, true)
-			return new Strava(clientID, secret, redirectURI)
-		},
-		authorizationURLOptions: () => {
-			return options?.authorizationURLOptions ?? { scopes: [] }
-		},
-		getUserInfo: async (tokens) => {
-			const res = await fetch('https://www.strava.com/api/v3/athlete', {
-				headers: {
-					Authorization: `Bearer ${tokens.accessToken}`,
-				},
-			})
-			const user = await res.json()
-			if (options?.log) {
-				logAuth.info(`user`, user)
-			}
-			return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
-		},
-	}
+  return {
+    name,
+    isPKCE: false,
+    getArcticProvider: () => {
+      const redirectURI = options?.redirectURI || `${remult.context.url.origin}/api/auth_callback`
+      checkOAuthConfig(name, clientID, secret, true)
+      return new Strava(clientID, secret, redirectURI)
+    },
+    authorizationURLOptions: () => {
+      return options?.authorizationURLOptions ?? { scopes: [] }
+    },
+    getUserInfo: async (tokens) => {
+      const res = await fetch('https://www.strava.com/api/v3/athlete', {
+        headers: {
+          Authorization: `Bearer ${tokens.accessToken}`,
+        },
+      })
+      const user = await res.json()
+      if (options?.log) {
+        logAuth.info(`user`, user)
+      }
+      return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
+    },
+  }
 }

@@ -16,59 +16,58 @@ const keys = ['all', 'module-demo', 'dependencies'] as const
 
 type Keys = (typeof keys)[number]
 const options: { value: Keys; label: string; hint?: string | undefined }[] = [
-	{
-		value: 'all',
-		label: 'All',
-		hint: 'If you are starting a new project, this is for you!',
-	},
-	{
-		value: 'module-demo',
-		label: 'module tasks',
-		hint:
-			'A default module with a task entity and a controller (you can rename the folder and make it yours)',
-	},
-	{
-		value: 'dependencies',
-		label: 'dependencies',
-		hint: 'Add all dependencies that make sense to use with remult-kit',
-	},
+  {
+    value: 'all',
+    label: 'All',
+    hint: 'If you are starting a new project, this is for you!',
+  },
+  {
+    value: 'module-demo',
+    label: 'module tasks',
+    hint: 'A default module with a task entity and a controller (you can rename the folder and make it yours)',
+  },
+  {
+    value: 'dependencies',
+    label: 'dependencies',
+    hint: 'Add all dependencies that make sense to use with remult-kit',
+  },
 ]
 
 const res = (await p.multiselect({
-	message: 'You can generate different things here',
-	options,
+  message: 'You can generate different things here',
+  options,
 })) as Keys[]
 
 pkg.devDependencies = {
-	'@kitql/eslint-config': '0.3.0',
-	'@kitql/helpers': '0.8.8',
-	remult: '0.25.5',
-	'vite-plugin-kit-routes': '0.5.2',
-	pg: '8.11.3',
-	...pkg.devDependencies,
+  '@kitql/eslint-config': '0.3.0',
+  '@kitql/helpers': '0.8.8',
+  remult: '0.25.5',
+  'vite-plugin-kit-routes': '0.5.2',
+  pg: '8.11.3',
+  ...pkg.devDependencies,
 }
 pkg.scripts = {
-	...pkg.scripts,
-	'//// ---- BEST PRACTICES ---- ////': '',
-	lint: 'kitql-lint',
-	format: 'kitql-lint -f',
+  ...pkg.scripts,
+  '//// ---- BEST PRACTICES ---- ////': '',
+  lint: 'kitql-lint',
+  format: 'kitql-lint -f',
 }
 if (res.includes('all') || res.includes('dependencies')) {
-	write('./package.json', [JSON.stringify(pkg, null, 2)])
+  write('./package.json', [JSON.stringify(pkg, null, 2)])
 }
 
 const obj = {
-	'./.eslintrc.cjs': [
-		`module.exports = {
+  './.eslintrc.cjs': [
+    `module.exports = {
     extends: ['@kitql'],
     rules: {
       // Your overrides here
     }
   }
   `,
-	],
-	'./.prettierignore': [
-		`node_modules/
+  ],
+  './.prettierignore': [
+    `node_modules/
   dist/
   build
   .vs
@@ -88,9 +87,9 @@ const obj = {
   db/
   src/lib/ROUTES.ts
   `,
-	],
-	'./.prettierrc.cjs': [
-		`const {
+  ],
+  './.prettierrc.cjs': [
+    `const {
     //plugins,
     ...prettierConfig
   } = require('@kitql/eslint-config/.prettierrc.cjs')
@@ -99,9 +98,9 @@ const obj = {
     ...prettierConfig,
     // Your overrides here
   }`,
-	],
-	'.env.example': [
-		`# Enable some roles
+  ],
+  '.env.example': [
+    `# Enable some roles
 # KIT_ADMIN = 'JYC'
 # KIT_AUTH_ADMIN = ''
 
@@ -109,9 +108,9 @@ const obj = {
 GITHUB_CLIENT_ID = ''
 GITHUB_CLIENT_SECRET = ''
 `,
-	],
-	'./src/lib/remult-kit/index.ts': [
-		`import { remultKit } from 'remult-kit/api'
+  ],
+  './src/lib/remult-kit/index.ts': [
+    `import { remultKit } from 'remult-kit/api'
 import { auth } from 'remult-kit/auth'
 // import { github } from 'remult-kit/auth/providers'
 import { Log } from '@kitql/helpers'
@@ -177,9 +176,9 @@ export const api = remultKit({
   ],
 })
 `,
-	],
-	'./src/hooks.server.ts': [
-		`import { sequence } from '@sveltejs/kit/hooks'
+  ],
+  './src/hooks.server.ts': [
+    `import { sequence } from '@sveltejs/kit/hooks'
 
 import { remultKit } from 'remult-kit/handle'
 
@@ -187,19 +186,19 @@ import { api } from '${libAlias}/remult-kit'
 
 export const handle = sequence(remultKit(api))
 `,
-	],
-	'./src/routes/api/[...remult]/+server.ts': [
-		`import { api } from '${libAlias}/remult-kit'
+  ],
+  './src/routes/api/[...remult]/+server.ts': [
+    `import { api } from '${libAlias}/remult-kit'
 
 export const GET = api.server.GET
 export const POST = api.server.POST
 export const PUT = api.server.PUT
 export const DELETE = api.server.DELETE
 `,
-	],
-	'./src/routes/+page.svelte': [`Home 👋`, ``],
-	'./src/routes/+layout.server.ts': [
-		`import { remult } from 'remult'
+  ],
+  './src/routes/+page.svelte': [`Home 👋`, ``],
+  './src/routes/+layout.server.ts': [
+    `import { remult } from 'remult'
 
 import type { LayoutServerLoad } from './$types'
 
@@ -207,9 +206,9 @@ export const load = (async () => {
   return { user: remult.user }
 }) satisfies LayoutServerLoad	
 `,
-	],
-	'./src/routes/+layout.svelte': [
-		`<script lang="ts">
+  ],
+  './src/routes/+layout.svelte': [
+    `<script lang="ts">
   import { remult } from 'remult'
   import { isError } from 'remult-kit'
   import { AuthController } from 'remult-kit/auth'
@@ -278,9 +277,9 @@ export const load = (async () => {
 |
 <a href={route('github', { owner: 'remult', repo: 'remult' })} target="_blank">⭐️ remult</a>
 `,
-	],
-	'./tsconfig.json': [
-		`{
+  ],
+  './tsconfig.json': [
+    `{
   "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
     "experimentalDecorators": true,
@@ -300,9 +299,9 @@ export const load = (async () => {
   // from the referenced tsconfig.json - TypeScript does not merge them in
 }
 `,
-	],
-	'./vite.config.ts': [
-		`import { sveltekit } from '@sveltejs/kit/vite'
+  ],
+  './vite.config.ts': [
+    `import { sveltekit } from '@sveltejs/kit/vite'
 import { defineConfig } from 'vite'
 import { kitRoutes } from 'vite-plugin-kit-routes'
 
@@ -320,9 +319,9 @@ export default defineConfig({
   ],
 })
 `,
-	],
-	'./src/lib/remult-kit/modules/tasks/index.ts': [
-		`import { BackendMethod, Entity, Field, Fields, ValueListFieldType } from 'remult'
+  ],
+  './src/lib/remult-kit/modules/tasks/index.ts': [
+    `import { BackendMethod, Entity, Field, Fields, ValueListFieldType } from 'remult'
 import { KitBaseEnum, LibIcon_Add, LibIcon_Delete, type KitBaseEnumOptions } from 'remult-kit'
 import type { Module } from 'remult-kit/api'
 
@@ -388,29 +387,29 @@ export const tasks: (o: { specialInfo: string }) => Module = ({ specialInfo }) =
   }
 }
 `,
-	],
+  ],
 }
 
 for (const [path, content] of Object.entries(obj)) {
-	if (res.includes('all')) {
-		write(path, content)
-	} else {
-		if (res.includes('module-demo')) {
-			if (path === './src/lib/remult-kit/modules/tasks/index.ts') {
-				write(path, content)
-			}
-		}
-	}
+  if (res.includes('all')) {
+    write(path, content)
+  } else {
+    if (res.includes('module-demo')) {
+      if (path === './src/lib/remult-kit/modules/tasks/index.ts') {
+        write(path, content)
+      }
+    }
+  }
 }
 
 p.outro(`🎉 Everything is ok, happy coding!`)
 
 new Log('').info(
-	gray(
-		italic(
-			`${bold('❔ More help')} ` +
-				`at ${cyan('https://github.com/jycouet/remult-kit')} ` +
-				`(📄 Docs, ⭐ Github, 📣 Discord, ...)\n`,
-		),
-	),
+  gray(
+    italic(
+      `${bold('❔ More help')} ` +
+        `at ${cyan('https://github.com/jycouet/remult-kit')} ` +
+        `(📄 Docs, ⭐ Github, 📣 Discord, ...)\n`,
+    ),
+  ),
 )
