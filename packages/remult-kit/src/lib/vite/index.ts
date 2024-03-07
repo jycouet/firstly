@@ -11,7 +11,7 @@ export function remultKit(options?: { stripper?: { debug?: boolean } }): Plugin[
       name: 'vite-plugin-remult-kit',
       enforce: 'pre',
 
-      config: async (a, b) => {
+      config: async (a) => {
         // THE ERROR:
         // RollupError: Unexpected character '�'
         // This code (A) is to fix in `build` mode

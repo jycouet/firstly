@@ -64,7 +64,7 @@
   const {
     elements: { menu, input, option },
     states: { open, inputValue, touchedInput, selected: localSelected },
-    helpers: { isSelected },
+    // helpers: { isSelected },
   } = createCombobox<KitBaseItem>({
     forceVisible: true,
     disabled,

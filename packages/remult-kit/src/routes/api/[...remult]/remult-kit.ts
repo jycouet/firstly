@@ -37,7 +37,7 @@ export const modules: Module[] = [
       h.event.setHeaders({ 'x-remult': 'hello' })
       return await h.resolve(h.event)
     },
-    earlyReturn: async (h) => {
+    earlyReturn: async () => {
       return {
         early: false,
       }
