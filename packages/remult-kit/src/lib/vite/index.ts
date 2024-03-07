@@ -27,6 +27,7 @@ export function remultKit(options?: { stripper?: { debug?: boolean } }): Plugin[
       },
     },
 
+    // @ts-ignore
     ...stripper({
       decorators: ['BackendMethod'],
       debug: options?.stripper?.debug ?? false,

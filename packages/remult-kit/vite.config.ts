@@ -6,13 +6,12 @@ import type { KIT_ROUTES } from '$lib/ROUTES'
 
 import { remultKit } from './src/lib/vite'
 
-// import { remultKit } from './src/lib/vite/vite'
-
-/** @type {import('vite').UserConfig} */
 const config = defineConfig({
   plugins: [
     remultKit(),
+    // @ts-ignore
     sveltekit(),
+    // @ts-ignore
     kitRoutes<KIT_ROUTES>({
       logs: {
         post_update_run: false,
