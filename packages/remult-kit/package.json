@@ -91,6 +91,7 @@
     "@melt-ui/svelte": "0.75.3",
     "arctic": "1.2.0",
     "clsx": "2.1.0",
+    "daisyui": "4.7.0",
     "esm-env": "1.0.0",
     "lucia": "3.0.1",
     "oslo": "1.1.0",
