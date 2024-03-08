@@ -6,14 +6,7 @@
   import { page } from '$app/stores'
 
   import { FeedbackController } from '..'
-  import {
-    Button,
-    Field,
-    FilterEntity,
-    kitCellBuildor,
-    Loading,
-    type ResolvedType,
-  } from '../..'
+  import { Button, Field, FilterEntity, kitCellBuildor, Loading, type ResolvedType } from '../..'
   import Textarea from '../../ui/internals/Textarea.svelte'
 
   export let dialogId: number

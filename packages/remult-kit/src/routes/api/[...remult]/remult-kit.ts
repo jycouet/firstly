@@ -1,11 +1,8 @@
-import { Entity, Fields } from 'remult';
+import { Entity, Fields } from 'remult'
 
-
-
-import { remultKit, type Module } from '$lib/api';
-import { auth, KitAuthUser } from '$lib/auth';
-import { github } from '$lib/auth/providers';
-import { read } from '@kitql/internals';;
+import { remultKit, type Module } from '$lib/api'
+import { auth, KitAuthUser } from '$lib/auth'
+import { github } from '$lib/auth/providers'
 
 const Role = {
   ADMIN: 'admin',
