@@ -75,8 +75,8 @@
     "push": "cd dist && npm publish --tag exp",
     "test:bin": "pnpm build && node ./dist/esm/bin/cmd.js",
     "test:e2e_HOLD": "playwright test",
-    "test:unit": "vitest",
-    "test:unit:ci": "vitest run",
+    "test:unit": "TZ=Europe/Paris vitest",
+    "test:unit:ci": "TZ=Europe/Paris vitest run",
     "ts": "svelte-check --tsconfig ./tsconfig.json",
     "ts:w": "svelte-check --tsconfig ./tsconfig.json --watch"
   },
@@ -87,6 +87,7 @@
   },
   "dependencies": {
     "@clack/prompts": "0.7.0",
+    "@js-temporal/polyfill": "^0.4.4",
     "@mdi/js": "7.4.47",
     "@melt-ui/svelte": "0.75.3",
     "arctic": "1.2.0",
@@ -95,7 +96,6 @@
     "esm-env": "1.0.0",
     "lucia": "3.0.1",
     "oslo": "1.1.0",
-    "proposal-temporal": "0.9.0",
     "remult": "0.25.6-exp.7",
     "tailwind-merge": "2.2.0",
     "tailwindcss": "3.4.1",

@@ -1,12 +1,10 @@
-import { Temporal } from 'proposal-temporal'
+import { Temporal } from '@js-temporal/polyfill'
 import { describe, expect, it } from 'vitest'
 
 import { offsetedToPlainDate, plainDateCompare } from './dates'
 
 describe('offseted', () => {
   it('a 22h', () => {
-    console.info(`process.env.TZ`, process.env.TZ)
-
     const result = offsetedToPlainDate(new Date('2024-04-01T22:00:00.000Z'))
     expect(result.toJSON()).toEqual('2024-04-02')
   })

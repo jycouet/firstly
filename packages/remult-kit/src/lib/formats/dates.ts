@@ -1,10 +1,10 @@
-import { Temporal } from 'proposal-temporal'
+import { Temporal } from '@js-temporal/polyfill'
 
 export const offsetedToPlainDate = (dt: Date) => {
   const userTimezoneOffset = dt.getTimezoneOffset() * 60000
-  console.info(`userTimezoneOffset`, userTimezoneOffset)
-
-  return Temporal.PlainDate.from(new Date(dt.getTime() - userTimezoneOffset).toISOString())
+  const adjustedDate = new Date(dt.getTime() - userTimezoneOffset)
+  const ti = Temporal.Instant.from(adjustedDate.toISOString())
+  return ti.toZonedDateTimeISO('UTC').toPlainDate()
 }
 
 /**
