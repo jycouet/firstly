@@ -15,7 +15,9 @@
     "url": "https://github.com/jycouet/remult-kit",
     "homepage": "https://github.com/jycouet/remult-kit"
   },
-  "scripts": {},
+  "scripts": {
+    "reset": "git clean -xdf"
+  },
   "devDependencies": {
     "@kitql/eslint-config": "^0.3.1"
   },
