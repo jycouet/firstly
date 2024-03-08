@@ -129,10 +129,6 @@ declare module 'remult' {
     // Currently only for filtering.
     multiSelect?: boolean
 
-    // to not get all the list, but a filtered list
-    // to replace by `findOptions` native of remult?
-    // We need a function so that we can access remult.user
-    narrowFind?: () => FindOptionsBase<valueType>
     narrowFindFunc?: (params: { id?: string; siteId?: number }) => FindOptionsBase<valueType>
   }
 
