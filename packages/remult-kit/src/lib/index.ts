@@ -43,7 +43,7 @@ export type { KitBaseEnumOptions } from './KitBaseEnum.js'
 export { KitFields } from './KitFields.js'
 export { KitValidators } from './KitValidators.js'
 export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
-export { getRepoDisplayValue } from './helper.js'
+export { getRepoDisplayValue, isError } from './helper.js'
 export {
   buildWhere,
   getPlaceholder,
@@ -52,14 +52,31 @@ export {
   kitCellBuildor,
   fieldsOf,
 } from './kitCellsBuildor.js'
-export type { KitCell } from './kitCellsBuildor.js'
-
 export { kitStoreItem }
-
 export { kitStoreList }
+
+export type KitCellsInput<entityType> = KitCellsInputForExport<entityType>
+export type { KitCell } from './kitCellsBuildor.js'
+export type { FindOptionsPlus } from './kitStoreList.js'
+export type KitBaseItem = KitBaseEnumOptions & {
+  id: string
+  captionSub?: string | (string | undefined)[]
+  href?: string
+  repo?: Repository<any>
+  sub?: {
+    captionPre?: string
+    repo?: Repository<any>
+    item?: any
+  }
+}
+export type KitStoreItem<T> = ReturnType<typeof kitStoreItem<T>>
+export type KitStoreList<T> = ReturnType<typeof kitStoreList<T>>
+export type KitBaseItemLight = Partial<KitBaseItem>
+
 export { FilterEntity } from './virtual/FilterEntity.js'
 export { UIEntity } from './virtual/UIEntity.js'
-export { displayPhone, arrToStr } from './formats/strings.js'
+
+// Icons
 export {
   LibIcon_Empty,
   LibIcon_Forbidden,
@@ -79,36 +96,16 @@ export {
   LibIcon_Woman,
   LibIcon_MultiCheck,
 } from './ui/LibIcon.js'
-export type { FindOptionsPlus } from './kitStoreList.js'
-export { isError } from './helper.js'
-
-export type KitBaseItem = KitBaseEnumOptions & {
-  id: string
-  captionSub?: string | (string | undefined)[]
-  href?: string
-  repo?: Repository<any>
-  sub?: {
-    captionPre?: string
-    repo?: Repository<any>
-    item?: any
-  }
-}
-
-export type KitStoreItem<T> = ReturnType<typeof kitStoreItem<T>>
-export type KitStoreList<T> = ReturnType<typeof kitStoreList<T>>
-
-export { litOrStr } from './utils/types.js'
-
-export type KitBaseItemLight = Partial<KitBaseItem>
 
 export type { KitIcon }
 
+// Formats & Utils
+export { displayPhone, arrToStr } from './formats/strings.js'
 export { displayCurrency } from './formats/numbers.js'
 export { tw } from './utils/tailwind.js'
-
-export type KitCellsInput<entityType> = KitCellsInputForExport<entityType>
-
+export { litOrStr } from './utils/types.js'
 export type { ResolvedType, UnArray } from './utils/types.js'
+
 declare module 'remult' {
   export interface RemultContext {
     url: URL

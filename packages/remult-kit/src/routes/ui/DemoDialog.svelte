@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  import { dialog } from '$lib'
   import Button from '$lib/ui/Button.svelte'
+  import { dialog } from '$lib/ui/dialog/dialog'
 
   export let dialogId: number
 
