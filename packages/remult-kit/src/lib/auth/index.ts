@@ -22,6 +22,9 @@ import { RoleController } from './RoleController'
 export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'
 export { AuthController } from './AuthController'
 
+import { read } from '@kitql/internals';;
+
+
 // I's sure that we can do better than that! ;)
 export type AuthorizationURLOptions = Record<
   string,
@@ -174,6 +177,16 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     },
     earlyReturn: async ({ event, resolve }) => {
+
+      if (event.url.pathname === '/api/login') {
+          return {
+            early: true,
+            resolve: new Response(read("static/ui/index.html"), {
+              headers: { 'content-type': 'text/html' }
+            })
+          }
+      }
+
       if (event.url.pathname === '/api/auth_callback') {
         const code = event.url.searchParams.get('code')
         const state = event.url.searchParams.get('state')
