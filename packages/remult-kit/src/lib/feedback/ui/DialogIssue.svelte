@@ -11,7 +11,6 @@
     Field,
     FilterEntity,
     kitCellBuildor,
-    kitCellsBuildor,
     Loading,
     type ResolvedType,
   } from '../..'
