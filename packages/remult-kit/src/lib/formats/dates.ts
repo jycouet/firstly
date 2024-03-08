@@ -1,5 +1,10 @@
 import { Temporal } from '@js-temporal/polyfill'
 
+export const dateISOToPlainDate = (iso: string) => {
+  const ti = Temporal.Instant.from(iso)
+  return ti.toZonedDateTimeISO('UTC').toPlainDate()
+}
+
 export const offsetedToPlainDate = (dt: Date) => {
   const userTimezoneOffset = dt.getTimezoneOffset() * 60000
   const adjustedDate = new Date(dt.getTime() - userTimezoneOffset)
@@ -7,16 +12,15 @@ export const offsetedToPlainDate = (dt: Date) => {
   return ti.toZonedDateTimeISO('UTC').toPlainDate()
 }
 
+export type KitPlainDateRange = {
+  from: Temporal.PlainDate
+  to: Temporal.PlainDate
+}
+
 /**
  * in `range`, `from` is inclusive and `to` is exclusive
  */
-export const isBetween = (
-  dt: Temporal.PlainDate,
-  range: {
-    from: Temporal.PlainDate
-    to: Temporal.PlainDate
-  },
-) => {
+export const isBetween = (dt: Temporal.PlainDate, range: KitPlainDateRange) => {
   return plainDateCompare(dt, { $gte: range.from, $lt: range.to })
 }
 
