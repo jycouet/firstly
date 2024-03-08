@@ -39,7 +39,7 @@ export type KitCell<Entity> = KitCellInternal<Entity> & {
 export type KitCellsInput<Entity> = (keyof Entity | KitCellInternal<Entity>)[]
 
 /**
- * kitCellsBuildor is a function to build cells for a <Grid /> or <EachFields /> component.
+ * kitCellsBuildor is a function to build cells for a <Grid /> or <FieldGroup /> component.
  *
  * ```html
  * <script lang="ts">

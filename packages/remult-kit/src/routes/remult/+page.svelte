@@ -1,7 +1,7 @@
 <script lang="ts">
   import { remult } from 'remult'
 
-  import { EachFields, kitCellsBuildor, kitStoreItem, UIEntity } from '$lib'
+  import { FieldGroup, kitCellsBuildor, kitStoreItem, UIEntity } from '$lib'
 
   const repo = remult.repo(UIEntity)
 
@@ -35,6 +35,6 @@
     class="btn btn-primary">Edit</button
   >
   <div class="grid grid-cols-3 gap-4">
-    <EachFields {cells} {store} mode={isEdit ? 'edit' : 'view'} />
+    <FieldGroup {cells} {store} mode={isEdit ? 'edit' : 'view'} />
   </div>
 </form>
