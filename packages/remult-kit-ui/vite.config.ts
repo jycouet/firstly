@@ -3,9 +3,10 @@ import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [svelte({})],
+  plugins: [svelte()],
   build: {
-    outDir: '../remult-kit/src/lib/auth/ui',
+    outDir: '../remult-kit/src/lib/auth/static',
+    emptyOutDir: true,
     assetsDir: './assets',
   },
   server: {

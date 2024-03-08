@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "rm -rf ../remult-kit/src/lib/auth/ui && vite build --base=/ui",
+    "build": "vite build --base=/ui",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "dev": "vite",
     "preview": "vite preview"

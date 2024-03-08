@@ -175,7 +175,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     },
     earlyReturn: async ({ event, resolve }) => {
-      if (event.url.pathname === '/api/login') {
+      if (event.url.pathname.startsWith('/api-kit/login')) {
         const remultKitData = {
           component: 'One',
           button: {
