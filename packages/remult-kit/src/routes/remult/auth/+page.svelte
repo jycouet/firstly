@@ -3,8 +3,9 @@
 
   import { invalidateAll } from '$app/navigation'
 
-  import { Button, isError } from '$lib'
+  import { isError } from '$lib'
   import { AuthController } from '$lib/auth/AuthController.js'
+  import Button from '$lib/ui/Button.svelte'
 
   let msgError = ''
   let msgSuccess = ''

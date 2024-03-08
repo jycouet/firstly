@@ -34,7 +34,6 @@ function checkPassword(password: string) {
 }
 
 export async function createSession(userId: string) {
-  const { lucia } = await import('.')
   const session = await lucia.createSession(userId, {})
   const sessionCookie = lucia.createSessionCookie(session.id)
 
@@ -47,7 +46,6 @@ export class AuthController {
    */
   @BackendMethod({ allowed: true })
   static async signOut() {
-    const { lucia } = await import('.')
     if (remult.user?.session.id) {
       await lucia.invalidateSession(remult.user?.session.id)
     }
