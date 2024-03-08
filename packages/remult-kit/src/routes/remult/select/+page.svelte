@@ -3,19 +3,19 @@
 
   import { kitStoreItem } from '$lib'
   import { kitCellsBuildor } from '$lib/kitCellsBuildor'
-  import EachFields from '$lib/ui/EachFields.svelte'
+  import FieldGroup from '$lib/ui/FieldGroup.svelte'
   import { UIEntity } from '$lib/virtual/UIEntity'
 
   const repo = remult.repo(UIEntity)
 
-  const cells = kitCellsBuildor(repo)(['state'])
+  const cells = kitCellsBuildor(repo, ['state'])
 
   const store = kitStoreItem(repo)
   store.fetch(-1)
 </script>
 
 <div class="grid grid-cols-3 gap-4">
-  <EachFields {cells} {store} />
+  <FieldGroup {cells} {store} />
   <div></div>
   <div></div>
 

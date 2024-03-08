@@ -10,8 +10,8 @@ import { kitStoreItem } from './kitStoreItem.js'
 import { kitStoreList } from './kitStoreList.js'
 import { default as Button } from './ui/Button.svelte'
 import { default as DialogManagement } from './ui/dialog/DialogManagement.svelte'
-import { default as EachFields } from './ui/EachFields.svelte'
 import { default as Field } from './ui/Field.svelte'
+import { default as FieldGroup } from './ui/FieldGroup.svelte'
 import { default as Grid } from './ui/Grid.svelte'
 import { default as GridPaginate } from './ui/GridPaginate.svelte'
 import { default as Icon } from './ui/Icon.svelte'
@@ -28,7 +28,7 @@ export {
   Field,
   Grid,
   GridPaginate,
-  EachFields,
+  FieldGroup,
   Icon,
   Link,
   LinkPlus,

@@ -2,7 +2,7 @@
   import { writable } from 'svelte/store'
 
   import {
-    EachFields,
+    FieldGroup,
     getRepoDisplayValue,
     LibIcon_Add,
     LibIcon_Check,
@@ -16,7 +16,7 @@
   import DialogPrimitive from './DialogPrimitive.svelte'
 
   export let toShow: DialogMetaDataInternal
-  const cells = kitCellsBuildor(toShow.repo!)(toShow.buildor!)
+  const cells = kitCellsBuildor(toShow.repo!, toShow.buildor!)
   const store = kitStoreItem(toShow.repo!)
 
   $: {
@@ -94,7 +94,7 @@
 >
   <form on:submit|preventDefault={add}>
     <div class="grid {toShow.classes?.formGrid ?? ''} gap-4 pb-4">
-      <EachFields {cells} {store} mode={toShow.type === 'view' ? 'view' : 'edit'} />
+      <FieldGroup {cells} {store} mode={toShow.type === 'view' ? 'view' : 'edit'} />
     </div>
 
     <div class="mt-2 flex items-center justify-between">
