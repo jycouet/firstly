@@ -19,3 +19,4 @@ yarn.lock
 # format not working well there for now
 +page.md
 ROUTES.ts
+*.svelte.d.ts
