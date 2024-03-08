@@ -1,5 +1,13 @@
 <script>
-    export let name = 'world';
+  export let name = 'world'
 </script>
 
-This is the component one {name}
+<p>
+  This is the component two {name}
+</p>
+
+<style>
+  p {
+    background-color: green;
+  }
+</style>

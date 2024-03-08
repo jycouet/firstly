@@ -1,29 +1,30 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
+
   import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
   import Counter from './lib/Counter.svelte'
-    import { onMount } from 'svelte'
+  import viteLogo from '/vite.svg'
 
-  export let remultKitData:any;
+  export let remultKitData: any
 
-  let one:any;
-  let two:any;
+  let one: any
+  let two: any
 
-	function loadOne() {
-		one = import('./One.svelte')
-	}
+  function loadOne() {
+    one = import('./One.svelte')
+  }
 
   function loadTwo() {
     two = import('./Two.svelte')
   }
 
   onMount(async () => {
-    console.log('remultKitData', remultKitData);
+    console.log('remultKitData', remultKitData)
 
-    if (remultKitData.component == "One") {
-      loadOne();
-    } else if (remultKitData.component == "Two") {
-      loadTwo();
+    if (remultKitData.component == 'One') {
+      loadOne()
+    } else if (remultKitData.component == 'Two') {
+      loadTwo()
     }
   })
 </script>
@@ -54,17 +55,17 @@
       {/await}
     {/if}
 
-    <button on:click={loadOne}>{remultKitData.button.label}</button>
+    <button on:click={loadOne}>{remultKitData?.button?.label ?? 'no label'}</button>
     <button on:click={loadTwo}>Load Two</button>
   </div>
 
   <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
+    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer"
+      >SvelteKit</a
+    >, the official Svelte app framework powered by Vite!
   </p>
 
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
+  <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
 </main>
 
 <style>

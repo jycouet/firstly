@@ -1,15 +1,20 @@
 import './app.css'
+
 import App from './App.svelte'
+
+// const remultKitData = {
+//   component: 'One',
+//   button: {
+//     label: 'Yop',
+//   },
+// }
 
 const app = new App({
   target: document.getElementById('app'),
-  paths: {
-    base: '/ui',
-    assets: '/ui/assets'
-  },
   props: {
-    remutKitData: remultKitData
-  }
+    // @ts-ignore
+    remultKitData: remultKitData,
+  },
 })
 
 export default app

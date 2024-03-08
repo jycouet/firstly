@@ -9,6 +9,7 @@ import { Lucia, TimeSpan, type SessionCookieOptions } from 'lucia'
 import { remult } from 'remult'
 import type { ClassType, UserInfo } from 'remult'
 import { Log, red } from '@kitql/helpers'
+import { read } from '@kitql/internals'
 
 import { KitRole } from '$lib'
 import type { ResolvedType } from '$lib/utils/types'
@@ -21,9 +22,6 @@ import { RoleController } from './RoleController'
 
 export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'
 export { AuthController } from './AuthController'
-
-import { read } from '@kitql/internals';;
-
 
 // I's sure that we can do better than that! ;)
 export type AuthorizationURLOptions = Record<
@@ -177,14 +175,23 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     },
     earlyReturn: async ({ event, resolve }) => {
-
       if (event.url.pathname === '/api/login') {
-          return {
-            early: true,
-            resolve: new Response(read("static/ui/index.html"), {
-              headers: { 'content-type': 'text/html' }
-            })
-          }
+        const remultKitData = {
+          component: 'One',
+          button: {
+            label: 'Yop5',
+          },
+        }
+        return {
+          early: true,
+          resolve: new Response(
+            read('static/ui/index.html') +
+              `<script>const remultKitData = ${JSON.stringify(remultKitData)}</script>`,
+            {
+              headers: { 'content-type': 'text/html' },
+            },
+          ),
+        }
       }
 
       if (event.url.pathname === '/api/auth_callback') {

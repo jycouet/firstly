@@ -1,6 +1,13 @@
 <script>
-    export let name = "yo";
+  export let name = 'yo'
 </script>
 
+<p>
+  This is the component two {name}
+</p>
 
-This is the component two {name}
+<style>
+  p {
+    background-color: red;
+  }
+</style>
