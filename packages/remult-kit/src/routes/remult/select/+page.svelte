@@ -8,7 +8,7 @@
 
   const repo = remult.repo(UIEntity)
 
-  const cells = kitCellsBuildor(repo)(['state'])
+  const cells = kitCellsBuildor(repo, ['state'])
 
   const store = kitStoreItem(repo)
   store.fetch(-1)

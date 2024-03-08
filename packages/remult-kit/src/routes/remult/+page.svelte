@@ -5,7 +5,7 @@
 
   const repo = remult.repo(UIEntity)
 
-  const cells = kitCellsBuildor(repo)([
+  const cells = kitCellsBuildor(repo, [
     'state',
     'id',
     'createdAt',

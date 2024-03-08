@@ -16,7 +16,7 @@
   import DialogPrimitive from './DialogPrimitive.svelte'
 
   export let toShow: DialogMetaDataInternal
-  const cells = kitCellsBuildor(toShow.repo!)(toShow.buildor!)
+  const cells = kitCellsBuildor(toShow.repo!, toShow.buildor!)
   const store = kitStoreItem(toShow.repo!)
 
   $: {

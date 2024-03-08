@@ -1,4 +1,4 @@
-import type { EntityFilter, FieldMetadata, Repository } from 'remult'
+import { repo, type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { getEnum, KitBaseEnum } from './KitBaseEnum.js'
@@ -45,7 +45,7 @@ export type KitCellsInput<Entity> = (keyof Entity | KitCellInternal<Entity>)[]
  * <script lang="ts">
  *   import { repo } from 'remult'
  *
- *   const cells = kitCellsBuildor( repo(Site) )(['name', 'description'])
+ *   const cells = kitCellsBuildor(repo(Site), ['name', 'description'])
  *   const store = kitStoreList( repo(Site) )
  *   $: store.fetch()
  * </script>
@@ -54,39 +54,40 @@ export type KitCellsInput<Entity> = (keyof Entity | KitCellInternal<Entity>)[]
  * ```
  *
  */
-export function kitCellsBuildor<Entity>(repo: Repository<Entity>) {
-  return function (inputBuildor: KitCellsInput<Entity>): KitCell<Entity>[] {
-    const buildor: KitCell<Entity>[] = []
+export function kitCellsBuildor<Entity>(
+  repo: Repository<Entity>,
+  inputBuildor: KitCellsInput<Entity>,
+): KitCell<Entity>[] {
+  const buildor: KitCell<Entity>[] = []
 
-    for (let i = 0; i < inputBuildor.length; i++) {
-      const item = inputBuildor[i]
+  for (let i = 0; i < inputBuildor.length; i++) {
+    const item = inputBuildor[i]
 
-      let b: KitCell<Entity>
-      if (item instanceof Object) {
-        b = { ...item, field: repo.fields[item.col] }
-      } else {
-        b = { col: item, field: repo.fields[item] }
-      }
-
-      // Let's tweak defaults...
-      if (b.kind === undefined) {
-        if (b.field?.options.href) {
-          b.kind = 'field_link'
-        }
-      }
-
-      buildor.push(b)
+    let b: KitCell<Entity>
+    if (item instanceof Object) {
+      b = { ...item, field: repo.fields[item.col] }
+    } else {
+      b = { col: item, field: repo.fields[item] }
     }
 
-    return buildor
+    // Let's tweak defaults...
+    if (b.kind === undefined) {
+      if (b.field?.options.href) {
+        b.kind = 'field_link'
+      }
+    }
+
+    buildor.push(b)
   }
+
+  return buildor
 }
 
 export function kitCellBuildor<Entity>(
   repo: Repository<Entity>,
   inputBuildor: UnArray<KitCellsInput<Entity>>,
 ) {
-  return kitCellsBuildor(repo)([inputBuildor])[0]
+  return kitCellsBuildor(repo, [inputBuildor])[0]
 }
 
 export const fieldsOf = <Entity>(b: KitCell<Entity>[]) => {
