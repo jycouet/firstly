@@ -175,7 +175,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     },
     earlyReturn: async ({ event, resolve }) => {
-      if (event.url.pathname.startsWith('/api-kit/login')) {
+      if (event.url.pathname === '/api/static/login') {
         const remultKitData = {
           component: 'One',
           button: {
@@ -185,12 +185,33 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         return {
           early: true,
           resolve: new Response(
-            read('static/ui/index.html') +
+            read('src/lib/auth/static/index.html') +
               `<script>const remultKitData = ${JSON.stringify(remultKitData)}</script>`,
             {
               headers: { 'content-type': 'text/html' },
             },
           ),
+        }
+      }
+
+      if (event.url.pathname.startsWith('/api/static')) {
+        const content = read(
+          `src/lib/auth/static/${event.url.pathname.replaceAll('/api/static/', '')}`,
+        )
+        if (content) {
+          const seg = event.url.pathname.split('.')
+          const map: Record<string, string> = {
+            js: 'text/javascript',
+            css: 'text/css',
+            svg: 'image/svg+xml',
+          }
+
+          return {
+            early: true,
+            resolve: new Response(content, {
+              headers: { 'content-type': map[seg[seg.length - 1]] ?? 'text/plain' },
+            }),
+          }
         }
       }
 
