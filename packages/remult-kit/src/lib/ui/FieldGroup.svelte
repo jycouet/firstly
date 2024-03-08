@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte'
 	import type { FieldMetadata } from 'remult'
 
-	import { tw, type KitStoreItem } from '../'
+	import { tw, type KitStoreItem } from '..'
 	import type { KitCell } from '../kitCellsBuildor'
 	import Field from './Field.svelte'
 	import FieldContainer from './internals/FieldContainer.svelte'
