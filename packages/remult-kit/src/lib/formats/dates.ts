@@ -2,6 +2,8 @@ import { Temporal } from 'proposal-temporal'
 
 export const offsetedToPlainDate = (dt: Date) => {
   const userTimezoneOffset = dt.getTimezoneOffset() * 60000
+  console.info(`userTimezoneOffset`, userTimezoneOffset)
+
   return Temporal.PlainDate.from(new Date(dt.getTime() - userTimezoneOffset).toISOString())
 }
 
