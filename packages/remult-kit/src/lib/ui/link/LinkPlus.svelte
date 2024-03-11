@@ -5,7 +5,7 @@
 
   export let item: KitBaseItemLight | undefined
   export let noIcon = false
-  export let captionSubStyle: 'under' | 'inline' | 'none' = 'under'
+  export let captionSubStyle: 'under' | 'inline' | 'none' = 'under' // options
 </script>
 
 <div class="flex items-center gap-4">
