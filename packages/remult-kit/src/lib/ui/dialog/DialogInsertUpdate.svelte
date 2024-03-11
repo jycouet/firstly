@@ -97,6 +97,7 @@
       <FieldGroup {cells} {store} mode={toShow.type === 'view' ? 'view' : 'edit'} />
     </div>
 
+    <!-- TODO: make a component out of this div -->
     <div class="mt-2 flex items-center justify-between">
       {#if toShow.type === 'update'}
         {#if toShow.wDelete}
