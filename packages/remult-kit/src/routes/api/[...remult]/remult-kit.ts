@@ -49,26 +49,27 @@ export const modules: Module[] = [
       User: _AppUser,
     },
 
-    // client: {
-    //   paths: {
-    //     base: '/kit',
-    //     signIn: '/sign-in',
-    //     signUp: '/sign-up',
-    //     // forgotPassword: '/forgot-password',
-    //     // resetPassword: '/reset-password',
-    //     // verifyEmail: '/verify-email',
-    //     // profile: '/profile',
-    //   },
-    //   strings: {
-    //     'auth.login': 'Login',
-    //     'auth.signUp': 'Sign up',
-    //     'auth.email': 'Email',
-    //     'auth.password': 'Password',
-    //     'auth.confirmPassword': 'Confirm password',
-    //     'auth.rememberMe': 'Remember me',
-    //     'auth.forgotPassword': 'Forgot password?',
-    //   },
-    // },
+    // TODO: Make it optional
+    client: {
+      paths: {
+        base: '/kit',
+        signIn: '/sign-in',
+        signUp: '/sign-up',
+        // forgotPassword: '/forgot-password',
+        // resetPassword: '/reset-password',
+        // verifyEmail: '/verify-email',
+        // profile: '/profile',
+      },
+      strings: {
+        'auth.login': 'Login',
+        'auth.signUp': 'Sign up',
+        'auth.email': 'Email',
+        'auth.password': 'Password',
+        'auth.confirmPassword': 'Confirm password',
+        'auth.rememberMe': 'Remember me',
+        'auth.forgotPassword': 'Forgot password?',
+      },
+    },
 
     providers: {
       demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.ADMIN] }],
