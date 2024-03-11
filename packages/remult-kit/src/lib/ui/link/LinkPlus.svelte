@@ -5,6 +5,7 @@
 
   export let item: KitBaseItemLight | undefined
   export let noIcon = false
+  export let captionSubStyle: 'under' | 'inline' | 'none' = 'under'
 </script>
 
 <div class="flex items-center gap-4">
@@ -16,13 +17,18 @@
         size={item.icon.size}
       />
     {/if}
-    <div class="flex flex-col">
+    <div class="flex flex-col items-start">
       {#if item.href}
-        <Link href={item.href}>{item.caption}</Link>
+        <div>
+          <Link href={item.href}>{item.caption}</Link>
+          {#if item.captionSub && captionSubStyle === 'inline'}
+            <span class="text-base-content/70 text-xs italic">{item.captionSub}</span>
+          {/if}
+        </div>
       {:else}
         <span class="text-base-content">{item.caption}</span>
       {/if}
-      {#if item.captionSub}
+      {#if item.captionSub && captionSubStyle === 'under'}
         <span class="text-base-content/70 text-xs italic">{item.captionSub}</span>
       {/if}
     </div>

@@ -1,3 +1,5 @@
+import { formatNumber } from './strings.js'
+
 export function displayCurrencyWOSuffix(_entity: any, value: number | undefined): string {
   if (value === undefined) return '-'
   return new Intl.NumberFormat('fr', { currency: 'EUR', style: 'currency' })
@@ -31,15 +33,4 @@ export function displayPercent(value: number | undefined): string {
     return '- %'
   }
   return formatNumber(value) + ' %'
-}
-
-export const formatNumber = (number: number, digitNumber = 2) => {
-  if (number === undefined || number === null || isNaN(number)) {
-    const value = 0
-    return value.toFixed(digitNumber)
-  }
-  return number
-    .toFixed(digitNumber) // decimal digits
-    .replace('.', ',') // replace decimal point character with ,
-    .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ')
 }

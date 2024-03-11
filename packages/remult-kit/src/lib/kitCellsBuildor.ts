@@ -114,6 +114,10 @@ export const buildSearchWhere = <Entity>(
     {
       $or: [
         ...fields.map((f) => {
+          if (f.inputType === 'number') {
+            return { [f.key]: search }
+          }
+
           return { [f.key]: { $contains: search } }
         }),
       ],
