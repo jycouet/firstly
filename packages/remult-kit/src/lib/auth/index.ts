@@ -14,6 +14,7 @@ import { read } from '@kitql/internals'
 import { KitRole } from '$lib'
 import type { ResolvedType } from '$lib/utils/types'
 
+import { oAuths } from '../../routes/api/[...remult]/remult-kit'
 import type { Module } from '../api'
 import { RemultLuciaAdapter } from './Adapter'
 import { AuthController, createSession } from './AuthController'
@@ -81,6 +82,19 @@ type AuthOptions<
     User?: ClassType<TUserEntity>
     Session?: ClassType<TSessionEntity>
     Account?: ClassType<TAccountEntity>
+  }
+
+  client?: {
+    paths?: {
+      base?: string
+      signIn?: string
+      signUp?: string
+      // forgotPassword?: string
+      // resetPassword?: string
+      // verifyEmail?: string
+      // profile?: string
+    }
+    strings?: Record<string, string>
   }
 
   /** in secondes @default 15 days */
@@ -175,12 +189,18 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     },
     earlyReturn: async ({ event, resolve }) => {
-      if (event.url.pathname === '/api/static/login') {
+      // TODO: maange default values
+      const base = AUTH_OPTIONS.client?.paths?.base ?? 'kit'
+      const signin = AUTH_OPTIONS.client?.paths?.signIn ?? '/sign-in'
+
+      const providersName = AUTH_OPTIONS.providers?.oAuths?.map((o) => {
+        return o.name
+      })
+
+      if (event.url.pathname === base + signin) {
         const remultKitData = {
-          component: 'One',
-          button: {
-            label: 'Yop5',
-          },
+          module: 'auth',
+          props: { ...AUTH_OPTIONS.client, providersName },
         }
         return {
           early: true,
