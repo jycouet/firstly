@@ -138,18 +138,21 @@
 							</td>
 						{/each}
 						{#if withEdit || withDelete}
-							<td class="flex justify-end gap-2">
-								{#if withEdit}
+							<td class="text-right">
+								<div class="flex gap-2">
+
+									{#if withEdit}
 									<Button class="btn btn-square btn-ghost btn-xs" on:click={() => dispatch('edit', row)}>
 										<Icon data={LibIcon_Edit} />
 									</Button>
-								{/if}
-								{#if withDelete}
+									{/if}
+									{#if withDelete}
 									<Button class="btn btn-square btn-ghost btn-xs" on:click={() => dispatch('delete', row)}>
 										<Icon data={LibIcon_Delete} />
 									</Button>
-								{/if}
-							</td>
+									{/if}
+								</div>
+								</td>
 						{/if}
 					</tr>
 				{:else}
