@@ -20,3 +20,5 @@ yarn.lock
 +page.md
 ROUTES.ts
 *.svelte.d.ts
+
+packages/remult-kit/src/lib/auth/static/assets/*
