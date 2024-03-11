@@ -140,7 +140,7 @@
 <FieldContainer
   forId={cell.field?.key ?? ''}
   label={cell?.header ?? cell.field?.caption ?? cell.field?.key}
-  required={!cell.field?.allowNull && mode === 'edit'}
+  required={!cell.field?.allowNull && mode === 'edit' && metaType.subKind !== 'checkbox'}
   {error}
   classes={{ slot: metaType.subKind === 'textarea' ? 'h-32 items-start' : '' }}
 >
@@ -232,7 +232,7 @@
     {/if}
   {:else if metaType.subKind === 'checkbox'}
     <div class="grid content-center items-center pl-4">
-      <input type="checkbox" {...common(cell.field)} class="checkbox" bind:checked={value} />
+      <input type="checkbox" {...{...common(cell.field), required: undefined}} class="checkbox" bind:checked={value} />
     </div>
   {:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'dateOnly' || metaType.subKind === 'number'}
     <div class="input input-bordered inline-flex w-full items-center pl-2">
