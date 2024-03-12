@@ -5,5 +5,7 @@
     "docs": "0.0.0",
     "remult-kit": "0.25.5"
   },
-  "changesets": []
+  "changesets": [
+    "funny-candles-report"
+  ]
 }
