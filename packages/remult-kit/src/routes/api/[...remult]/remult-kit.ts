@@ -50,7 +50,7 @@ export const modules: Module[] = [
     },
 
     // TODO: Make it optional
-    client: {
+    ui: {
       paths: {
         base: '/kit',
         signIn: '/sign-in',

@@ -83,7 +83,7 @@ type AuthOptions<
     Account?: ClassType<TAccountEntity>
   }
 
-  client?:
+  ui?:
     | {
         paths?: {
           base?: string
@@ -190,13 +190,13 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     },
     earlyReturn: async ({ event, resolve }) => {
-      if (AUTH_OPTIONS.client === false) {
+      if (AUTH_OPTIONS.ui === false) {
         return { early: false }
       }
 
       // TODO: maange default values
-      const base = AUTH_OPTIONS.client?.paths?.base ?? '/kit'
-      const signin = AUTH_OPTIONS.client?.paths?.signIn ?? '/sign-in'
+      const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit'
+      const signin = AUTH_OPTIONS.ui?.paths?.signIn ?? '/sign-in'
 
       if (event.url.pathname === base + signin) {
         const providersName = AUTH_OPTIONS.providers?.oAuths?.map((o) => {
@@ -204,7 +204,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         })
         const remultKitData = {
           module: 'auth',
-          props: { ...AUTH_OPTIONS.client, providersName },
+          props: { ...AUTH_OPTIONS.ui, providersName },
         }
         return {
           early: true,
