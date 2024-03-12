@@ -35,7 +35,8 @@ const ACTIONS = {
  * LINKS
  */
 const LINKS = {
-  "remult_admin": `/api/admin`
+  "remult_admin": `/api/admin`,
+  "github_remult_kit": `https://github.com/jycouet/remult-kit`
 }
 
 type ParamValue = string | number | undefined
@@ -141,6 +142,6 @@ export type KIT_ROUTES = {
   PAGES: { '/': never, '/remult': never, '/remult/auth': never, '/remult/enum': never, '/remult/select': never, '/ui': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
-  LINKS: { 'remult_admin': never }
+  LINKS: { 'remult_admin': never, 'github_remult_kit': never }
   Params: Record<string, never>
 }

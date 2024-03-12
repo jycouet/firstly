@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { onMount } from 'svelte'
+  import { onMount } from 'svelte'
 
-	import { dialog } from '$lib'
-	import Button from '$lib/ui/Button.svelte'
+  import Button from '$lib/ui/Button.svelte'
+  import { dialog } from '$lib/ui/dialog/dialog'
 
-	export let dialogId: number
+  export let dialogId: number
 
-	onMount(() => {
-		console.info('dialogId', dialogId)
-	})
+  onMount(() => {
+    console.info('dialogId', dialogId)
+  })
 </script>
 
 coucou {dialogId}
@@ -16,11 +16,11 @@ coucou {dialogId}
 <br /><br /><br />
 
 <Button
-	on:click={async () => {
-		await dialog.confirmDelete('yes?')
-	}}
+  on:click={async () => {
+    await dialog.confirmDelete('yes?')
+  }}
 >
-	Are you sure ?
+  Are you sure ?
 </Button>
 
 coucou {dialogId}

@@ -13,7 +13,7 @@
  * ```
  */
 export function litOrStr<T extends string | string[]>(value: T): T {
-	return value
+  return value
 }
 
 // removing the Promise of the return type

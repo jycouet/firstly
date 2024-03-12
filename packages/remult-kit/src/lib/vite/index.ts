@@ -1,37 +1,59 @@
-import type { Plugin } from 'vite'
+import type { PluginOption } from 'vite'
+import { kitRoutes, type Options, type RouteMappings } from 'vite-plugin-kit-routes'
 import { stripper } from 'vite-plugin-stripper'
 
 // import { Log } from '@kitql/helpers'
 
-export function remultKit(options?: { stripper?: { debug?: boolean } }): Plugin[] {
-	// const log = new Log('remult-kit')
+const toRemove = ['oslo/password', 'osla']
 
-	return [
-		{
-			name: 'vite-plugin-remult-kit',
-			enforce: 'pre',
+export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
+  stripper?: { debug?: boolean }
+  kitRoutes?: Options<KIT_ROUTES>
+}): PluginOption {
+  // const log = new Log('remult-kit')
 
-			config: async (a, b) => {
-				// THE ERROR:
-				// RollupError: Unexpected character '�'
-				// This code (A) is to fix in `build` mode
-				a.build = {
-					rollupOptions: {
-						external: ['oslo/password', 'osla'],
-					},
-				}
-				// This code (B) is to fix in `dev` mode
-				a.optimizeDeps = {
-					exclude: ['oslo/password', 'oslo', ...(a.optimizeDeps?.exclude || [])],
-				}
-			},
-		},
+  return [
+    {
+      name: 'vite-plugin-remult-kit',
+      enforce: 'pre',
 
-		...stripper({
-			decorators: ['BackendMethod'],
-			debug: options?.stripper?.debug ?? false,
-			hard: true,
-			packages: ['oslo/password', 'oslo'],
-		}),
-	]
+      config: async (a) => {
+        // THE ERROR:
+        // RollupError: Unexpected character '�'
+        // This code (A) is to fix in `build` mode
+        a.build = {
+          rollupOptions: {
+            external: toRemove,
+          },
+        }
+        // This code (B) is to fix in `dev` mode
+        a.optimizeDeps = {
+          exclude: toRemove,
+        }
+      },
+    },
+
+    ...kitRoutes<KIT_ROUTES>({
+      ...(options?.kitRoutes ?? {}),
+      ...{
+        format_page_route_id: true,
+        logs: {
+          ...options?.kitRoutes?.logs,
+          post_update_run: false,
+          update: false,
+        },
+        LINKS: {
+          ...options?.kitRoutes?.LINKS,
+          github_remult_kit: 'https://github.com/jycouet/remult-kit',
+        },
+      },
+    }),
+
+    ...stripper({
+      decorators: ['BackendMethod'],
+      hard: true,
+      debug: options?.stripper?.debug ?? false,
+      nullify: [],
+    }),
+  ]
 }

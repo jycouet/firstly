@@ -1,0 +1,55 @@
+name: CI Checks GitHub
+
+on:
+  pull_request:
+    paths:
+      - '**'
+
+concurrency:
+  group: ci-checks-${{ github.ref }}-1
+  cancel-in-progress: true
+
+jobs:
+  part-2:
+    name: full-ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+
+    env:
+      CI: true
+      TESTING: 'true'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
+          fetch-depth: 0
+          # submodules: 'true'
+
+      - name: 🧑‍💻 Setup env
+        uses: jycouet/jycouet/shared-config/setup@main
+        with:
+          nodeVersion: 21.2.0
+          pnpmVersion: 8.15.4
+          withCaching: false
+
+      - name: 🧑‍💻 Install playwright
+        run: npx playwright install
+
+        # we need to build before linting as Houdini is generating some types
+      - name: 🚀 build remult-kit
+        run: pnpm -F remult-kit build
+
+      - name: 🧹 lint
+        run: pnpm -r lint
+
+      - name: 💪 ts
+        run: pnpm -r ts
+
+      - name: 🕹️ test:unit
+        run: pnpm -r test:unit:ci
+
+      - name: 🎢 test:e2e
+        run: pnpm -r test:e2e

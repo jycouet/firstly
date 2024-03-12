@@ -1,33 +1,30 @@
 {
   "name": "remult-kit",
-  "version": "0.25.5-exp.22-15",
-  "description": "An opinionated Remult setup !",
-  "keywords": [
-    "remult",
-    "svelte",
-    "sveltekit"
-  ],
-  "license": "MIT",
+  "version": "0.25.6-exp.7-1",
   "type": "module",
-  "bin": "./esm/bin/cmd.js",
+  "description": "An opinionated Remult setup !",
   "repository": {
     "type": "git",
     "url": "https://github.com/jycouet/remult-kit",
     "homepage": "https://github.com/jycouet/remult-kit"
   },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "prepare": "svelte-kit sync",
     "dev": "vite dev",
     "//// ---- BEST PRACTICES ---- ////": "",
-    "lint": "kitql-lint",
     "format": "kitql-lint -f",
+    "lint": "kitql-lint",
     "ts": "svelte-check --tsconfig ./tsconfig.json",
     "ts:w": "svelte-check --tsconfig ./tsconfig.json --watch",
     "//// ---- TEST ---- ////": "",
-    "test:unit": "vitest",
-    "test:unit:ci": "vitest run",
-    "test:e2e_HOLD": "playwright test",
     "test:bin": "pnpm build && node ./dist/esm/bin/cmd.js",
+    "test:e2e_HOLD": "playwright test",
+    "test:unit": "TZ=Europe/Paris vitest",
+    "test:unit:ci": "TZ=Europe/Paris vitest run",
     "//// ---- PROD ---- ////": "",
     "build": "vite build && npm run package && node ./scripts/package.js",
     "package": "svelte-package",
@@ -36,11 +33,12 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
+    "remult": "0.25.6-exp.7",
     "svelte": ">=4.0.1"
   },
   "devDependencies": {
-    "@kitql/helpers": "0.8.8",
-    "@kitql/internals": "0.9.4",
+    "@kitql/helpers": "0.8.9",
+    "@kitql/internals": "0.9.5",
     "@sveltejs/adapter-node": "^4.0.1",
     "@sveltejs/kit": "2.5.2",
     "@sveltejs/package": "2.2.2",
@@ -51,34 +49,33 @@
     "svelte": "4.2.7",
     "svelte-check": "3.6.2",
     "tslib": "2.6.2",
-    "typescript": "5.2.2",
-    "vite": "5.1.5",
+    "typescript": "5.4.2",
     "vitest": "1.3.1"
   },
   "dependencies": {
     "@clack/prompts": "0.7.0",
+    "@js-temporal/polyfill": "^0.4.4",
     "@mdi/js": "7.4.47",
     "@melt-ui/svelte": "0.75.3",
     "arctic": "1.2.0",
     "clsx": "2.1.0",
+    "daisyui": "4.7.0",
     "esm-env": "1.0.0",
     "lucia": "3.0.1",
     "oslo": "1.1.0",
-    "proposal-temporal": "0.9.0",
     "tailwind-merge": "2.2.0",
     "tailwindcss": "3.4.1",
-    "vite-plugin-stripper": "0.3.3"
+    "vite": "5.1.5",
+    "vite-plugin-kit-routes": "0.6.1",
+    "vite-plugin-stripper": "0.5.0"
   },
+
   "sideEffects": false,
   "publishConfig": {
     "directory": "dist",
     "access": "public"
   },
-  "files": [
-    "dist",
-    "!dist/**/*.test.*",
-    "!dist/**/*.spec.*"
-  ],
+  "bin": "./esm/bin/cmd.js",
   "exports": {
     ".": {
       "types": "./esm/index.d.ts",
@@ -117,7 +114,14 @@
       "default": "./esm/feedback/index.js"
     }
   },
-  "engines": {
-    "node": ">=18"
-  }
+  "files": [
+    "dist",
+    "!dist/**/*.spec.*",
+    "!dist/**/*.test.*"
+  ],
+  "keywords": [
+    "remult",
+    "svelte",
+    "sveltekit"
+  ]
 }

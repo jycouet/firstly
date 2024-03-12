@@ -1,5 +1,5 @@
 {
-  "name": "remult-kit",
+  "name": "remult-kit-monorepo",
   "version": "0.0.0",
   "description": "An opinionated Remult setup !",
   "keywords": [
@@ -15,9 +15,17 @@
     "url": "https://github.com/jycouet/remult-kit",
     "homepage": "https://github.com/jycouet/remult-kit"
   },
-  "scripts": {},
+  "scripts": {
+    "release:version": "npm run changeset version",
+    "release": "npm run build && changeset publish",
+    "//// OTHERS ////": "",
+    "reset": "git clean -xdf",
+    "up-dep": "pnpm -r up --latest"
+  },
   "devDependencies": {
-    "@kitql/eslint-config": "^0.3.1"
+    "@changesets/changelog-github": "0.5.0",
+    "@changesets/cli": "2.27.1",
+    "@kitql/eslint-config": "^0.3.2"
   },
   "sideEffects": false,
   "publishConfig": {

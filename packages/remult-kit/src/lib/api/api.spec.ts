@@ -5,20 +5,20 @@ import { auth } from '$lib/auth'
 import { modulesFlatAndOrdered, type Module } from '.'
 
 describe('api', () => {
-	it('flatten modules', () => {
-		const modules: Module[] = [
-			{ name: 'init', modules: [{ name: 'a' }, { name: 'b' }] },
-			{ name: 'main' },
-			auth({}),
-			{ name: 'main last', index: 100 },
-			{ name: 'prio', index: -1000 },
-			{ name: 'the end', modules: [{ name: 'd' }, { name: 'c' }] },
-		]
+  it('flatten modules', () => {
+    const modules: Module[] = [
+      { name: 'init', modules: [{ name: 'a' }, { name: 'b' }] },
+      { name: 'main' },
+      auth({}),
+      { name: 'main last', index: 100 },
+      { name: 'prio', index: -1000 },
+      { name: 'the end', modules: [{ name: 'd' }, { name: 'c' }] },
+    ]
 
-		console.time('flatten')
-		const res = modulesFlatAndOrdered(modules)
-		console.timeEnd('flatten')
-		expect(res).toMatchInlineSnapshot(`
+    console.time('flatten')
+    const res = modulesFlatAndOrdered(modules)
+    console.timeEnd('flatten')
+    expect(res).toMatchInlineSnapshot(`
 			[
 			  {
 			    "index": -1000,
@@ -66,10 +66,10 @@ describe('api', () => {
 			  },
 			]
 		`)
-	})
+  })
 
-	it('flatten modules', () => {
-		const res = modulesFlatAndOrdered([])
-		expect(res).toMatchInlineSnapshot(`[]`)
-	})
+  it('flatten modules', () => {
+    const res = modulesFlatAndOrdered([])
+    expect(res).toMatchInlineSnapshot(`[]`)
+  })
 })

@@ -24,44 +24,44 @@ import { logAuth, type KitOAuth2Provider } from '../'
  * _FYI: GITHUB_REDIRECT_URI is optional as auth module will default to "${origin}/api/auth_callback"._
  */
 export function github(options?: {
-	clientID?: string
-	secret?: string
-	redirectURI?: string
-	authorizationURLOptions?: ReturnType<
-		KitOAuth2Provider<'github', GitHub>['authorizationURLOptions']
-	>
-	log?: boolean
+  clientID?: string
+  secret?: string
+  redirectURI?: string
+  authorizationURLOptions?: ReturnType<
+    KitOAuth2Provider<'github', GitHub>['authorizationURLOptions']
+  >
+  log?: boolean
 }): KitOAuth2Provider<'github', GitHub> {
-	const name = 'github'
+  const name = 'github'
 
-	const clientID = options?.clientID ?? env.GITHUB_CLIENT_ID ?? ''
-	const secret = options?.secret ?? env.GITHUB_CLIENT_SECRET ?? ''
-	checkOAuthConfig(name, clientID, secret, false)
+  const clientID = options?.clientID ?? env.GITHUB_CLIENT_ID ?? ''
+  const secret = options?.secret ?? env.GITHUB_CLIENT_SECRET ?? ''
+  checkOAuthConfig(name, clientID, secret, false)
 
-	return {
-		name,
-		isPKCE: false,
-		getArcticProvider: () => {
-			const redirectURI = options?.redirectURI || `${remult.context.url.origin}/api/auth_callback`
+  return {
+    name,
+    isPKCE: false,
+    getArcticProvider: () => {
+      const redirectURI = options?.redirectURI || `${remult.context.url.origin}/api/auth_callback`
 
-			checkOAuthConfig(name, clientID, secret, true)
+      checkOAuthConfig(name, clientID, secret, true)
 
-			return new GitHub(clientID, secret, { redirectURI })
-		},
-		authorizationURLOptions: () => {
-			return options?.authorizationURLOptions ?? { scopes: [] }
-		},
-		getUserInfo: async (tokens) => {
-			const res = await fetch('https://api.github.com/user', {
-				headers: {
-					Authorization: `Bearer ${tokens.accessToken}`,
-				},
-			})
-			const user = await res.json()
-			if (options?.log) {
-				logAuth.info(`user`, user)
-			}
-			return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
-		},
-	}
+      return new GitHub(clientID, secret, { redirectURI })
+    },
+    authorizationURLOptions: () => {
+      return options?.authorizationURLOptions ?? { scopes: [] }
+    },
+    getUserInfo: async (tokens) => {
+      const res = await fetch('https://api.github.com/user', {
+        headers: {
+          Authorization: `Bearer ${tokens.accessToken}`,
+        },
+      })
+      const user = await res.json()
+      if (options?.log) {
+        logAuth.info(`user`, user)
+      }
+      return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
+    },
+  }
 }
