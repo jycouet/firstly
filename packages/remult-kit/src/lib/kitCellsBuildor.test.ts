@@ -51,7 +51,7 @@ test('where without search, with enum', () => {
 })
 
 test('kitBuilder', () => {
-  const cells = kitCellsBuildor(repo, ['email', 'password'])
+  const cells = kitCellsBuildor(UIEntity, ['email', 'password'])
   // Let's get the selection done
   expect(fieldsOf(cells).map((c) => c.key)).toMatchInlineSnapshot(`
 		[

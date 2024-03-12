@@ -31,6 +31,10 @@
     dispatch('selected', _data)
   }
 
+  function dispatchIssue(msg: 'VALUE_NOT_IN_ITEMS') {
+    dispatch('issue', msg)
+  }
+
   onMount(async () => {
     if (loadOptions) {
       items = await loadOptions('')
@@ -47,6 +51,10 @@
     const found = items.find((c) => String(c.id) === String(_selectedValue))
     if (found) {
       return toOption(found)
+    } else {
+      if (value !== null && value !== undefined && items.length > 0) {
+        dispatchIssue('VALUE_NOT_IN_ITEMS')
+      }
     }
   }
 

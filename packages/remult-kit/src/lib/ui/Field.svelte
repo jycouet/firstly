@@ -8,8 +8,8 @@
   import { suffixWithS } from '../formats/strings'
   import {
     displayWithDefaultAndSuffix,
+    getEntityDisplayValue,
     getFieldMetaType,
-    getRepoDisplayValue,
     type MetaTypeRelation,
   } from '../helper.js'
   import { tw } from '../utils/tailwind'
@@ -99,15 +99,26 @@
       findToUse = metaTypeObj.repoTarget.metadata.options.searchableFind(str)
     }
 
-    // REMULT TODO: expose the findOptions in the field
+    const foEdit = cell.field?.options.findOptionsForEdit
+    const narrowFindEdit =
+      typeof foEdit === 'function'
+        ? foEdit().where ?? {}
+        : typeof foEdit === 'object'
+          ? foEdit.where ?? {}
+          : {}
+
     // @ts-ignore
-    const fo = cell.field?.options.findOptions
-    const narrowFindWhere =
-      typeof fo === 'function' ? fo().where ?? {} : typeof fo === 'object' ? fo.where ?? {} : {}
+    const foCrud = cell.field?.options.findOptions
+    const narrowFindCrud =
+      typeof foCrud === 'function'
+        ? foCrud().where ?? {}
+        : typeof foCrud === 'object'
+          ? foCrud.where ?? {}
+          : {}
 
     findToUse = {
       include: { ...(findToUse.include ?? {}) },
-      where: { ...findToUse.where, ...narrowFindWhere },
+      where: { ...findToUse.where, ...narrowFindEdit, ...narrowFindCrud },
     }
     if (cell.field?.options?.narrowFindFunc) {
       findToUse = {
@@ -121,7 +132,7 @@
 
     if (cell.filter?.where) {
       // @ts-ignore
-      findToUse.where = { ...findToUse.where, ...cell.filter.where }
+      findToUse.where = { ...findToUse.where, ...cell.filtefindOptionsForEdit }
     } else if (cell.filter && !cell.filter.where) {
       // If this field has a filter but no where - means the other field
       // doesn't have a value yet. In this case - don't show any selection option
@@ -129,9 +140,7 @@
     }
     const res = await metaTypeObj.repoTarget.find({ ...findToUse, limit: 300 })
 
-    items = res.map((r) =>
-      getRepoDisplayValue('Field.svelte Select edit', metaTypeObj.repoTarget, r),
-    )
+    items = res.map((r) => getEntityDisplayValue(metaTypeObj.toEntity, r))
   }
 
   $: cellsValues && getLoadOptions('')
@@ -157,11 +166,7 @@
           checked={value}
         />
       {:else if metaType.kind === 'relation'}
-        {@const item = getRepoDisplayValue(
-          'Field.svelte relation readonly',
-          metaType.repoTarget,
-          value,
-        )}
+        {@const item = getEntityDisplayValue(metaType.toEntity, value)}
         <div class={tw('flex items-center gap-4', 'h-12', 'pl-2')}>
           {#if item && item?.icon}
             <Icon {...item.icon} />
@@ -203,6 +208,9 @@
         {items}
         value={value?.id || value}
         on:selected={(e) => dispatchSelected(e.detail)}
+        on:issue={(e) => {
+          error = e.detail
+        }}
       />
     {/if}
   {:else if metaType.kind === 'enum'}
@@ -228,11 +236,19 @@
         items={metaType.values}
         value={value?.id || value}
         on:selected={(e) => dispatchSelected(e.detail)}
+        on:issue={(e) => {
+          error = e.detail
+        }}
       />
     {/if}
   {:else if metaType.subKind === 'checkbox'}
     <div class="grid content-center items-center pl-4">
-      <input type="checkbox" {...{...common(cell.field), required: undefined}} class="checkbox" bind:checked={value} />
+      <input
+        type="checkbox"
+        {...{ ...common(cell.field), required: undefined }}
+        class="checkbox"
+        bind:checked={value}
+      />
     </div>
   {:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'dateOnly' || metaType.subKind === 'number'}
     <div class="input input-bordered inline-flex w-full items-center pl-2">

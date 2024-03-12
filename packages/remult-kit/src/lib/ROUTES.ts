@@ -35,7 +35,13 @@ const ACTIONS = {
  * LINKS
  */
 const LINKS = {
-  "remult_admin": `/api/admin`
+  "remult_admin": `/api/admin`,
+  "github": (params?: { owner?: (string | number), repo?: (string | number) }) => {
+    params = params ?? {}
+    params.owner = params.owner ?? "jycouet"; 
+    params.repo = params.repo ?? "remult-kit"; 
+    return `https://github.com/${params.owner}/${params.repo}`
+  }
 }
 
 type ParamValue = string | number | undefined
@@ -141,6 +147,6 @@ export type KIT_ROUTES = {
   PAGES: { '/': never, '/remult': never, '/remult/auth': never, '/remult/enum': never, '/remult/select': never, '/ui': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
-  LINKS: { 'remult_admin': never }
-  Params: Record<string, never>
+  LINKS: { 'remult_admin': never, 'github': 'owner' | 'repo' }
+  Params: { owner: never, repo: never }
 }

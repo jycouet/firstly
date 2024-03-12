@@ -1,4 +1,4 @@
-import { type EntityFilter, type FieldMetadata, type Repository } from 'remult'
+import { remult, type ClassType, type EntityFilter, type FieldMetadata } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { getEnum, KitBaseEnum } from './KitBaseEnum.js'
@@ -47,10 +47,11 @@ export type KitCellsInput<Entity> = (keyof Entity | KitCellInternal<Entity>)[]
  *
  * ```html
  * <script lang="ts">
- *   import { repo } from 'remult'
+ *   import { Site } from '$shared/entities/Site'
  *
- *   const cells = kitCellsBuildor(repo(Site), ['name', 'description'])
- *   const store = kitStoreList( repo(Site) )
+ *   const cells = kitCellsBuildor(Site, ['name', 'description'])
+ *   const store = kitStoreList(Site)
+ *
  *   $: store.fetch()
  * </script>
  *
@@ -59,9 +60,10 @@ export type KitCellsInput<Entity> = (keyof Entity | KitCellInternal<Entity>)[]
  *
  */
 export function kitCellsBuildor<Entity>(
-  repo: Repository<Entity>,
+  entity: ClassType<Entity>,
   inputBuildor: KitCellsInput<Entity>,
 ): KitCell<Entity>[] {
+  const repo = remult.repo(entity)
   const buildor: KitCell<Entity>[] = []
 
   for (let i = 0; i < inputBuildor.length; i++) {
@@ -88,10 +90,10 @@ export function kitCellsBuildor<Entity>(
 }
 
 export function kitCellBuildor<Entity>(
-  repo: Repository<Entity>,
+  entity: ClassType<Entity>,
   inputBuildor: UnArray<KitCellsInput<Entity>>,
 ) {
-  return kitCellsBuildor(repo, [inputBuildor])[0]
+  return kitCellsBuildor(entity, [inputBuildor])[0]
 }
 
 export const fieldsOf = <Entity>(b: KitCell<Entity>[]) => {

@@ -1,7 +1,7 @@
 import type { SvelteComponent } from 'svelte'
 import { writable } from 'svelte/store'
 
-import type { Repository } from 'remult'
+import type { ClassType } from 'remult'
 
 import {
   LibIcon_Add,
@@ -26,7 +26,7 @@ export type FormGrid =
 export type DialogMetaData<entityType = any> = {
   detail?: KitBaseItemLight
 
-  repo?: Repository<entityType>
+  entity?: ClassType<entityType>
   buildor?: KitCellsInput<entityType>
   defaults?: Partial<entityType>
   classes?: DialogClasses
@@ -95,7 +95,7 @@ const createDialogManagement = () => {
     form: <entityType>(
       type: 'insert' | 'update' | 'view',
       topic: string,
-      repo: Repository<entityType>,
+      entity: ClassType<entityType>,
 
       cells: KitCellsInput<entityType>,
       defaults: Partial<entityType>,
@@ -112,7 +112,7 @@ const createDialogManagement = () => {
               type === 'insert' ? LibIcon_Add : type === 'update' ? LibIcon_Edit : LibIcon_Search,
           },
         },
-        repo,
+        entity,
         buildor: cells,
         defaults,
         classes,

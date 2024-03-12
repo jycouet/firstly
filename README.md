@@ -1,10 +1,14 @@
 # remult-kit
 
-_This is early, you should not use it ! 😉_
+_This is early, you should not use it !! 😉_
 
-`remult-kit` is an opinionated way to build your application with [Remult](https://remult.github.io/remult/).
+`remult-kit` is an opinionated way to build your application with
+[Remult](https://remult.github.io/remult/).
 
-First thing first, you should do the [Remult SvelteKit tutorial](https://remult.dev/tutorials/sveltekit/) to understand the basics. Now that you know most of the things, you can use `remult-kit` to build your application and enjoy a few tweaks to make your life easier in SvelteKit.
+First thing first, you should do the
+[Remult SvelteKit tutorial](https://remult.dev/tutorials/sveltekit/) to understand the basics. Now
+that you know most of the things, you can use `remult-kit` to build your application and enjoy a few
+tweaks to make your life easier in SvelteKit.
 
 ## 🌐 [Check the doc](https://remult-kit-static.onrender.com/)
 
@@ -53,5 +57,5 @@ OMG, we have so much to explain :) It will be fun!
 
 ## Notes
 
-- The vite plugin embeds `vite-plugin-stripper` (to help for
-  Backend Methods) [info about it](https://remult.dev/docs/using-server-only-packages.html).
+- The vite plugin embeds `vite-plugin-stripper` (to help for Backend Methods)
+  [info about it](https://remult.dev/docs/using-server-only-packages.html).

@@ -16,10 +16,18 @@
     "homepage": "https://github.com/jycouet/remult-kit"
   },
   "scripts": {
-    "reset": "git clean -xdf"
+    "//// ---- PROD ---- ////": "",
+    "build": "pnpm -r build",
+    "release:version": "npm run changeset version",
+    "release": "npm run build && changeset publish",
+    "//// OTHERS ////": "",
+    "reset": "git clean -xdf",
+    "up-dep": "pnpm -r up --latest"
   },
   "devDependencies": {
-    "@kitql/eslint-config": "^0.3.1"
+    "@changesets/changelog-github": "0.5.0",
+    "@changesets/cli": "2.27.1",
+    "@kitql/eslint-config": "^0.3.2"
   },
   "sideEffects": false,
   "publishConfig": {

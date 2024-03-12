@@ -198,7 +198,6 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
 
       if (event.url.pathname.startsWith(base)) {
-
         const providersName = AUTH_OPTIONS.providers?.oAuths?.map((o) => {
           return o.name
         })
@@ -207,7 +206,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
           module: 'auth',
           props: { ...AUTH_OPTIONS.ui, providersName },
         }
-        
+
         return {
           early: true,
           resolve: new Response(

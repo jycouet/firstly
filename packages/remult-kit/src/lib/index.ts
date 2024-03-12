@@ -1,4 +1,4 @@
-import type { FindOptionsBase, Repository } from 'remult'
+import type { ClassType, FindOptionsBase } from 'remult'
 
 import 'remult'
 
@@ -10,6 +10,7 @@ import { kitStoreItem } from './kitStoreItem.js'
 import { kitStoreList } from './kitStoreList.js'
 import { default as Button } from './ui/Button.svelte'
 import { default as DialogManagement } from './ui/dialog/DialogManagement.svelte'
+import { default as FormEditAction } from './ui/dialog/FormEditAction.svelte'
 import { default as Field } from './ui/Field.svelte'
 import { default as FieldGroup } from './ui/FieldGroup.svelte'
 import { default as Grid } from './ui/Grid.svelte'
@@ -26,6 +27,7 @@ export const KitRole = {
 
 export {
   Field,
+  FormEditAction,
   Grid,
   GridPaginate,
   FieldGroup,
@@ -43,7 +45,13 @@ export type { KitBaseEnumOptions } from './KitBaseEnum.js'
 export { KitFields } from './KitFields.js'
 export { KitValidators } from './KitValidators.js'
 export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
-export { getRepoDisplayValue, isError } from './helper.js'
+export {
+  getEntityDisplayValue,
+  getEntityDisplayValueFromField,
+  getFieldLinkDisplayValue,
+  getFieldMetaType,
+  isError,
+} from './helper.js'
 export {
   buildWhere,
   getPlaceholder,
@@ -62,10 +70,10 @@ export type KitBaseItem = KitBaseEnumOptions & {
   id: string
   captionSub?: string | (string | undefined)[]
   href?: string
-  repo?: Repository<any>
+  entity?: ClassType<any>
   sub?: {
     captionPre?: string
-    repo?: Repository<any>
+    entity?: ClassType<any>
     item?: any
   }
 }
@@ -125,6 +133,10 @@ declare module 'remult' {
     step?: '1' | '0.1' | '0.01'
 
     href?: (item: entityType) => string
+
+    // difference with `findOptions` of remult ?
+    // `findOptionsForEdit` is only for insert & update.
+    findOptionsForEdit?: (() => FindOptionsBase<valueType>) | FindOptionsBase<valueType>
 
     // Currently only for filtering.
     multiSelect?: boolean
