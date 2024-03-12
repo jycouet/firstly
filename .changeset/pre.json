@@ -3,7 +3,7 @@
   "tag": "exp",
   "initialVersions": {
     "docs": "0.0.0",
-    "remult-kit": "0.25.6-exp.7-1"
+    "remult-kit": "0.25.6"
   },
   "changesets": []
 }
