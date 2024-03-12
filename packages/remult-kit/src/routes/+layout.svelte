@@ -14,7 +14,13 @@
     { path: route('/remult/select'), text: 'Remult Select' },
     { path: route('/remult/enum'), text: 'Remult Enum' },
     { path: route('/remult/auth'), text: 'Remult Auth' },
-    { path: route('remult_admin'), text: 'Remult Admin' },
+    { path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
+    {
+      path: route('github', { owner: 'remult', repo: 'remult' }),
+      text: '⭐️ remult',
+      target: '_blank',
+    },
+    { path: route('github'), text: '⭐️ remult-kit', target: '_blank' },
   ]
 </script>
 
@@ -171,7 +177,11 @@
       <ul class="menu">
         {#each links as link}
           <li>
-            <a href={link.path} class={link.path === $page.url.pathname ? 'active' : ''}>
+            <a
+              href={link.path}
+              class={link.path === $page.url.pathname ? 'active' : ''}
+              target={link?.target}
+            >
               <svg data-src="https://unpkg.com/heroicons/20/solid/home.svg" class="h-5 w-5"></svg>
               {link.text}
             </a>
