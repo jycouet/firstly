@@ -52,12 +52,9 @@ export const modules: Module[] = [
     // TODO: Make it optional
     ui: {
       paths: {
-        base: '/kit',
-        signIn: '/sign-in',
-        signUp: '/sign-up',
-        // forgotPassword: '/forgot-password',
-        // resetPassword: '/reset-password',
-        // verifyEmail: '/verify-email',
+        base: '/kit/auth',
+        login: '/login',
+        forgottenPassword: '/forgotten-password',
         // profile: '/profile',
       },
       strings: {

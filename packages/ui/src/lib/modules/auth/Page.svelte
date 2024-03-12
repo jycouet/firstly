@@ -1,28 +1,31 @@
 <script lang="ts">
-  import ForgottenPassword from './components/ForgottenPassword.svelte'
-  import Login from './components/Login.svelte'
-  import Pin from './components/Pin.svelte'
+  import { Route, Link, linkHandle } from "svelte-micro"
 
-  export let remultKitData
+  import ForgottenPasswordForm from '../../../../../remult-kit/src/lib/auth/ui/ForgottenPasswordForm.svelte';
+  import LoginForm from '../../../../../remult-kit/src/lib/auth/ui/LoginForm.svelte';
 
-  let view = 'login'
+  export let remultKitData : any;
 </script>
+
 
 <div class="wrapper">
   <div class="form">
-    <svelte:component
-      this={view === 'login' ? Login : view === 'forgottenPassword' ? ForgottenPassword : Pin}
-      {remultKitData}
-    />
+    <Route>
+      <Route path={remultKitData.props.paths.base + remultKitData.props.paths.login}>
+        <LoginForm {remultKitData} />
+      </Route>
+      <Route path={remultKitData.props.paths.base + remultKitData.props.paths.forgottenPassword}>
+        <ForgottenPasswordForm {remultKitData} />
+      </Route>
+    </Route>
   </div>
 
   <div class="actions">
-    <button on:click={() => (view = 'forgottenPassword')}
-      >Forgot your password? {remultKitData.props.strings['auth.forgotPassword']}</button
-    >
+
   </div>
 </div>
-{JSON.stringify(remultKitData)}
+
+
 
 <style>
   .wrapper {

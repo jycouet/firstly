@@ -1,0 +1,36 @@
+[
+  {
+    "id": "lnbc3thioid652ti2v9kz976",
+    "createdAt": "2024-03-12T08:15:24.493Z",
+    "updatedAt": "2024-03-12T08:15:24.493Z",
+    "name": "Noam",
+    "roles": [],
+    "jobTitle": "CEO"
+  },
+  {
+    "id": "gu9y295m6qgvj2wuqebhpule",
+    "createdAt": "2024-03-12T08:15:29.782Z",
+    "updatedAt": "2024-03-12T08:15:29.782Z",
+    "name": "Ermin",
+    "roles": [],
+    "jobTitle": "CEO"
+  },
+  {
+    "id": "z7pjqj0gc0yv5sylrpxx656o",
+    "createdAt": "2024-03-12T08:15:30.800Z",
+    "updatedAt": "2024-03-12T08:15:33.113Z",
+    "name": "JYC",
+    "roles": [
+      "admin"
+    ],
+    "jobTitle": "CEO"
+  },
+  {
+    "id": "fyd1a2t3z0bc7ut8wrdlop2v",
+    "createdAt": "2024-03-12T08:15:37.929Z",
+    "updatedAt": "2024-03-12T08:15:46.642Z",
+    "name": "jycouet@gmail.com",
+    "roles": [],
+    "jobTitle": "CEO"
+  }
+]

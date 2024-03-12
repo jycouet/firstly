@@ -1,0 +1,22 @@
+[
+  {
+    "createdAt": "2024-03-12T08:15:38.369Z",
+    "updatedAt": "2024-03-12T08:15:42.400Z",
+    "userId": "fyd1a2t3z0bc7ut8wrdlop2v",
+    "provider": "PASSWORD",
+    "providerUserId": "jycouet@gmail.com",
+    "hashPassword": "$argon2id$v=19$m=19456,t=2,p=1$JuDzA+/rIwV3vEuV2c6AfQ$LoDDe3pxi/bEGqMzQKEL6nnzIpREtqn+C251yBoLPpE",
+    "token": "cuqyap7uwayrck516zwhime7w0cjlvh46wlpknht",
+    "expiresAt": "2024-03-12T08:20:42.399Z"
+  },
+  {
+    "createdAt": "2024-03-12T08:15:46.644Z",
+    "updatedAt": "2024-03-12T08:15:46.644Z",
+    "userId": "fyd1a2t3z0bc7ut8wrdlop2v",
+    "provider": "OTP",
+    "providerUserId": "",
+    "hashPassword": "e606774a1f6616f8615a3351ea554db8331a4f0b",
+    "token": "888301",
+    "expiresAt": ""
+  }
+]

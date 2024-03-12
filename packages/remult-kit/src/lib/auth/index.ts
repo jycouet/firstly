@@ -87,8 +87,8 @@ type AuthOptions<
     | {
         paths?: {
           base?: string
-          signIn?: string
-          signUp?: string
+          login?: string
+          forgotPassword?: string
           // forgotPassword?: string
           // resetPassword?: string
           // verifyEmail?: string
@@ -195,17 +195,19 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
 
       // TODO: maange default values
-      const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit'
-      const signin = AUTH_OPTIONS.ui?.paths?.signIn ?? '/sign-in'
+      const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
 
-      if (event.url.pathname === base + signin) {
+      if (event.url.pathname.startsWith(base)) {
+
         const providersName = AUTH_OPTIONS.providers?.oAuths?.map((o) => {
           return o.name
         })
+
         const remultKitData = {
           module: 'auth',
           props: { ...AUTH_OPTIONS.ui, providersName },
         }
+        
         return {
           early: true,
           resolve: new Response(
