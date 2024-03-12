@@ -16,6 +16,8 @@
     "homepage": "https://github.com/jycouet/remult-kit"
   },
   "scripts": {
+    "//// ---- PROD ---- ////": "",
+    "build": "pnpm -r build",
     "release:version": "npm run changeset version",
     "release": "npm run build && changeset publish",
     "//// OTHERS ////": "",
