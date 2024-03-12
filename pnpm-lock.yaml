@@ -155,9 +155,6 @@ importers:
       svelte-micro:
         specifier: ^2.5.6
         version: 2.5.6(svelte@4.2.12)
-      svelte-routing:
-        specifier: ^2.12.0
-        version: 2.12.0
       tslib:
         specifier: ^2.6.2
         version: 2.6.2
@@ -9797,10 +9794,6 @@ packages:
       typescript: 5.4.2
     dev: true
 
-  /svelte-routing@2.12.0:
-    resolution: {integrity: sha512-6i4Mncy4P2b7gD7+BOT9JzQvrfGfGXqFra8VXYU5//bpn6AzJ0PLEhH1E/KwY2AxleOiS/8Nm37MGuic2kn15A==}
-    dev: true
-
   /svelte2tsx@0.6.27(svelte@4.2.7)(typescript@5.4.2):
     resolution: {integrity: sha512-E1uPW1o6VsbRz+nUk3fznZ2lSmCITAJoNu8AYefWSvIwE2pSB01i5sId4RMbWNzfcwCQl1DcgGShCPcldl4rvg==}
     peerDependencies:
@@ -10956,7 +10949,6 @@ packages:
 
   /workbox-google-analytics@7.0.0:
     resolution: {integrity: sha512-MEYM1JTn/qiC3DbpvP2BVhyIH+dV/5BjHk756u9VbwuAhu0QHyKscTnisQuz21lfRpOwiS9z4XdqeVAKol0bzg==}
-    deprecated: It is not compatible with newer versions of GA starting with v4, as long as you are using GAv3 it should be ok, but the package is not longer being maintained
     dependencies:
       workbox-background-sync: 7.0.0
       workbox-core: 7.0.0
