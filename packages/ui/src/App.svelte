@@ -39,9 +39,13 @@
 <style>
   .debug {
     display: flex;
-    gap: 10px;
     position: fixed;
-    bottom: 10px;
-    right: 10px;
+    gap: 5px;
+    bottom: 5px;
+    right: 5px;
+  }
+
+  button {
+    font-size: 11px;
   }
 </style>

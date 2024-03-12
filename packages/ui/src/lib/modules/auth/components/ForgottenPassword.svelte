@@ -1,4 +1,6 @@
 <script>
+    import { autofocus } from "../helpers";
+
     export let remultKitData;
 
     // Defaults
@@ -17,7 +19,14 @@
 
 <div class="login">
     <form>
-        <input type="text" placeholder="Username or Email" />
-        <button>Send Password Reset Link</button>
+        <input use:autofocus type="text" placeholder="Your email address" />
+        <button>Send password reset instructions</button>
     </form>
 </div>
+
+<style>
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
