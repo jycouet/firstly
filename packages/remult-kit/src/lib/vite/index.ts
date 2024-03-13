@@ -44,7 +44,14 @@ export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
         },
         LINKS: {
           ...options?.kitRoutes?.LINKS,
-          github_remult_kit: 'https://github.com/jycouet/remult-kit',
+          remult_admin: '/api/admin',
+          github: {
+            href: 'https://github.com/[owner]/[repo]',
+            params: {
+              owner: { default: '"jycouet"' },
+              repo: { default: '"remult-kit"' },
+            },
+          },
         },
       },
     }),

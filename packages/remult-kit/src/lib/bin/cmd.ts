@@ -320,11 +320,27 @@ export default defineConfig({
 `,
   ],
   './src/lib/remult-kit/modules/tasks/index.ts': [
-    `import { BackendMethod, Entity, Field, Fields, ValueListFieldType } from 'remult'
-import { KitBaseEnum, LibIcon_Add, LibIcon_Delete, type KitBaseEnumOptions } from 'remult-kit'
-import type { Module } from 'remult-kit/api'
+    `import type { Module } from 'remult-kit/api'
 
 import { log } from '${libAlias}/remult-kit'
+
+import { Task } from './Task'
+import { TaskController } from './TaskController'
+
+export const tasks: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
+  return {
+    name: 'task',
+    entities: [Task],
+    controllers: [TaskController],
+    initApi: async () => {
+      log.success(\`Task module is ready! 🚀 (specialInfo: \${specialInfo})\`)
+    },
+  }
+}`,
+  ],
+  './src/lib/remult-kit/modules/tasks/Task.ts': [
+    `import { Entity, Field, Fields, ValueListFieldType } from 'remult'
+import { KitBaseEnum, LibIcon_Add, LibIcon_Delete, type KitBaseEnumOptions } from 'remult-kit'
 
 @Entity('tasks', {
   allowApiCrud: true,
@@ -363,7 +379,13 @@ export class TypeOfTaskEnum extends KitBaseEnum {
   constructor(id: string, o?: KitBaseEnumOptions<TypeOfTaskEnum>) {
     super(id, o)
   }
-}
+}    
+`,
+  ],
+  './src/lib/remult-kit/modules/tasks/TaskController.ts': [
+    `import { BackendMethod } from 'remult'
+
+import { log } from '${libAlias}/remult-kit'
 
 /**
  * await TaskController.sayHiFromTask("JYC")
@@ -372,17 +394,6 @@ export class TaskController {
   @BackendMethod({ allowed: true })
   static async sayHiFromTask(name: string) {
     log.info(\`hello \${name} 👋\`)
-  }
-}
-
-export const tasks: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
-  return {
-    name: 'task',
-    entities: [Task],
-    controllers: [TaskController],
-    initApi: async () => {
-      log.success(\`Task module is ready! 🚀 (specialInfo: \${specialInfo})\`)
-    },
   }
 }
 `,
@@ -394,7 +405,7 @@ for (const [path, content] of Object.entries(obj)) {
     write(path, content)
   } else {
     if (res.includes('module-demo')) {
-      if (path === './src/lib/remult-kit/modules/tasks/index.ts') {
+      if (path.startsWith('./src/lib/remult-kit/modules/tasks')) {
         write(path, content)
       }
     }

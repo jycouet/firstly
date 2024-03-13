@@ -6,16 +6,7 @@ import type { KIT_ROUTES } from '$lib/ROUTES'
 import { remultKit } from './src/lib/vite'
 
 const config = defineConfig({
-  plugins: [
-    remultKit<KIT_ROUTES>({
-      kitRoutes: {
-        LINKS: {
-          remult_admin: '/api/admin',
-        },
-      },
-    }),
-    sveltekit(),
-  ],
+  plugins: [remultKit<KIT_ROUTES>({}), sveltekit()],
   test: {
     include: ['src/**/*.{test,spec}.{js,ts}'],
   },

@@ -8,8 +8,8 @@
   import { suffixWithS } from '../formats/strings'
   import {
     displayWithDefaultAndSuffix,
-    getEntityDisplayValue,
     getFieldMetaType,
+    getRepoDisplayValue,
     type MetaTypeRelation,
   } from '../helper.js'
   import { tw } from '../utils/tailwind'
@@ -140,7 +140,9 @@
     }
     const res = await metaTypeObj.repoTarget.find({ ...findToUse, limit: 300 })
 
-    items = res.map((r) => getEntityDisplayValue(metaTypeObj.toEntity, r))
+    items = res.map((r) =>
+      getRepoDisplayValue('Field.svelte Select edit', metaTypeObj.repoTarget, r),
+    )
   }
 
   $: cellsValues && getLoadOptions('')
@@ -166,7 +168,11 @@
           checked={value}
         />
       {:else if metaType.kind === 'relation'}
-        {@const item = getEntityDisplayValue(metaType.toEntity, value)}
+        {@const item = getRepoDisplayValue(
+          'Field.svelte relation readonly',
+          metaType.repoTarget,
+          value,
+        )}
         <div class={tw('flex items-center gap-4', 'h-12', 'pl-2')}>
           {#if item && item?.icon}
             <Icon {...item.icon} />

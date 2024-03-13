@@ -1,4 +1,4 @@
-import type { ClassType, FindOptionsBase } from 'remult'
+import type { FindOptionsBase, Repository } from 'remult'
 
 import 'remult'
 
@@ -45,13 +45,7 @@ export type { KitBaseEnumOptions } from './KitBaseEnum.js'
 export { KitFields } from './KitFields.js'
 export { KitValidators } from './KitValidators.js'
 export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
-export {
-  getEntityDisplayValue,
-  getEntityDisplayValueFromField,
-  getFieldLinkDisplayValue,
-  getFieldMetaType,
-  isError,
-} from './helper.js'
+export { getRepoDisplayValue, isError } from './helper.js'
 export {
   buildWhere,
   getPlaceholder,
@@ -70,10 +64,10 @@ export type KitBaseItem = KitBaseEnumOptions & {
   id: string
   captionSub?: string | (string | undefined)[]
   href?: string
-  entity?: ClassType<any>
+  repo?: Repository<any>
   sub?: {
     captionPre?: string
-    entity?: ClassType<any>
+    repo?: Repository<any>
     item?: any
   }
 }
