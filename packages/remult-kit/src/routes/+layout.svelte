@@ -14,6 +14,7 @@
     { path: route('/remult/select'), text: 'Remult Select' },
     { path: route('/remult/enum'), text: 'Remult Enum' },
     { path: route('/remult/auth'), text: 'Remult Auth' },
+    { path: route('kit_login'), text: '🔑 Auth Login', target: '_blank' },
     { path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
     {
       path: route('github', { owner: 'remult', repo: 'remult' }),

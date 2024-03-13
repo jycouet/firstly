@@ -18,20 +18,24 @@ export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
       enforce: 'pre',
 
       config: async (a) => {
-        mergeConfig(a, {
-          build: {
-            // THE ERROR:
-            // RollupError: Unexpected character '�'
-            // This code (A) is to fix in `build` mode
-            rollupOptions: {
-              external: toRemove,
+        mergeConfig(
+          a,
+          {
+            build: {
+              // THE ERROR:
+              // RollupError: Unexpected character '�'
+              // This code (A) is to fix in `build` mode
+              rollupOptions: {
+                external: toRemove,
+              },
+            },
+            // This code (B) is to fix in `dev` mode
+            optimizeDeps: {
+              exclude: toRemove,
             },
           },
-          // This code (B) is to fix in `dev` mode
-          optimizeDeps: {
-            exclude: toRemove,
-          },
-        })
+          true,
+        )
       },
     },
 
