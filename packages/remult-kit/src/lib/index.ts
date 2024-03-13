@@ -135,6 +135,8 @@ declare module 'remult' {
     // Currently only for filtering.
     multiSelect?: boolean
 
+    skipForDefaultField?: boolean
+
     narrowFindFunc?: (params: { id?: string; siteId?: number }) => FindOptionsBase<valueType>
   }
 

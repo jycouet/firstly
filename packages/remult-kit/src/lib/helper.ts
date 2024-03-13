@@ -1,11 +1,8 @@
 import { remult, type ErrorInfo, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
-import { green, Log, yellow } from '@kitql/helpers'
 
 import { suffixWithS } from './formats/strings.js'
 import type { KitBaseItem } from './index.js'
-
-const log = new Log('remult-kit')
 
 export function isError<T>(object: any): object is ErrorInfo<T> {
   return object
@@ -18,12 +15,21 @@ export const getEntityDisplayValue = <Entity>(
   row: Entity,
 ): KitBaseItem => {
   if (!repo.metadata.options.displayValue) {
-    log.error(
-      `(${whereAreWe}) Entity "${green(repo.metadata.key)}"` +
-        ` missing "${yellow(`displayValue`)}" prop.`,
-    )
-    return { caption: 'NOTHING', id: 'NOTHING' }
+    const fields = repo.metadata.fields.toArray()
+    for (let i = 0; i < fields.length; i++) {
+      // Let's find the most relevant field to display...
+      if (
+        fields[i].key !== 'id' &&
+        fields[i].key !== 'createdAt' &&
+        fields[i].options.skipForDefaultField !== true
+      ) {
+        return { caption: fields[i].displayValue(row), id: '' }
+      }
+    }
+
+    return { caption: 'NOTHING Found as a good default', id: 'NOTHING' }
   }
+
   return repo.metadata.options.displayValue(row)
 }
 
@@ -41,7 +47,7 @@ export const getFieldLinkDisplayValue = (
   return { id: '', caption, href }
 }
 
-export const getEntityLinkDisplayValue = (
+export const getEntityDisplayValueFromField = (
   field: FieldMetadata,
   row: any,
 ): KitBaseItem & { href: string } => {

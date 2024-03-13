@@ -4,7 +4,7 @@
   import {
     displayWithDefaultAndSuffix,
     getEntityDisplayValue,
-    getEntityLinkDisplayValue,
+    getEntityDisplayValueFromField,
     getFieldLinkDisplayValue,
     getFieldMetaType,
   } from '../helper.js'
@@ -80,7 +80,7 @@
                   {@const item = getFieldLinkDisplayValue(metaType.field, row)}
                   <LinkPlus {item} />
                 {:else if b.kind === 'entity_link'}
-                  {@const item = getEntityLinkDisplayValue(metaType.field, row)}
+                  {@const item = getEntityDisplayValueFromField(metaType.field, row)}
                   <LinkPlus {item} />
                 {:else if metaType.kind === 'enum'}
                   {@const t = metaType.field.displayValue(row)}
