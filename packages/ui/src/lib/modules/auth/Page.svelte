@@ -1,27 +1,25 @@
 <script lang="ts">
-  import { Route, Link, linkHandle } from "svelte-micro"
+  import { Link, Route } from 'svelte-micro'
 
-  import ForgottenPassword from './components/ForgottenPassword.svelte';
-  import Login from './components/Login.svelte';
+  import type { RemultKitData } from '../../../../../remult-kit/src/lib/auth/types'
+  import ForgottenPassword from './components/ForgottenPassword.svelte'
+  import Login from './components/Login.svelte'
 
-  export let remultKitData : any;
+  export let remultKitData: RemultKitData
 
-  $: forgottenPasswordPath = remultKitData.props.paths.base + remultKitData.props.paths.forgottenPassword;
-  $: loginPath = remultKitData.props.paths.base + remultKitData.props.paths.login;
+  $: forgottenPasswordPath =
+    remultKitData.props.paths.base + remultKitData.props.paths.forgottenPassword
+  $: loginPath = remultKitData.props.paths.base + remultKitData.props.paths.login
 </script>
-
 
 <div class="wrapper">
   <div class="form">
-    1234
     <Route>
       <Route path={loginPath}>
         <Login {remultKitData} />
 
         <div class="form-footer">
-          <Link href={forgottenPasswordPath}>
-            Forgot your password?
-          </Link>
+          <Link href={forgottenPasswordPath}>Forgot your password?</Link>
         </div>
       </Route>
 
@@ -29,9 +27,7 @@
         <ForgottenPassword {remultKitData} />
 
         <div class="form-footer">
-          <Link href={loginPath}>
-            Back to login
-          </Link>
+          <Link href={loginPath}>Back to login</Link>
         </div>
       </Route>
 
@@ -43,8 +39,6 @@
     </Route>
   </div>
 </div>
-
-
 
 <style>
   .wrapper {

@@ -1,25 +1,10 @@
 <script lang="ts">
-  // import { AuthController } from '../../../../../../remult-kit/src/lib/auth/AuthController.js'
+  import { AuthController } from '../../../../../../remult-kit/src/lib/auth/AuthController'
+  import type { RemultKitData } from '../../../../../../remult-kit/src/lib/auth/types'
   import { isError } from '../../../../../../remult-kit/src/lib/helper'
   import { autofocus } from '../helpers'
 
-  export let remultKitData: any
-  // import { AuthController } from '../../../../../../remult-kit/dist/esm/auth';
-  // import { isError } from '../../../../../../remult-kit/src/lib/helper';
-  // import { AuthController } from '../../../../../../remult-kit/src/lib/auth/AuthController';
-
-  // Defaults
-  $: if (!remultKitData) {
-    remultKitData = {
-      props: {
-        paths: {
-          base: '/kit/auth',
-          login: '/login',
-          forgottenPassword: '/forgotten-password',
-        },
-      },
-    }
-  }
+  export let remultKitData: RemultKitData
 
   export let view = 'login'
   export let indentifier = ''
@@ -34,7 +19,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      // await AuthController.signInPassword(indentifier, password)
+      await AuthController.signInPassword(indentifier, password)
     } catch (error) {
       if (isError(error)) {
         msgError = error.message ?? ''

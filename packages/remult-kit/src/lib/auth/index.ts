@@ -19,6 +19,7 @@ import { RemultLuciaAdapter } from './Adapter'
 import { AuthController, createSession } from './AuthController'
 import { KitAuthAccount, KitAuthRole, KitAuthUser, KitAuthUserSession } from './Entities'
 import { RoleController } from './RoleController'
+import type { RemultKitData, RemultKitDataKind } from './types'
 
 export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'
 export { AuthController } from './AuthController'
@@ -198,13 +199,17 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
 
       if (event.url.pathname.startsWith(base)) {
-        const providersName = AUTH_OPTIONS.providers?.oAuths?.map((o) => {
-          return o.name
-        })
+        const providers =
+          AUTH_OPTIONS.providers?.oAuths?.map((o) => {
+            return o.name
+          }) ?? []
 
-        const remultKitData = {
+        const remultKitData: RemultKitData = {
           module: 'auth',
-          props: { ...AUTH_OPTIONS.ui, providersName },
+          props: {
+            providers,
+            paths: { base, login: '/login', forgottenPassword: '/forgottenPassword' },
+          },
         }
 
         return {

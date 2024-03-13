@@ -10,7 +10,7 @@ const config = defineConfig({
     remultKit<KIT_ROUTES>({
       kitRoutes: {
         LINKS: {
-          kit_login: '/kit/auth/login',
+          kit_auth: '/kit/auth',
         },
       },
     }),
