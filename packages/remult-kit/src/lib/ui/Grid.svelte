@@ -8,7 +8,7 @@
     getFieldLinkDisplayValue,
     getFieldMetaType,
   } from '../helper.js'
-  import { LibIcon_Delete, LibIcon_Edit, type KitBaseItem, type KitStoreList } from '../index.js'
+  import { LibIcon_Delete, LibIcon_Edit, type KitStoreList } from '../index.js'
   import type { KitCell } from '../kitCellsBuildor.js'
   import Button from './Button.svelte'
   import Clipboardable from './Clipboardable.svelte'
