@@ -1,8 +1,9 @@
 <script lang="ts">
     import { autofocus } from "../helpers";
 
-    import { AuthController } from '../../../../../../remult-kit/src/lib/auth/AuthController.js';
-    import { isError } from '../../../../../../remult-kit/src/lib/helper';
+    // import { AuthController } from '../../../../../../remult-kit/dist/esm/auth';
+    // import { isError } from '../../../../../../remult-kit/src/lib/helper';
+    // import { AuthController } from '../../../../../../remult-kit/src/lib/auth/AuthController';
 
     export let remultKitData:any;
 
@@ -31,20 +32,20 @@
     async function signIn() {
         msgError = ''
         msgSuccess = ''
-        try {
-            await AuthController.signInPassword(indentifier, password)
-        } catch (error) {
-            if (isError(error)) {
-                msgError = error.message ?? ''
-            }
-        }
+        console.log("123");
+        // await AuthController.signInPassword(indentifier, password)
+    }
+
+    async function handlePin() {
+        msgError = ''
+        msgSuccess = ''
     }
 </script>
 
 
 {#if view == "login"}
 <form on:submit|preventDefault={signIn}>
-    <p>{msgError}{msgSuccess}</p>
+    <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
     <label>
         Username
         <input bind:value={indentifier} use:autofocus type="text" />
@@ -74,5 +75,21 @@
     form {
         display: flex;
         flex-direction: column;
+    }
+
+    .message:empty {
+        display: none;
+    }
+
+    .message {
+        background: var(--pico-muted-border-color);
+        padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
+        border-radius: var(--pico-border-radius);
+        margin-bottom: calc(var(--pico-typography-spacing-vertical) * 2);
+    }
+
+    .message.error {
+        background: var(--pico-del-color);
+        color: #4c1513;
     }
 </style>
