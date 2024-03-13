@@ -32,7 +32,7 @@ export class KitAuthUser {
   })
   name!: string
 
-  // REMULT CommaSeparatedStringArrayField https://remult.dev/docs/field-types.html#json-field doesn't exist?
+  // REMULT P1 Noam? CommaSeparatedStringArrayField https://remult.dev/docs/field-types.html#json-field doesn't exist?
   // @CommaSeparatedStringArrayField()
   @Fields.object<KitAuthUser, string[]>({
     valueConverter: {

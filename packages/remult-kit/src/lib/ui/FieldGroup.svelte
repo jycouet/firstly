@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
 
   import type { FieldMetadata } from 'remult'
+  import { getRelationFieldInfo } from 'remult/internals'
 
   import { tw, type KitStoreItem } from '..'
   import type { KitCell } from '../kitCellsBuildor'
@@ -18,10 +19,8 @@
   export let focusKey: string | null | undefined = null
 
   const getError = (errors: any, field: FieldMetadata<any, any>) => {
-    // REMULT to get the error of CategoryId in Category
-    // @ts-ignore
-    const keyToUse = field.options.field ?? field.key
-
+    const fo = getRelationFieldInfo(field)
+    const keyToUse = fo?.options?.field ?? field.key
     if (errors && errors[keyToUse]) {
       return errors[keyToUse]
     }

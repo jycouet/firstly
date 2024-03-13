@@ -54,12 +54,20 @@ export const getEntityDisplayValueFromField = (
     return { href: '/', id: '', caption: '-' }
   }
 
-  // REMULT BUG https://github.com/remult/remult/issues/239
+  // REMULT P1 Noam? https://github.com/remult/remult/issues/239
+  // in http://127.0.0.1:3177/app/contrats field "numero"
+  // 1/
   // const repo = remult.repo(field.target)
+
+  // 2/
+  // const repo = field.entityRef.repository
+
+  // 3/ Tentative
+  // const repo = remult.repo(getRelationFieldInfo(field).currentEntity
+
+  // 4/ working solution but entityDefs is not exposed
   // @ts-ignore
   const repo = remult.repo(field.entityDefs.entityType)
-  // console.log(`field.entityDefs.entityType`, field.entityDefs.entityType)
-  // console.log(`field.target`, field.target)
 
   return { href: '', ...getEntityDisplayValue(repo, row) }
 }
@@ -100,7 +108,7 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
     }
   }
 
-  // REMULT TODO
+  // REMULT P2 Noam? Any idea to know if it's an enum? and extract values?
   // is it any enum?
   // @ts-ignore
   if (field.options?.valueConverter?.values) {
