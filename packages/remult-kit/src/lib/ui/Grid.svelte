@@ -1,15 +1,10 @@
 <script lang="ts" generics="T extends Record<any, any>">
   import { createEventDispatcher } from 'svelte'
 
-  
-import {
-    displayWithDefaultAndSuffix,
-    getEntityDisplayValue,
-    getEntityDisplayValueFromField,
-    getFieldLinkDisplayValue,
-    getFieldMetaType,
-  } from '../helper.js'
-  import { LibIcon_Delete, LibIcon_Edit, type KitStoreList } from '../index.js'
+  import { remult, type FieldMetadata } from 'remult'
+
+  import { displayWithDefaultAndSuffix, getFieldMetaType, getRepoDisplayValue } from '../helper.js'
+  import { LibIcon_Delete, LibIcon_Edit, type KitBaseItem, type KitStoreList } from '../index.js'
   import type { KitCell } from '../kitCellsBuildor.js'
   import Button from './Button.svelte'
   import Clipboardable from './Clipboardable.svelte'
@@ -29,6 +24,38 @@ import {
 
   export let classes = {
     table: 'table-pin-rows table-pin-cols',
+  }
+
+  const getFieldLinkDisplayValue = (
+    field: FieldMetadata,
+    row: any,
+  ): KitBaseItem & { href: string } => {
+    const caption = field.displayValue(row)
+
+    let href = ''
+    if (field.options.href) {
+      href = field.options.href(row)
+    }
+
+    return { id: '', caption, href }
+  }
+
+  const getEntityLinkDisplayValue = (
+    field: FieldMetadata,
+    row: any,
+  ): KitBaseItem & { href: string } => {
+    if (row === null || row === undefined) {
+      return { href: '/', id: '', caption: '-' }
+    }
+
+    // REMULT BUG https://github.com/remult/remult/issues/239
+    // const repo = remult.repo(field.target)
+    // @ts-ignore
+    const repo = remult.repo(field.entityDefs.entityType)
+    // console.log(`field.entityDefs.entityType`, field.entityDefs.entityType)
+    // console.log(`field.target`, field.target)
+
+    return { href: '', ...getRepoDisplayValue('Grid.svelte', repo, row) }
   }
 
   const dispatch = createEventDispatcher()
@@ -71,13 +98,17 @@ import {
                 {#if metaType.kind === 'slot' || b.kind === 'slot'}
                   <slot name="cell" {row} field={b.field} />
                 {:else if metaType.kind === 'relation'}
-                  {@const item = getEntityDisplayValue(metaType.toEntity, row[metaType.field.key])}
+                  {@const item = getRepoDisplayValue(
+                    'Grid.svelte',
+                    metaType.repoTarget,
+                    row[metaType.field.key],
+                  )}
                   <LinkPlus {item} />
                 {:else if b.kind === 'field_link'}
                   {@const item = getFieldLinkDisplayValue(metaType.field, row)}
                   <LinkPlus {item} />
                 {:else if b.kind === 'entity_link'}
-                  {@const item = getEntityDisplayValueFromField(metaType.field, row)}
+                  {@const item = getEntityLinkDisplayValue(metaType.field, row)}
                   <LinkPlus {item} />
                 {:else if metaType.kind === 'enum'}
                   {@const t = metaType.field.displayValue(row)}

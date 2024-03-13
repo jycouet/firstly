@@ -2,34 +2,31 @@ import { BROWSER } from 'esm-env'
 import { onDestroy } from 'svelte'
 import { writable } from 'svelte/store'
 
-import { remult, type ClassType, type FindOptions } from 'remult'
+import type { FindOptions, Repository } from 'remult'
 
-type TheStoreList<T> = {
-  items: T[]
-  loading: boolean
-  totalCount: number | undefined
-}
+type TheStoreList<T> = { items: T[]; loading: boolean; totalCount: number | undefined }
 
 export type FindOptionsPlus<T> = FindOptions<T> & { withCount?: boolean; withItems?: boolean }
 
 /**
- * @param entity remult entity
+ * @param repo remult repository to listen to
  * @param initValues usually the data coming from SSR
  * @returns a store with the initial values and a listen() method to subscribe to changes
  *
  * Example
  * ```ts
- * const store = kitStoreList(Task)
- * $: browser && store.listen({ where: {} })
+ * // get the repo
+ * const taskRepo = remult.repo(Task)
+ *
+ * const tasks = kitStore(taskRepo, data.tasks)
+ * $: browser && tasks.listen(data.options)
  * ```
  */
-export const kitStoreList = <Entity>(
-  entity: ClassType<Entity>,
-  initValues: TheStoreList<Entity> = { items: [], loading: true, totalCount: undefined },
+export const kitStoreList = <T>(
+  repo: Repository<T>,
+  initValues: TheStoreList<T> = { items: [], loading: true, totalCount: undefined },
 ) => {
-  const repo = remult.repo(entity)
-
-  const { subscribe, set, update } = writable<TheStoreList<Entity>>({ ...initValues })
+  const { subscribe, set, update } = writable<TheStoreList<T>>(initValues)
   let unSub: any = null
 
   onDestroy(async () => {
@@ -47,18 +44,14 @@ export const kitStoreList = <Entity>(
   return {
     subscribe,
 
-    repo,
-
-    // We don't want to expose the set method, we want to use the manualSet method
     // set,
-
-    manualSet: (info: TheStoreList<Entity>) => {
-      set({ ...info })
+    manualSet: (info: TheStoreList<T>) => {
+      set(info)
     },
 
     fetch: async (
-      options?: FindOptionsPlus<Entity>,
-      onNewData?: (items?: Entity[], totalCount?: number) => void,
+      options?: FindOptionsPlus<T>,
+      onNewData?: (items?: T[], totalCount?: number) => void,
     ) => {
       if (BROWSER) {
         update((s) => ({ ...s, loading: true }))
@@ -93,7 +86,7 @@ export const kitStoreList = <Entity>(
       }
     },
 
-    listen: async (options?: FindOptionsPlus<Entity>) => {
+    listen: async (options?: FindOptionsPlus<T>) => {
       if (BROWSER) {
         await plzUnSub()
 

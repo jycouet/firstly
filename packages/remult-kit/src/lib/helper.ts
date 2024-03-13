@@ -1,6 +1,6 @@
-import { remult, type ClassType, type ErrorInfo, type FieldMetadata, type Repository } from 'remult'
+import { type ErrorInfo, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
-import { Log } from '@kitql/helpers'
+import { green, Log, yellow } from '@kitql/helpers'
 
 import { suffixWithS } from './formats/strings.js'
 import type { KitBaseItem } from './index.js'
@@ -11,62 +11,26 @@ export function isError<T>(object: any): object is ErrorInfo<T> {
   return object
 }
 
-export const getEntityDisplayValue = <Entity>(
-  entity: ClassType<Entity>,
+export const getRepoDisplayValue = <Entity>(
+  // for the developer!
+  whereAreWe: string,
+  repo: Repository<Entity>,
   row: Entity,
 ): KitBaseItem => {
-  const repo = remult.repo(entity)
-
-  if (repo.metadata.options.displayValue === undefined) {
-    const arr = repo.metadata.fields.toArray()
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i].key !== 'id' && arr[i].key !== 'createdAt') {
-        return { caption: arr[i].displayValue(row), id: 'NOTHING' }
-      }
-    }
+  if (!repo.metadata.options.displayValue) {
+    log.error(
+      `(${whereAreWe}) Entity "${green(repo.metadata.key)}"` +
+        ` missing "${yellow(`displayValue`)}" prop.`,
+    )
+    return { caption: 'NOTHING', id: 'NOTHING' }
   }
-
-  if (repo.metadata.options.displayValue) {
-    return repo.metadata.options.displayValue(row)
-  }
-
-  return { caption: 'NOTHING', id: 'NOTHING' }
-}
-
-export const getFieldLinkDisplayValue = (
-  field: FieldMetadata,
-  row: any,
-): KitBaseItem & { href: string } => {
-  const caption = field.displayValue(row)
-
-  let href = ''
-  if (field.options.href) {
-    href = field.options.href(row)
-  }
-
-  return { id: '', caption, href }
-}
-
-export const getEntityDisplayValueFromField = (
-  field: FieldMetadata,
-  row: any,
-): KitBaseItem & { href: string } => {
-  if (row === null || row === undefined) {
-    return { href: '/', id: '', caption: '-' }
-  }
-
-  // REMULT BUG https://github.com/remult/remult/issues/239
-  // @ts-ignore
-  const entity = field.entityDefs.entityType
-
-  return { href: '', ...getEntityDisplayValue(entity, row) }
+  return repo.metadata.options.displayValue(row)
 }
 
 export type MetaTypeRelation = {
   kind: 'relation'
   subKind: 'reference' | 'toOne' | 'toMany'
   repoTarget: Repository<any>
-  toEntity: ClassType<any>
   field: FieldMetadata
 }
 type MetaTypeEnum = {
@@ -95,7 +59,6 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
       kind: 'relation',
       subKind: fieldRelationInfo.type,
       repoTarget: fieldRelationInfo.toRepo,
-      toEntity: fieldRelationInfo.toEntity,
       field,
     }
   }

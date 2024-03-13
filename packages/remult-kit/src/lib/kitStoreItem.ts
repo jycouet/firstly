@@ -1,7 +1,7 @@
 import { BROWSER } from 'esm-env'
 import { get, writable } from 'svelte/store'
 
-import { remult, type ClassType, type ErrorInfo, type FindOptions } from 'remult'
+import type { ErrorInfo, FindOptions, Repository } from 'remult'
 // @ts-ignore
 import type { idType } from 'remult/src/remult3/remult3'
 import { Log } from '@kitql/helpers'
@@ -15,27 +15,23 @@ type TheStoreItem<T> = {
   globalError?: string | undefined
 }
 
-export const kitStoreItem = <Entity>(
-  entity: ClassType<Entity>,
-  initValues: TheStoreItem<Entity> = {
+export const kitStoreItem = <T>(
+  repo: Repository<T>,
+  initValues: TheStoreItem<T> = {
     item: undefined,
     loading: true,
     errors: undefined,
     globalError: undefined,
   },
 ) => {
-  const repo = remult.repo(entity)
+  const internalStore = writable<TheStoreItem<T>>(initValues)
 
-  const internalStore = writable<TheStoreItem<Entity>>(initValues)
-
-  let lastOptions: FindOptions<Entity> | undefined
+  let lastOptions: FindOptions<T> | undefined
 
   return {
     subscribe: internalStore.subscribe,
 
-    repo,
-
-    create: (item: Partial<Entity>) =>
+    create: (item: Partial<T>) =>
       internalStore.set({
         item: repo.create(item),
         loading: false,
@@ -44,11 +40,7 @@ export const kitStoreItem = <Entity>(
       }),
     set: internalStore.set,
 
-    fetch: async (
-      id: idType<Entity>,
-      options?: FindOptions<Entity>,
-      onNewData?: (item: Entity) => void,
-    ) => {
+    fetch: async (id: idType<T>, options?: FindOptions<T>, onNewData?: (item: T) => void) => {
       if (BROWSER) {
         internalStore.update((s) => ({ ...s, loading: true }))
 
@@ -61,11 +53,11 @@ export const kitStoreItem = <Entity>(
             onNewData(item)
           }
         } catch (error) {
-          if (isError<Entity>(error)) {
+          if (isError<T>(error)) {
             internalStore.set({
               loading: false,
-              item: {} as Entity,
-              errors: {} as ErrorInfo<Entity>,
+              item: {} as T,
+              errors: {} as ErrorInfo<T>,
               globalError: error.message,
             })
           }
@@ -88,7 +80,7 @@ export const kitStoreItem = <Entity>(
         internalStore.set({ loading: false, item, errors: undefined, globalError: undefined })
         return item
       } catch (error: any) {
-        if (isError<Entity>(error)) {
+        if (isError<T>(error)) {
           if (!error.modelState) {
             internalStore.set({
               loading: false,
@@ -97,7 +89,7 @@ export const kitStoreItem = <Entity>(
               globalError: error.message,
             })
           } else {
-            const errors: ErrorInfo<Entity> = {}
+            const errors: ErrorInfo<T> = {}
             for (const key in error.modelState) {
               // @ts-ignore
               errors[key] = error.modelState[key]
@@ -113,7 +105,7 @@ export const kitStoreItem = <Entity>(
     /**
      * @deprecated, use `deleteMe` instead that has a better error handling (need to create a manualSet probably to be consistent with list part)
      */
-    delete: async (item: Entity) => await repo.delete(item),
+    delete: async (item: T) => await repo.delete(item),
 
     deleteMe: async () => {
       const s = get(internalStore)
@@ -124,7 +116,7 @@ export const kitStoreItem = <Entity>(
       try {
         await repo.delete(s.item)
       } catch (error: any) {
-        if (isError<Entity>(error)) {
+        if (isError<T>(error)) {
           if (!error.modelState) {
             internalStore.set({
               loading: false,
@@ -133,7 +125,7 @@ export const kitStoreItem = <Entity>(
               globalError: error.message,
             })
           } else {
-            const errors: ErrorInfo<Entity> = {}
+            const errors: ErrorInfo<T> = {}
             for (const key in error.modelState) {
               // @ts-ignore
               errors[key] = error.modelState[key]

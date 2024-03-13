@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  
-import { page } from '$app/stores'
+  import { repo } from 'remult'
+
+  import { page } from '$app/stores'
 
   import { FeedbackController } from '..'
   import { Button, Field, FilterEntity, kitCellBuildor, Loading, type ResolvedType } from '../..'
@@ -98,7 +99,7 @@ import { page } from '$app/stores'
       </div>
     {:else}
       {#if issueNumber === null}
-        <Field cell={kitCellBuildor(FilterEntity, 'title')} bind:value={title} />
+        <Field cell={kitCellBuildor(repo(FilterEntity), 'title')} bind:value={title} />
       {/if}
       <Textarea bind:value={content}></Textarea>
       <div class="flex justify-between">
