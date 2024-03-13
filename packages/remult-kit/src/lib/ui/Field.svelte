@@ -8,8 +8,8 @@
   import { suffixWithS } from '../formats/strings'
   import {
     displayWithDefaultAndSuffix,
+    getEntityDisplayValue,
     getFieldMetaType,
-    getRepoDisplayValue,
     type MetaTypeRelation,
   } from '../helper.js'
   import { tw } from '../utils/tailwind'
@@ -141,7 +141,7 @@
     const res = await metaTypeObj.repoTarget.find({ ...findToUse, limit: 300 })
 
     items = res.map((r) =>
-      getRepoDisplayValue('Field.svelte Select edit', metaTypeObj.repoTarget, r),
+      getEntityDisplayValue('Field.svelte Select edit', metaTypeObj.repoTarget, r),
     )
   }
 
@@ -168,7 +168,7 @@
           checked={value}
         />
       {:else if metaType.kind === 'relation'}
-        {@const item = getRepoDisplayValue(
+        {@const item = getEntityDisplayValue(
           'Field.svelte relation readonly',
           metaType.repoTarget,
           value,

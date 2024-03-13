@@ -1,9 +1,13 @@
 <script lang="ts" generics="T extends Record<any, any>">
   import { createEventDispatcher } from 'svelte'
 
-  import { remult, type FieldMetadata } from 'remult'
-
-  import { displayWithDefaultAndSuffix, getFieldMetaType, getRepoDisplayValue } from '../helper.js'
+  import {
+    displayWithDefaultAndSuffix,
+    getEntityDisplayValue,
+    getEntityLinkDisplayValue,
+    getFieldLinkDisplayValue,
+    getFieldMetaType,
+  } from '../helper.js'
   import { LibIcon_Delete, LibIcon_Edit, type KitBaseItem, type KitStoreList } from '../index.js'
   import type { KitCell } from '../kitCellsBuildor.js'
   import Button from './Button.svelte'
@@ -24,38 +28,6 @@
 
   export let classes = {
     table: 'table-pin-rows table-pin-cols',
-  }
-
-  const getFieldLinkDisplayValue = (
-    field: FieldMetadata,
-    row: any,
-  ): KitBaseItem & { href: string } => {
-    const caption = field.displayValue(row)
-
-    let href = ''
-    if (field.options.href) {
-      href = field.options.href(row)
-    }
-
-    return { id: '', caption, href }
-  }
-
-  const getEntityLinkDisplayValue = (
-    field: FieldMetadata,
-    row: any,
-  ): KitBaseItem & { href: string } => {
-    if (row === null || row === undefined) {
-      return { href: '/', id: '', caption: '-' }
-    }
-
-    // REMULT BUG https://github.com/remult/remult/issues/239
-    // const repo = remult.repo(field.target)
-    // @ts-ignore
-    const repo = remult.repo(field.entityDefs.entityType)
-    // console.log(`field.entityDefs.entityType`, field.entityDefs.entityType)
-    // console.log(`field.target`, field.target)
-
-    return { href: '', ...getRepoDisplayValue('Grid.svelte', repo, row) }
   }
 
   const dispatch = createEventDispatcher()
@@ -98,7 +70,7 @@
                 {#if metaType.kind === 'slot' || b.kind === 'slot'}
                   <slot name="cell" {row} field={b.field} />
                 {:else if metaType.kind === 'relation'}
-                  {@const item = getRepoDisplayValue(
+                  {@const item = getEntityDisplayValue(
                     'Grid.svelte',
                     metaType.repoTarget,
                     row[metaType.field.key],

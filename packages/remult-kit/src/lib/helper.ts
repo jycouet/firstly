@@ -1,4 +1,4 @@
-import { type ErrorInfo, type FieldMetadata, type Repository } from 'remult'
+import { remult, type ErrorInfo, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 import { green, Log, yellow } from '@kitql/helpers'
 
@@ -11,7 +11,7 @@ export function isError<T>(object: any): object is ErrorInfo<T> {
   return object
 }
 
-export const getRepoDisplayValue = <Entity>(
+export const getEntityDisplayValue = <Entity>(
   // for the developer!
   whereAreWe: string,
   repo: Repository<Entity>,
@@ -25,6 +25,38 @@ export const getRepoDisplayValue = <Entity>(
     return { caption: 'NOTHING', id: 'NOTHING' }
   }
   return repo.metadata.options.displayValue(row)
+}
+
+export const getFieldLinkDisplayValue = (
+  field: FieldMetadata,
+  row: any,
+): KitBaseItem & { href: string } => {
+  const caption = field.displayValue(row)
+
+  let href = ''
+  if (field.options.href) {
+    href = field.options.href(row)
+  }
+
+  return { id: '', caption, href }
+}
+
+export const getEntityLinkDisplayValue = (
+  field: FieldMetadata,
+  row: any,
+): KitBaseItem & { href: string } => {
+  if (row === null || row === undefined) {
+    return { href: '/', id: '', caption: '-' }
+  }
+
+  // REMULT BUG https://github.com/remult/remult/issues/239
+  // const repo = remult.repo(field.target)
+  // @ts-ignore
+  const repo = remult.repo(field.entityDefs.entityType)
+  // console.log(`field.entityDefs.entityType`, field.entityDefs.entityType)
+  // console.log(`field.target`, field.target)
+
+  return { href: '', ...getEntityDisplayValue('Grid.svelte', repo, row) }
 }
 
 export type MetaTypeRelation = {

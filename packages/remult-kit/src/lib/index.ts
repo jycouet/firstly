@@ -45,7 +45,7 @@ export type { KitBaseEnumOptions } from './KitBaseEnum.js'
 export { KitFields } from './KitFields.js'
 export { KitValidators } from './KitValidators.js'
 export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
-export { getRepoDisplayValue, isError } from './helper.js'
+export { getEntityDisplayValue, isError } from './helper.js'
 export {
   buildWhere,
   getPlaceholder,
