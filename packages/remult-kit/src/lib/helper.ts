@@ -9,28 +9,27 @@ export function isError<T>(object: any): object is ErrorInfo<T> {
 }
 
 export const getEntityDisplayValue = <Entity>(
-  // for the developer!
-  whereAreWe: string,
   repo: Repository<Entity>,
   row: Entity,
 ): KitBaseItem => {
-  if (!repo.metadata.options.displayValue) {
-    const fields = repo.metadata.fields.toArray()
-    for (let i = 0; i < fields.length; i++) {
-      // Let's find the most relevant field to display...
-      if (
-        fields[i].key !== 'id' &&
-        fields[i].key !== 'createdAt' &&
-        fields[i].options.skipForDefaultField !== true
-      ) {
-        return { caption: fields[i].displayValue(row), id: '' }
-      }
-    }
-
-    return { caption: 'NOTHING Found as a good default', id: 'NOTHING' }
+  if (repo.metadata.options.displayValue) {
+    return repo.metadata.options.displayValue(row)
   }
 
-  return repo.metadata.options.displayValue(row)
+  const fields = repo.metadata.fields.toArray()
+
+  for (let i = 0; i < fields.length; i++) {
+    // Let's find the most relevant field to display...
+    if (
+      fields[i].key !== 'id' &&
+      fields[i].key !== 'createdAt' &&
+      fields[i].options.skipForDefaultField !== true
+    ) {
+      return { caption: fields[i].displayValue(row), id: '' }
+    }
+  }
+
+  return { caption: 'NOTHING Found as a good default', id: 'NOTHING' }
 }
 
 export const getFieldLinkDisplayValue = (
@@ -62,7 +61,7 @@ export const getEntityDisplayValueFromField = (
   // console.log(`field.entityDefs.entityType`, field.entityDefs.entityType)
   // console.log(`field.target`, field.target)
 
-  return { href: '', ...getEntityDisplayValue('Grid.svelte', repo, row) }
+  return { href: '', ...getEntityDisplayValue(repo, row) }
 }
 
 export type MetaTypeRelation = {

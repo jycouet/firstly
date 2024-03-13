@@ -140,9 +140,7 @@
     }
     const res = await metaTypeObj.repoTarget.find({ ...findToUse, limit: 300 })
 
-    items = res.map((r) =>
-      getEntityDisplayValue('Field.svelte Select edit', metaTypeObj.repoTarget, r),
-    )
+    items = res.map((r) => getEntityDisplayValue(metaTypeObj.repoTarget, r))
   }
 
   $: cellsValues && getLoadOptions('')
@@ -168,11 +166,7 @@
           checked={value}
         />
       {:else if metaType.kind === 'relation'}
-        {@const item = getEntityDisplayValue(
-          'Field.svelte relation readonly',
-          metaType.repoTarget,
-          value,
-        )}
+        {@const item = getEntityDisplayValue(metaType.repoTarget, value)}
         <div class={tw('flex items-center gap-4', 'h-12', 'pl-2')}>
           {#if item && item?.icon}
             <Icon {...item.icon} />

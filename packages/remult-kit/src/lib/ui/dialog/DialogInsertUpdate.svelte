@@ -25,7 +25,7 @@
     isLoading = true
     try {
       const result = await store.save()
-      const item = getEntityDisplayValue('dialogInsertUpdate', toShow.repo!, result)
+      const item = getEntityDisplayValue(toShow.repo!, result)
 
       if (result) {
         dialog.close(toShow.id, { success: true, item })

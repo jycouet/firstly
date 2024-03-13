@@ -71,7 +71,6 @@
                   <slot name="cell" {row} field={b.field} />
                 {:else if metaType.kind === 'relation'}
                   {@const item = getEntityDisplayValue(
-                    'Grid.svelte',
                     metaType.repoTarget,
                     row[metaType.field.key],
                   )}
