@@ -128,6 +128,7 @@ declare module 'remult' {
 
     href?: (item: entityType) => string
 
+    // REMULT P3 Noam/Yoni convo
     // difference with `findOptions` of remult ?
     // `findOptionsForEdit` is only for insert & update.
     findOptionsForEdit?: (() => FindOptionsBase<valueType>) | FindOptionsBase<valueType>

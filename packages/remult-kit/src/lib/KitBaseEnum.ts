@@ -15,15 +15,14 @@ export type KitBaseEnumOptions<Entity = any> = {
 }
 
 export class KitBaseEnum<Entity = any> {
+  public id: string
   public caption?: string
   icon?: KitIcon
   public where?: IdFilter<Entity>
 
-  constructor(
-    public id: string,
-    options?: KitBaseEnumOptions<Entity>,
-  ) {
-    this.caption = options?.caption ?? id
+  constructor(_id: string | number, options?: KitBaseEnumOptions<Entity>) {
+    this.id = _id.toString()
+    this.caption = options?.caption ?? this.id
     this.icon = options?.icon
     this.where = options?.where
   }

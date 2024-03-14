@@ -35,6 +35,8 @@ export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
       },
     },
 
+    // FIXME
+    // @ts-ignore
     ...kitRoutes<KIT_ROUTES>({
       ...(options?.kitRoutes ?? {}),
       ...{
@@ -58,6 +60,8 @@ export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
       },
     }),
 
+    // FIXME
+    // @ts-ignore
     ...stripper({
       decorators: ['BackendMethod'],
       hard: true,

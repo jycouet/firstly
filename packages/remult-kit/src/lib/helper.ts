@@ -1,4 +1,11 @@
-import { remult, type ErrorInfo, type FieldMetadata, type Repository } from 'remult'
+import {
+  getEntityRef,
+  getValueList,
+  remult,
+  type ErrorInfo,
+  type FieldMetadata,
+  type Repository,
+} from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { suffixWithS } from './formats/strings.js'
@@ -54,20 +61,7 @@ export const getEntityDisplayValueFromField = (
     return { href: '/', id: '', caption: '-' }
   }
 
-  // REMULT P1 Noam? https://github.com/remult/remult/issues/239
-  // in http://127.0.0.1:3177/app/contrats field "numero"
-  // 1/
-  // const repo = remult.repo(field.target)
-
-  // 2/
-  // const repo = field.entityRef.repository
-
-  // 3/ Tentative
-  // const repo = remult.repo(getRelationFieldInfo(field).currentEntity
-
-  // 4/ working solution but entityDefs is not exposed
-  // @ts-ignore
-  const repo = remult.repo(field.entityDefs.entityType)
+  const repo = getEntityRef(row).repository
 
   return { href: '', ...getEntityDisplayValue(repo, row) }
 }
@@ -109,7 +103,10 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
   }
 
   // REMULT P2 Noam? Any idea to know if it's an enum? and extract values?
-  // is it any enum?
+  // const ttt = getValueList(field)
+  // console.log(`ttt`, ttt)
+  // Error: ValueType not yet initialized, did you forget to call @ValueListFieldType on function String()
+  // is it an enum?
   // @ts-ignore
   if (field.options?.valueConverter?.values) {
     return {

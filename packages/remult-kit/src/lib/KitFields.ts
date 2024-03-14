@@ -1,5 +1,7 @@
 import {
+  Field,
   Fields,
+  Remult,
   Validators,
   type FieldOptions,
   type FieldValidator,
@@ -9,15 +11,24 @@ import {
 import { displayCurrencyWOSuffix } from './formats'
 
 export class KitFields {
-  static string<entityType = any, valueType = any>(
-    o?: StringFieldOptions<entityType> & FieldOptions<entityType>,
+  // static string<entityType = any, valueType = string>(
+  //   ...param: Parameters<typeof Fields.string<entityType, valueType>>
+  // ) {
+  static string<entityType = any, valueType = string>(
+    o?: StringFieldOptions<entityType, valueType> & FieldOptions<entityType, valueType>,
   ) {
+    // const f = Fields.string(...param)
+
+    // f.validate = addValidator(f.validate, Validators.required)
+
+    // return f
+
     // empty if there is nothing coming here.
     if (o === undefined) {
       o = {}
     }
 
-    const validate: FieldValidator<entityType, string>[] = []
+    const validate: FieldValidator<entityType, valueType>[] = []
 
     if (
       (!o.allowNull || o.required) &&
