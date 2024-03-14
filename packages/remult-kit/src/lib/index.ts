@@ -4,6 +4,8 @@ import 'remult'
 
 import type { RequestEvent } from '@sveltejs/kit'
 
+import { Log } from '@kitql/helpers'
+
 import type { KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'
 import type { KitCellsInput as KitCellsInputForExport } from './kitCellsBuildor.js'
 import { kitStoreItem } from './kitStoreItem.js'
@@ -20,6 +22,8 @@ import { default as Link } from './ui/link/Link.svelte'
 import { default as LinkPlus } from './ui/link/LinkPlus.svelte'
 import { default as Loading } from './ui/Loading.svelte'
 import { default as Tooltip } from './ui/Tooltip.svelte'
+
+export const logRemultKit = new Log('remult-kit')
 
 export const KitRole = {
   Admin: 'KitAdmin',

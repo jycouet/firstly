@@ -1,9 +1,4 @@
-import {
-  getEntityRef,
-  type ErrorInfo,
-  type FieldMetadata,
-  type Repository,
-} from 'remult'
+import { getEntityRef, type ErrorInfo, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { suffixWithS } from './formats/strings.js'
