@@ -8,10 +8,10 @@ import {
 
 import { displayCurrencyWOSuffix } from './formats'
 
+// static string<entityType = any, valueType = string>(
+//   ...param: Parameters<typeof Fields.string<entityType, valueType>>
+// ) {
 export class KitFields {
-  // static string<entityType = any, valueType = string>(
-  //   ...param: Parameters<typeof Fields.string<entityType, valueType>>
-  // ) {
   static string<entityType = any, valueType = string>(
     o?: StringFieldOptions<entityType, valueType> & FieldOptions<entityType, valueType>,
   ) {
