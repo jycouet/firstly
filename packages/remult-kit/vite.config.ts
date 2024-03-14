@@ -7,6 +7,8 @@ import { remultKit } from './src/lib/vite'
 
 const config = defineConfig({
   plugins: [remultKit<KIT_ROUTES>({}), sveltekit()],
+  // FIXME
+  // @ts-ignore
   test: {
     include: ['src/**/*.{test,spec}.{js,ts}'],
   },

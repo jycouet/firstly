@@ -59,7 +59,8 @@
       </tr>
     </thead>
     <tbody>
-      {#if $store.loading}
+      <!-- Show loading only if there is no items and loading is true, like this on an update, there will be no jump -->
+      {#if $store.items.length === 0 && $store.loading}
         <GridLoading columns={getAligns(cells, withEdit || withDelete)} {loadingRows} />
       {:else}
         {#each $store.items as row}
