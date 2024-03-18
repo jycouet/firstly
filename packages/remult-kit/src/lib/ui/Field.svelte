@@ -102,7 +102,7 @@
     const foEdit = cell.field?.options.findOptionsForEdit
     const narrowFindEdit =
       typeof foEdit === 'function'
-        ? foEdit().where ?? {}
+        ? foEdit(cellsValues).where ?? {}
         : typeof foEdit === 'object'
           ? foEdit.where ?? {}
           : {}

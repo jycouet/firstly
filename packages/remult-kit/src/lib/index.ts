@@ -135,7 +135,9 @@ declare module 'remult' {
     // REMULT P3 Noam/Yoni convo
     // difference with `findOptions` of remult ?
     // `findOptionsForEdit` is only for insert & update.
-    findOptionsForEdit?: (() => FindOptionsBase<valueType>) | FindOptionsBase<valueType>
+    findOptionsForEdit?:
+      | ((e: entityType) => FindOptionsBase<valueType>)
+      | FindOptionsBase<valueType>
 
     // Currently only for filtering.
     multiSelect?: boolean

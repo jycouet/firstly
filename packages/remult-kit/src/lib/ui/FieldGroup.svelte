@@ -125,7 +125,7 @@
         <Field
           mode={modeToUse(cell, mode)}
           {cell}
-          cellsValues={dynamicValues}
+          cellsValues={$store.item}
           bind:value={$store.item[cell.field.key]}
           error={getError($store.errors, cell.field)}
           focus={focusKey === cell.field.key}
