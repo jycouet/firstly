@@ -25,7 +25,8 @@ export const getEntityDisplayValue = <Entity>(
       fields[i].key !== 'createdAt' &&
       fields[i].options.skipForDefaultField !== true
     ) {
-      return { caption: fields[i].displayValue(row), id: '' }
+      // REMULT P3 JYC: If it's an enum, it's not working...
+      return { caption: row ? fields[i].displayValue(row) : '-', id: '' }
     }
   }
 
