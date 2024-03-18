@@ -83,7 +83,17 @@ const rmvChars = (str: string, chars = ['<', '>', ',']) => {
   return chars.reduce((acc, char) => acc.replaceAll(char, ''), str).trim()
 }
 
-export const extractMailInfo = (mail: string) => {
+export const extractMailInfo = (mail: string, withThrow = true) => {
+  if (!mail) {
+    if (withThrow) {
+      throw new Error('No mail provided')
+    }
+    return {
+      firstName: '',
+      lastName: '',
+      email: '',
+    }
+  }
   const regex = /(.+)\s(.+)\s<(.+)>/i
   const match = mail.match(regex)
   if (match) {
