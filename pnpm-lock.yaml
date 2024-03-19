@@ -82,8 +82,8 @@ importers:
         specifier: 1.1.0
         version: 1.1.0
       remult:
-        specifier: 0.25.6-exp.7
-        version: 0.25.6-exp.7
+        specifier: 0.25.7-exp.2
+        version: 0.25.7-exp.2
       tailwind-merge:
         specifier: 2.2.0
         version: 2.2.0
@@ -9590,8 +9590,8 @@ packages:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
     dev: true
 
-  /remult@0.25.6-exp.7:
-    resolution: {integrity: sha512-F5P4ijJ8DQDra9mAmBohDs7Lubl5bgJHgk+QJXIHfDByzzu//AcTZ+MbPepz2+7e9siprUec/Oq0TGpq5X7daw==}
+  /remult@0.25.7-exp.2:
+    resolution: {integrity: sha512-L01S+6pKsgaD1P8h3+F7cDGH7ZdIuwxQHWCjbX8Pfk7fyCH2I63QkmO3OunGD6CPr3BA3rh1Zckc1hgrTvhE2A==}
     dependencies:
       '@paralleldrive/cuid2': 2.2.2
       reflect-metadata: 0.1.14
