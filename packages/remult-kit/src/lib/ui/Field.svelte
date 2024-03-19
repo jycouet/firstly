@@ -232,7 +232,7 @@
       <MultiSelectMelt
         {...common(cell.field, true)}
         clearable={clearableComputed}
-        loadOptions={(str) => getLoadOptions(cellsValues, str)}
+        loadOptions={async (str) => await getLoadOptions(cellsValues, str)}
         {loadOptionAt}
         values={value}
         on:selected={(e) => dispatchSelected(e.detail)}
@@ -242,7 +242,7 @@
       <SelectMelt
         {...common(cell.field, true)}
         clearable={clearableComputed}
-        loadOptions={(str) => getLoadOptions(cellsValues, str)}
+        loadOptions={async (str) => await getLoadOptions(cellsValues, str)}
         {loadOptionAt}
         value={value?.id || value}
         on:selected={(e) => dispatchSelected(e.detail)}
