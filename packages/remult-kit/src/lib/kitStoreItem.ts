@@ -1,5 +1,5 @@
 import { BROWSER } from 'esm-env'
-import { get, writable } from 'svelte/store'
+import { derived, get, writable, type Writable } from 'svelte/store'
 
 import type { ErrorInfo, FindOptions, Repository } from 'remult'
 // @ts-ignore
@@ -26,7 +26,34 @@ export const kitStoreItem = <T>(
 ) => {
   const internalStore = writable<TheStoreItem<T>>(initValues)
 
-  let lastOptions: FindOptions<T> | undefined
+  // Writable store for the current value
+  // const currentValue = writable(0);
+
+  // Derived store to keep track of current and previous values
+  const historyStore = derived<
+    Writable<TheStoreItem<T>>,
+    { current: T | undefined; previous: T | undefined }
+  >(
+    internalStore,
+    ($currentValue, set) => {
+      // Use a static variable to hold the previous value
+      //if (typeof historyStore.previous === 'undefined') {
+      //    historyStore.previous = $currentValue; // Initialize if not set
+      //}
+
+      // Set the current and previous values
+      // @ts-ignore
+      set({ current: $currentValue.item, previous: historyStore.previous ?? $currentValue.item })
+
+      // Update the previous value for the next call
+      // @ts-ignore (this syntax to cut the reactivity)
+      historyStore.previous = { ...$currentValue.item }
+    },
+    // { current: 0, previous: 0 } // Initial state
+  )
+
+  let fnOnChange: ((newItem: T, previousItem: T | undefined) => boolean) | undefined = undefined
+  // let lastOptions: FindOptions<T> | undefined
 
   return {
     subscribe: internalStore.subscribe,
@@ -38,7 +65,13 @@ export const kitStoreItem = <T>(
         errors: {},
         globalError: undefined,
       }),
-    set: internalStore.set,
+
+    // set: internalStore.set,
+    set: (newItem: TheStoreItem<T>) => {
+      internalStore.update((s) => {
+        return { ...newItem }
+      })
+    },
 
     fetch: async (id: idType<T>, options?: FindOptions<T>, onNewData?: (item: T) => void) => {
       if (BROWSER) {
@@ -46,20 +79,28 @@ export const kitStoreItem = <T>(
 
         try {
           const item = await repo.findId(id, options)
-          lastOptions = options
+          // lastOptions = options
 
-          internalStore.set({ loading: false, item, errors: undefined, globalError: undefined })
+          internalStore.update((s) => ({
+            ...s,
+            loading: false,
+            item,
+            errors: undefined,
+            globalError: undefined,
+          }))
           if (onNewData) {
             onNewData(item)
           }
         } catch (error) {
           if (isError<T>(error)) {
-            internalStore.set({
+            internalStore.update((s) => ({
+              ...s,
               loading: false,
               item: {} as T,
               errors: {} as ErrorInfo<T>,
+              // @ts-ignore
               globalError: error.message,
-            })
+            }))
           }
         }
       }
@@ -71,30 +112,43 @@ export const kitStoreItem = <T>(
         if (!s.item) {
           return
         }
-        let item
+        let item: any
         if (useInsert) {
           item = await repo.insert(s.item!)
         } else {
           item = await repo.save(s.item!)
         }
-        internalStore.set({ loading: false, item, errors: undefined, globalError: undefined })
+        internalStore.update((s) => ({
+          ...s,
+          loading: false,
+          item,
+          errors: undefined,
+          globalError: undefined,
+        }))
         return item
       } catch (error: any) {
         if (isError<T>(error)) {
           if (!error.modelState) {
-            internalStore.set({
+            internalStore.update((s) => ({
+              ...s,
               loading: false,
               item: s.item,
               errors: undefined,
               globalError: error.message,
-            })
+            }))
           } else {
             const errors: ErrorInfo<T> = {}
             for (const key in error.modelState) {
               // @ts-ignore
               errors[key] = error.modelState[key]
             }
-            internalStore.set({ loading: false, item: s.item, errors, globalError: undefined })
+            internalStore.update((s) => ({
+              ...s,
+              loading: false,
+              item: s.item,
+              errors,
+              globalError: undefined,
+            }))
           }
         }
         // After we updated everything, let's throw the error
@@ -118,23 +172,42 @@ export const kitStoreItem = <T>(
       } catch (error: any) {
         if (isError<T>(error)) {
           if (!error.modelState) {
-            internalStore.set({
+            internalStore.update((s) => ({
+              ...s,
               loading: false,
               item: s.item,
               errors: undefined,
               globalError: error.message,
-            })
+            }))
           } else {
             const errors: ErrorInfo<T> = {}
             for (const key in error.modelState) {
               // @ts-ignore
               errors[key] = error.modelState[key]
             }
-            internalStore.set({ loading: false, item: s.item, errors, globalError: undefined })
+            internalStore.update((s) => ({
+              ...s,
+              loading: false,
+              item: s.item,
+              errors,
+              globalError: undefined,
+            }))
           }
         }
         throw error
       }
+    },
+
+    setOnChangeAction: (event: (newItem: T, previousItem: T | undefined) => boolean) => {
+      fnOnChange = event
+    },
+
+    // Internal purpose only.
+    onChange: (newItem: T) => {
+      if (fnOnChange) {
+        return fnOnChange(newItem, get(historyStore).previous)
+      }
+      return false
     },
   }
 }

@@ -19,9 +19,12 @@
   export let disabled: boolean = false
   export let placeholder: string = ''
   export let items: KitBaseItem[] = []
+  let totalCount: number | undefined = undefined
 
-  export let loadOptions: ((str: string) => Promise<KitBaseItem[]>) | undefined = undefined
-  // export let selectedItem: CreateComboboxProps<KitBaseItem>['defaultSelected'] = undefined
+  export let loadOptions:
+    | ((str: string) => Promise<{ items: KitBaseItem[]; totalCount: number }>)
+    | undefined = undefined
+  export let loadOptionAt = new Date()
   export let value: string | undefined = undefined
   export let clearable = false
 
@@ -37,7 +40,10 @@
 
   onMount(async () => {
     if (loadOptions) {
-      items = await loadOptions('')
+      const lo = await loadOptions('')
+      items = lo.items
+      totalCount = lo.totalCount
+      filteredItems = items
     }
 
     // after we load items
@@ -107,13 +113,19 @@
     $inputValue = $localSelected?.label ?? ''
   }
 
+  // let first = true
   let filteredItems = items
-  $: {
-    if ($touchedInput) {
+  const calcFilteredItems = (touched: boolean, str: string, loadOptionAt: Date) => {
+    if (touched) {
       debounce(async () => {
-        const normalizedInput = $inputValue.toLowerCase()
+        const normalizedInput = str.toLowerCase()
+
         if (loadOptions) {
-          filteredItems = await loadOptions(normalizedInput)
+          const lo = await loadOptions(normalizedInput)
+
+          items = lo.items
+          totalCount = lo.totalCount
+          filteredItems = items
         } else {
           filteredItems = items.filter((item) => {
             return item.caption?.toLowerCase().includes(normalizedInput)
@@ -124,6 +136,8 @@
       filteredItems = items
     }
   }
+
+  $: calcFilteredItems($touchedInput, $inputValue, loadOptionAt)
 </script>
 
 <div class="input input-bordered flex min-w-0 items-center {disabled && 'opacity-40'}">
@@ -201,5 +215,15 @@
         <li class="relative cursor-pointer rounded-md py-1 pl-8 pr-4">Aucun résultat</li>
       {/each}
     </div>
+    {#if totalCount}
+      <div class="text-center text-xs">
+        {#if items.length < totalCount}
+          ({items.length} / {totalCount})
+        {:else}
+          <!-- yes, items.length can be bigger if the selected item is not in the limit -->
+          ({items.length})
+        {/if}
+      </div>
+    {/if}
   </ul>
 {/if}

@@ -1,5 +1,5 @@
 <script lang="ts" generics="T extends Record<any, any>">
-  import { onMount } from 'svelte'
+  import { createEventDispatcher } from 'svelte'
 
   import type { FieldMetadata } from 'remult'
   import { getRelationFieldInfo } from 'remult/internals'
@@ -17,6 +17,7 @@
   export let store: KitStoreItem<T>
 
   export let focusKey: string | null | undefined = null
+  export let loadOptionAt = new Date()
 
   const getError = (errors: any, field: FieldMetadata<any, any>) => {
     const fo = getRelationFieldInfo(field)
@@ -47,57 +48,65 @@
     return mode
   }
 
-  const isDisableFieldDynamic = (c: KitCell<T>) => {
-    if (c.disabledCondition) {
-      const existsKey = c.disabledCondition.exists
-      if (existsKey) {
-        const isArray = Array.isArray($store.item?.[existsKey])
-        if (isArray && $store.item?.[existsKey]?.length) {
-          return true
-        } else if (!isArray && $store.item?.[existsKey]) {
-          return true
-        }
-      }
-    }
+  // const isDisableFieldDynamic = (c: KitCell<T>) => {
+  //   if (c.disabledCondition) {
+  //     const existsKey = c.disabledCondition.exists
+  //     if (existsKey) {
+  //       const isArray = Array.isArray($store.item?.[existsKey])
+  //       if (isArray && $store.item?.[existsKey]?.length) {
+  //         return true
+  //       } else if (!isArray && $store.item?.[existsKey]) {
+  //         return true
+  //       }
+  //     }
+  //   }
+  // }
+
+  // onMount(() => {
+  //   dynamicValues = dynamicItemValues(cells, $store.item)
+  // })
+
+  // let dynamicValues: any = {}
+
+  // const dynamicItemValues = (cells: KitCell<T>[], item: any) => {
+  //   const res: any = {}
+  //   for (const c of cells) {
+  //     if (c.filter?.on) {
+  //       res[c.filter?.on] = item[c.filter?.on]
+  //     }
+  //     if (c.copyForNarrowFind) {
+  //       c.copyForNarrowFind.forEach((key) => {
+  //         res[key] = item[key]
+  //       })
+  //     }
+  //   }
+  //   res.id = item?.id
+  //   return res
+  // }
+
+  // const isDynamicValuesChanged = (cells: KitCell<T>[]) => {
+  //   for (const c of cells) {
+  //     if (c.filter?.on) {
+  //       if (dynamicValues[c.filter?.on] !== $store.item?.[c.filter?.on]) {
+  //         return true
+  //       }
+  //     }
+  //   }
+  // }
+
+  // $: {
+  //   if (isDynamicValuesChanged(cells)) {
+  //     dynamicValues = dynamicItemValues(cells, $store.item)
+  //   }
+  // }
+
+  const dispatch = createEventDispatcher()
+
+  function dispatchChanged(_data: T | undefined) {
+    dispatch('changed', _data)
   }
 
-  onMount(() => {
-    dynamicValues = dynamicItemValues(cells, $store.item)
-  })
-
-  let dynamicValues: any = {}
-
-  const dynamicItemValues = (cells: KitCell<T>[], item: any) => {
-    const res: any = {}
-    for (const c of cells) {
-      if (c.filter?.on) {
-        res[c.filter?.on] = item[c.filter?.on]
-      }
-      if (c.copyForNarrowFind) {
-        c.copyForNarrowFind.forEach((key) => {
-          res[key] = item[key]
-        })
-      }
-    }
-    res.id = item?.id
-    return res
-  }
-
-  const isDynamicValuesChanged = (cells: KitCell<T>[]) => {
-    for (const c of cells) {
-      if (c.filter?.on) {
-        if (dynamicValues[c.filter?.on] !== $store.item?.[c.filter?.on]) {
-          return true
-        }
-      }
-    }
-  }
-
-  $: {
-    if (isDynamicValuesChanged(cells)) {
-      dynamicValues = dynamicItemValues(cells, $store.item)
-    }
-  }
+  $: dispatchChanged($store.item)
 
   let size = ['', 'w-1/2', 'w-1/3', 'w-1/4', 'w-1/5', 'w-1/6']
 </script>
@@ -129,8 +138,9 @@
           bind:value={$store.item[cell.field.key]}
           error={getError($store.errors, cell.field)}
           focus={focusKey === cell.field.key}
-          disabled={isDisableFieldDynamic(cell)}
+          {loadOptionAt}
         />
+        <!-- disabled={isDisableFieldDynamic(cell)} -->
       {:else}
         FieldGroup : Case not handled
       {/if}

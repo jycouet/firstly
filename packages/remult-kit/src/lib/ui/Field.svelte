@@ -4,7 +4,7 @@
 
   import type { FieldMetadata, FindOptions } from 'remult'
 
-  import type { KitBaseItem, KitCell } from '../'
+  import { logRemultKit, type KitBaseItem, type KitCell } from '../'
   import { suffixWithS } from '../formats/strings'
   import {
     displayWithDefaultAndSuffix,
@@ -38,6 +38,7 @@
 
   export let clearable: boolean | undefined = undefined
   export let disabled = false
+  export let loadOptionAt = new Date()
 
   const dispatch = createEventDispatcher()
 
@@ -84,11 +85,15 @@
     }
   }
 
-  let items: any[] = []
+  // let items: any[] = []
 
-  const getLoadOptions = async (str: string) => {
+  const getId = () => {
+    return value?.id || value
+  }
+
+  const getLoadOptions = async (cellsValues: any, str: string) => {
     if (metaType.kind !== 'relation') {
-      return
+      return { items: [], totalCount: 0 }
     }
     // To make TS happy
     const metaTypeObj = { ...metaType } as MetaTypeRelation
@@ -97,10 +102,17 @@
     if (metaTypeObj.repoTarget.metadata.options.searchableFind) {
       // narrowFind at the end because searchableFind should not change the narrowed part!
       findToUse = metaTypeObj.repoTarget.metadata.options.searchableFind(str)
+    } else {
+      if (str) {
+        // TODO JYC: maybe take the display value of the entity and search in it?!
+        logRemultKit.error(
+          `searchableFind not defined for "${metaTypeObj.repoTarget.metadata.key}"`,
+        )
+      }
     }
 
     const foEdit = cell.field?.options.findOptionsForEdit
-    const narrowFindEdit =
+    const narrowFindEditWhere =
       typeof foEdit === 'function'
         ? foEdit(cellsValues).where ?? {}
         : typeof foEdit === 'object'
@@ -109,7 +121,7 @@
 
     // @ts-ignore
     const foCrud = cell.field?.options.findOptions
-    const narrowFindCrud =
+    const narrowFindCrudWhere =
       typeof foCrud === 'function'
         ? foCrud().where ?? {}
         : typeof foCrud === 'object'
@@ -118,32 +130,55 @@
 
     findToUse = {
       include: { ...(findToUse.include ?? {}) },
-      where: { ...findToUse.where, ...narrowFindEdit, ...narrowFindCrud },
+      where: { $and: [findToUse.where, narrowFindEditWhere, narrowFindCrudWhere] },
     }
-    if (cell.field?.options?.narrowFindFunc) {
-      findToUse = {
-        include: { ...findToUse.include },
-        where: {
-          ...findToUse.where,
-          ...(cell.field.options.narrowFindFunc({ ...cellsValues })?.where ?? {}),
-        },
+    // if (cell.field?.options?.narrowFindFunc) {
+    //   findToUse = {
+    //     include: { ...findToUse.include },
+    //     where: {
+    //       ...findToUse.where,
+    //       ...(cell.field.options.narrowFindFunc({ ...cellsValues })?.where ?? {}),
+    //     },
+    //   }
+    // }
+
+    // if (cell.filter?.where) {
+    //   // @ts-ignore
+    //   findToUse.where = { ...findToUse.where, ...cell.filtefindOptionsForEdit }
+    // } else if (cell.filter && !cell.filter.where) {
+    //   // If this field has a filter but no where - means the other field
+    //   // doesn't have a value yet. In this case - don't show any selection option
+    //   return (items = [])
+    // }
+
+    // 24 here is a "magic" number!
+    const limit = cell.field?.options.findOptionsLimit ?? 24
+    const arr = []
+    arr.push(
+      ...(await metaTypeObj.repoTarget.find({
+        ...findToUse,
+        limit,
+      })),
+    )
+
+    let totalCount = arr.length
+    // If we are at the limit... there is probably more! How many?
+    if (totalCount === limit) {
+      totalCount = await metaTypeObj.repoTarget.count(findToUse.where)
+    }
+
+    if (!cell.field?.options.multiSelect) {
+      // let's get the current item if it's not in the default list (only when there is no searchFilter going on)
+      // TODO JYC: Maybe can be set by directly wo being fetched?
+      if (str === '' && getId() && !arr.find((r) => String(r.id) === String(getId()))) {
+        arr.unshift(await metaTypeObj.repoTarget.findId(value?.id))
       }
     }
 
-    if (cell.filter?.where) {
-      // @ts-ignore
-      findToUse.where = { ...findToUse.where, ...cell.filtefindOptionsForEdit }
-    } else if (cell.filter && !cell.filter.where) {
-      // If this field has a filter but no where - means the other field
-      // doesn't have a value yet. In this case - don't show any selection option
-      return (items = [])
-    }
-    const res = await metaTypeObj.repoTarget.find({ ...findToUse, limit: 300 })
-
-    items = res.map((r) => getEntityDisplayValue(metaTypeObj.repoTarget, r))
+    return { items: arr.map((r) => getEntityDisplayValue(metaTypeObj.repoTarget, r)), totalCount }
   }
 
-  $: cellsValues && getLoadOptions('')
+  // $: cellsValues && getLoadOptions('')
 </script>
 
 <FieldContainer
@@ -197,15 +232,18 @@
       <MultiSelectMelt
         {...common(cell.field, true)}
         clearable={clearableComputed}
-        {items}
+        loadOptions={(str) => getLoadOptions(cellsValues, str)}
+        {loadOptionAt}
         values={value}
         on:selected={(e) => dispatchSelected(e.detail)}
       />
     {:else}
+      <!-- {items} -->
       <SelectMelt
         {...common(cell.field, true)}
         clearable={clearableComputed}
-        {items}
+        loadOptions={(str) => getLoadOptions(cellsValues, str)}
+        {loadOptionAt}
         value={value?.id || value}
         on:selected={(e) => dispatchSelected(e.detail)}
         on:issue={(e) => {

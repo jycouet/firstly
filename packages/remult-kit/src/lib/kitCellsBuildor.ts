@@ -23,17 +23,17 @@ type KitCellInternal<Entity> = {
   clipboardable?: boolean // if true, will add a copy button to the field
   clearable?: boolean // for select
 
-  /** @deprecated tmp solution until better... */
-  filter?: { on: keyof Entity; where?: EntityFilter<Entity> }
-  // Disable fields conditionally.
-  // Example: if { exists: 'prenom' } - if item.prenom exists, disable this field
-  // Example: if { exists: 'chilren' } - if item.children.length > 0 - disable this filed
-  // NOTE: arrays are checked for at least 1 item. [] is considered as not existing.
-  /** @deprecated tmp solution until better... */
-  disabledCondition?: { exists: keyof Entity }
-  // Copy dynamic values for narrowFindFunc
-  /** @deprecated tmp solution until better... */
-  copyForNarrowFind?: (keyof Entity)[]
+  // /** @deprecated tmp solution until better... */
+  // filter?: { on: keyof Entity; where?: EntityFilter<Entity> }
+  // // Disable fields conditionally.
+  // // Example: if { exists: 'prenom' } - if item.prenom exists, disable this field
+  // // Example: if { exists: 'chilren' } - if item.children.length > 0 - disable this filed
+  // // NOTE: arrays are checked for at least 1 item. [] is considered as not existing.
+  // /** @deprecated tmp solution until better... */
+  // disabledCondition?: { exists: keyof Entity }
+  // // Copy dynamic values for narrowFindFunc
+  // /** @deprecated tmp solution until better... */
+  // copyForNarrowFind?: (keyof Entity)[]
 }
 
 export type KitCell<Entity> = KitCellInternal<Entity> & {

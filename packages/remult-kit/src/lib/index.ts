@@ -136,15 +136,17 @@ declare module 'remult' {
     // difference with `findOptions` of remult ?
     // `findOptionsForEdit` is only for insert & update.
     findOptionsForEdit?:
-      | ((e: entityType) => FindOptionsBase<valueType>)
+      | ((entity: entityType) => FindOptionsBase<valueType>)
       | FindOptionsBase<valueType>
+
+    findOptionsLimit?: number
 
     // Currently only for filtering.
     multiSelect?: boolean
 
     skipForDefaultField?: boolean
 
-    narrowFindFunc?: (params: { id?: string; siteId?: number }) => FindOptionsBase<valueType>
+    // narrowFindFunc?: (params: { id?: string; siteId?: number }) => FindOptionsBase<valueType>
   }
 
   export interface EntityOptions<entityType> {

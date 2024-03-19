@@ -10,6 +10,7 @@ import {
   LibIcon_Search,
   type KitBaseItemLight,
   type KitCellsInput,
+  type KitStoreItem,
 } from '../../'
 
 export type DialogClasses = {
@@ -27,6 +28,7 @@ export type DialogMetaData<entityType = any> = {
   detail?: KitBaseItemLight
 
   repo?: Repository<entityType>
+  store?: KitStoreItem<entityType>
   buildor?: KitCellsInput<entityType>
   defaults?: Partial<entityType>
   classes?: DialogClasses
@@ -96,6 +98,7 @@ const createDialogManagement = () => {
       type: 'insert' | 'update' | 'view',
       topic: string,
       repo: Repository<entityType>,
+      store: KitStoreItem<entityType>,
 
       cells: KitCellsInput<entityType>,
       defaults: Partial<entityType>,
@@ -113,6 +116,7 @@ const createDialogManagement = () => {
           },
         },
         repo,
+        store,
         buildor: cells,
         defaults,
         classes,
