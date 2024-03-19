@@ -94,17 +94,17 @@ const createDialogManagement = () => {
       }
       return show(detail, 'confirmDelete')
     },
+    // FIXME JYC: refactor this (no need repo? options?)
     form: <entityType>(
       type: 'insert' | 'update' | 'view',
       topic: string,
       repo: Repository<entityType>,
-      store: KitStoreItem<entityType>,
-
       cells: KitCellsInput<entityType>,
       defaults: Partial<entityType>,
       classes?: DialogClasses,
       noThrow?: boolean,
       wDelete?: boolean,
+      store?: KitStoreItem<entityType>,
     ) => {
       const detail: DialogMetaData<entityType> = {
         detail: {

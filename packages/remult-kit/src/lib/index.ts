@@ -47,7 +47,6 @@ export { dialog } from './ui/dialog/dialog.js'
 export { KitBaseEnum, getEnum, getEnums } from './KitBaseEnum.js'
 export type { KitBaseEnumOptions } from './KitBaseEnum.js'
 export { KitFields } from './KitFields.js'
-export { KitValidators } from './KitValidators.js'
 export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
 export { getEntityDisplayValue, isError } from './helper.js'
 export {
@@ -145,8 +144,6 @@ declare module 'remult' {
     multiSelect?: boolean
 
     skipForDefaultField?: boolean
-
-    // narrowFindFunc?: (params: { id?: string; siteId?: number }) => FindOptionsBase<valueType>
   }
 
   export interface EntityOptions<entityType> {
