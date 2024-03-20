@@ -1,6 +1,5 @@
 <script lang="ts">
-  
-import { FieldGroup, getEntityDisplayValue } from '../..'
+  import { FieldGroup, getEntityDisplayValue } from '../..'
   import { kitCellsBuildor } from '../../kitCellsBuildor'
   import { dialog, type DialogMetaDataInternal } from './dialog'
   import DialogPrimitive from './DialogPrimitive.svelte'
