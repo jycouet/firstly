@@ -25,8 +25,6 @@ import {
   mdiPlusCircle,
   mdiSend,
   mdiSort,
-  mdiSortAscending,
-  mdiSortDescending,
   mdiSortReverseVariant,
   mdiSortVariant,
 } from '@mdi/js'

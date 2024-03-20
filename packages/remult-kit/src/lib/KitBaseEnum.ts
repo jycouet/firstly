@@ -1,5 +1,5 @@
 import { getValueList, type IdFilter } from 'remult'
-import type { ClassType } from 'remult'
+import type { ClassType, FindOptionsBase } from 'remult'
 
 export type KitIcon = {
   data?: string | string[]
@@ -11,14 +11,14 @@ export type KitIcon = {
 export type KitBaseEnumOptions<Entity = any> = {
   caption?: string
   icon?: KitIcon
-  where?: IdFilter<Entity>
+  where?: IdFilter<Entity> | FindOptionsBase<Entity>['where']
 }
 
 export class KitBaseEnum<Entity = any> {
   public id: string
   public caption?: string
   icon?: KitIcon
-  public where?: IdFilter<Entity>
+  public where?: IdFilter<Entity> | FindOptionsBase<Entity>['where']
 
   constructor(_id: string | number, options?: KitBaseEnumOptions<Entity>) {
     this.id = _id.toString()
