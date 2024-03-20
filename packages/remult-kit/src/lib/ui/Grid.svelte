@@ -1,6 +1,8 @@
 <script lang="ts" generics="T extends Record<any, any>">
   import { createEventDispatcher } from 'svelte'
 
+  import type { EntityOrderBy } from 'remult'
+
   import {
     displayWithDefaultAndSuffix,
     getEntityDisplayValue,
@@ -15,7 +17,7 @@
   import GridLoading from './GridLoading.svelte'
   import Icon from './Icon.svelte'
   import { align, getAligns } from './index.js'
-  import { LibIcon_Settings } from './LibIcon.js'
+  import { LibIcon_Settings, LibIcon_Sort, LibIcon_SortAsc, LibIcon_SortDesc } from './LibIcon.js'
   import LinkPlus from './link/LinkPlus.svelte'
 
   export let cells: KitCell<T>[]
@@ -29,8 +31,45 @@
   export let classes = {
     table: 'table-pin-rows table-pin-cols',
   }
+  export let orderBy: EntityOrderBy<T> | undefined = undefined
+  export let orderByCols: (keyof T)[] | true | undefined = undefined
 
   const dispatch = createEventDispatcher()
+
+  const sorting = (toSort: boolean, b: KitCell<T>) => {
+    if (!toSort) {
+      return
+    }
+    if (orderBy === undefined) {
+      // @ts-ignore
+      orderBy = { [b.field.key]: 'asc' }
+      // @ts-ignore
+    } else if (orderBy[b.field.key] === 'asc') {
+      // @ts-ignore
+      orderBy = { [b.field.key]: 'desc' }
+      // @ts-ignore
+    } else if (orderBy[b.field.key] === undefined) {
+      // @ts-ignore
+      orderBy = { [b.field.key]: 'asc' }
+    } else {
+      orderBy = undefined
+    }
+  }
+
+  const sortingIcon = (toSort: boolean, b: KitCell<T>, _orderBy: EntityOrderBy<T> | undefined) => {
+    if (!toSort) {
+      return
+    }
+    // @ts-ignore
+    if (_orderBy && _orderBy[b.field.key] === 'asc') {
+      return { data: LibIcon_SortAsc, class: 'text-primary' }
+    }
+    // @ts-ignore
+    if (_orderBy && _orderBy[b.field.key] === 'desc') {
+      return { data: LibIcon_SortDesc, class: 'text-primary' }
+    }
+    return { data: LibIcon_Sort }
+  }
 </script>
 
 <div class="overflow-x-auto">
@@ -46,7 +85,20 @@
             {#if b.headerSlot}
               <slot name="header" field={b.field} />
             {:else}
-              {b.header ?? b.field?.caption}
+              {@const toSort =
+                orderByCols === true || (orderByCols && orderByCols.includes(b.field?.key))}
+              <button
+                class="flex items-center justify-between gap-2"
+                disabled={!toSort}
+                on:click={() => sorting(toSort ?? false, b)}
+              >
+                <p>
+                  {b.header ?? b.field?.caption}
+                </p>
+                {#if toSort}
+                  <Icon {...sortingIcon(toSort ?? false, b, orderBy)}></Icon>
+                {/if}
+              </button>
             {/if}
           </th>
         {/each}

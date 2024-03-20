@@ -24,6 +24,11 @@ import {
   mdiPlusBoxMultiple,
   mdiPlusCircle,
   mdiSend,
+  mdiSort,
+  mdiSortAscending,
+  mdiSortDescending,
+  mdiSortReverseVariant,
+  mdiSortVariant,
 } from '@mdi/js'
 
 export const LibIcon_Empty = ``
@@ -49,3 +54,7 @@ export const LibIcon_Woman = mdiAccountTieWoman
 export const LibIcon_Send = mdiSend
 export const LibIcon_Load = mdiLoading
 export const LibIcon_Settings = mdiCogOutline
+
+export const LibIcon_Sort = mdiSort
+export const LibIcon_SortAsc = mdiSortReverseVariant
+export const LibIcon_SortDesc = mdiSortVariant
