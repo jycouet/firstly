@@ -1,4 +1,10 @@
-import { getEntityRef, type ErrorInfo, type FieldMetadata, type Repository } from 'remult'
+import {
+  dbNamesOf,
+  getEntityRef,
+  type ErrorInfo,
+  type FieldMetadata,
+  type Repository,
+} from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { suffixWithS } from './formats/strings.js'
@@ -143,4 +149,11 @@ export const displayWithDefaultAndSuffix = (
     }
   }
   return toRet.join(' ')
+}
+
+/**
+ * same as `dbNamesOf` but with `tableName` set to `true` by default
+ */
+export const kitDbNamesOf = async <Entity>(...p: Parameters<typeof dbNamesOf<Entity>>) => {
+  return dbNamesOf(p[0], { tableName: true, ...p[1] })
 }

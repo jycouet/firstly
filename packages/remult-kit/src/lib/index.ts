@@ -48,7 +48,7 @@ export { KitBaseEnum, getEnum, getEnums } from './KitBaseEnum.js'
 export type { KitBaseEnumOptions } from './KitBaseEnum.js'
 export { KitFields } from './KitFields.js'
 export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
-export { getEntityDisplayValue, isError } from './helper.js'
+export { getEntityDisplayValue, isError, kitDbNamesOf } from './helper.js'
 export {
   buildWhere,
   getPlaceholder,
