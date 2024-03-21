@@ -2,9 +2,9 @@
   import { createEventDispatcher } from 'svelte'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
-  import { getEntityRef, type FieldMetadata, type FindOptions } from 'remult'
+  import { type FieldMetadata, type FindOptions } from 'remult'
 
-  import { logRemultKit, type KitBaseItem, type KitCell } from '../'
+  import { type KitBaseItem, type KitCell } from '../'
   import { suffixWithS } from '../formats/strings'
   import {
     displayWithDefaultAndSuffix,
