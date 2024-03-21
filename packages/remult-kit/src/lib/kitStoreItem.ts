@@ -41,9 +41,15 @@ export const kitStoreItem = <T>(
       //    historyStore.previous = $currentValue; // Initialize if not set
       //}
 
+      const h = historyStore
+      // @ts-ignore (keep this like this, I don't know why when I put get(), it's not working !)
+      const p = h.previous ?? $currentValue.item
+
       // Set the current and previous values
-      // @ts-ignore
-      set({ current: $currentValue.item, previous: historyStore.previous ?? $currentValue.item })
+      set({
+        current: $currentValue.item,
+        previous: p,
+      })
 
       // Update the previous value for the next call
       // @ts-ignore (this syntax to cut the reactivity)

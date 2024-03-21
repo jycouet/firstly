@@ -119,21 +119,24 @@
     if (touched) {
       debounce(async () => {
         const normalizedInput = str.toLowerCase()
-
-        if (loadOptions) {
-          const lo = await loadOptions(normalizedInput)
-
-          items = lo.items
-          totalCount = lo.totalCount
-          filteredItems = items
-        } else {
-          filteredItems = items.filter((item) => {
-            return item.caption?.toLowerCase().includes(normalizedInput)
-          })
-        }
+        updateFilteredItems(normalizedInput)
       })
     } else {
+      updateFilteredItems('')
+    }
+  }
+
+  const updateFilteredItems = async (normalizedInput: string) => {
+    if (loadOptions) {
+      const lo = await loadOptions(normalizedInput)
+
+      items = lo.items
+      totalCount = lo.totalCount
       filteredItems = items
+    } else {
+      filteredItems = items.filter((item) => {
+        return item.caption?.toLowerCase().includes(normalizedInput)
+      })
     }
   }
 
@@ -216,7 +219,7 @@
       {/each}
     </div>
     {#if totalCount}
-      <div class="text-center text-xs">
+      <div class="bg-base-300 z-50 text-center text-xs">
         {#if items.length < totalCount}
           ({items.length} / {totalCount})
         {:else}

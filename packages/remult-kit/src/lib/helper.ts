@@ -14,14 +14,7 @@ export function isError<T>(object: any): object is ErrorInfo<T> {
   return object
 }
 
-export const getEntityDisplayValue = <Entity>(
-  repo: Repository<Entity>,
-  row: Entity,
-): KitBaseItem => {
-  if (repo.metadata.options.displayValue) {
-    return repo.metadata.options.displayValue(row)
-  }
-
+export const getFirstInterestingField = <Entity>(repo: Repository<Entity>) => {
   const fields = repo.metadata.fields.toArray()
 
   for (let i = 0; i < fields.length; i++) {
@@ -31,12 +24,24 @@ export const getEntityDisplayValue = <Entity>(
       fields[i].key !== 'createdAt' &&
       fields[i].options.skipForDefaultField !== true
     ) {
-      // REMULT P3 JYC: If it's an enum, it's not working...
-      return { caption: row ? fields[i].displayValue(row) : '-', id: '' }
+      return fields[i]
     }
   }
 
-  return { caption: 'NOTHING Found as a good default', id: 'NOTHING' }
+  return fields[0]
+}
+
+export const getEntityDisplayValue = <Entity>(
+  repo: Repository<Entity>,
+  row: Entity,
+): KitBaseItem => {
+  if (repo.metadata.options.displayValue) {
+    return repo.metadata.options.displayValue(row)
+  }
+
+  const field = getFirstInterestingField(repo)
+  // REMULT P3 JYC: If it's an enum, it's not working...
+  return { caption: row ? field.displayValue(row) : '-', id: '' }
 }
 
 export const getFieldLinkDisplayValue = (

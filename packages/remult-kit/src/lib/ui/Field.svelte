@@ -2,7 +2,7 @@
   import { createEventDispatcher } from 'svelte'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
-  import type { FieldMetadata, FindOptions } from 'remult'
+  import { getEntityRef, type FieldMetadata, type FindOptions } from 'remult'
 
   import { logRemultKit, type KitBaseItem, type KitCell } from '../'
   import { suffixWithS } from '../formats/strings'
@@ -10,6 +10,7 @@
     displayWithDefaultAndSuffix,
     getEntityDisplayValue,
     getFieldMetaType,
+    getFirstInterestingField,
     type MetaTypeRelation,
   } from '../helper.js'
   import { tw } from '../utils/tailwind'
@@ -104,10 +105,8 @@
       findToUse = metaTypeObj.repoTarget.metadata.options.searchableFind(str)
     } else {
       if (str) {
-        // TODO JYC: maybe take the display value of the entity and search in it?!
-        logRemultKit.error(
-          `searchableFind not defined for "${metaTypeObj.repoTarget.metadata.key}"`,
-        )
+        const field = getFirstInterestingField(metaTypeObj.repoTarget)
+        findToUse = { where: { [field.key]: { $contains: str } } }
       }
     }
 
@@ -132,27 +131,10 @@
       include: { ...(findToUse.include ?? {}) },
       where: { $and: [findToUse.where, narrowFindEditWhere, narrowFindCrudWhere] },
     }
-    // if (cell.field?.options?.narrowFindFunc) {
-    //   findToUse = {
-    //     include: { ...findToUse.include },
-    //     where: {
-    //       ...findToUse.where,
-    //       ...(cell.field.options.narrowFindFunc({ ...cellsValues })?.where ?? {}),
-    //     },
-    //   }
-    // }
 
-    // if (cell.filter?.where) {
-    //   // @ts-ignore
-    //   findToUse.where = { ...findToUse.where, ...cell.filtefindOptionsForEdit }
-    // } else if (cell.filter && !cell.filter.where) {
-    //   // If this field has a filter but no where - means the other field
-    //   // doesn't have a value yet. In this case - don't show any selection option
-    //   return (items = [])
-    // }
+    // 24 here is a "magic number"!
+    let limit = cell.field?.options.findOptionsLimit ?? 24
 
-    // 24 here is a "magic" number!
-    const limit = cell.field?.options.findOptionsLimit ?? 24
     const arr = []
     arr.push(
       ...(await metaTypeObj.repoTarget.find({
@@ -177,8 +159,6 @@
 
     return { items: arr.map((r) => getEntityDisplayValue(metaTypeObj.repoTarget, r)), totalCount }
   }
-
-  // $: cellsValues && getLoadOptions('')
 </script>
 
 <FieldContainer
