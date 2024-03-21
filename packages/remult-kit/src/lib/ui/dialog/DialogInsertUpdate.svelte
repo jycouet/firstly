@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { FieldGroup, getEntityDisplayValue } from '../..'
+  import { FieldGroup, getEntityDisplayValue, kitStoreItem } from '../..'
   import { kitCellsBuildor } from '../../kitCellsBuildor'
   import { dialog, type DialogMetaDataInternal } from './dialog'
   import DialogPrimitive from './DialogPrimitive.svelte'
@@ -7,8 +7,7 @@
 
   export let toShow: DialogMetaDataInternal
   const cells = kitCellsBuildor(toShow.repo!, toShow.buildor!)
-  // const store = kitStoreItem(toShow.repo!)
-  const store = toShow.store!
+  const store = toShow.store ?? kitStoreItem(toShow.repo!)
 
   $: {
     if (toShow.type === 'update' || toShow.type === 'view') {
