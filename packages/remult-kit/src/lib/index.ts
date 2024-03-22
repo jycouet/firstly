@@ -139,6 +139,7 @@ declare module 'remult' {
       | FindOptionsBase<valueType>
 
     findOptionsLimit?: number
+    withCreateRequest?: boolean
 
     // Currently only for filtering.
     multiSelect?: boolean

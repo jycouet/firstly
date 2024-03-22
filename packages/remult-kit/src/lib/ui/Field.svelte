@@ -229,6 +229,7 @@
         on:issue={(e) => {
           error = e.detail
         }}
+        withCreateRequest={cell.field?.options.withCreateRequest}
         on:createRequest
       />
     {/if}
