@@ -42,7 +42,7 @@
   const onDelete = async () => {
     const res = await dialog.confirmDelete('')
     if (res.success) {
-      await store.deleteMe()
+      await store.delete()
       dialog.close(toShow.id, { success: true })
     }
   }

@@ -26,51 +26,35 @@ export const kitStoreItem = <T>(
 ) => {
   const internalStore = writable<TheStoreItem<T>>(initValues)
 
-  // Writable store for the current value
-  // const currentValue = writable(0);
-
   // Derived store to keep track of current and previous values
   const historyStore = derived<
     Writable<TheStoreItem<T>>,
     { current: T | undefined; previous: T | undefined }
-  >(
-    internalStore,
-    ($currentValue, set) => {
-      // Use a static variable to hold the previous value
-      //if (typeof historyStore.previous === 'undefined') {
-      //    historyStore.previous = $currentValue; // Initialize if not set
-      //}
+  >(internalStore, ($currentValue, set) => {
+    const h = historyStore
+    // @ts-ignore (keep this like this, I don't know why when I put get(), it's not working !)
+    const p = h.previous ?? $currentValue.item
 
-      const h = historyStore
-      // @ts-ignore (keep this like this, I don't know why when I put get(), it's not working !)
-      const p = h.previous ?? $currentValue.item
+    set({ current: $currentValue.item, previous: p })
 
-      // Set the current and previous values
-      set({
-        current: $currentValue.item,
-        previous: p,
-      })
-
-      // Update the previous value for the next call
-      // @ts-ignore (this syntax to cut the reactivity)
-      historyStore.previous = { ...$currentValue.item }
-    },
-    // { current: 0, previous: 0 } // Initial state
-  )
+    // Update the previous value for the next call
+    // @ts-ignore (this syntax to cut the reactivity)
+    historyStore.previous = { ...$currentValue.item }
+  })
 
   let fnOnChange: ((newItem: T, previousItem: T | undefined) => boolean) | undefined = undefined
-  // let lastOptions: FindOptions<T> | undefined
 
   return {
     subscribe: internalStore.subscribe,
 
-    create: (item: Partial<T>) =>
+    create: (item: Partial<T>) => {
       internalStore.set({
         item: repo.create(item),
         loading: false,
         errors: {},
         globalError: undefined,
-      }),
+      })
+    },
 
     // set: internalStore.set,
     set: (newItem: TheStoreItem<T>) => {
@@ -112,18 +96,16 @@ export const kitStoreItem = <T>(
       }
     },
 
-    save: async (useInsert?: boolean) => {
+    /**
+     * `.save()` will `update` or `insert` the current item.
+     */
+    save: async () => {
       const s = get(internalStore)
       try {
         if (!s.item) {
           return
         }
-        let item: any
-        if (useInsert) {
-          item = await repo.insert(s.item!)
-        } else {
-          item = await repo.save(s.item!)
-        }
+        let item = await repo.save(s.item!)
         internalStore.update((s) => ({
           ...s,
           loading: false,
@@ -162,12 +144,7 @@ export const kitStoreItem = <T>(
       }
     },
 
-    /**
-     * @deprecated, use `deleteMe` instead that has a better error handling (need to create a manualSet probably to be consistent with list part)
-     */
-    delete: async (item: T) => await repo.delete(item),
-
-    deleteMe: async () => {
+    delete: async () => {
       const s = get(internalStore)
       if (!s.item) {
         new Log('remult-kit').error(`To delete an item, you need set it first.`)
