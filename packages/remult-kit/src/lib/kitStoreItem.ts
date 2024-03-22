@@ -105,7 +105,7 @@ export const kitStoreItem = <T>(
         if (!s.item) {
           return
         }
-        let item = await repo.save(s.item!)
+        const item = await repo.save(s.item!)
         internalStore.update((s) => ({
           ...s,
           loading: false,
