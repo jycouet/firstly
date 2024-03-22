@@ -12,6 +12,7 @@ export type KitBaseEnumOptions<Entity = any> = {
   caption?: string
   icon?: KitIcon
   where?: IdFilter<Entity> | FindOptionsBase<Entity>['where']
+  class?: string
 }
 
 export class KitBaseEnum<Entity = any> {
@@ -19,12 +20,14 @@ export class KitBaseEnum<Entity = any> {
   public caption?: string
   icon?: KitIcon
   public where?: IdFilter<Entity> | FindOptionsBase<Entity>['where']
+  public class?: string
 
   constructor(_id: string | number, options?: KitBaseEnumOptions<Entity>) {
     this.id = _id.toString()
     this.caption = options?.caption ?? this.id
     this.icon = options?.icon
     this.where = options?.where
+    this.class = options?.class
   }
 
   getWhere = () => {
