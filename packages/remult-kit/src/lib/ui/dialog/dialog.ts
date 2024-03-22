@@ -40,7 +40,7 @@ export type DialogMetaData<entityType = any> = {
   wDelete?: boolean
 }
 
-type ResultClose = { success: boolean; item?: KitBaseItemLight }
+type ResultClose = { success: boolean; item?: KitBaseItemLight; createRequest?: any }
 
 type DialogType = 'custom' | 'confirm' | 'confirmDelete' | 'insert' | 'update' | 'view'
 export type DialogMetaDataInternal<entityType = any> = DialogMetaData<entityType> & {

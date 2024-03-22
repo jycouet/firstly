@@ -4,6 +4,7 @@
   import { fly } from 'svelte/transition'
 
   import {
+    Button,
     LibIcon_Check,
     LibIcon_ChevronDown,
     LibIcon_ChevronUp,
@@ -27,6 +28,7 @@
   export let loadOptionAt = new Date()
   export let value: string | undefined = undefined
   export let clearable = false
+  export let withCreate = true
 
   const dispatch = createEventDispatcher()
 
@@ -36,6 +38,11 @@
 
   function dispatchIssue(msg: 'VALUE_NOT_IN_ITEMS') {
     dispatch('issue', msg)
+  }
+
+  function dispatchCreateRequest(e: any, input: string) {
+    e.preventDefault()
+    dispatch('createRequest', input)
   }
 
   onMount(async () => {
@@ -215,7 +222,18 @@
           </div>
         </li>
       {:else}
-        <li class="relative cursor-pointer rounded-md py-1 pl-8 pr-4">Aucun résultat</li>
+        {#if withCreate}
+          <div class="p-4">
+            <Button
+              class="w-full"
+              on:click={(e) => {
+                dispatchCreateRequest(e, $inputValue)
+              }}>Creer {$inputValue}</Button
+            >
+          </div>
+        {:else}
+          <li class="relative cursor-pointer rounded-md py-1 pl-8 pr-4">Aucun résultat</li>
+        {/if}
       {/each}
     </div>
     {#if totalCount}

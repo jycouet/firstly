@@ -229,6 +229,7 @@
         on:issue={(e) => {
           error = e.detail
         }}
+        on:createRequest
       />
     {/if}
   {:else if metaType.kind === 'enum'}

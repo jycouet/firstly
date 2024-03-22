@@ -47,34 +47,9 @@
     }
   }
 
-  // const dynamicSelector = writable<any>([])
-
-  // const getDynamicBuildor = () => {
-  //   const filteredCols = cells.filter((b) => b.filter?.on)
-  //   if (!filteredCols.length) {
-  //     return
-  //   }
-  //   filteredCols.forEach((col) => {
-  //     if (!col) {
-  //       return
-  //     }
-  //     const relatedCol = cells.find((b) => b.col === col.filter?.on)
-  //     if (!relatedCol?.col) {
-  //       return
-  //     }
-  //     if ($store.item[relatedCol.col] && col.filter) {
-  //       const cell = cells.find((c) => c?.field?.key === relatedCol.col)
-  //       if (cell?.field?.options) {
-  //         // @ts-ignore
-  //         col.filter.where = { [cell.field.options.field]: $store.item[cell.field.options.field] }
-  //       }
-  //     }
-  //   })
-  //   $dynamicSelector = [...cells]
-  // }
-
-  // $: $dynamicSelector = cells
-  // $: $store.item && getDynamicBuildor()
+  const onCreateRequest = (e: CustomEvent) => {
+    dialog.close(toShow.id, { success: true, createRequest: e.detail })
+  }
 
   let loadOptionAt = new Date()
   const changed = (e: any) => {
@@ -98,6 +73,7 @@
         mode={toShow.type === 'view' ? 'view' : 'edit'}
         on:changed={changed}
         {loadOptionAt}
+        on:createRequest={onCreateRequest}
       />
     </div>
 

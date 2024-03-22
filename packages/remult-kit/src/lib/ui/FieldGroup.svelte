@@ -139,6 +139,7 @@
           error={getError($store.errors, cell.field)}
           focus={focusKey === cell.field.key}
           {loadOptionAt}
+          on:createRequest
         />
         <!-- disabled={isDisableFieldDynamic(cell)} -->
       {:else}
