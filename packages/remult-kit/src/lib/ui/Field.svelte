@@ -153,7 +153,7 @@
       // let's get the current item if it's not in the default list (only when there is no searchFilter going on)
       // TODO JYC: Maybe can be set by directly wo being fetched?
       if (str === '' && getId() && !arr.find((r) => String(r.id) === String(getId()))) {
-        arr.unshift(await metaTypeObj.repoTarget.findId(value?.id))
+        arr.unshift(await metaTypeObj.repoTarget.findId(getId()))
       }
     }
 

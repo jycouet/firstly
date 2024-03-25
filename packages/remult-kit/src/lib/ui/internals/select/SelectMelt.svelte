@@ -61,7 +61,7 @@
     if (!items) {
       return
     }
-    const found = items.find((c) => String(c.id) === String(_selectedValue))
+    const found = items.find((c) => String(c?.id) === String(_selectedValue))
     if (found) {
       return toOption(found)
     } else {
