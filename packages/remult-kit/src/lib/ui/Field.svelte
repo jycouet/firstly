@@ -80,7 +80,15 @@
 
   const fromInput = (_metadata: FieldMetadata<any, any>, _value: HTMLInputAttributes['value']) => {
     try {
-      return _metadata?.valueConverter.fromInput(_value, metaType.subKind)
+      // REMULT: If the value is 0 and the field is a number, we keep it as 0, not undefined
+      if (metaType.subKind === 'number' && _value === 0) {
+        return 0
+      }
+
+      const val = _metadata?.valueConverter.fromInput(_value, metaType.subKind)
+      console.log(`val`, val)
+
+      return val
     } catch (error) {
       console.error(`error fromInput w field '${_metadata.key}'`, error)
     }
