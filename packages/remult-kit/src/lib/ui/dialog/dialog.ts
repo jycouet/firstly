@@ -10,6 +10,7 @@ import {
   LibIcon_Search,
   type KitBaseItemLight,
   type KitCellsInput,
+  type KitStoreItem,
 } from '../../'
 
 export type DialogClasses = {
@@ -27,6 +28,7 @@ export type DialogMetaData<entityType = any> = {
   detail?: KitBaseItemLight
 
   repo?: Repository<entityType>
+  store?: KitStoreItem<entityType>
   buildor?: KitCellsInput<entityType>
   defaults?: Partial<entityType>
   classes?: DialogClasses
@@ -38,7 +40,7 @@ export type DialogMetaData<entityType = any> = {
   wDelete?: boolean
 }
 
-type ResultClose = { success: boolean; item?: KitBaseItemLight }
+type ResultClose = { success: boolean; item?: KitBaseItemLight; createRequest?: any }
 
 type DialogType = 'custom' | 'confirm' | 'confirmDelete' | 'insert' | 'update' | 'view'
 export type DialogMetaDataInternal<entityType = any> = DialogMetaData<entityType> & {
@@ -92,16 +94,17 @@ const createDialogManagement = () => {
       }
       return show(detail, 'confirmDelete')
     },
+    // FIXME JYC: refactor this (no need repo? options?)
     form: <entityType>(
       type: 'insert' | 'update' | 'view',
       topic: string,
       repo: Repository<entityType>,
-
       cells: KitCellsInput<entityType>,
       defaults: Partial<entityType>,
       classes?: DialogClasses,
       noThrow?: boolean,
       wDelete?: boolean,
+      store?: KitStoreItem<entityType>,
     ) => {
       const detail: DialogMetaData<entityType> = {
         detail: {
@@ -113,6 +116,7 @@ const createDialogManagement = () => {
           },
         },
         repo,
+        store,
         buildor: cells,
         defaults,
         classes,

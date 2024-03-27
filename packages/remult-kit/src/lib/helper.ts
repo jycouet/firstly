@@ -1,30 +1,74 @@
-import { type ErrorInfo, type FieldMetadata, type Repository } from 'remult'
+import {
+  dbNamesOf,
+  getEntityRef,
+  type ErrorInfo,
+  type FieldMetadata,
+  type Repository,
+} from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
-import { green, Log, yellow } from '@kitql/helpers'
 
 import { suffixWithS } from './formats/strings.js'
 import type { KitBaseItem } from './index.js'
-
-const log = new Log('remult-kit')
 
 export function isError<T>(object: any): object is ErrorInfo<T> {
   return object
 }
 
-export const getRepoDisplayValue = <Entity>(
-  // for the developer!
-  whereAreWe: string,
+export const getFirstInterestingField = <Entity>(repo: Repository<Entity>) => {
+  const fields = repo.metadata.fields.toArray()
+
+  for (let i = 0; i < fields.length; i++) {
+    // Let's find the most relevant field to display...
+    if (
+      fields[i].key !== 'id' &&
+      fields[i].key !== 'createdAt' &&
+      fields[i].options.skipForDefaultField !== true
+    ) {
+      return fields[i]
+    }
+  }
+
+  return fields[0]
+}
+
+export const getEntityDisplayValue = <Entity>(
   repo: Repository<Entity>,
   row: Entity,
 ): KitBaseItem => {
-  if (!repo.metadata.options.displayValue) {
-    log.error(
-      `(${whereAreWe}) Entity "${green(repo.metadata.key)}"` +
-        ` missing "${yellow(`displayValue`)}" prop.`,
-    )
-    return { caption: 'NOTHING', id: 'NOTHING' }
+  if (repo.metadata.options.displayValue) {
+    return repo.metadata.options.displayValue(row)
   }
-  return repo.metadata.options.displayValue(row)
+
+  const field = getFirstInterestingField(repo)
+  // REMULT P3 JYC: If it's an enum, it's not working...
+  return { caption: row ? field.displayValue(row) : '-', id: '' }
+}
+
+export const getFieldLinkDisplayValue = (
+  field: FieldMetadata,
+  row: any,
+): KitBaseItem & { href: string } => {
+  const caption = field.displayValue(row)
+
+  let href = ''
+  if (field.options.href) {
+    href = field.options.href(row)
+  }
+
+  return { id: '', caption, href }
+}
+
+export const getEntityDisplayValueFromField = (
+  field: FieldMetadata,
+  row: any,
+): KitBaseItem & { href: string } => {
+  if (row === null || row === undefined) {
+    return { href: '/', id: '', caption: '-' }
+  }
+
+  const repo = getEntityRef(row).repository
+
+  return { href: '', ...getEntityDisplayValue(repo, row) }
 }
 
 export type MetaTypeRelation = {
@@ -63,8 +107,11 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
     }
   }
 
-  // REMULT TODO
-  // is it any enum?
+  // REMULT P2 Noam? Any idea to know if it's an enum? and extract values?
+  // const ttt = getValueList(field)
+  // console.log(`ttt`, ttt)
+  // Error: ValueType not yet initialized, did you forget to call @ValueListFieldType on function String()
+  // is it an enum?
   // @ts-ignore
   if (field.options?.valueConverter?.values) {
     return {
@@ -107,4 +154,11 @@ export const displayWithDefaultAndSuffix = (
     }
   }
   return toRet.join(' ')
+}
+
+/**
+ * same as `dbNamesOf` but with `tableName` set to `true` by default
+ */
+export const kitDbNamesOf = async <Entity>(...p: Parameters<typeof dbNamesOf<Entity>>) => {
+  return dbNamesOf(p[0], { tableName: true, ...p[1] })
 }

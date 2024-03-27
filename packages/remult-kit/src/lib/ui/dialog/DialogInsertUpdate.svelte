@@ -1,16 +1,13 @@
 <script lang="ts">
-  import { writable } from 'svelte/store'
-
-  import { FieldGroup, getRepoDisplayValue } from '../..'
+  import { FieldGroup, getEntityDisplayValue, kitStoreItem } from '../..'
   import { kitCellsBuildor } from '../../kitCellsBuildor'
-  import { kitStoreItem } from '../../kitStoreItem'
   import { dialog, type DialogMetaDataInternal } from './dialog'
   import DialogPrimitive from './DialogPrimitive.svelte'
   import FormEditAction from './FormEditAction.svelte'
 
   export let toShow: DialogMetaDataInternal
   const cells = kitCellsBuildor(toShow.repo!, toShow.buildor!)
-  const store = kitStoreItem(toShow.repo!)
+  const store = toShow.store ?? kitStoreItem(toShow.repo!)
 
   $: {
     if (toShow.type === 'update' || toShow.type === 'view') {
@@ -25,7 +22,7 @@
     isLoading = true
     try {
       const result = await store.save()
-      const item = getRepoDisplayValue('dialogInsertUpdate', toShow.repo!, result)
+      const item = getEntityDisplayValue(toShow.repo!, result)
 
       if (result) {
         dialog.close(toShow.id, { success: true, item })
@@ -43,40 +40,23 @@
   }
 
   const onDelete = async () => {
-    if ((await dialog.confirmDelete('')).success) {
-      await store.deleteMe()
+    const res = await dialog.confirmDelete('')
+    if (res.success) {
+      await store.delete()
       dialog.close(toShow.id, { success: true })
     }
   }
 
-  const dynamicSelector = writable<any>([])
-
-  const getDynamicBuildor = () => {
-    const filteredCols = cells.filter((b) => b.filter?.on)
-    if (!filteredCols.length) {
-      return
-    }
-    filteredCols.forEach((col) => {
-      if (!col) {
-        return
-      }
-      const relatedCol = cells.find((b) => b.col === col.filter?.on)
-      if (!relatedCol?.col) {
-        return
-      }
-      if ($store.item[relatedCol.col] && col.filter) {
-        const cell = cells.find((c) => c?.field?.key === relatedCol.col)
-        if (cell?.field?.options) {
-          // @ts-ignore
-          col.filter.where = { [cell.field.options.field]: $store.item[cell.field.options.field] }
-        }
-      }
-    })
-    $dynamicSelector = [...cells]
+  const onCreateRequest = (e: CustomEvent) => {
+    dialog.close(toShow.id, { success: true, createRequest: e.detail })
   }
 
-  $: $dynamicSelector = cells
-  $: $store.item && getDynamicBuildor()
+  let loadOptionAt = new Date()
+  const changed = (e: any) => {
+    if (store.onChange(e.detail)) {
+      loadOptionAt = new Date()
+    }
+  }
 </script>
 
 <DialogPrimitive
@@ -87,7 +67,14 @@
 >
   <form on:submit|preventDefault={add}>
     <div class="grid {toShow.classes?.formGrid ?? ''} gap-4 pb-4">
-      <FieldGroup {cells} {store} mode={toShow.type === 'view' ? 'view' : 'edit'} />
+      <FieldGroup
+        {cells}
+        {store}
+        mode={toShow.type === 'view' ? 'view' : 'edit'}
+        on:changed={changed}
+        {loadOptionAt}
+        on:createRequest={onCreateRequest}
+      />
     </div>
 
     <FormEditAction {toShow} {store} on:delete={onDelete}></FormEditAction>

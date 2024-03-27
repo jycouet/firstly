@@ -46,7 +46,7 @@ jobs:
         run: pnpm -r lint
 
       - name: 💪 ts
-        run: pnpm -r ts
+        run: pnpm -r check
 
       - name: 🕹️ test:unit
         run: pnpm -r test:unit:ci

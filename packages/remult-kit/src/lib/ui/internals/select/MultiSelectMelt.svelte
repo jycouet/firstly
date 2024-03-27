@@ -20,8 +20,12 @@
   export let disabled: boolean = false
   export let placeholder: string = ''
   export let items: KitBaseItem[] = []
-  export let loadOptions: ((str: string) => Promise<KitBaseItem[]>) | undefined = undefined
+  let totalCount: number | undefined = undefined
 
+  export let loadOptions:
+    | ((str: string) => Promise<{ items: KitBaseItem[]; totalCount: number }>)
+    | undefined = undefined
+  export let loadOptionAt = new Date()
   export let values: string[] | undefined = undefined
   export let clearable = false
 
@@ -34,7 +38,10 @@
 
   onMount(async () => {
     if (loadOptions) {
-      items = await loadOptions('')
+      const lo = await loadOptions('')
+      items = lo.items
+      totalCount = lo.totalCount
+      filteredItems = items
     }
   })
 
@@ -42,6 +49,7 @@
     if (!items) {
       return
     }
+
     const f = items.filter((c) => (_selectedValue ?? []).includes(String(c.id)))
     if (f) {
       return f.map((c) => toOption(c))
@@ -119,14 +127,25 @@
     return { data: LibIcon_MultiCheck }
   }
 
+  const isChecked = (_localSelected: typeof $localSelected, _item: KitBaseItem) => {
+    const f = (_localSelected ?? []).filter((c) => c.value?.id === _item.id)
+    if (f.length > 0) {
+      return true
+    }
+    return false
+  }
+
   let filteredItems = items
-  $: {
-    if ($touchedInput) {
+  const calcFilteredItems = (touched: boolean, str: string, loadOptionAt: Date) => {
+    if (touched) {
       debounce(async () => {
-        const normalizedInput = $inputValue.toLowerCase()
+        const normalizedInput = str.toLowerCase()
 
         if (loadOptions) {
-          filteredItems = await loadOptions(normalizedInput)
+          const lo = await loadOptions(normalizedInput)
+          items = lo.items
+          totalCount = lo.totalCount
+          filteredItems = items
         } else {
           filteredItems = items.filter((item) => {
             return item.caption?.toLowerCase().includes(normalizedInput)
@@ -138,13 +157,7 @@
     }
   }
 
-  const isChecked = (_localSelected: typeof $localSelected, _item: KitBaseItem) => {
-    const f = (_localSelected ?? []).filter((c) => c.value?.id === _item.id)
-    if (f.length > 0) {
-      return true
-    }
-    return false
-  }
+  $: calcFilteredItems($touchedInput, $inputValue, loadOptionAt)
 </script>
 
 <div class="input input-bordered flex min-w-0 items-center">

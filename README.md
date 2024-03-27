@@ -1,6 +1,6 @@
 # remult-kit
 
-_This is early, you should not use it !!! 😉_
+_This is early, you should not use it ! 😉_
 
 `remult-kit` is an opinionated way to build your application with
 [Remult](https://remult.github.io/remult/).

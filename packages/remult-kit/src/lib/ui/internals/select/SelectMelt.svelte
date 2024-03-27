@@ -4,6 +4,7 @@
   import { fly } from 'svelte/transition'
 
   import {
+    Button,
     LibIcon_Check,
     LibIcon_ChevronDown,
     LibIcon_ChevronUp,
@@ -19,11 +20,15 @@
   export let disabled: boolean = false
   export let placeholder: string = ''
   export let items: KitBaseItem[] = []
+  let totalCount: number | undefined = undefined
 
-  export let loadOptions: ((str: string) => Promise<KitBaseItem[]>) | undefined = undefined
-  // export let selectedItem: CreateComboboxProps<KitBaseItem>['defaultSelected'] = undefined
+  export let loadOptions:
+    | ((str: string) => Promise<{ items: KitBaseItem[]; totalCount: number }>)
+    | undefined = undefined
+  export let loadOptionAt = new Date()
   export let value: string | undefined = undefined
   export let clearable = false
+  export let withCreateRequest = false
 
   const dispatch = createEventDispatcher()
 
@@ -35,10 +40,27 @@
     dispatch('issue', msg)
   }
 
-  onMount(async () => {
-    if (loadOptions) {
-      items = await loadOptions('')
+  function dispatchCreateRequest(e: any, input: string) {
+    e.preventDefault()
+    dispatch('createRequest', input)
+  }
+
+  let lastSearch: string | undefined = undefined
+  const localLoadOptions = async (str: string) => {
+    if (str === lastSearch) {
+      return
     }
+    lastSearch = str
+    if (loadOptions) {
+      const lo = await loadOptions(str)
+      items = lo.items
+      totalCount = lo.totalCount
+      filteredItems = items
+    }
+  }
+
+  onMount(async () => {
+    localLoadOptions('')
 
     // after we load items
     sync.selected(getDefaultValue(value))
@@ -48,7 +70,7 @@
     if (!items) {
       return
     }
-    const found = items.find((c) => String(c.id) === String(_selectedValue))
+    const found = items.find((c) => String(c?.id) === String(_selectedValue))
     if (found) {
       return toOption(found)
     } else {
@@ -107,23 +129,30 @@
     $inputValue = $localSelected?.label ?? ''
   }
 
+  // let first = true
   let filteredItems = items
-  $: {
-    if ($touchedInput) {
+  const calcFilteredItems = (touched: boolean, str: string, loadOptionAt: Date) => {
+    if (touched) {
       debounce(async () => {
-        const normalizedInput = $inputValue.toLowerCase()
-        if (loadOptions) {
-          filteredItems = await loadOptions(normalizedInput)
-        } else {
-          filteredItems = items.filter((item) => {
-            return item.caption?.toLowerCase().includes(normalizedInput)
-          })
-        }
+        const normalizedInput = str.toLowerCase()
+        updateFilteredItems(normalizedInput)
       })
     } else {
-      filteredItems = items
+      updateFilteredItems('')
     }
   }
+
+  const updateFilteredItems = async (normalizedInput: string) => {
+    if (loadOptions) {
+      await localLoadOptions(normalizedInput)
+    } else {
+      filteredItems = items.filter((item) => {
+        return item.caption?.toLowerCase().includes(normalizedInput)
+      })
+    }
+  }
+
+  $: calcFilteredItems($touchedInput, $inputValue, loadOptionAt)
 </script>
 
 <div class="input input-bordered flex min-w-0 items-center {disabled && 'opacity-40'}">
@@ -198,8 +227,29 @@
           </div>
         </li>
       {:else}
-        <li class="relative cursor-pointer rounded-md py-1 pl-8 pr-4">Aucun résultat</li>
+        {#if withCreateRequest}
+          <div class="p-4">
+            <Button
+              class="w-full"
+              on:click={(e) => {
+                dispatchCreateRequest(e, $inputValue)
+              }}>Creer {$inputValue}</Button
+            >
+          </div>
+        {:else}
+          <li class="relative cursor-pointer rounded-md py-1 pl-8 pr-4">Aucun résultat</li>
+        {/if}
       {/each}
     </div>
+    {#if totalCount}
+      <div class="bg-base-300 z-50 text-center text-xs">
+        {#if items.length < totalCount}
+          ({items.length} / {totalCount})
+        {:else}
+          <!-- yes, items.length can be bigger if the selected item is not in the limit -->
+          ({items.length})
+        {/if}
+      </div>
+    {/if}
   </ul>
 {/if}

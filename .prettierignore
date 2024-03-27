@@ -20,6 +20,7 @@ package.json
 
 # format not working well there for now
 +page.md
+CHANGELOG.md
 ROUTES.ts
 *.svelte.d.ts
 packages/remult-kit/src/lib/auth/static

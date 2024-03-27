@@ -18,8 +18,8 @@
     "//// ---- BEST PRACTICES ---- ////": "",
     "format": "kitql-lint -f",
     "lint": "kitql-lint",
-    "ts": "svelte-check --tsconfig ./tsconfig.json",
-    "ts:w": "svelte-check --tsconfig ./tsconfig.json --watch",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check:w": "svelte-check --tsconfig ./tsconfig.json --watch",
     "//// ---- TEST ---- ////": "",
     "test:bin": "pnpm build && node ./dist/esm/bin/cmd.js",
     "test:e2e_HOLD": "playwright test",
@@ -33,7 +33,7 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "remult": "0.25.6-exp.7",
+    "remult": "0.25.8-exp.4",
     "svelte": ">=4.0.1"
   },
   "devDependencies": {
@@ -65,7 +65,7 @@
     "oslo": "1.1.0",
     "tailwind-merge": "2.2.0",
     "tailwindcss": "3.4.1",
-    "vite": "5.1.5",
+    "vite": "5.1.6",
     "vite-plugin-kit-routes": "0.6.1",
     "vite-plugin-stripper": "0.5.0"
   },

@@ -4,6 +4,8 @@ import 'remult'
 
 import type { RequestEvent } from '@sveltejs/kit'
 
+import { Log } from '@kitql/helpers'
+
 import type { KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'
 import type { KitCellsInput as KitCellsInputForExport } from './kitCellsBuildor.js'
 import { kitStoreItem } from './kitStoreItem.js'
@@ -20,6 +22,8 @@ import { default as Link } from './ui/link/Link.svelte'
 import { default as LinkPlus } from './ui/link/LinkPlus.svelte'
 import { default as Loading } from './ui/Loading.svelte'
 import { default as Tooltip } from './ui/Tooltip.svelte'
+
+export const logRemultKit = new Log('remult-kit')
 
 export const KitRole = {
   Admin: 'KitAdmin',
@@ -43,9 +47,8 @@ export { dialog } from './ui/dialog/dialog.js'
 export { KitBaseEnum, getEnum, getEnums } from './KitBaseEnum.js'
 export type { KitBaseEnumOptions } from './KitBaseEnum.js'
 export { KitFields } from './KitFields.js'
-export { KitValidators } from './KitValidators.js'
 export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
-export { getRepoDisplayValue, isError } from './helper.js'
+export { getEntityDisplayValue, isError, kitDbNamesOf } from './helper.js'
 export {
   buildWhere,
   getPlaceholder,
@@ -128,14 +131,20 @@ declare module 'remult' {
 
     href?: (item: entityType) => string
 
+    // REMULT P3 Noam/Yoni convo
     // difference with `findOptions` of remult ?
     // `findOptionsForEdit` is only for insert & update.
-    findOptionsForEdit?: (() => FindOptionsBase<valueType>) | FindOptionsBase<valueType>
+    findOptionsForEdit?:
+      | ((entity: entityType) => FindOptionsBase<valueType>)
+      | FindOptionsBase<valueType>
+
+    findOptionsLimit?: number
+    withCreateRequest?: boolean
 
     // Currently only for filtering.
     multiSelect?: boolean
 
-    narrowFindFunc?: (params: { id?: string; siteId?: number }) => FindOptionsBase<valueType>
+    skipForDefaultField?: boolean
   }
 
   export interface EntityOptions<entityType> {
