@@ -19,7 +19,7 @@ import { RemultLuciaAdapter } from './Adapter'
 import { AuthController, createSession } from './AuthController'
 import { KitAuthAccount, KitAuthRole, KitAuthUser, KitAuthUserSession } from './Entities'
 import { RoleController } from './RoleController'
-import type { RemultKitData, RemultKitDataKind } from './types'
+import type { RemultKitData } from './types'
 
 export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'
 export { AuthController } from './AuthController'

@@ -22,3 +22,5 @@ package.json
 +page.md
 ROUTES.ts
 *.svelte.d.ts
+packages/remult-kit/src/lib/auth/static
+packages/remult-kit/db
