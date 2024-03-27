@@ -45,13 +45,22 @@
     dispatch('createRequest', input)
   }
 
-  onMount(async () => {
+  let lastSearch: string | undefined = undefined
+  const localLoadOptions = async (str: string) => {
+    if (str === lastSearch) {
+      return
+    }
+    lastSearch = str
     if (loadOptions) {
-      const lo = await loadOptions('')
+      const lo = await loadOptions(str)
       items = lo.items
       totalCount = lo.totalCount
       filteredItems = items
     }
+  }
+
+  onMount(async () => {
+    localLoadOptions('')
 
     // after we load items
     sync.selected(getDefaultValue(value))
@@ -135,11 +144,7 @@
 
   const updateFilteredItems = async (normalizedInput: string) => {
     if (loadOptions) {
-      const lo = await loadOptions(normalizedInput)
-
-      items = lo.items
-      totalCount = lo.totalCount
-      filteredItems = items
+      await localLoadOptions(normalizedInput)
     } else {
       filteredItems = items.filter((item) => {
         return item.caption?.toLowerCase().includes(normalizedInput)
