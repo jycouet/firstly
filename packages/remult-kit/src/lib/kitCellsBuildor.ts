@@ -1,3 +1,5 @@
+import type { SvelteComponent } from 'svelte'
+
 import { type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
@@ -12,6 +14,7 @@ type KitCellInternal<Entity> = {
     | 'entity_link' // using the displayValue of an entity (if it's a primitive, this entity, if it's a relation, the relation entity)
     | 'slot' // full custom
     | 'header' // just string for display, uses the header. e.g. a title of a group
+    | 'component'
 
   class?: string // 'col-span-2' for example
   header?: string // always beter to update the caption of the field or of the class...
@@ -23,17 +26,9 @@ type KitCellInternal<Entity> = {
   clipboardable?: boolean // if true, will add a copy button to the field
   clearable?: boolean // for select
 
-  /** @deprecated tmp solution until better... */
-  filter?: { on: keyof Entity; where?: EntityFilter<Entity> }
-  // Disable fields conditionally.
-  // Example: if { exists: 'prenom' } - if item.prenom exists, disable this field
-  // Example: if { exists: 'chilren' } - if item.children.length > 0 - disable this filed
-  // NOTE: arrays are checked for at least 1 item. [] is considered as not existing.
-  /** @deprecated tmp solution until better... */
-  disabledCondition?: { exists: keyof Entity }
-  // Copy dynamic values for narrowFindFunc
-  /** @deprecated tmp solution until better... */
-  copyForNarrowFind?: (keyof Entity)[]
+  component?: new (...args: any[]) => SvelteComponent
+  props?: any
+  rowToProps?: (row: any) => any
 }
 
 export type KitCell<Entity> = KitCellInternal<Entity> & {
@@ -112,15 +107,16 @@ export const buildSearchWhere = <Entity>(
 
   const f: EntityFilter<any>[] = [
     {
-      $or: [
-        ...fields.map((f) => {
-          if (f.inputType === 'number') {
-            return { [f.key]: search }
-          }
+      $or: fields.map((f) => {
+        if (f.inputType === 'number') {
+          return { [f.key]: search }
+        }
 
-          return { [f.key]: { $contains: search } }
-        }),
-      ],
+        const sSplitted = search.split(' ')
+        return {
+          $and: sSplitted.map((s) => ({ [f.key]: { $contains: s } })),
+        }
+      }),
     },
   ]
   return f

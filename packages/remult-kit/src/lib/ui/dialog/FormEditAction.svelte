@@ -1,14 +1,17 @@
-<script lang="ts">
+<script lang="ts" generics="T extends any">
   import { createEventDispatcher } from 'svelte'
 
   import type { KitStoreItem } from '../..'
   import Button from '../Button.svelte'
   import Icon from '../Icon.svelte'
   import { LibIcon_Add, LibIcon_Check, LibIcon_Delete } from '../LibIcon'
-  import type { DialogMetaDataInternal } from './dialog'
+  import type { DialogType } from './dialog'
 
-  export let toShow: DialogMetaDataInternal
-  export let store: KitStoreItem<any>
+  export let store: KitStoreItem<T>
+  export let type: DialogType
+  export let wDelete = false
+
+  export let textCreate = 'Créer'
 
   const dispatch = createEventDispatcher()
 
@@ -18,8 +21,8 @@
 </script>
 
 <div class="mt-2 flex items-center justify-between">
-  {#if toShow.type === 'update'}
-    {#if toShow.wDelete}
+  {#if type === 'update'}
+    {#if wDelete}
       <Button
         type="button"
         on:click={dispatchDelete}
@@ -42,7 +45,7 @@
     </Button>
   {/if}
 
-  {#if toShow.type === 'insert'}
+  {#if type === 'insert'}
     <div>
       {#if $store.globalError}
         <span class="text-error text-xs">{$store.globalError}</span>
@@ -51,7 +54,7 @@
 
     <Button class="text-white" {...$$restProps} isLoading={$store.loading}>
       <Icon data={LibIcon_Add} />
-      <p>Créer</p>
+      <p>{textCreate}</p>
     </Button>
   {/if}
 </div>

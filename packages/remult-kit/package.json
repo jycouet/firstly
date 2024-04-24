@@ -1,6 +1,6 @@
 {
   "name": "remult-kit",
-  "version": "0.25.6-exp.1",
+  "version": "0.26.4-exp.1",
   "type": "module",
   "description": "An opinionated Remult setup !",
   "repository": {
@@ -18,8 +18,8 @@
     "//// ---- BEST PRACTICES ---- ////": "",
     "format": "kitql-lint -f",
     "lint": "kitql-lint",
-    "ts": "svelte-check --tsconfig ./tsconfig.json",
-    "ts:w": "svelte-check --tsconfig ./tsconfig.json --watch",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check:w": "svelte-check --tsconfig ./tsconfig.json --watch",
     "//// ---- TEST ---- ////": "",
     "test:bin": "pnpm build && node ./dist/esm/bin/cmd.js",
     "test:e2e_HOLD": "playwright test",
@@ -33,7 +33,7 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "remult": "0.25.6-exp.7",
+    "remult": "0.26.4",
     "svelte": ">=4.0.1"
   },
   "devDependencies": {
@@ -49,8 +49,8 @@
     "svelte": "4.2.7",
     "svelte-check": "3.6.2",
     "tslib": "2.6.2",
-    "typescript": "5.4.2",
-    "vitest": "1.3.1"
+    "typescript": "5.4.3",
+    "vitest": "1.5.0"
   },
   "dependencies": {
     "@clack/prompts": "0.7.0",
@@ -65,8 +65,8 @@
     "oslo": "1.1.0",
     "tailwind-merge": "2.2.0",
     "tailwindcss": "3.4.1",
-    "vite": "5.1.5",
-    "vite-plugin-kit-routes": "0.6.1",
+    "vite": "5.1.6",
+    "vite-plugin-kit-routes": "0.6.2",
     "vite-plugin-stripper": "0.5.0"
   },
   "sideEffects": false,

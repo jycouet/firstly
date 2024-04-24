@@ -1,9 +1,10 @@
 <script lang="ts">
   import { createCombobox, createSync, type ComboboxOptionProps } from '@melt-ui/svelte'
-  import { createEventDispatcher, onMount } from 'svelte'
+  import { createEventDispatcher, onMount, tick } from 'svelte'
   import { fly } from 'svelte/transition'
 
   import {
+    Button,
     LibIcon_Check,
     LibIcon_ChevronDown,
     LibIcon_ChevronUp,
@@ -19,11 +20,24 @@
   export let disabled: boolean = false
   export let placeholder: string = ''
   export let items: KitBaseItem[] = []
+  let totalCount: number | undefined = undefined
 
-  export let loadOptions: ((str: string) => Promise<KitBaseItem[]>) | undefined = undefined
-  // export let selectedItem: CreateComboboxProps<KitBaseItem>['defaultSelected'] = undefined
+  export let focus: boolean = false
+  const focusNow = (node: any) => {
+    if (focus) {
+      tick().then(() => {
+        node.focus()
+      })
+    }
+  }
+
+  export let loadOptions:
+    | ((str: string) => Promise<{ items: KitBaseItem[]; totalCount: number }>)
+    | undefined = undefined
+  export let loadOptionAt = new Date()
   export let value: string | undefined = undefined
   export let clearable = false
+  export let createOptionWhenNoResult = false
 
   const dispatch = createEventDispatcher()
 
@@ -35,10 +49,27 @@
     dispatch('issue', msg)
   }
 
-  onMount(async () => {
-    if (loadOptions) {
-      items = await loadOptions('')
+  function dispatchCreateRequest(e: any, input: string) {
+    e.preventDefault()
+    dispatch('createRequest', input)
+  }
+
+  let lastSearch: string | undefined = undefined
+  const localLoadOptions = async (str: string) => {
+    if (str === lastSearch) {
+      return
     }
+    lastSearch = str
+    if (loadOptions) {
+      const lo = await loadOptions(str)
+      items = lo.items
+      totalCount = lo.totalCount
+      filteredItems = items
+    }
+  }
+
+  onMount(async () => {
+    localLoadOptions('')
 
     // after we load items
     sync.selected(getDefaultValue(value))
@@ -48,7 +79,7 @@
     if (!items) {
       return
     }
-    const found = items.find((c) => String(c.id) === String(_selectedValue))
+    const found = items.find((c) => String(c?.id) === String(_selectedValue))
     if (found) {
       return toOption(found)
     } else {
@@ -107,23 +138,36 @@
     $inputValue = $localSelected?.label ?? ''
   }
 
-  let filteredItems = items
+  $: filteredItems = items
+
   $: {
-    if ($touchedInput) {
-      debounce(async () => {
-        const normalizedInput = $inputValue.toLowerCase()
-        if (loadOptions) {
-          filteredItems = await loadOptions(normalizedInput)
-        } else {
-          filteredItems = items.filter((item) => {
-            return item.caption?.toLowerCase().includes(normalizedInput)
-          })
-        }
-      })
-    } else {
-      filteredItems = items
+    if (items.length === 1) {
+      sync.selected(toOption(items[0]))
     }
   }
+
+  const calcFilteredItems = (touched: boolean, str: string, loadOptionAt: Date) => {
+    if (touched) {
+      debounce(async () => {
+        const normalizedInput = str.toLowerCase()
+        updateFilteredItems(normalizedInput)
+      })
+    } else {
+      updateFilteredItems('')
+    }
+  }
+
+  const updateFilteredItems = async (normalizedInput: string) => {
+    if (loadOptions) {
+      await localLoadOptions(normalizedInput)
+    } else {
+      filteredItems = items.filter((item) => {
+        return item.caption?.toLowerCase().includes(normalizedInput)
+      })
+    }
+  }
+
+  $: calcFilteredItems($touchedInput, $inputValue, loadOptionAt)
 </script>
 
 <div class="input input-bordered flex min-w-0 items-center {disabled && 'opacity-40'}">
@@ -145,6 +189,7 @@
     use:$input.action
     class="-mx-8 h-full min-w-0 flex-grow bg-transparent px-10"
     {placeholder}
+    use:focusNow
   />
   <div class="pointer-events-none relative right-0 flex gap-2">
     {#if clearable && $localSelected}
@@ -198,8 +243,29 @@
           </div>
         </li>
       {:else}
-        <li class="relative cursor-pointer rounded-md py-1 pl-8 pr-4">Aucun résultat</li>
+        {#if createOptionWhenNoResult}
+          <div class="p-4">
+            <Button
+              class="w-full"
+              on:click={(e) => {
+                dispatchCreateRequest(e, $inputValue)
+              }}>Creer {$inputValue}</Button
+            >
+          </div>
+        {:else}
+          <li class="relative cursor-pointer rounded-md py-1 pl-8 pr-4">Aucun résultat</li>
+        {/if}
       {/each}
     </div>
+    {#if totalCount}
+      <div class="bg-base-300 z-50 text-center text-xs">
+        {#if items.length < totalCount}
+          ({items.length} / {totalCount})
+        {:else}
+          <!-- yes, items.length can be bigger if the selected item is not in the limit -->
+          ({items.length})
+        {/if}
+      </div>
+    {/if}
   </ul>
 {/if}

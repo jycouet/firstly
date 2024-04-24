@@ -8,8 +8,6 @@
 
   const dispatch = createEventDispatcher()
 
-  // OPTION Focus
-  // const focus = async (el) => tick().then(() => el.focus())
   export let focus: boolean = false
   const focusNow = (node: any) => {
     if (focus) {
@@ -27,7 +25,13 @@
     }, 444)
   }
   function dispatchInput(value: any) {
-    dispatch('input', { value })
+    if ($$restProps.type === 'date') {
+      if (value) {
+        dispatch('input', { value: transformDate(value) })
+      }
+    } else {
+      dispatch('input', { value })
+    }
   }
 
   let className: string | undefined | null = undefined
@@ -35,6 +39,7 @@
 
   const handleInput = (e: any) => {
     const target: HTMLInputElement = e.target as HTMLInputElement
+
     if ($$restProps.type === 'number') {
       // If we see a `.` or a `,` don't continue and wait for the next input !
       if (e.data === '.' || e.data === ',') {
@@ -54,6 +59,31 @@
       dispatchInput(value)
     }
   }
+
+  const transformDate = (input: string) => {
+    const rawDateSplited = input.split('-')
+
+    if (rawDateSplited.length === 3) {
+      const yearSplited = rawDateSplited[0].split('')
+      if (
+        yearSplited.length === 4 &&
+        yearSplited[0] === '0' &&
+        yearSplited[1] === '0' &&
+        yearSplited[2] !== '0'
+      ) {
+        return `20${yearSplited[2]}${yearSplited[3]}-${rawDateSplited[1]}-${rawDateSplited[2]}`
+      }
+    }
+
+    return input
+  }
+
+  const handleKeyup = (event: KeyboardEvent) => {
+    if ($$restProps.type === 'date') {
+      // @ts-ignore
+      value = transformDate(event.target.value)
+    }
+  }
 </script>
 
 <input
@@ -67,7 +97,7 @@
   on:focus
   on:keydown
   on:keypress
-  on:keyup
+  on:keyup={handleKeyup}
   on:mouseover
   on:mouseenter
   on:mouseleave

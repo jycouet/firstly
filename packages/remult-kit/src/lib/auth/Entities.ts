@@ -24,6 +24,8 @@ export class KitAuthUser {
   // @Fields.string<KitAuthUser>({
   @Fields.string({
     validate: [
+      // REMULT P3 Error: Type 'FieldValidator<unknown, unknown>' is not assignable to type 'FieldValidator<any, unknown>'
+      // @ts-ignore
       Validators.unique(),
       (e) => {
         if (e.name.length < 2) throw 'Must be at least 2 characters long'
@@ -32,8 +34,6 @@ export class KitAuthUser {
   })
   name!: string
 
-  // REMULT CommaSeparatedStringArrayField https://remult.dev/docs/field-types.html#json-field doesn't exist?
-  // @CommaSeparatedStringArrayField()
   @Fields.object<KitAuthUser, string[]>({
     valueConverter: {
       toDb: (x) => (x ? x.join(',') : undefined),

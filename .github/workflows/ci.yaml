@@ -32,7 +32,7 @@ jobs:
         uses: jycouet/jycouet/shared-config/setup@main
         with:
           nodeVersion: 21.2.0
-          pnpmVersion: 8.15.4
+          pnpmVersion: 9.0.1
           withCaching: false
 
       - name: 🧑‍💻 Install playwright
@@ -46,7 +46,7 @@ jobs:
         run: pnpm -r lint
 
       - name: 💪 ts
-        run: pnpm -r ts
+        run: pnpm -r check
 
       - name: 🕹️ test:unit
         run: pnpm -r test:unit:ci

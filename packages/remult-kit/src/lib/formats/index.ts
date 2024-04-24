@@ -1,6 +1,11 @@
-export { displayCurrency, displayPercent, displayCurrencyWOSuffix } from './numbers.js'
+export {
+  displayCurrency,
+  displayCurrencyK,
+  displayPercent,
+  displayCurrencyWOSuffix,
+} from './numbers.js'
 
-export { formatNumber } from './strings.js'
+export { formatNumber, extractMailInfo } from './strings.js'
 
 export { offsetedToPlainDate, plainDateCompare, isBetween, dateISOToPlainDate } from './dates.js'
 

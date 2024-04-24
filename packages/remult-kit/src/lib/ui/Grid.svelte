@@ -1,17 +1,23 @@
 <script lang="ts" generics="T extends Record<any, any>">
   import { createEventDispatcher } from 'svelte'
 
-  import { remult, type FieldMetadata } from 'remult'
+  import type { EntityOrderBy } from 'remult'
 
-  import { displayWithDefaultAndSuffix, getFieldMetaType, getRepoDisplayValue } from '../helper.js'
-  import { LibIcon_Delete, LibIcon_Edit, type KitBaseItem, type KitStoreList } from '../index.js'
+  import {
+    displayWithDefaultAndSuffix,
+    getEntityDisplayValue,
+    getEntityDisplayValueFromField,
+    getFieldLinkDisplayValue,
+    getFieldMetaType,
+  } from '../helper.js'
+  import { LibIcon_Delete, LibIcon_Edit, type KitStoreList } from '../index.js'
   import type { KitCell } from '../kitCellsBuildor.js'
   import Button from './Button.svelte'
   import Clipboardable from './Clipboardable.svelte'
   import GridLoading from './GridLoading.svelte'
   import Icon from './Icon.svelte'
   import { align, getAligns } from './index.js'
-  import { LibIcon_Settings } from './LibIcon.js'
+  import { LibIcon_Settings, LibIcon_Sort, LibIcon_SortAsc, LibIcon_SortDesc } from './LibIcon.js'
   import LinkPlus from './link/LinkPlus.svelte'
 
   export let cells: KitCell<T>[]
@@ -25,40 +31,45 @@
   export let classes = {
     table: 'table-pin-rows table-pin-cols',
   }
-
-  const getFieldLinkDisplayValue = (
-    field: FieldMetadata,
-    row: any,
-  ): KitBaseItem & { href: string } => {
-    const caption = field.displayValue(row)
-
-    let href = ''
-    if (field.options.href) {
-      href = field.options.href(row)
-    }
-
-    return { id: '', caption, href }
-  }
-
-  const getEntityLinkDisplayValue = (
-    field: FieldMetadata,
-    row: any,
-  ): KitBaseItem & { href: string } => {
-    if (row === null || row === undefined) {
-      return { href: '/', id: '', caption: '-' }
-    }
-
-    // REMULT BUG https://github.com/remult/remult/issues/239
-    // const repo = remult.repo(field.target)
-    // @ts-ignore
-    const repo = remult.repo(field.entityDefs.entityType)
-    // console.log(`field.entityDefs.entityType`, field.entityDefs.entityType)
-    // console.log(`field.target`, field.target)
-
-    return { href: '', ...getRepoDisplayValue('Grid.svelte', repo, row) }
-  }
+  export let orderBy: EntityOrderBy<T> | undefined = undefined
+  export let orderByCols: (keyof T)[] | true | undefined = undefined
 
   const dispatch = createEventDispatcher()
+
+  const sorting = (toSort: boolean, b: KitCell<T>) => {
+    if (!toSort) {
+      return
+    }
+    if (orderBy === undefined) {
+      // @ts-ignore
+      orderBy = { [b.field.key]: 'asc' }
+      // @ts-ignore
+    } else if (orderBy[b.field.key] === 'asc') {
+      // @ts-ignore
+      orderBy = { [b.field.key]: 'desc' }
+      // @ts-ignore
+    } else if (orderBy[b.field.key] === undefined) {
+      // @ts-ignore
+      orderBy = { [b.field.key]: 'asc' }
+    } else {
+      orderBy = undefined
+    }
+  }
+
+  const sortingIcon = (toSort: boolean, b: KitCell<T>, _orderBy: EntityOrderBy<T> | undefined) => {
+    if (!toSort) {
+      return
+    }
+    // @ts-ignore
+    if (_orderBy && _orderBy[b.field.key] === 'asc') {
+      return { data: LibIcon_SortAsc, class: 'text-primary' }
+    }
+    // @ts-ignore
+    if (_orderBy && _orderBy[b.field.key] === 'desc') {
+      return { data: LibIcon_SortDesc, class: 'text-primary' }
+    }
+    return { data: LibIcon_Sort }
+  }
 </script>
 
 <div class="overflow-x-auto">
@@ -66,15 +77,35 @@
     <thead>
       <tr>
         {#each cells as b, i}
+          {@const al = align(b.field)}
           <th
-            class="{align(b.field)} 
+            class="{al} 
 									{i === 0 ? 'rounded-tl-lg' : ''}
 									{i === cells.length - 1 && !withEdit && !withDelete ? 'rounded-tr-lg' : ''}"
           >
             {#if b.headerSlot}
               <slot name="header" field={b.field} />
             {:else}
-              {b.header ?? b.field?.caption}
+              {@const toSort =
+                orderByCols === true || (orderByCols && orderByCols.includes(b.field?.key))}
+              {#if toSort}
+                <button
+                  class="flex items-center justify-between gap-2"
+                  disabled={!toSort}
+                  on:click={() => sorting(toSort ?? false, b)}
+                >
+                  <p>
+                    {b.header ?? b.field?.caption}
+                  </p>
+                  {#if toSort}
+                    <Icon {...sortingIcon(toSort ?? false, b, orderBy)}></Icon>
+                  {/if}
+                </button>
+              {:else}
+                <p>
+                  {b.header ?? b.field?.caption}
+                </p>
+              {/if}
             {/if}
           </th>
         {/each}
@@ -87,7 +118,8 @@
       </tr>
     </thead>
     <tbody>
-      {#if $store.loading}
+      <!-- Show loading only if there is no items and loading is true, like this on an update, there will be no jump -->
+      {#if $store.items.length === 0 && $store.loading}
         <GridLoading columns={getAligns(cells, withEdit || withDelete)} {loadingRows} />
       {:else}
         {#each $store.items as row}
@@ -97,18 +129,30 @@
               <td class={align(b.field)}>
                 {#if metaType.kind === 'slot' || b.kind === 'slot'}
                   <slot name="cell" {row} field={b.field} />
+                {:else if b.kind === 'component'}
+                  {#if b.component}
+                    <div class={b.class}>
+                      <svelte:component
+                        this={b.component}
+                        {...b.props}
+                        {...b.rowToProps ? b.rowToProps(row) : {}}
+                      ></svelte:component>
+                    </div>
+                  {:else}
+                    <pre>Col: {b.col}</pre>
+                    <pre class="bg-error">Component prop needed !</pre>
+                  {/if}
                 {:else if metaType.kind === 'relation'}
-                  {@const item = getRepoDisplayValue(
-                    'Grid.svelte',
+                  {@const item = getEntityDisplayValue(
                     metaType.repoTarget,
                     row[metaType.field.key],
                   )}
-                  <LinkPlus {item} />
+                  <LinkPlus item={{ ...item, href: b.field?.options?.href?.(row) ?? item.href }} />
                 {:else if b.kind === 'field_link'}
                   {@const item = getFieldLinkDisplayValue(metaType.field, row)}
                   <LinkPlus {item} />
                 {:else if b.kind === 'entity_link'}
-                  {@const item = getEntityLinkDisplayValue(metaType.field, row)}
+                  {@const item = getEntityDisplayValueFromField(metaType.field, row)}
                   <LinkPlus {item} />
                 {:else if metaType.kind === 'enum'}
                   {@const t = metaType.field.displayValue(row)}

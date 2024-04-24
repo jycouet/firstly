@@ -8,23 +8,41 @@ import {
 
 import { displayCurrencyWOSuffix } from './formats'
 
+// Translate default messages
+// REMULT P2: I need to set this here the one of my app are not overwriting these...
+// It look like I have 2 remult loaded... But even trying to remove one, I still have the issue
+Validators.unique.defaultMessage = 'Existe déjà!'
+Validators.required.defaultMessage = 'Obligatoire!'
+
+export function addValidator(
+  validators: FieldOptions['validate'],
+  newValidator: FieldOptions['validate'],
+  atStart = false,
+) {
+  if (!newValidator) return validators
+  const newValidators = Array.isArray(newValidator) ? newValidator : [newValidator]
+  const validatorsArray = Array.isArray(validators) ? validators : validators ? [validators] : []
+  return atStart ? [...newValidators, ...validatorsArray] : [...validatorsArray, ...newValidators]
+}
+
 export class KitFields {
-  static string<entityType = any, valueType = any>(
-    o?: StringFieldOptions<entityType> & FieldOptions<entityType>,
+  static string<entityType = any, valueType = string>(
+    o?: StringFieldOptions<entityType, valueType> & FieldOptions<entityType, valueType>,
   ) {
     // empty if there is nothing coming here.
     if (o === undefined) {
       o = {}
     }
 
-    const validate: FieldValidator<entityType, string>[] = []
+    const validate: FieldValidator<entityType, valueType>[] = []
 
     if (
+      o.includeInApi !== false &&
       (!o.allowNull || o.required) &&
       // if require: false is explicitly set, then we don't need to add required validator
       o.required !== false
     ) {
-      validate.push(Validators.required('Obligatoire!'))
+      validate.push(Validators.required)
     }
 
     // let's add original validate if any
@@ -56,11 +74,12 @@ export class KitFields {
     const validate: FieldValidator<entityType, Date>[] = []
 
     if (
+      o.includeInApi !== false &&
       (!o.allowNull || o.required) &&
       // if require: false is explicitly set, then we don't need to add required validator
       o.required !== false
     ) {
-      validate.push(Validators.required('Obligatoire!'))
+      validate.push(Validators.required)
     }
 
     // let's add original validate if any

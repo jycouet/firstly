@@ -19,5 +19,6 @@ yarn.lock
 
 # format not working well there for now
 +page.md
+CHANGELOG.md
 ROUTES.ts
 *.svelte.d.ts

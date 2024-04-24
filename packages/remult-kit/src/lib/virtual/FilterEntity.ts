@@ -1,13 +1,13 @@
 import { Entity, Fields } from 'remult'
 
-import { KitFields } from '../KitFields.js'
+// import { KitFields } from '../KitFields.js'
 
 @Entity('filterEntities', {})
 export class FilterEntity {
-  @KitFields.string({ allowNull: true, caption: 'Rechercher par' })
+  @Fields.string({ allowNull: true, caption: 'Rechercher par' })
   search: string = ''
 
-  @KitFields.string({ allowNull: false, caption: 'Titre' })
+  @Fields.string({ allowNull: false, caption: 'Titre' })
   title: string = ''
 
   @Fields.boolean()

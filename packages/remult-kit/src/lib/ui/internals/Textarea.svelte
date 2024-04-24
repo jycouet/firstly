@@ -19,7 +19,7 @@
 
   let reference: HTMLTextAreaElement
 
-  const initialize = (node: HTMLTextAreaElement) => {
+  const focusNow = (node: HTMLTextAreaElement) => {
     if (focus) {
       node.focus()
     }
@@ -47,6 +47,7 @@
   </span>
 {:else}
   <textarea
+    use:focusNow
     {...$$restProps}
     class="textarea textarea-bordered
 			shadow-neutral-focus md:rounded-xls flex h-max min-h-8
@@ -60,7 +61,6 @@
     bind:this={reference}
     bind:value
     {rows}
-    use:initialize
     on:input={(e) => {
       // @ts-ignore
       dispatchInput(e.target.value)

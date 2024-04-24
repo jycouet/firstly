@@ -1,8 +1,16 @@
 import { Temporal } from '@js-temporal/polyfill'
 
+import { logRemultKit } from '../'
+
 export const dateISOToPlainDate = (iso: string) => {
-  const ti = Temporal.Instant.from(iso)
-  return ti.toZonedDateTimeISO('UTC').toPlainDate()
+  try {
+    const ti = Temporal.Instant.from(iso)
+    return ti.toZonedDateTimeISO('UTC').toPlainDate()
+  } catch (error) {
+    const msg = `fn dateISOToPlainDate -> "${iso}" is not valid iso`
+    logRemultKit.error(msg)
+    throw new Error(msg)
+  }
 }
 
 export const offsetedToPlainDate = (dt: Date) => {

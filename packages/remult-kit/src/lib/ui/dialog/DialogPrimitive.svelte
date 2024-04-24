@@ -59,7 +59,7 @@
       {...$content}
       use:$content.action
     >
-      <div class="grid min-w-[25rem] gap-4">
+      <div class="flex h-full min-w-[25rem] flex-col gap-4">
         <h2 {...$localTitle} use:$localTitle.action class="m-0 text-lg font-medium">
           <div class="flex items-center justify-between gap-4">
             <LinkPlus item={detail}></LinkPlus>
@@ -68,20 +68,23 @@
               use:$close.action
               aria-label="close"
               class="btn btn-circle btn-outline btn-lg
-			h-max min-h-0 w-max border-none"
+              h-max min-h-0 w-max border-none"
             >
               <Icon data={LibIcon_Cross}></Icon>
             </button>
           </div>
         </h2>
-        <div>
-          <slot />
-        </div>
+
+        <!-- FIXME: ERMIN? overflow?  -->
+        <!-- <div class="overflow-y-auto"> -->
+        <slot />
+
         {#if $$slots.actions}
           <div class="mt-2 flex items-end justify-end">
             <slot name="actions" />
           </div>
         {/if}
+        <!-- </div> -->
       </div>
     </div>
   {/if}

@@ -19,23 +19,32 @@ test('getPlaceholder', () => {
 test('where with search', () => {
   const where = buildWhere([], [repo.fields.email], {
     email: 'jyc@test.com',
-    search: 'jyc',
+    search: 'jyc test',
   })
   expect(where).toMatchInlineSnapshot(`
-		{
-		  "$and": [
-		    {
-		      "$or": [
-		        {
-		          "email": {
-		            "$contains": "jyc",
-		          },
-		        },
-		      ],
-		    },
-		  ],
-		}
-	`)
+    {
+      "$and": [
+        {
+          "$or": [
+            {
+              "$and": [
+                {
+                  "email": {
+                    "$contains": "jyc",
+                  },
+                },
+                {
+                  "email": {
+                    "$contains": "test",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+  `)
 })
 
 test('where without search, with enum', () => {

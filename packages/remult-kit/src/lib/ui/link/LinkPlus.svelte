@@ -10,7 +10,7 @@
 
 <div class="flex items-center gap-4">
   {#if item}
-    {#if item.icon && !noIcon}
+    {#if item.icon?.data && !noIcon}
       <Icon
         data={item.icon.data}
         class={tw('flex-shrink-0', item.icon.class)}
@@ -26,7 +26,14 @@
           {/if}
         </div>
       {:else}
-        <span class="text-base-content">{item.caption}</span>
+        <!-- 20 is a cool value ! -->
+        <span
+          class="text-base-content {item.class} {(item.caption ?? '').length < 20
+            ? 'text-nowrap'
+            : ''}"
+        >
+          {item.caption}
+        </span>
       {/if}
       {#if item.captionSub && captionSubStyle === 'under'}
         <span class="text-base-content/70 text-xs italic">{item.captionSub}</span>

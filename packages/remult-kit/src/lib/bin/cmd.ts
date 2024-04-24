@@ -67,24 +67,24 @@ const obj = {
   ],
   './.prettierignore': [
     `node_modules/
-  dist/
-  build
-  .vs
-  .vscode
-  .bob/
-  .next/
-  .idea/
-  .svelte-kit/
-  .husky/_/
-  .changeset/
-  .DS_Store
-  coverage/
-  package.json
-  pnpm-lock.yaml
-  README.md
-  
-  db/
-  src/lib/ROUTES.ts
+dist/
+build
+.vs
+.vscode
+.bob/
+.next/
+.idea/
+.svelte-kit/
+.husky/_/
+.changeset/
+.DS_Store
+coverage/
+package.json
+pnpm-lock.yaml
+README.md
+
+db/
+src/lib/ROUTES.ts
   `,
   ],
   './.prettierrc.cjs': [

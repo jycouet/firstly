@@ -279,8 +279,6 @@ export class AuthController {
 
     const accounts = await remult.repo(oSafe.Account).find({
       where: { token: String(otp), provider: AuthProvider.OTP.id },
-      // REMULT QUESTION: include of a relation extened from... ? Seems to not work
-      // include: { user: true },
     })
 
     if (accounts.length === 0) {

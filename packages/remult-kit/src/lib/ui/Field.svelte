@@ -2,14 +2,15 @@
   import { createEventDispatcher } from 'svelte'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
-  import type { FieldMetadata, FindOptions } from 'remult'
+  import { type FieldMetadata, type FindOptions } from 'remult'
 
-  import type { KitBaseItem, KitCell } from '../'
+  import { type KitBaseItem, type KitCell } from '../'
   import { suffixWithS } from '../formats/strings'
   import {
     displayWithDefaultAndSuffix,
+    getEntityDisplayValue,
     getFieldMetaType,
-    getRepoDisplayValue,
+    getFirstInterestingField,
     type MetaTypeRelation,
   } from '../helper.js'
   import { tw } from '../utils/tailwind'
@@ -38,6 +39,7 @@
 
   export let clearable: boolean | undefined = undefined
   export let disabled = false
+  export let loadOptionAt = new Date()
 
   const dispatch = createEventDispatcher()
 
@@ -64,7 +66,7 @@
       ...toRet,
       step: _field?.options?.step ?? undefined,
       name: _field?.key,
-      required: _field?.allowNull === false,
+      // required: _field?.allowNull === false,
     }
   }
 
@@ -78,17 +80,29 @@
 
   const fromInput = (_metadata: FieldMetadata<any, any>, _value: HTMLInputAttributes['value']) => {
     try {
-      return _metadata?.valueConverter.fromInput(_value, metaType.subKind)
+      // REMULT: If the value is 0 and the field is a number, we keep it as 0, not undefined
+      if (metaType.subKind === 'number' && _value === 0) {
+        return 0
+      }
+
+      const val = _metadata?.valueConverter.fromInput(_value, metaType.subKind)
+      // console.log(`val`, val)
+
+      return val
     } catch (error) {
       console.error(`error fromInput w field '${_metadata.key}'`, error)
     }
   }
 
-  let items: any[] = []
+  // let items: any[] = []
 
-  const getLoadOptions = async (str: string) => {
+  const getId = () => {
+    return value?.id || value
+  }
+
+  const getLoadOptions = async (cellsValues: any, str: string) => {
     if (metaType.kind !== 'relation') {
-      return
+      return { items: [], totalCount: 0 }
     }
     // To make TS happy
     const metaTypeObj = { ...metaType } as MetaTypeRelation
@@ -97,19 +111,24 @@
     if (metaTypeObj.repoTarget.metadata.options.searchableFind) {
       // narrowFind at the end because searchableFind should not change the narrowed part!
       findToUse = metaTypeObj.repoTarget.metadata.options.searchableFind(str)
+    } else {
+      if (str) {
+        const field = getFirstInterestingField(metaTypeObj.repoTarget)
+        findToUse = { where: { [field.key]: { $contains: str } } }
+      }
     }
 
     const foEdit = cell.field?.options.findOptionsForEdit
-    const narrowFindEdit =
+    const narrowFindEditWhere =
       typeof foEdit === 'function'
-        ? foEdit().where ?? {}
+        ? foEdit(cellsValues).where ?? {}
         : typeof foEdit === 'object'
           ? foEdit.where ?? {}
           : {}
 
     // @ts-ignore
     const foCrud = cell.field?.options.findOptions
-    const narrowFindCrud =
+    const narrowFindCrudWhere =
       typeof foCrud === 'function'
         ? foCrud().where ?? {}
         : typeof foCrud === 'object'
@@ -118,34 +137,36 @@
 
     findToUse = {
       include: { ...(findToUse.include ?? {}) },
-      where: { ...findToUse.where, ...narrowFindEdit, ...narrowFindCrud },
+      where: { $and: [findToUse.where, narrowFindEditWhere, narrowFindCrudWhere] },
     }
-    if (cell.field?.options?.narrowFindFunc) {
-      findToUse = {
-        include: { ...findToUse.include },
-        where: {
-          ...findToUse.where,
-          ...(cell.field.options.narrowFindFunc({ ...cellsValues })?.where ?? {}),
-        },
+
+    // 24 here is a "magic number"!
+    let limit = cell.field?.options.findOptionsLimit ?? 24
+
+    const arr = []
+    arr.push(
+      ...(await metaTypeObj.repoTarget.find({
+        ...findToUse,
+        limit,
+      })),
+    )
+
+    let totalCount = arr.length
+    // If we are at the limit... there is probably more! How many?
+    if (totalCount === limit) {
+      totalCount = await metaTypeObj.repoTarget.count(findToUse.where)
+    }
+
+    if (!cell.field?.options.multiSelect) {
+      // let's get the current item if it's not in the default list (only when there is no searchFilter going on)
+      // TODO JYC: Maybe can be set by directly wo being fetched?
+      if (str === '' && getId() && !arr.find((r) => String(r.id) === String(getId()))) {
+        arr.unshift(await metaTypeObj.repoTarget.findId(getId()))
       }
     }
 
-    if (cell.filter?.where) {
-      // @ts-ignore
-      findToUse.where = { ...findToUse.where, ...cell.filtefindOptionsForEdit }
-    } else if (cell.filter && !cell.filter.where) {
-      // If this field has a filter but no where - means the other field
-      // doesn't have a value yet. In this case - don't show any selection option
-      return (items = [])
-    }
-    const res = await metaTypeObj.repoTarget.find({ ...findToUse, limit: 300 })
-
-    items = res.map((r) =>
-      getRepoDisplayValue('Field.svelte Select edit', metaTypeObj.repoTarget, r),
-    )
+    return { items: arr.map((r) => getEntityDisplayValue(metaTypeObj.repoTarget, r)), totalCount }
   }
-
-  $: cellsValues && getLoadOptions('')
 </script>
 
 <FieldContainer
@@ -168,11 +189,7 @@
           checked={value}
         />
       {:else if metaType.kind === 'relation'}
-        {@const item = getRepoDisplayValue(
-          'Field.svelte relation readonly',
-          metaType.repoTarget,
-          value,
-        )}
+        {@const item = getEntityDisplayValue(metaType.repoTarget, value)}
         <div class={tw('flex items-center gap-4', 'h-12', 'pl-2')}>
           {#if item && item?.icon}
             <Icon {...item.icon} />
@@ -203,20 +220,26 @@
       <MultiSelectMelt
         {...common(cell.field, true)}
         clearable={clearableComputed}
-        {items}
+        loadOptions={async (str) => await getLoadOptions(cellsValues, str)}
+        {loadOptionAt}
         values={value}
         on:selected={(e) => dispatchSelected(e.detail)}
       />
     {:else}
+      <!-- {items} -->
       <SelectMelt
+        {focus}
         {...common(cell.field, true)}
         clearable={clearableComputed}
-        {items}
+        loadOptions={async (str) => await getLoadOptions(cellsValues, str)}
+        {loadOptionAt}
         value={value?.id || value}
         on:selected={(e) => dispatchSelected(e.detail)}
         on:issue={(e) => {
           error = e.detail
         }}
+        createOptionWhenNoResult={cell.field?.options.createOptionWhenNoResult}
+        on:createRequest
       />
     {/if}
   {:else if metaType.kind === 'enum'}
@@ -237,6 +260,7 @@
       />
     {:else}
       <SelectMelt
+        {focus}
         {...common(cell.field, true)}
         clearable={clearableComputed}
         items={metaType.values}
@@ -258,11 +282,10 @@
     </div>
   {:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'dateOnly' || metaType.subKind === 'number'}
     <div class="input input-bordered inline-flex w-full items-center pl-2">
-      <!-- autocomplete={metaType.subKind === 'password' ? 'current-password' : 'off'} -->
       <Input
         {focus}
         {...common(cell.field)}
-        autoComplete="off"
+        autocomplete="off"
         class={tw(
           `join-item placeholder:text-base-content/30 w-full bg-transparent`,
           metaType.subKind === 'number' && 'text-end',
@@ -286,6 +309,7 @@
     </div>
   {:else if metaType.subKind === 'textarea'}
     <Textarea
+      {focus}
       {...common(cell.field)}
       value={toInput(cell.field, value)}
       on:input={(e) => {

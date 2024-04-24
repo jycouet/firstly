@@ -10,6 +10,7 @@ import {
   LibIcon_Search,
   type KitBaseItemLight,
   type KitCellsInput,
+  type KitStoreItem,
 } from '../../'
 
 export type DialogClasses = {
@@ -27,7 +28,8 @@ export type DialogMetaData<entityType = any> = {
   detail?: KitBaseItemLight
 
   repo?: Repository<entityType>
-  buildor?: KitCellsInput<entityType>
+  store?: KitStoreItem<entityType>
+  cells?: KitCellsInput<entityType>
   defaults?: Partial<entityType>
   classes?: DialogClasses
 
@@ -36,11 +38,17 @@ export type DialogMetaData<entityType = any> = {
   children?: any
   noThrow?: boolean
   wDelete?: boolean
+
+  textCreate?: string
 }
 
-type ResultClose = { success: boolean; item?: KitBaseItemLight }
+type ResultClose<entityType = any> = {
+  success: boolean
+  item?: entityType
+  // createRequest?: entityType
+}
 
-type DialogType = 'custom' | 'confirm' | 'confirmDelete' | 'insert' | 'update' | 'view'
+export type DialogType = 'custom' | 'confirm' | 'confirmDelete' | 'insert' | 'update' | 'view'
 export type DialogMetaDataInternal<entityType = any> = DialogMetaData<entityType> & {
   id: number
   type: DialogType
@@ -96,28 +104,35 @@ const createDialogManagement = () => {
       type: 'insert' | 'update' | 'view',
       topic: string,
       repo: Repository<entityType>,
-
       cells: KitCellsInput<entityType>,
-      defaults: Partial<entityType>,
-      classes?: DialogClasses,
-      noThrow?: boolean,
-      wDelete?: boolean,
+      options?: {
+        defaults?: Partial<entityType>
+        classes?: DialogClasses
+        noThrow?: boolean
+        wDelete?: boolean
+        textCreate?: string
+      },
+      // store?: KitStoreItem<entityType>,
     ) => {
+      const textCreate = options?.textCreate ?? 'Créer'
       const detail: DialogMetaData<entityType> = {
         detail: {
           caption:
-            (type === 'insert' ? 'Créer ' : type === 'update' ? 'Modifier ' : 'Détail ') + topic,
+            (type === 'insert' ? `${textCreate} ` : type === 'update' ? 'Modifier ' : 'Détail ') +
+            topic,
           icon: {
             data:
               type === 'insert' ? LibIcon_Add : type === 'update' ? LibIcon_Edit : LibIcon_Search,
           },
         },
         repo,
-        buildor: cells,
-        defaults,
-        classes,
-        noThrow,
-        wDelete,
+        // store,
+        cells,
+        defaults: options?.defaults,
+        classes: options?.classes,
+        noThrow: options?.noThrow,
+        wDelete: options?.wDelete,
+        textCreate,
       }
       return show(detail, type)
     },
@@ -137,6 +152,7 @@ const createDialogManagement = () => {
         return dialogs.filter((dialog) => dialog.id !== id)
       })
     },
+
     subscribe,
   }
 }

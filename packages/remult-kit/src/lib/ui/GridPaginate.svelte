@@ -7,6 +7,7 @@
   import { LibIcon_ChevronLeft, LibIcon_ChevronRight } from './LibIcon'
   import Loading from './Loading.svelte'
 
+  export let label = 'Pagination'
   export let page: number
   export let totalCount: number | undefined | null = undefined
   export let pageSize: number = 25
@@ -28,7 +29,7 @@
   $: canGoNext = isValidValue && needPaginate && page < Math.ceil((totalCount ?? 0) / pageSize)
 </script>
 
-<FieldContainer label="Pagination" forId="paginate" classes={{ label: 'justify-end' }}>
+<FieldContainer {label} forId="paginate" classes={{ label: 'justify-end' }}>
   <div class="flex items-center justify-end">
     {#if totalCount === undefined}
       <Loading class="mx-2 h-8 w-1/2"></Loading>
