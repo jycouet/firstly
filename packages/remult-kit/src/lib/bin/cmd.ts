@@ -41,7 +41,7 @@ const res = (await p.multiselect({
 pkg.devDependencies = {
   '@kitql/eslint-config': '0.3.2',
   '@kitql/helpers': '0.8.9',
-  remult: '0.25.6-exp.7',
+  remult: '0.26.4',
   pg: '8.11.3',
   ...pkg.devDependencies,
 }

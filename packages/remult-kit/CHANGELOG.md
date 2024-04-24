@@ -1,5 +1,11 @@
 # remult-kit
 
+## 0.26.4-exp.2
+
+### Patch Changes
+
+- [#20](https://github.com/jycouet/remult-kit/pull/20) [`1bf3564`](https://github.com/jycouet/remult-kit/commit/1bf35645c33dc07baec5ae3473ec97cc93bdd130) Thanks [@jycouet](https://github.com/jycouet)! - fix select & dynamic field deps
+
 ## 0.25.6-exp.1
 
 ### Patch Changes
