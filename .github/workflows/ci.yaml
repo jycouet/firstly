@@ -32,7 +32,7 @@ jobs:
         uses: jycouet/jycouet/shared-config/setup@main
         with:
           nodeVersion: 21.2.0
-          pnpmVersion: 9.0.1
+          pnpmVersion: 9.0.6
           withCaching: false
 
       - name: 🧑‍💻 Install playwright

@@ -8,6 +8,7 @@ import { yellow } from '@kitql/helpers'
 
 import { AUTH_OPTIONS, getSafeOptions, logAuth, lucia, type AuthorizationURLOptions } from '.'
 import { AuthProvider } from './Entities.js'
+import { createSession } from './helper'
 import { mergeRoles } from './RoleController'
 
 async function getArgon() {
@@ -31,13 +32,6 @@ function checkPassword(password: string) {
   if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
     throw Error('Invalid password')
   }
-}
-
-export async function createSession(userId: string) {
-  const session = await lucia.createSession(userId, {})
-  const sessionCookie = lucia.createSessionCookie(session.id)
-
-  remult.context.setCookie(sessionCookie.name, sessionCookie.value, { path: '/' })
 }
 
 export class AuthController {

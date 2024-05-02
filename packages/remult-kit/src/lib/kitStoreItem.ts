@@ -61,8 +61,14 @@ export const kitStoreItem = <T>(
       })
     },
 
+    /**
+     * if you have keys, build the id with
+     * ```ts
+     * const id = repo.metadata.idMetadata.getId({a:1,b:2})
+     * store.fetch(id)
+     * ```
+     */
     fetch: async (
-      // REMULT P2: findId type when it's not id, but 2 or 3 id fields?
       id: Parameters<Repository<T>['findId']>[0],
       options?: FindOptions<T>,
       onNewData?: (item: T) => void,

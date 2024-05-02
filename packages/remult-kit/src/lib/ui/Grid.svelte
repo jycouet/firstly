@@ -147,7 +147,12 @@
                     metaType.repoTarget,
                     row[metaType.field.key],
                   )}
-                  <LinkPlus item={{ ...item, href: b.field?.options?.href?.(row) ?? item.href }} />
+                  <LinkPlus
+                    item={{
+                      ...item,
+                      href: b.field?.options?.href ? b.field?.options.href(row) : item?.href,
+                    }}
+                  />
                 {:else if b.kind === 'field_link'}
                   {@const item = getFieldLinkDisplayValue(metaType.field, row)}
                   <LinkPlus {item} />

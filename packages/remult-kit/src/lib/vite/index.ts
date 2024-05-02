@@ -18,7 +18,7 @@ export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
       enforce: 'pre',
 
       config: async (a) => {
-        mergeConfig(a, {
+        return mergeConfig(a, {
           build: {
             // THE ERROR:
             // RollupError: Unexpected character '�'
@@ -43,17 +43,6 @@ export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
           ...options?.kitRoutes?.logs,
           post_update_run: false,
           update: false,
-        },
-        LINKS: {
-          ...options?.kitRoutes?.LINKS,
-          remult_admin: '/api/admin',
-          github: {
-            href: 'https://github.com/[owner]/[repo]',
-            params: {
-              owner: { default: '"jycouet"' },
-              repo: { default: '"remult-kit"' },
-            },
-          },
         },
       },
     }),

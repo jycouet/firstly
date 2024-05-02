@@ -147,7 +147,7 @@ declare module 'remult' {
     // REMULT P3 Noam/Yoni convo
     // difference with `findOptions` of remult ?
     // `findOptionsForEdit` is only for insert & update.
-    // Check out the comment // REMULT P1: This has quite a significat impact on numbers of queries if the field is included or not... ! (Check out the site page list)
+    // 1-n impact with `findOptions`
     findOptionsForEdit?:
       | ((entity: entityType) => FindOptionsBase<valueType>)
       | FindOptionsBase<valueType>

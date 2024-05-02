@@ -80,7 +80,7 @@
 
   const fromInput = (_metadata: FieldMetadata<any, any>, _value: HTMLInputAttributes['value']) => {
     try {
-      // REMULT: If the value is 0 and the field is a number, we keep it as 0, not undefined
+      // REMULT P4 JYC (Open an issue): If the value is 0 and the field is a number, we keep it as 0, not undefined
       if (metaType.subKind === 'number' && _value === 0) {
         return 0
       }

@@ -10,13 +10,14 @@ import { remult } from 'remult'
 import type { ClassType, UserInfo } from 'remult'
 import { Log, red } from '@kitql/helpers'
 
-import { KitRole } from '$lib'
 import type { ResolvedType } from '$lib/utils/types'
 
+import { KitRole } from '../'
 import type { Module } from '../api'
 import { RemultLuciaAdapter } from './Adapter'
-import { AuthController, createSession } from './AuthController'
+import { AuthController } from './AuthController'
 import { KitAuthAccount, KitAuthRole, KitAuthUser, KitAuthUserSession } from './Entities'
+import { createSession } from './helper'
 import { RoleController } from './RoleController'
 
 export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'

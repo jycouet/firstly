@@ -153,6 +153,16 @@ const createDialogManagement = () => {
       })
     },
 
+    // usefull on navigation you want to close all popups
+    closeAll: () => {
+      update((dialogs) => {
+        dialogs.forEach((dialog) => {
+          dialog.resolve({ success: false })
+        })
+        return []
+      })
+    },
+
     subscribe,
   }
 }

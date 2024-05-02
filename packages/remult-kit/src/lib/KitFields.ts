@@ -9,7 +9,7 @@ import {
 import { displayCurrencyWOSuffix } from './formats'
 
 // Translate default messages
-// REMULT P2: I need to set this here the one of my app are not overwriting these...
+// REMULT P3 JYC: I need to set this here the one of my app are not overwriting these...
 // It look like I have 2 remult loaded... But even trying to remove one, I still have the issue
 Validators.unique.defaultMessage = 'Existe déjà!'
 Validators.required.defaultMessage = 'Obligatoire!'
@@ -26,7 +26,7 @@ export function addValidator(
 }
 
 export class KitFields {
-  static string<entityType = any, valueType = string>(
+  static string<entityType = unknown, valueType = string>(
     o?: StringFieldOptions<entityType, valueType> & FieldOptions<entityType, valueType>,
   ) {
     // empty if there is nothing coming here.
@@ -42,6 +42,8 @@ export class KitFields {
       // if require: false is explicitly set, then we don't need to add required validator
       o.required !== false
     ) {
+      // REMULT P2 JYC (Open an issue): to repro + issue type issue? - Probably typescript
+      // @ts-ignore
       validate.push(Validators.required)
     }
 
@@ -79,6 +81,8 @@ export class KitFields {
       // if require: false is explicitly set, then we don't need to add required validator
       o.required !== false
     ) {
+      // REMULT P2 JYC (Open an issue): to repro + issue type issue? - Probably typescript
+      // @ts-ignore
       validate.push(Validators.required)
     }
 

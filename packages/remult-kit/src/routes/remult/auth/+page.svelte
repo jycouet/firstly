@@ -177,8 +177,13 @@
   <!-- Password -->
   <!-- {#if authType === AuthProvider.PASSWORD.id} -->
   <div class="divider col-span-4">Password</div>
-  <input type="text" placeholder="email" bind:value={indentifier} />
-  <input type="password" placeholder="password" bind:value={password} />
+  <input class="input input-bordered" type="text" placeholder="email" bind:value={indentifier} />
+  <input
+    class="input input-bordered"
+    type="password"
+    placeholder="password"
+    bind:value={password}
+  />
 
   <Button on:click={signUp}>SignUp</Button>
   <Button on:click={signIn}>SignIn</Button>
@@ -186,8 +191,13 @@
   <div></div>
   <div></div>
   <Button on:click={forgotPassword}>Forgot Password</Button>
-  <input type="text" placeholder="token" bind:value={token} />
-  <input type="password" placeholder="resetPassword" bind:value={rPassword} />
+  <input class="input input-bordered" type="text" placeholder="token" bind:value={token} />
+  <input
+    class="input input-bordered"
+    type="password"
+    placeholder="resetPassword"
+    bind:value={rPassword}
+  />
   <div></div>
   <Button on:click={resetPassword}>Reset Password</Button>
   <!-- {/if} -->
@@ -195,12 +205,12 @@
   <!-- OTP -->
   <!-- {#if authType === AuthProvider.OTP.id} -->
   <div class="divider col-span-4">OTP</div>
-  <input type="text" placeholder="email" bind:value={indentifierOtp} />
+  <input class="input input-bordered" type="text" placeholder="email" bind:value={indentifierOtp} />
   <div></div>
   <div></div>
   <Button on:click={sendOtp}>Send OTP</Button>
 
-  <input type="text" placeholder="OTP" bind:value={otp} />
+  <input class="input input-bordered" type="text" placeholder="OTP" bind:value={otp} />
   <div></div>
   <div></div>
   <Button on:click={verifyOtp}>Verify</Button>

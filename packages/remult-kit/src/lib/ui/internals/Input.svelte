@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, tick } from 'svelte'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
   import { tw } from '../../utils/tailwind'
@@ -11,7 +11,9 @@
   export let focus: boolean = false
   const focusNow = (node: any) => {
     if (focus) {
-      node.focus()
+      tick().then(() => {
+        node.focus()
+      })
     }
   }
 

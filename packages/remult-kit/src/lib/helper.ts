@@ -107,7 +107,7 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
     }
   }
 
-  // REMULT P2 Noam? Any idea to know if it's an enum? and extract values?
+  // REMULT P2 JYC: Any idea to know if it's an enum? and extract values?
   // const ttt = getValueList(field)
   // console.log(`ttt`, ttt)
   // Error: ValueType not yet initialized, did you forget to call @ValueListFieldType on function String()

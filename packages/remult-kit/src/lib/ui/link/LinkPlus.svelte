@@ -32,7 +32,7 @@
             ? 'text-nowrap'
             : ''}"
         >
-          {item.caption}
+          {item.caption ?? '-'}
         </span>
       {/if}
       {#if item.captionSub && captionSubStyle === 'under'}

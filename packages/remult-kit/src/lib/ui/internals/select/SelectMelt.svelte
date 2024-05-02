@@ -6,8 +6,8 @@
   import {
     Button,
     LibIcon_Check,
-    LibIcon_ChevronDown,
-    LibIcon_ChevronUp,
+    // LibIcon_ChevronDown,
+    // LibIcon_ChevronUp,
     LibIcon_Cross,
     LibIcon_Search,
     tw,
@@ -187,7 +187,7 @@
   <input
     {...$input}
     use:$input.action
-    class="-mx-8 h-full min-w-0 flex-grow bg-transparent px-10"
+    class="-ml-10 -mr-5 h-full min-w-0 flex-grow bg-transparent px-10"
     {placeholder}
     use:focusNow
   />
@@ -197,11 +197,11 @@
         <Icon data={LibIcon_Cross}></Icon>
       </button>
     {/if}
-    {#if $open}
+    <!-- {#if $open}
       <Icon data={LibIcon_ChevronUp}></Icon>
     {:else}
       <Icon data={LibIcon_ChevronDown}></Icon>
-    {/if}
+    {/if} -->
   </div>
 </div>
 
