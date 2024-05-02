@@ -1,5 +1,13 @@
 # remult-kit
 
+## 0.26.4-exp.3
+
+### Patch Changes
+
+- [#24](https://github.com/jycouet/remult-kit/pull/24) [`c1e0d97`](https://github.com/jycouet/remult-kit/commit/c1e0d9740937a0d7074214bc39a293ea7b2a2597) Thanks [@jycouet](https://github.com/jycouet)! - prepare jyc-06 (exp still)
+
+- [#24](https://github.com/jycouet/remult-kit/pull/24) [`c1e0d97`](https://github.com/jycouet/remult-kit/commit/c1e0d9740937a0d7074214bc39a293ea7b2a2597) Thanks [@jycouet](https://github.com/jycouet)! - fix merge vite config
+
 ## 0.26.4-exp.2
 
 ### Patch Changes
