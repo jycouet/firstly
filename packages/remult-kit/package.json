@@ -41,7 +41,7 @@
     "@kitql/internals": "0.9.5",
     "@sveltejs/adapter-node": "^4.0.1",
     "@sveltejs/kit": "2.5.10",
-    "@sveltejs/package": "2.2.2",
+    "@sveltejs/package": "2.3.2",
     "@sveltejs/vite-plugin-svelte": "^3.1.0",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
