@@ -23,7 +23,7 @@ features:
       type: iconify
       collection: fxemoji
       name: constructionsign
-    link: /guide/getting-started
+    link: /guide
   # - title: Svelte in Markdown
   #   description: Feel free to use svelte in markdown. Explore infinite possibilities.
 ---

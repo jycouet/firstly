@@ -9,10 +9,14 @@ const config = defineConfig({
     sveltepress({
       theme: defaultTheme({
         navbar: [
-          // Add your navbar configs here
+          {
+            title: 'Guide',
+            to: '/guide',
+          },
         ],
         sidebar,
         github: 'https://github.com/jycouet/remult-kit',
+        discord: 'https://discord.gg/GXHk7ZfuG5',
         logo: '/remult-kit.svg',
         themeColor: {
           dark: '#ff3e00',
@@ -24,6 +28,9 @@ const config = defineConfig({
           },
           hover: '#ff3e00',
         },
+        // highlighter: {
+        //   themeDark: 'catppuccin-macchiato',
+        // },
         preBuildIconifyIcons: {
           fxemoji: ['constructionsign'],
           heroicons: ['square-3-stack-3d-solid'],

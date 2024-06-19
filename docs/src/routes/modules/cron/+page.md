@@ -1,8 +1,12 @@
 ---
-title: Module cron
+title: Module - Cron
 ---
 
-You wan to execute a function regularly? This module is for you!
+You wan to execute a function regularly? This module is for you! It's using
+[cron](https://www.npmjs.com/package/cron) package in the background with a few things on top _(You
+start to be used to it in remult-kit 😉)_.
+
+Here is how to play with it:
 
 ```ts
 import { cron, cronTime } from 'remult-kit/cron'

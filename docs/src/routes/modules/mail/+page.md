@@ -1,5 +1,5 @@
 ---
-title: Core Module mail
+title: Core Module - Mail
 ---
 
 To it's core, `remult-kit` provides you the ability to send emails. For this, we didn't reinvent the

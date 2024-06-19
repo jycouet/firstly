@@ -1,6 +1,6 @@
 {
   "name": "remult-kit",
-  "version": "0.26.11-exp.0",
+  "version": "0.26.14",
   "type": "module",
   "description": "An opinionated Remult setup !",
   "repository": {
@@ -121,7 +121,8 @@
     "./mail": {
       "types": "./esm/mail/index.d.ts",
       "default": "./esm/mail/index.js"
-    },"./cron": {
+    },
+    "./cron": {
       "types": "./esm/cron/index.d.ts",
       "default": "./esm/cron/index.js"
     }

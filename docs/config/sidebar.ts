@@ -6,7 +6,7 @@ export const sidebar = {
       items: [
         {
           title: 'Getting Started',
-          to: '/guide/getting-started/',
+          to: '/guide/',
         },
       ],
     },
@@ -14,6 +14,10 @@ export const sidebar = {
       title: 'Modules',
       collapsible: true,
       items: [
+        {
+          title: 'Auth',
+          to: '/modules/auth/',
+        },
         {
           title: 'Mail',
           to: '/modules/mail/',
