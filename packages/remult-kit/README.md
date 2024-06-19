@@ -5,7 +5,7 @@
 
 ## 📖 Read the doc
 
-[![](https://img.shields.io/badge/Documentation%20of-remult%20kit-FF3E00.svg?style=flat&logo=stackblitz&logoColor=FF3E00)](https://kitql.dev/docs/tools/04_helpers)
+[![](https://img.shields.io/badge/Documentation%20of-remult%20kit-FF3E00.svg?style=flat&logo=stackblitz&logoColor=FF3E00)](https://remult-kit-static.onrender.com/)
 
 ## ⭐️ Join us
 
