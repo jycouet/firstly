@@ -10,5 +10,19 @@ export const sidebar = {
         },
       ],
     },
+    {
+      title: 'Modules',
+      collapsible: true,
+      items: [
+        {
+          title: 'Mail',
+          to: '/modules/mail/',
+        },
+        {
+          title: 'Cron',
+          to: '/modules/cron/',
+        },
+      ],
+    },
   ],
 }

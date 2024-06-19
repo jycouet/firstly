@@ -22,9 +22,10 @@
 <button
   on:click
   {...$$restProps}
-  class={tw('btn text-white', disabled ? 'btn-outline' : 'btn-primary', className)}
+  class={tw(['btn text-white', disabled ? '' : 'btn-primary', className])}
   {disabled}
 >
+  <!-- btn-outline -->
   <slot />
   {#if triggerAnnimation && isLoading}
     <div in:fly={{ x: -20 }}>

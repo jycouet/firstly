@@ -6,7 +6,8 @@ import {
   type StringFieldOptions,
 } from 'remult'
 
-import { displayCurrencyWOSuffix } from './formats'
+import { displayCurrency } from './formats'
+import { getEnums } from './KitBaseEnum'
 
 // Translate default messages
 // REMULT P3 JYC: I need to set this here the one of my app are not overwriting these...
@@ -64,7 +65,32 @@ export class KitFields {
     o?: FieldOptions<entityType> & FieldOptions<entityType>,
   ) {
     // let's return the field
-    return Fields.number({ ...o, step: '0.01', suffix: '€', displayValue: displayCurrencyWOSuffix })
+    return Fields.number({
+      ...o,
+      step: '0.01',
+      suffix: undefined,
+      suffixEdit: '€',
+      inputType: 'number',
+      displayValue: displayCurrency,
+      // REMULT P2: all default valueConverter are removed if I set one?
+      valueConverter: {
+        toInput(val, inputType) {
+          const valStr = String(val)
+          if (valStr.includes('.')) {
+            const [left, right] = valStr.split('.')
+            // Take only the 2 first digits after the dot
+            return `${left}.${right.slice(0, 2)}`
+          }
+          return valStr
+        },
+        fromDb(val) {
+          if (val) {
+            return parseFloat(val.toString())
+          }
+          return val
+        },
+      },
+    })
   }
 
   static dateOnly<entityType = any>(o?: FieldOptions<entityType, Date>) {
@@ -107,7 +133,7 @@ export class KitFields {
   ) {
     return Fields.json(() => Array<entityType>, {
       ...o,
-      inputType: 'selectEnum',
+      inputType: 'selectArrayEnum',
       allowNull: false,
       valueConverter: {
         fromDb: (v: string) => {
@@ -123,8 +149,82 @@ export class KitFields {
           return keys
         },
         toDb: (v) => {
-          return `{${[...new Set(v.map((c) => c.id))].join(',')}}`
+          const arr = Array.isArray(v) ? v : [v]
+          return `{${[...new Set((arr ?? []).map((c) => c.id))].join(',')}}`
         },
+        displayValue: (v) => {
+          // TODO to transform in enum & item one day
+          return v.map((c) => c.caption).join(', ')
+        },
+        // REMULT P2 Noam: how to do this in an official way?
+        // @ts-ignore
+        values: getEnums(enumClass),
+      },
+    })
+  }
+
+  static arrayEnumToGql<enumType = any, entityType = any>(
+    enumClass: enumType,
+    o?: FieldOptions<entityType, any[]>,
+  ) {
+    return Fields.json(() => Array<entityType>, {
+      ...o,
+      inputType: 'selectArrayEnum',
+      allowNull: false,
+      valueConverter: {
+        fromDb: (v: string) => {
+          if (!v) return []
+          const keys = v.slice(1, -1).split(',')
+          return keys
+        },
+        toDb: (v) => {
+          const arr = Array.isArray(v) ? v : [v]
+          return `{${[...new Set((arr ?? []).map((c) => c.id))].join(',')}}`
+        },
+        displayValue: (v) => {
+          // TODO to transform in enum & item one day
+          return v.map((c) => c.caption).join(', ')
+        },
+        // REMULT P2 Noam: how to do this in an official way?
+        // @ts-ignore
+        values: getEnums(enumClass),
+      },
+    })
+  }
+
+  static arrayValueList<enumType = any, entityType = any>(
+    enumClass: enumType,
+    o?: FieldOptions<entityType, any[]>,
+  ) {
+    return Fields.json(() => Array<entityType>, {
+      ...o,
+      inputType: 'selectArrayEnum',
+      allowNull: false,
+      valueConverter: {
+        fromDb: (v: string) => {
+          if (!v) return []
+
+          const keys = v
+            // @ts-ignore
+            .map((s: any) => {
+              // @ts-ignore
+              return enumClass[s] as enumType
+            })
+            .filter((p: any) => p !== undefined)
+
+          return keys
+        },
+        toDb: (v) => {
+          const arr = Array.isArray(v) ? v : [v]
+          return `{${[...new Set((arr ?? []).map((c) => c.id))].join(',')}}`
+        },
+        displayValue: (v) => {
+          // TODO to transform in enum & item one day
+          return v.map((c) => c.caption).join(', ')
+        },
+        // REMULT P2 Noam: how to do this in an official way?
+        // @ts-ignore
+        values: getEnums(enumClass),
       },
     })
   }

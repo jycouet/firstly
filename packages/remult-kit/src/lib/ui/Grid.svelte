@@ -17,12 +17,19 @@
   import GridLoading from './GridLoading.svelte'
   import Icon from './Icon.svelte'
   import { align, getAligns } from './index.js'
-  import { LibIcon_Settings, LibIcon_Sort, LibIcon_SortAsc, LibIcon_SortDesc } from './LibIcon.js'
+  import {
+    LibIcon_Add,
+    LibIcon_Settings,
+    LibIcon_Sort,
+    LibIcon_SortAsc,
+    LibIcon_SortDesc,
+  } from './LibIcon.js'
   import LinkPlus from './link/LinkPlus.svelte'
 
   export let cells: KitCell<T>[]
   export let store: KitStoreList<T>
 
+  export let withAdd = false
   export let withEdit = false
   export let withDelete = false
 
@@ -33,6 +40,8 @@
   }
   export let orderBy: EntityOrderBy<T> | undefined = undefined
   export let orderByCols: (keyof T)[] | true | undefined = undefined
+
+  export let dicoNoResult = 'Aucun résultat !'
 
   const dispatch = createEventDispatcher()
 
@@ -77,7 +86,7 @@
     <thead>
       <tr>
         {#each cells as b, i}
-          {@const al = align(b.field)}
+          {@const al = align(b.field, b.kind === 'slot')}
           <th
             class="{al} 
 									{i === 0 ? 'rounded-tl-lg' : ''}
@@ -94,25 +103,31 @@
                   disabled={!toSort}
                   on:click={() => sorting(toSort ?? false, b)}
                 >
-                  <p>
-                    {b.header ?? b.field?.caption}
-                  </p>
+                  {b.header ?? b.field?.caption}
                   {#if toSort}
                     <Icon {...sortingIcon(toSort ?? false, b, orderBy)}></Icon>
                   {/if}
                 </button>
               {:else}
-                <p>
-                  {b.header ?? b.field?.caption}
-                </p>
+                {b.header ?? b.field?.caption}
               {/if}
             {/if}
           </th>
         {/each}
 
-        {#if withEdit || withDelete}
+        {#if withEdit || withDelete || withAdd}
           <th class="flex justify-end rounded-tr-lg">
-            <Icon data={LibIcon_Settings}></Icon>
+            {#if withAdd}
+              <Button
+                disabled={!store.getRepo().metadata.apiUpdateAllowed()}
+                class="btn btn-square btn-ghost btn-xs"
+                on:click={() => dispatch('add', {})}
+              >
+                <Icon data={LibIcon_Add} />
+              </Button>
+            {:else}
+              <Icon data={LibIcon_Settings}></Icon>
+            {/if}
           </th>
         {/if}
       </tr>
@@ -126,9 +141,9 @@
           <tr on:click={() => dispatch('rowclick', row)} class="hover:bg-base-content/20">
             {#each cells as b}
               {@const metaType = getFieldMetaType(b.field)}
-              <td class={align(b.field)}>
+              <td class={align(b.field, b.kind === 'slot')}>
                 {#if metaType.kind === 'slot' || b.kind === 'slot'}
-                  <slot name="cell" {row} field={b.field} />
+                  <slot name="cell" {row} field={b.field} cell={b} />
                 {:else if b.kind === 'component'}
                   {#if b.component}
                     <div class={b.class}>
@@ -136,6 +151,7 @@
                         this={b.component}
                         {...b.props}
                         {...b.rowToProps ? b.rowToProps(row) : {}}
+                        on:refresh
                       ></svelte:component>
                     </div>
                   {:else}
@@ -160,8 +176,12 @@
                   {@const item = getEntityDisplayValueFromField(metaType.field, row)}
                   <LinkPlus {item} />
                 {:else if metaType.kind === 'enum'}
-                  {@const t = metaType.field.displayValue(row)}
-                  <LinkPlus item={row[metaType.field.key]}></LinkPlus>
+                  {#if metaType.subKind === 'single'}
+                    <LinkPlus item={row[metaType.field.key]}></LinkPlus>
+                  {:else if metaType.subKind === 'multi'}
+                    {@const t = metaType.field.displayValue(row)}
+                    {t}
+                  {/if}
                 {:else if metaType.subKind === 'checkbox'}
                   {@const t = metaType.field.displayValue(row)}
                   {t === 'true' ? 'Oui' : 'Non'}
@@ -188,6 +208,7 @@
                 <div class="flex justify-end gap-2">
                   {#if withEdit}
                     <Button
+                      disabled={!store.getRepo().metadata.apiUpdateAllowed()}
                       class="btn btn-square btn-ghost btn-xs"
                       on:click={() => dispatch('edit', row)}
                     >
@@ -196,6 +217,7 @@
                   {/if}
                   {#if withDelete}
                     <Button
+                      disabled={!store.getRepo().metadata.apiDeleteAllowed()}
                       class="btn btn-square btn-ghost btn-xs"
                       on:click={() => dispatch('delete', row)}
                     >
@@ -207,11 +229,16 @@
             {/if}
           </tr>
         {:else}
-          <tr>
-            <td colspan={getAligns(cells, withEdit || withDelete).length} class="text-center py-12">
-              Aucun résultat !
-            </td>
-          </tr>
+          {#if dicoNoResult}
+            <tr>
+              <td
+                colspan={getAligns(cells, withEdit || withDelete).length}
+                class="text-center py-12"
+              >
+                {dicoNoResult}
+              </td>
+            </tr>
+          {/if}
         {/each}
         <slot name="extra" />
       {/if}

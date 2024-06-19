@@ -7,6 +7,7 @@ import { BackendMethod, remult } from 'remult'
 import { yellow } from '@kitql/helpers'
 
 import { AUTH_OPTIONS, getSafeOptions, logAuth, lucia, type AuthorizationURLOptions } from '.'
+import { sendMail } from '../mail'
 import { AuthProvider } from './Entities.js'
 import { createSession } from './helper'
 import { mergeRoles } from './RoleController'
@@ -89,6 +90,26 @@ export class AuthController {
    * This is for login / password authentication SignUp
    * _(The first param `name` can be "anything")_
    */
+  @BackendMethod({ allowed: false })
+  static async invite(email: string) {
+    const oSafe = getSafeOptions()
+
+    const existingUser = await remult.repo(oSafe.User).findOne({ where: { name: email } })
+    if (existingUser) {
+      // throw Error("Already invited !")
+    } else {
+      const user = await remult.repo(oSafe.User).insert({
+        name: email,
+      })
+    }
+
+    return 'ok'
+  }
+
+  /**
+   * This is for login / password authentication SignUp
+   * _(The first param `email` can be "anything")_
+   */
   @BackendMethod({ allowed: true })
   static async signUpPassword(email: string, password: string) {
     const oSafe = getSafeOptions()
@@ -122,7 +143,7 @@ export class AuthController {
 
   /**
    * This is for login / password authentication SignIn
-   * _(The first param `name` can be "anything")_
+   * _(The first param `email` can be "anything")_
    */
   @BackendMethod({ allowed: true })
   static async signInPassword(email: string, password: string) {
@@ -158,9 +179,15 @@ export class AuthController {
     const u = await remult.repo(getSafeOptions().User).findFirst({ name: email })
 
     if (u) {
-      const authAccount = await remult.repo(oSafe.Account).findFirst({
+      let authAccount = await remult.repo(oSafe.Account).findFirst({
         userId: u.id,
       })
+      if (!authAccount) {
+        authAccount = remult.repo(oSafe.Account).create()
+        authAccount.userId = u.id
+        authAccount.provider = AuthProvider.PASSWORD.id
+        authAccount.providerUserId = email
+      }
 
       const token = generateId(40)
       authAccount.token = token
@@ -169,13 +196,18 @@ export class AuthController {
       )
 
       await remult.repo(oSafe.Account).save(authAccount)
+      const url = `${remult.context.url.origin}/auth/resetPassword?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.resetPassword) {
-        const url = `${remult.context.url.origin}/auth/resetPassword?token=${token}`
         await AUTH_OPTIONS.providers?.password.resetPassword(url)
         logAuth.success(url)
         return 'Mail sent !'
       } else {
-        logAuth.error(`You need to provide a password.resetPassword hook in the auth options!`)
+        await sendMail('forgotPassword', {
+          to: email,
+          subject: 'Reset your password',
+          text: `You can reset your password here: ${url}`,
+          html: `You can reset your password <a href="${url}">here</a>`,
+        })
       }
     } else {
       throw new Error("Une erreur est survenue, contacte l'administrateur!")

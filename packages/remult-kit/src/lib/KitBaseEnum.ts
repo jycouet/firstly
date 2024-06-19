@@ -6,6 +6,7 @@ export type KitIcon = {
   size?: string | number
   class?: string | string[]
   style?: string | string[]
+  caption?: string
 }
 
 export type KitBaseEnumOptions<Entity = any> = {
@@ -28,6 +29,10 @@ export class KitBaseEnum<Entity = any> {
     this.icon = options?.icon
     this.where = options?.where
     this.class = options?.class
+
+    if (options?.icon && options.icon.caption === undefined) {
+      options.icon.caption = options?.caption
+    }
   }
 
   getWhere = () => {

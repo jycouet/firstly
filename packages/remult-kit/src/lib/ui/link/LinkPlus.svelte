@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tw, type KitBaseItemLight } from '../..'
   import Icon from '../Icon.svelte'
+  import Tooltip from '../Tooltip.svelte'
   import Link from './Link.svelte'
 
   export let item: KitBaseItemLight | undefined
@@ -11,11 +12,13 @@
 <div class="flex items-center gap-4">
   {#if item}
     {#if item.icon?.data && !noIcon}
-      <Icon
-        data={item.icon.data}
-        class={tw('flex-shrink-0', item.icon.class)}
-        size={item.icon.size}
-      />
+      <Tooltip text={item.icon.caption}>
+        <Icon
+          data={item.icon.data}
+          class={tw('flex-shrink-0', item.icon.class)}
+          size={item.icon.size}
+        />
+      </Tooltip>
     {/if}
     <div class="flex flex-col items-start">
       {#if item.href}

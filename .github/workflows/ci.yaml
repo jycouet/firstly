@@ -31,8 +31,8 @@ jobs:
       - name: 🧑‍💻 Setup env
         uses: jycouet/jycouet/shared-config/setup@main
         with:
-          nodeVersion: 21.2.0
-          pnpmVersion: 9.0.6
+          nodeVersion: 22.1.0
+          pnpmVersion: 9.3.0
           withCaching: false
 
       - name: 🧑‍💻 Install playwright

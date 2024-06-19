@@ -47,8 +47,10 @@
     <div
       class={tw(
         `border-base-content/60
-			   bg-base-100 z-40 overflow-auto rounded-xl border
-			   p-6 shadow-lg`,
+         bg-base-100
+			   relative z-40 max-h-[90vh] overflow-visible rounded-xl
+			   border p-6
+         shadow-lg`,
         classes.root,
       )}
       transition:flyAndScale={{
@@ -59,7 +61,7 @@
       {...$content}
       use:$content.action
     >
-      <div class="flex h-full min-w-[25rem] flex-col gap-4">
+      <div class="left-0 top-0 mb-4 w-full">
         <h2 {...$localTitle} use:$localTitle.action class="m-0 text-lg font-medium">
           <div class="flex items-center justify-between gap-4">
             <LinkPlus item={detail}></LinkPlus>
@@ -68,13 +70,15 @@
               use:$close.action
               aria-label="close"
               class="btn btn-circle btn-outline btn-lg
-              h-max min-h-0 w-max border-none"
+            h-max min-h-0 w-max border-none"
             >
               <Icon data={LibIcon_Cross}></Icon>
             </button>
           </div>
         </h2>
+      </div>
 
+      <div class="flex h-full min-w-[25rem] flex-col gap-4">
         <!-- FIXME: ERMIN? overflow?  -->
         <!-- <div class="overflow-y-auto"> -->
         <slot />

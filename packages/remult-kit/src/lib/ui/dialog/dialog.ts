@@ -14,6 +14,9 @@ import {
 } from '../../'
 
 export type DialogClasses = {
+  /**
+   * for example `overflow-auto` to have a scrollbar in the dialog
+   */
   root?: string
   formGrid?: FormGrid
 }
@@ -39,7 +42,7 @@ export type DialogMetaData<entityType = any> = {
   noThrow?: boolean
   wDelete?: boolean
 
-  textCreate?: string
+  topicPrefixText?: string
 }
 
 type ResultClose<entityType = any> = {
@@ -110,16 +113,19 @@ const createDialogManagement = () => {
         classes?: DialogClasses
         noThrow?: boolean
         wDelete?: boolean
-        textCreate?: string
+        topicPrefixText?: string
       },
-      // store?: KitStoreItem<entityType>,
     ) => {
-      const textCreate = options?.textCreate ?? 'Créer'
+      const topicPrefixText = options?.topicPrefixText
+        ? options?.topicPrefixText + ' '
+        : type === 'insert'
+          ? `Créer `
+          : type === 'update'
+            ? 'Modifier '
+            : 'Détail '
       const detail: DialogMetaData<entityType> = {
         detail: {
-          caption:
-            (type === 'insert' ? `${textCreate} ` : type === 'update' ? 'Modifier ' : 'Détail ') +
-            topic,
+          caption: (topicPrefixText + topic).trim(),
           icon: {
             data:
               type === 'insert' ? LibIcon_Add : type === 'update' ? LibIcon_Edit : LibIcon_Search,
@@ -132,7 +138,7 @@ const createDialogManagement = () => {
         classes: options?.classes,
         noThrow: options?.noThrow,
         wDelete: options?.wDelete,
-        textCreate,
+        topicPrefixText,
       }
       return show(detail, type)
     },

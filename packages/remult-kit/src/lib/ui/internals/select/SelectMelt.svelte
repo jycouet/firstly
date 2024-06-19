@@ -6,8 +6,6 @@
   import {
     Button,
     LibIcon_Check,
-    // LibIcon_ChevronDown,
-    // LibIcon_ChevronUp,
     LibIcon_Cross,
     LibIcon_Search,
     tw,
@@ -34,10 +32,10 @@
   export let loadOptions:
     | ((str: string) => Promise<{ items: KitBaseItem[]; totalCount: number }>)
     | undefined = undefined
-  export let loadOptionAt = new Date()
   export let value: string | undefined = undefined
   export let clearable = false
   export let createOptionWhenNoResult = false
+  export let default_select_if_one_item = false
 
   const dispatch = createEventDispatcher()
 
@@ -141,12 +139,12 @@
   $: filteredItems = items
 
   $: {
-    if (items.length === 1) {
+    if (items.length === 1 && default_select_if_one_item) {
       sync.selected(toOption(items[0]))
     }
   }
 
-  const calcFilteredItems = (touched: boolean, str: string, loadOptionAt: Date) => {
+  const calcFilteredItems = (touched: boolean, str: string, value: any) => {
     if (touched) {
       debounce(async () => {
         const normalizedInput = str.toLowerCase()
@@ -167,7 +165,7 @@
     }
   }
 
-  $: calcFilteredItems($touchedInput, $inputValue, loadOptionAt)
+  $: calcFilteredItems($touchedInput, $inputValue, value)
 </script>
 
 <div class="input input-bordered flex min-w-0 items-center {disabled && 'opacity-40'}">
@@ -187,7 +185,7 @@
   <input
     {...$input}
     use:$input.action
-    class="-ml-10 -mr-5 h-full min-w-0 flex-grow bg-transparent px-10"
+    class="-ml-8 -mr-5 h-full min-w-0 flex-grow bg-transparent px-10"
     {placeholder}
     use:focusNow
   />

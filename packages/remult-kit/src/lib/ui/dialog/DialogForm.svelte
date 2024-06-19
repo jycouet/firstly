@@ -1,6 +1,5 @@
 <script lang="ts">
-  
-import { FieldGroup, kitStoreItem } from '../..'
+  import { FieldGroup, kitStoreItem } from '../..'
   import { kitCellsBuildor } from '../../kitCellsBuildor'
   import { dialog, type DialogMetaDataInternal } from './dialog'
   import DialogPrimitive from './DialogPrimitive.svelte'
@@ -8,8 +7,8 @@ import { FieldGroup, kitStoreItem } from '../..'
 
   export let toShow: DialogMetaDataInternal
 
-  const cells = kitCellsBuildor(toShow.repo!, toShow.cells!)
-  const store = toShow.store ?? kitStoreItem(toShow.repo!)
+  $: cells = kitCellsBuildor(toShow.repo!, toShow.cells!)
+  $: store = toShow.store ?? kitStoreItem(toShow.repo!)
 
   $: {
     if (toShow.type === 'update' || toShow.type === 'view') {
@@ -50,13 +49,6 @@ import { FieldGroup, kitStoreItem } from '../..'
       dialog.close(toShow.id, { success: true, item: $store.item })
     }
   }
-
-  let loadOptionAt = new Date()
-  const changed = (e: any) => {
-    if (store.onChange(e.detail)) {
-      loadOptionAt = new Date()
-    }
-  }
 </script>
 
 <DialogPrimitive
@@ -71,8 +63,6 @@ import { FieldGroup, kitStoreItem } from '../..'
         {cells}
         {store}
         mode={toShow.type === 'view' ? 'view' : 'edit'}
-        on:changed={changed}
-        {loadOptionAt}
         on:createRequest={onCreate}
       />
     </div>
@@ -82,7 +72,7 @@ import { FieldGroup, kitStoreItem } from '../..'
       wDelete={toShow.wDelete}
       {store}
       on:delete={onDelete}
-      textCreate={toShow.textCreate}
+      textCreate={toShow.topicPrefixText}
     ></FormEditAction>
   </form>
 </DialogPrimitive>

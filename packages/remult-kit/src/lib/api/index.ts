@@ -7,6 +7,8 @@ import { Log } from '@kitql/helpers'
 
 import { building } from '$app/environment'
 
+import { mailInit, type MailOptions } from '../mail'
+
 export type Module = {
   /**
    * The name of the module (usefull for logging and debugging purposes)
@@ -30,6 +32,7 @@ export type Module = {
 type Options = Omit<
   RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
     modules?: Module[] | undefined
+    mail?: MailOptions
     // log?: boolean | string
   },
   'entities' | 'controllers' | 'initRequest' | 'initApi'
@@ -41,6 +44,8 @@ type Options = Omit<
 export const remultKit = (o: Options) => {
   const modulesSorted = modulesFlatAndOrdered(o.modules ?? [])
   const entities = modulesSorted.flatMap((m) => m.entities ?? [])
+
+  mailInit(o.mail)
 
   return {
     modulesSorted: modulesSorted,
@@ -69,7 +74,7 @@ export const remultKit = (o: Options) => {
             try {
               await f(kitEvent, op)
             } catch (error) {
-              const log = new Log(`remult-kit - ${modulesSorted[i].name}`)
+              const log = new Log(`remult-kit | ${modulesSorted[i].name}`)
               log.error(error)
             }
           }
@@ -93,7 +98,7 @@ export const remultKit = (o: Options) => {
               try {
                 await f(r)
               } catch (error) {
-                const log = new Log(`remult-kit [${modulesSorted[i].name}]`)
+                const log = new Log(`remult-kit | ${modulesSorted[i].name}`)
                 log.error(error)
               }
             }

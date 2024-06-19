@@ -16,6 +16,9 @@
     closeDelay: 0,
     closeOnPointerDown: false,
     forceVisible: true,
+    closeOnEscape: true,
+    group: true,
+    // disableHoverableContent: true,
   })
 </script>
 
@@ -28,7 +31,7 @@
     {...$content}
     use:content
     transition:fade={{ duration: 100 }}
-    class="bg-base-300 z-10 rounded-lg ring-1 ring-black"
+    class="bg-base-300 z-30 rounded-lg ring-1 ring-black"
   >
     <div {...$arrow} use:arrow />
     <div class="px-4 py-1">

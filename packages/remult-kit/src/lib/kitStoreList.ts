@@ -110,9 +110,9 @@ You should do like:
 				`)
       }
     },
-    // Could be usefull one day?
-    // manualFill: (info: { items: T[]; totalCount?: number }) => {
-    // 	set({ items: info.items, loading: false, totalCount: info.totalCount })
-    // },
+
+    getRepo: () => {
+      return repo
+    },
   }
 }

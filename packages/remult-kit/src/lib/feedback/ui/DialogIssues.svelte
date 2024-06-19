@@ -54,7 +54,7 @@
       on:click={async () => {
         await dialog.show({
           component: DialogIssue,
-          classes: { root: 'w-5/6 h-5/6' },
+          classes: { root: 'overflow-auto w-5/6 h-5/6' },
           props: { issueNumber: null, milestoneId },
           detail: {
             caption: 'Nouveau Feedback',
@@ -73,7 +73,7 @@
       on:click={async () => {
         await dialog.show({
           component: DialogIssue,
-          classes: { root: 'w-5/6 h-5/6' },
+          classes: { root: 'overflow-auto w-5/6 h-5/6' },
           props: { issueNumber: issue.number, milestoneId },
           detail: {
             caption: issue.titleHTML,

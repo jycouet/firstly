@@ -137,6 +137,8 @@ declare module 'remult' {
 
     suffix?: string
     suffixWithS?: boolean
+    suffixEdit?: string
+    suffixEditWithS?: boolean
 
     styleRadioUntil?: number
 
@@ -155,7 +157,6 @@ declare module 'remult' {
     findOptionsLimit?: number
     createOptionWhenNoResult?: boolean
 
-    // Currently only for filtering.
     multiSelect?: boolean
 
     skipForDefaultField?: boolean

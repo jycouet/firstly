@@ -39,7 +39,6 @@
 
   export let clearable: boolean | undefined = undefined
   export let disabled = false
-  export let loadOptionAt = new Date()
 
   const dispatch = createEventDispatcher()
 
@@ -167,6 +166,30 @@
 
     return { items: arr.map((r) => getEntityDisplayValue(metaTypeObj.repoTarget, r)), totalCount }
   }
+
+  const getMultiValues = (value: any) => {
+    return (value ?? []).map((c: any) => c.id) || value
+  }
+
+  const calcSuffix = (value: any) => {
+    if (cell.field?.options.suffixEdit) {
+      if (cell.field?.options.suffixEditWithS) {
+        return suffixWithS(value, cell.field?.options.suffixEdit)
+      } else {
+        return cell.field?.options.suffixEdit
+      }
+    }
+
+    if (cell.field?.options.suffix) {
+      if (cell.field?.options.suffixWithS) {
+        return suffixWithS(value, cell.field?.options.suffix)
+      } else {
+        return cell.field?.options.suffix
+      }
+    }
+
+    return ''
+  }
 </script>
 
 <FieldContainer
@@ -200,7 +223,7 @@
         {@const v = displayWithDefaultAndSuffix(cell.field, value)}
         <div class="ml-2 flex h-12 items-center gap-4">
           {#if value?.icon}
-            <Icon {...value?.icon} />
+            <Icon {...value.icon} />
           {/if}
           <Clipboardable value={v}>{v}</Clipboardable>
         </div>
@@ -221,7 +244,6 @@
         {...common(cell.field, true)}
         clearable={clearableComputed}
         loadOptions={async (str) => await getLoadOptions(cellsValues, str)}
-        {loadOptionAt}
         values={value}
         on:selected={(e) => dispatchSelected(e.detail)}
       />
@@ -232,7 +254,6 @@
         {...common(cell.field, true)}
         clearable={clearableComputed}
         loadOptions={async (str) => await getLoadOptions(cellsValues, str)}
-        {loadOptionAt}
         value={value?.id || value}
         on:selected={(e) => dispatchSelected(e.detail)}
         on:issue={(e) => {
@@ -243,13 +264,15 @@
       />
     {/if}
   {:else if metaType.kind === 'enum'}
-    {#if metaType.field.options.multiSelect}
+    {#if metaType.field.options.multiSelect || metaType.subKind === 'multi'}
       <MultiSelectMelt
         {...common(cell.field, true)}
         clearable={clearableComputed}
         items={metaType.values}
-        values={value}
-        on:selected={(e) => dispatchSelected(e.detail)}
+        values={getMultiValues(value)}
+        on:selected={(e) => {
+          dispatchSelected(e.detail)
+        }}
       />
     {:else if metaType.values.length <= (cell.field?.options.styleRadioUntil ?? 3) && !clearableComputed}
       <SelectRadio
@@ -296,16 +319,11 @@
         on:input={(e) => {
           // @ts-ignore
           value = fromInput(cell.field, e.detail.value)
+          dispatchSelected(value)
         }}
         {...$$restProps}
       />
-      {#if cell.field?.options.suffix}
-        {#if cell.field?.options.suffixWithS}
-          {suffixWithS(value, cell.field?.options.suffix)}
-        {:else}
-          {cell.field?.options.suffix}
-        {/if}
-      {/if}
+      {calcSuffix(value)}
     </div>
   {:else if metaType.subKind === 'textarea'}
     <Textarea

@@ -1,6 +1,6 @@
 {
   "name": "remult-kit",
-  "version": "0.26.4-exp.3",
+  "version": "0.26.11-exp.0",
   "type": "module",
   "description": "An opinionated Remult setup !",
   "repository": {
@@ -33,14 +33,14 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "remult": "0.26.10",
+    "remult": "0.26.14",
     "svelte": ">=4.0.1"
   },
   "devDependencies": {
     "@kitql/helpers": "0.8.9",
     "@kitql/internals": "0.9.5",
     "@sveltejs/adapter-node": "^4.0.1",
-    "@sveltejs/kit": "2.5.7",
+    "@sveltejs/kit": "2.5.10",
     "@sveltejs/package": "2.2.2",
     "@sveltejs/vite-plugin-svelte": "^3.1.0",
     "autoprefixer": "^10.4.19",
@@ -50,18 +50,20 @@
     "svelte-check": "3.7.0",
     "tslib": "2.6.2",
     "typescript": "5.4.3",
-    "vitest": "1.5.2"
+    "vitest": "1.6.0"
   },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
-    "@js-temporal/polyfill": "^0.4.4",
     "@mdi/js": "^7.4.47",
     "@melt-ui/svelte": "^0.75.3",
+    "@types/nodemailer": "^6.4.15",
     "arctic": "^1.8.0",
     "clsx": "^2.1.1",
+    "cron": "^3.1.7",
     "daisyui": "^4.10.3",
     "esm-env": "^1.0.0",
     "lucia": "^3.2.0",
+    "nodemailer": "^6.9.13",
     "oslo": "^1.2.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.3",
@@ -115,6 +117,13 @@
     "./changeLogs": {
       "types": "./esm/changeLogs/index.d.ts",
       "default": "./esm/changeLogs/index.js"
+    },
+    "./mail": {
+      "types": "./esm/mail/index.d.ts",
+      "default": "./esm/mail/index.js"
+    },"./cron": {
+      "types": "./esm/cron/index.d.ts",
+      "default": "./esm/cron/index.js"
     }
   },
   "files": [
