@@ -2,31 +2,37 @@
   import { Link, Route } from 'svelte-micro'
 
   import type { RemultKitData } from '../../../../../remult-kit/src/lib/auth/types'
-  import ForgottenPassword from './components/ForgottenPassword.svelte'
-  import Login from './components/Login.svelte'
+  import ForgotPassword from './components/ForgotPassword.svelte'
+  import SignUp from './components/SignUp.svelte'
 
   export let remultKitData: RemultKitData
-
-  $: sign_in = remultKitData.props.paths.base + remultKitData.props.paths.sign_in
-  $: forgot_password = remultKitData.props.paths.base + remultKitData.props.paths.forgot_password
+  let remultKitDataAuth = remultKitData.props
 </script>
 
 <div class="wrapper">
   <div class="form">
     <Route>
-      <Route path={sign_in}>
-        <Login {remultKitData} />
+      <Route path={remultKitDataAuth.providers?.password.paths.sign_in}>
+        <SignUp {remultKitDataAuth} />
 
         <div class="form-footer">
-          <Link href={forgot_password}>Forgot your password?</Link>
+          {#if remultKitDataAuth.providers?.password.paths.forgot_password}
+            <Link href={remultKitDataAuth.providers?.password.paths.forgot_password}>
+              {remultKitDataAuth.providers.password.dico.forgot_password}
+            </Link>
+          {/if}
         </div>
       </Route>
 
-      <Route path={forgot_password}>
-        <ForgottenPassword {remultKitData} />
+      <Route path={remultKitDataAuth.providers?.password.paths.forgot_password}>
+        <ForgotPassword {remultKitDataAuth} />
 
         <div class="form-footer">
-          <Link href={sign_in}>Back to login</Link>
+          {#if remultKitDataAuth.providers?.password.paths.sign_in}
+            <Link href={remultKitDataAuth.providers?.password.paths.sign_in}>
+              {remultKitDataAuth.providers.password.dico.back_to_sign_in}
+            </Link>
+          {/if}
         </div>
       </Route>
 

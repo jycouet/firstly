@@ -1,25 +1,25 @@
 <script lang="ts">
   import { AuthController } from '../../../../../../remult-kit/src/lib/auth/AuthController'
-  import type { RemultKitData } from '../../../../../../remult-kit/src/lib/auth/types'
+  import type { RemultKitDataAuth } from '../../../../../../remult-kit/src/lib/auth/types'
   import { isError } from '../../../../../../remult-kit/src/lib/helper'
   import { autofocus } from '../helpers'
 
-  export let remultKitData: RemultKitData
+  export let remultKitDataAuth: RemultKitDataAuth
 
   export let view = 'login'
-  export let indentifier = ''
+  export let email = ''
 
   export let msgError = ''
   export let msgSuccess = ''
 
   let password: string
-  let pincode: number
+  // let pincode: number
 
   async function signIn() {
     msgError = ''
     msgSuccess = ''
     try {
-      await AuthController.signInPassword(indentifier, password)
+      await AuthController.signInPassword(email, password)
     } catch (error) {
       if (isError(error)) {
         msgError = error.message ?? ''
@@ -36,18 +36,23 @@
   <form on:submit|preventDefault={signIn}>
     <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
     <label>
-      Username
-      <input bind:value={indentifier} use:autofocus type="text" />
+      {remultKitDataAuth.providers.password.dico.email}
+      <input
+        bind:value={email}
+        use:autofocus
+        type="text"
+        placeholder={remultKitDataAuth.providers.password.dico.email_placeholder}
+      />
     </label>
     <label>
-      Password
+      {remultKitDataAuth.providers.password.dico.password}
       <input bind:value={password} type="password" />
     </label>
-    <button>Login</button>
+    <button>{remultKitDataAuth.providers.password.dico.btn_sign_in}</button>
   </form>
 {/if}
 
-{#if view == 'pin'}
+<!-- {#if view == 'pin'}
   <form on:submit|preventDefault={handlePin}>
     <p>{msgError}{msgSuccess}</p>
     <label>
@@ -56,7 +61,7 @@
     </label>
     <button>Confirm</button>
   </form>
-{/if}
+{/if} -->
 
 <style>
   form {

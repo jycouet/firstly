@@ -58,7 +58,14 @@ export const remultKit = (o: Options) => {
       logApiEndPoints: false,
       admin: true,
       defaultGetLimit: 25,
-
+      error: o.error
+        ? o.error
+        : async (e) => {
+            // if 500 we move to 501 to avoid the default retry mechanism
+            if (e.httpStatusCode == 500) {
+              e.sendError(501, e.responseBody)
+            }
+          },
       // Add user configuration
       ...o,
 

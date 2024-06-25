@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  // import type { RemultKitData } from '../../remult-kit/src/lib/auth/types'
+  import type { RemultKitData } from '../../remult-kit/src/lib/auth/types'
+
+  export let remultKitData: RemultKitData
 
   const modules = {
     auth: import('./lib/modules/auth/Page.svelte'),
@@ -9,8 +11,7 @@
     storage: import('./lib/modules/storage/Page.svelte'),
   } as const
 
-  // @ts-expect-error
-  const localRemultKitData = remultKitData
+  // const localRemultKitData = remultKitData
 
   let activeModuleRef: any
 
@@ -21,14 +22,14 @@
 
   // Load the initial module based on remultKitData
   onMount(() => {
-    loadModule(localRemultKitData.module)
+    loadModule(remultKitData.module)
   })
 </script>
 
 <main>
   {#if activeModuleRef}
     {#await activeModuleRef then { default: ModuleComponent }}
-      <ModuleComponent remultKitData={localRemultKitData} />
+      <ModuleComponent {remultKitData} />
     {/await}
   {/if}
 </main>

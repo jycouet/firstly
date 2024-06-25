@@ -20,9 +20,9 @@ import { AuthController } from './AuthController'
 import { KitAuthAccount, KitAuthRole, KitAuthUser, KitAuthUserSession } from './Entities'
 import { createSession } from './helper'
 import { RoleController } from './RoleController'
-import type { RemultKitData, RemultKitDataKind } from './types'
+import type { RemultKitData } from './types'
 
-export type { RemultKitDataKind }
+export type { RemultKitData }
 
 export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'
 export { AuthController } from './AuthController'
@@ -89,8 +89,9 @@ type AuthOptions<
 
   ui?:
     | {
-        paths?: RemultKitDataKind['auth']['paths']
-        strings?: Record<string, string>
+        paths?: {
+          base?: string
+        }
       }
     | false
 
@@ -157,27 +158,6 @@ export const getSafeOptions = () => {
   }
 }
 
-export const authRoutes = () => {
-  if (AUTH_OPTIONS.ui === false) {
-    return { paths: undefined, routes: undefined }
-  }
-  const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
-  const sign_in = AUTH_OPTIONS.ui?.paths?.sign_in ?? '/sign-in'
-  const forgot_password = AUTH_OPTIONS.ui?.paths?.forgot_password ?? '/forgot-password'
-
-  return {
-    paths: {
-      base,
-      sign_in,
-      forgot_password,
-    },
-    routes: {
-      //
-      kit_sign_in: `${base}${sign_in}`,
-    },
-  }
-}
-
 /**
  * To enable authentication in your app in a few lines of code.
  * _Info: index: -777_
@@ -207,22 +187,59 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     },
     earlyReturn: async ({ event, resolve }) => {
-      const { paths, routes } = authRoutes()
-      if (!paths) {
+      if (AUTH_OPTIONS.ui === false) {
         return { early: false }
       }
+      const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
+      const sign_in = '/sign-in' //AUTH_OPTIONS.ui?.paths?.sign_in ?? '/sign-in'
+      const forgot_password = '/forgot-password' //AUTH_OPTIONS.ui?.paths?.forgot_password ?? '/forgot-password'
 
-      if (event.url.pathname.startsWith(paths.base)) {
-        const providers =
+      let remultKitData: RemultKitData = {
+        module: 'auth',
+        props: {
+          ui: {
+            paths: {
+              base,
+            },
+          },
+          providers: {
+            password: {
+              dico: {},
+              paths: {},
+            },
+            oAuths: [],
+          },
+        },
+      }
+
+      if (event.url.pathname.startsWith(remultKitData.props.ui.paths.base)) {
+        const oAuths =
           AUTH_OPTIONS.providers?.oAuths?.map((o) => {
             return o.name
           }) ?? []
 
-        const remultKitData: RemultKitData = {
-          module: 'auth',
-          props: {
-            providers,
-            paths,
+        remultKitData.props = {
+          ...remultKitData.props,
+          providers: {
+            password: {
+              dico: {
+                email: 'Email',
+                email_placeholder: 'Your email address',
+                password: 'Password',
+                btn_sign_in: 'Sign in',
+                forgot_password: 'Forgot your password?',
+                send_password_reset_instructions: 'Send password reset instructions',
+                back_to_sign_in: 'Back to sign in',
+              },
+              paths: {
+                sign_up: `${base}/sign-up`,
+                sign_in: `${base}/sign-in`,
+                forgot_password: `${base}/forgot-password`,
+                reset_password: `${base}/forgot-password`,
+              },
+            },
+
+            oAuths,
           },
         }
 
