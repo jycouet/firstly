@@ -6,6 +6,8 @@ import { getRelationFieldInfo } from 'remult/internals'
 import { getEnum, KitBaseEnum } from './KitBaseEnum.js'
 import type { UnArray } from './utils/types.js'
 
+export type VisibilityMode = 'view' | 'edit' | 'hide'
+
 type KitCellInternal<Entity> = {
   col?: keyof Entity
   kind?:
@@ -20,8 +22,8 @@ type KitCellInternal<Entity> = {
   header?: string // always beter to update the caption of the field or of the class...
   headerSlot?: boolean // add a custom header as slot to a slot field
 
-  modeEdit?: 'view' | 'edit' | 'hide'
-  modeView?: 'view' | 'edit' | 'hide'
+  modeEdit?: VisibilityMode
+  modeView?: VisibilityMode
 
   clipboardable?: boolean // if true, will add a copy button to the field
   clearable?: boolean // for select

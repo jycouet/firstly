@@ -79,13 +79,17 @@
     }
     return { data: LibIcon_Sort }
   }
+
+  const cellsToTake = (cells: KitCell<T>[]) => {
+    return cells.filter((c) => c.modeView !== 'hide')
+  }
 </script>
 
 <div class="overflow-x-auto">
   <table class="table {classes.table}">
     <thead>
       <tr>
-        {#each cells as b, i}
+        {#each cellsToTake(cells) as b, i}
           {@const al = align(b.field, b.kind === 'slot')}
           <th
             class="{al} 
@@ -119,7 +123,8 @@
           <th class="flex justify-end rounded-tr-lg">
             {#if withAdd}
               <Button
-                disabled={!store.getRepo().metadata.apiUpdateAllowed()}
+                permission={store.getRepo().metadata.options.permissionApiInsert}
+                disabled={!store.getRepo().metadata.apiInsertAllowed()}
                 class="btn btn-square btn-ghost btn-xs"
                 on:click={() => dispatch('add', {})}
               >
@@ -134,12 +139,12 @@
     </thead>
     <tbody>
       <!-- Show loading only if there is no items and loading is true, like this on an update, there will be no jump -->
-      {#if $store.items.length === 0 && $store.loading}
+      {#if $store.items.length === 0 && $store.loading && store.getRepo().metadata.apiReadAllowed}
         <GridLoading columns={getAligns(cells, withEdit || withDelete)} {loadingRows} />
       {:else}
         {#each $store.items as row}
           <tr on:click={() => dispatch('rowclick', row)} class="hover:bg-base-content/20">
-            {#each cells as b}
+            {#each cellsToTake(cells) as b}
               {@const metaType = getFieldMetaType(b.field)}
               <td class={align(b.field, b.kind === 'slot')}>
                 {#if metaType.kind === 'slot' || b.kind === 'slot'}
@@ -179,8 +184,12 @@
                   {#if metaType.subKind === 'single'}
                     <LinkPlus item={row[metaType.field.key]}></LinkPlus>
                   {:else if metaType.subKind === 'multi'}
-                    {@const t = metaType.field.displayValue(row)}
-                    {t}
+                    <!-- {@const t = metaType.field.displayValue(row)} -->
+                    {#each row[metaType.field.key] as enumVal}
+                      <div>
+                        {enumVal.caption}
+                      </div>
+                    {/each}
                   {/if}
                 {:else if metaType.subKind === 'checkbox'}
                   {@const t = metaType.field.displayValue(row)}
@@ -208,6 +217,7 @@
                 <div class="flex justify-end gap-2">
                   {#if withEdit}
                     <Button
+                      permission={store.getRepo().metadata.options.permissionApiUpdate}
                       disabled={!store.getRepo().metadata.apiUpdateAllowed()}
                       class="btn btn-square btn-ghost btn-xs"
                       on:click={() => dispatch('edit', row)}
@@ -217,6 +227,7 @@
                   {/if}
                   {#if withDelete}
                     <Button
+                      permission={store.getRepo().metadata.options.permissionApiDelete}
                       disabled={!store.getRepo().metadata.apiDeleteAllowed()}
                       class="btn btn-square btn-ghost btn-xs"
                       on:click={() => dispatch('delete', row)}
@@ -229,7 +240,16 @@
             {/if}
           </tr>
         {:else}
-          {#if dicoNoResult}
+          {#if !store.getRepo().metadata.apiReadAllowed}
+            <tr>
+              <td
+                colspan={getAligns(cells, withEdit || withDelete).length}
+                class="text-center py-12"
+              >
+                Vous n'avez pas la permission pour ces données!
+              </td>
+            </tr>
+          {:else if dicoNoResult}
             <tr>
               <td
                 colspan={getAligns(cells, withEdit || withDelete).length}

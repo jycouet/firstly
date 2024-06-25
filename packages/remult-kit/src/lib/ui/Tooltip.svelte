@@ -16,7 +16,7 @@
     closeDelay: 0,
     closeOnPointerDown: false,
     forceVisible: true,
-    closeOnEscape: true,
+    escapeBehavior: 'close',
     group: true,
     // disableHoverableContent: true,
   })

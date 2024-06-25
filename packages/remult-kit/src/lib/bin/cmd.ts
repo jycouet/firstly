@@ -41,7 +41,7 @@ const res = (await p.multiselect({
 pkg.devDependencies = {
   '@kitql/eslint-config': '0.3.2',
   '@kitql/helpers': '0.8.9',
-  remult: '0.26.10',
+  remult: '0.26.14',
   pg: '8.11.3',
   ...pkg.devDependencies,
 }
@@ -150,7 +150,7 @@ export const api = remultKit({
         oAuths: [
           // To enable GitHub auth,
           // 1/ Add your GitHub credentials to .env file (example in .env.example)
-          // 2/ uncomment imports
+          // 2/ uncomment imports & github() call below
           // 3/ under a button click call something like this:
           //      async function oauth() {
           //        window.location.href = await AuthController.signInOAuthGetUrl({ provider: 'github', redirect: window.location.pathname })

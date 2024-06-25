@@ -247,7 +247,7 @@
               class="w-full"
               on:click={(e) => {
                 dispatchCreateRequest(e, $inputValue)
-              }}>Creer {$inputValue}</Button
+              }}>Créer "{$inputValue}"</Button
             >
           </div>
         {:else}

@@ -115,5 +115,11 @@ export const extractMailInfo = (mail: string, withThrow = true) => {
     }
   }
 
-  return null
+  const clean = rmvChars(mail)
+
+  return {
+    firstName: '',
+    lastName: clean,
+    email: '',
+  }
 }

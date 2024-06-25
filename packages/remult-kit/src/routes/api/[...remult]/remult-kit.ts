@@ -52,7 +52,8 @@ export const remultApi = remultKit({
           // TODO: enable signup (bool)
           // TODO: enable email verify (bool)
           resetPassword: async (url) => {
-            console.info(`Mail to send with this url`, url)
+            console.info(`Mail to send with this url:`, url)
+            console.info('You can use the function sendMail() from "remult-kit/mail"')
           },
         },
 

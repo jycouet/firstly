@@ -1,18 +1,21 @@
-import nodemailer from 'nodemailer'
+import type * as typeNodemailer from 'nodemailer'
 import type Mail from 'nodemailer/lib/mailer'
 
 import { Log, magenta } from '@kitql/helpers'
 
 export type MailOptions = {
   from?: Mail.Options['from']
-  transport?: Parameters<typeof nodemailer.createTransport>[0]
-  apiUrl?: Parameters<typeof nodemailer.createTestAccount>[0]
+  transport?: Parameters<typeof typeNodemailer.createTransport>[0]
+  apiUrl?: Parameters<typeof typeNodemailer.createTestAccount>[0]
 }
 
-let transporter: ReturnType<typeof nodemailer.createTransport>
+let transporter: ReturnType<typeof typeNodemailer.createTransport>
 let options: MailOptions | undefined
 
-export const mailInit: (o?: MailOptions) => void = (o) => {
+export const mailInit: (nodemailer: typeof typeNodemailer, o?: MailOptions) => void = (
+  nodemailer,
+  o,
+) => {
   options = o
   if (o?.transport) {
     transporter = nodemailer.createTransport(o?.transport)

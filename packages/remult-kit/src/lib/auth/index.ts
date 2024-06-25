@@ -40,7 +40,7 @@ export type DynamicAuthorizationURLOptions<T extends KitOAuth2Provider[] = KitOA
       : never
     : never
 
-export const logAuth = new Log('remult-kit | Auth')
+export const logAuth = new Log('remult-kit | auth')
 
 export { KitAuthRole } from './Entities'
 
@@ -210,7 +210,12 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         const selectedOAuth = AUTH_OPTIONS.providers?.oAuths?.find((c) => c.name === keyState)
         if (selectedOAuth && code) {
           const tokens = await selectedOAuth.getArcticProvider().validateAuthorizationCode(code)
-          const info = await selectedOAuth.getUserInfo(tokens)
+          let info: OAuth2UserInfo
+          try {
+            info = await selectedOAuth.getUserInfo(tokens)
+          } catch (error) {
+            redirect(302, redirectUrl)
+          }
 
           if (!info.providerUserId) {
             redirect(302, redirectUrl)
@@ -262,7 +267,6 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         }
 
         redirect(302, redirectUrl)
-        // return resolve(event)
       }
       return { early: false }
     },

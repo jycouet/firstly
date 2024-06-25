@@ -4,7 +4,7 @@ import { generateId } from 'lucia'
 import { createDate, TimeSpan } from 'oslo'
 
 import { BackendMethod, remult } from 'remult'
-import { yellow } from '@kitql/helpers'
+import { green, yellow } from '@kitql/helpers'
 
 import { AUTH_OPTIONS, getSafeOptions, logAuth, lucia, type AuthorizationURLOptions } from '.'
 import { sendMail } from '../mail'
@@ -199,7 +199,7 @@ export class AuthController {
       const url = `${remult.context.url.origin}/auth/resetPassword?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.resetPassword) {
         await AUTH_OPTIONS.providers?.password.resetPassword(url)
-        logAuth.success(url)
+        logAuth.success(`Done with custom ${green('resetPassword')} (${yellow(url)})`)
         return 'Mail sent !'
       } else {
         await sendMail('forgotPassword', {
@@ -208,6 +208,7 @@ export class AuthController {
           text: `You can reset your password here: ${url}`,
           html: `You can reset your password <a href="${url}">here</a>`,
         })
+        logAuth.success(`Done with ${green('sendMail')} (${url})`)
       }
     } else {
       throw new Error("Une erreur est survenue, contacte l'administrateur!")

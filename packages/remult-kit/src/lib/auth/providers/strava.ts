@@ -36,14 +36,16 @@ export function strava(options?: {
 
   const clientID = options?.clientID ?? env.GITHUB_CLIENT_ID ?? ''
   const secret = options?.secret ?? env.GITHUB_CLIENT_SECRET ?? ''
-  checkOAuthConfig(name, clientID, secret, false)
+
+  const urlForKeys = 'https://www.strava.com/settings/api'
+  checkOAuthConfig(name, clientID, secret, urlForKeys, false)
 
   return {
     name,
     isPKCE: false,
     getArcticProvider: () => {
       const redirectURI = options?.redirectURI || `${remult.context.url.origin}/api/auth_callback`
-      checkOAuthConfig(name, clientID, secret, true)
+      checkOAuthConfig(name, clientID, secret, urlForKeys, true)
       return new Strava(clientID, secret, redirectURI)
     },
     authorizationURLOptions: () => {

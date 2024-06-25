@@ -6,7 +6,7 @@ import type { RequestEvent } from '@sveltejs/kit'
 
 import { Log } from '@kitql/helpers'
 
-import type { KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'
+import type { KitBaseEnum, KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'
 import type { KitCellsInput as KitCellsInputForExport } from './kitCellsBuildor.js'
 import { kitStoreItem } from './kitStoreItem.js'
 import { kitStoreList } from './kitStoreList.js'
@@ -54,6 +54,7 @@ export type { DialogMetaDataInternal } from './ui/dialog/dialog.js'
 export { KitBaseEnum, getEnum, getEnums } from './KitBaseEnum.js'
 export type { KitBaseEnumOptions } from './KitBaseEnum.js'
 export { KitFields } from './KitFields.js'
+export { KitEntity } from './KitEntity.js'
 export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
 export { getEntityDisplayValue, isError, kitDbNamesOf, getFieldLinkDisplayValue } from './helper.js'
 export {
@@ -68,7 +69,7 @@ export { kitStoreItem }
 export { kitStoreList }
 
 export type KitCellsInput<entityType> = KitCellsInputForExport<entityType>
-export type { KitCell } from './kitCellsBuildor.js'
+export type { KitCell, VisibilityMode } from './kitCellsBuildor.js'
 export type { FindOptionsPlus } from './kitStoreList.js'
 export type KitBaseItem = KitBaseEnumOptions & {
   id: string
@@ -165,6 +166,12 @@ declare module 'remult' {
   export interface EntityOptions<entityType> {
     searchableFind?: (str: string) => FindOptionsBase<entityType>
     displayValue?: (item: entityType) => KitBaseItem
+
+    permissionApiCrud?: KitBaseEnum[] | KitBaseEnum
+    permissionApiDelete?: KitBaseEnum[] | KitBaseEnum
+    permissionApiInsert?: KitBaseEnum[] | KitBaseEnum
+    permissionApiRead?: KitBaseEnum[] | KitBaseEnum
+    permissionApiUpdate?: KitBaseEnum[] | KitBaseEnum
   }
 
   export interface UserInfo {

@@ -29,6 +29,16 @@ export const cronTime = {
    * Every minute
    */
   every_minute: '0 * * * * *',
+
+  /**
+   * Every 10 minute
+   */
+  every_10_minute: '*/10 * * * *',
+
+  /**
+   * Every friday at 5:11 am
+   */
+  every_friday_morning: '11 5 * * 5',
 }
 
 /**
@@ -117,8 +127,9 @@ const logJobs = (
   l.push(magenta(`[${topic}]`))
   l.push(message)
   if (with_metadata) {
+    // If the job is "stopped", there will still be a next date, but it will not fire it. The job has to start.
     l.push(
-      `(${job.running ? green('running') : red('stopped')}${job.running ? `, next at ${yellow(job.nextDate().toISO()!)}` : ``})`,
+      `(${job.running ? green('running') : red('stopped')}, next at ${yellow(job.nextDate().toISO()!)})`,
     )
   }
 

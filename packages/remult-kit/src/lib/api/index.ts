@@ -1,4 +1,5 @@
 import { type Handle, type MaybePromise, type RequestEvent } from '@sveltejs/kit'
+import nodemailer from 'nodemailer'
 
 import { remult, type ClassType } from 'remult'
 import { remultSveltekit } from 'remult/remult-sveltekit'
@@ -45,7 +46,7 @@ export const remultKit = (o: Options) => {
   const modulesSorted = modulesFlatAndOrdered(o.modules ?? [])
   const entities = modulesSorted.flatMap((m) => m.entities ?? [])
 
-  mailInit(o.mail)
+  mailInit(nodemailer, o.mail)
 
   return {
     modulesSorted: modulesSorted,

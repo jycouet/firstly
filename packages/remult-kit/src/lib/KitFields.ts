@@ -58,7 +58,7 @@ export class KitFields {
     }
 
     // let's return the field
-    return Fields.string({ ...o, validate })
+    return Fields.string<entityType, valueType>({ ...o, validate })
   }
 
   static currency<entityType = any, valueType = any>(
@@ -219,7 +219,7 @@ export class KitFields {
           return `{${[...new Set((arr ?? []).map((c) => c.id))].join(',')}}`
         },
         displayValue: (v) => {
-          // TODO to transform in enum & item one day
+          // Nice to have a oneLiner, but if you want custom style, just take the array and do what you want
           return v.map((c) => c.caption).join(', ')
         },
         // REMULT P2 Noam: how to do this in an official way?
