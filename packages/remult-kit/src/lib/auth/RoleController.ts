@@ -21,6 +21,7 @@ export const mergeRoles = (existing: string[], newOnes: string[] | undefined) =>
 }
 
 export class RoleController {
+  // @ts-ignore (for pnpm check)
   @BackendMethod({ allowed: false })
   static initRoleFromEnv = async (
     log: Log,
@@ -28,6 +29,7 @@ export class RoleController {
     envKey: string,
     role: string,
   ) => {
+    // @ts-ignore (for pnpm check)
     const { env } = await import('$env/dynamic/private')
     const names = env[envKey] === undefined ? [] : (env[envKey] ?? '').split(',')
     for (let i = 0; i < names.length; i++) {
@@ -47,7 +49,7 @@ export class RoleController {
     }
     if (names.length > 0) {
       log.info(
-        `${cyan(role)}: ${names.map((c) => green(c.trim())).join(', ')} added via ${yellow(envKey)}.`,
+        `${cyan(role)}: ${names.map((c: any) => green(c.trim())).join(', ')} added via ${yellow(envKey)}.`,
       )
     } else {
       log.info(`${cyan(role)}: No users added via ${yellow(envKey)}.`)

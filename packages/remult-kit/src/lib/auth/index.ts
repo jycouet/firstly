@@ -11,10 +11,9 @@ import type { ClassType, UserInfo } from 'remult'
 import { Log, red } from '@kitql/helpers'
 import { read } from '@kitql/internals'
 
-import type { ResolvedType } from '$lib/utils/types'
-
 import { KitRole } from '../'
 import type { Module } from '../api'
+import type { ResolvedType } from '../utils/types'
 import { RemultLuciaAdapter } from './Adapter'
 import { AuthController } from './AuthController'
 import { KitAuthAccount, KitAuthRole, KitAuthUser, KitAuthUserSession } from './Entities'
@@ -197,7 +196,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
           return o.name
         }) ?? []
 
-      let remultKitData: RemultKitData = {
+      const remultKitData: RemultKitData = {
         module: 'auth',
         props: {
           ui: {

@@ -20,6 +20,8 @@
     activeModuleRef = modules[moduleName]
   }
 
+  const getKeys = () => Object.keys(modules) as (keyof typeof modules)[]
+
   // Load the initial module based on remultKitData
   onMount(() => {
     loadModule(remultKitData.module)
@@ -35,7 +37,7 @@
 </main>
 
 <div class="debug">
-  {#each Object.keys(modules) as module}
+  {#each getKeys() as module}
     <button on:click={() => loadModule(module)}>Load {module}</button>
   {/each}
 </div>

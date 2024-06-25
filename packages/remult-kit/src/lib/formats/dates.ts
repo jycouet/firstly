@@ -16,11 +16,6 @@ export const dateISOToPlainDate = (iso: string) => {
 
 export const offsetedToPlainDate = (dt: Date) => {
   const userTimezoneOffset = dt.getTimezoneOffset() * 60000
-  console.log('')
-  console.log('')
-  console.log('')
-  console.log('')
-  console.log(`userTimezoneOffset`, userTimezoneOffset)
 
   const adjustedDate = new Date(dt.getTime() - userTimezoneOffset)
   return adjustedDate.toISOString().split('T')[0]
