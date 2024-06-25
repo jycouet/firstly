@@ -35,7 +35,7 @@ const ACTIONS = {
  * LINKS
  */
 const LINKS = {
-  "kit_auth": `/kit/auth`,
+  "kit_sign_in": `/kit/auth/sign-in`,
   "remult_admin": `/api/admin`,
   "github": (params?: { owner?: (string | number), repo?: (string | number) }) => {
     params = params ?? {}
@@ -148,6 +148,6 @@ export type KIT_ROUTES = {
   PAGES: { '/': never, '/remult': never, '/remult/auth': never, '/remult/enum': never, '/remult/select': never, '/ui': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
-  LINKS: { 'kit_auth': never, 'remult_admin': never, 'github': 'owner' | 'repo' }
+  LINKS: { 'kit_sign_in': never, 'remult_admin': never, 'github': 'owner' | 'repo' }
   Params: { owner: never, repo: never }
 }

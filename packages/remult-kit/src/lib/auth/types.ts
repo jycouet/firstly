@@ -8,8 +8,19 @@ export type RemultKitDataKind = {
     providers: string[]
     paths: {
       base: string
-      login: string
-      forgottenPassword: string
+      //
+      sign_in: string
+      forgot_password: string
     }
   }
 }
+
+// paths?: {
+//   base?: string
+//   login?: string
+//   forgotPassword?: string
+//   // forgotPassword?: string
+//   // resetPassword?: string
+//   // verifyEmail?: string
+//   // profile?: string
+// }

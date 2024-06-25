@@ -44,6 +44,14 @@ export const remultApi = remultKit({
         User: _AppUser,
       },
 
+      // ui: {
+      //   // paths: {
+      //   //   // base: '',
+      //   //   // login: '/login',
+      //   // },
+      //   // strings: {
+      //   // }
+      // },
       providers: {
         demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.ADMIN] }],
 

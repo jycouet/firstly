@@ -7,31 +7,33 @@
 
   export let remultKitData: RemultKitData
 
-  $: forgottenPasswordPath =
-    remultKitData.props.paths.base + remultKitData.props.paths.forgottenPassword
-  $: loginPath = remultKitData.props.paths.base + remultKitData.props.paths.login
+  $: sign_in = remultKitData.props.paths.base + remultKitData.props.paths.sign_in
+  $: forgot_password = remultKitData.props.paths.base + remultKitData.props.paths.forgot_password
 </script>
 
 <div class="wrapper">
   <div class="form">
     <Route>
-      <Route path={loginPath}>
+      <Route path={sign_in}>
         <Login {remultKitData} />
 
         <div class="form-footer">
-          <Link href={forgottenPasswordPath}>Forgot your password?</Link>
+          <Link href={forgot_password}>Forgot your password?</Link>
         </div>
       </Route>
 
-      <Route path={forgottenPasswordPath}>
+      <Route path={forgot_password}>
         <ForgottenPassword {remultKitData} />
 
         <div class="form-footer">
-          <Link href={loginPath}>Back to login</Link>
+          <Link href={sign_in}>Back to login</Link>
         </div>
       </Route>
 
       <Route fallback>
+        <div class="fallback">
+          <small>- 404 -</small>
+        </div>
         <div class="fallback">
           <small>Nothing to see here</small>
         </div>

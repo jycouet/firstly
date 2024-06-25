@@ -20,7 +20,9 @@ import { AuthController } from './AuthController'
 import { KitAuthAccount, KitAuthRole, KitAuthUser, KitAuthUserSession } from './Entities'
 import { createSession } from './helper'
 import { RoleController } from './RoleController'
-import type { RemultKitData } from './types'
+import type { RemultKitData, RemultKitDataKind } from './types'
+
+export type { RemultKitDataKind }
 
 export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'
 export { AuthController } from './AuthController'
@@ -87,15 +89,7 @@ type AuthOptions<
 
   ui?:
     | {
-        paths?: {
-          base?: string
-          login?: string
-          forgotPassword?: string
-          // forgotPassword?: string
-          // resetPassword?: string
-          // verifyEmail?: string
-          // profile?: string
-        }
+        paths?: RemultKitDataKind['auth']['paths']
         strings?: Record<string, string>
       }
     | false
@@ -163,6 +157,27 @@ export const getSafeOptions = () => {
   }
 }
 
+export const authRoutes = () => {
+  if (AUTH_OPTIONS.ui === false) {
+    return { paths: undefined, routes: undefined }
+  }
+  const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
+  const sign_in = AUTH_OPTIONS.ui?.paths?.sign_in ?? '/sign-in'
+  const forgot_password = AUTH_OPTIONS.ui?.paths?.forgot_password ?? '/forgot-password'
+
+  return {
+    paths: {
+      base,
+      sign_in,
+      forgot_password,
+    },
+    routes: {
+      //
+      kit_sign_in: `${base}${sign_in}`,
+    },
+  }
+}
+
 /**
  * To enable authentication in your app in a few lines of code.
  * _Info: index: -777_
@@ -192,14 +207,12 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     },
     earlyReturn: async ({ event, resolve }) => {
-      if (AUTH_OPTIONS.ui === false) {
+      const { paths, routes } = authRoutes()
+      if (!paths) {
         return { early: false }
       }
 
-      // TODO: maange default values
-      const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
-
-      if (event.url.pathname.startsWith(base)) {
+      if (event.url.pathname.startsWith(paths.base)) {
         const providers =
           AUTH_OPTIONS.providers?.oAuths?.map((o) => {
             return o.name
@@ -209,7 +222,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
           module: 'auth',
           props: {
             providers,
-            paths: { base, login: '/login', forgottenPassword: '/forgottenPassword' },
+            paths,
           },
         }
 
