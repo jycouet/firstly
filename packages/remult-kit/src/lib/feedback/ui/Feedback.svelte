@@ -5,7 +5,7 @@
   const list = async () => {
     await dialog.show({
       component: DialogMilestones,
-      classes: { root: 'w-5/6 h-5/6' },
+      classes: { root: 'overflow-auto w-5/6 h-5/6' },
       detail: { caption: 'Feedback' },
     })
   }

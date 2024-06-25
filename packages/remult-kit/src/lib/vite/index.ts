@@ -4,7 +4,7 @@ import { stripper } from 'vite-plugin-stripper'
 
 // import { Log } from '@kitql/helpers'
 
-const toRemove = ['oslo/password', 'osla']
+const toRemove = ['oslo/password', 'oslo']
 
 export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
   stripper?: { debug?: boolean }
@@ -18,24 +18,20 @@ export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
       enforce: 'pre',
 
       config: async (a) => {
-        mergeConfig(
-          a,
-          {
-            build: {
-              // THE ERROR:
-              // RollupError: Unexpected character '�'
-              // This code (A) is to fix in `build` mode
-              rollupOptions: {
-                external: toRemove,
-              },
-            },
-            // This code (B) is to fix in `dev` mode
-            optimizeDeps: {
-              exclude: toRemove,
+        return mergeConfig(a, {
+          build: {
+            // THE ERROR:
+            // RollupError: Unexpected character '�'
+            // This code (A) is to fix in `build` mode
+            rollupOptions: {
+              external: toRemove,
             },
           },
-          true,
-        )
+          // This code (B) is to fix in `dev` mode
+          optimizeDeps: {
+            exclude: toRemove,
+          },
+        })
       },
     },
 
@@ -47,17 +43,6 @@ export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
           ...options?.kitRoutes?.logs,
           post_update_run: false,
           update: false,
-        },
-        LINKS: {
-          ...options?.kitRoutes?.LINKS,
-          remult_admin: '/api/admin',
-          github: {
-            href: 'https://github.com/[owner]/[repo]',
-            params: {
-              owner: { default: '"jycouet"' },
-              repo: { default: '"remult-kit"' },
-            },
-          },
         },
       },
     }),

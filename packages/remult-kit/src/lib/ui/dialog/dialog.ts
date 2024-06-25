@@ -14,6 +14,9 @@ import {
 } from '../../'
 
 export type DialogClasses = {
+  /**
+   * for example `overflow-auto` to have a scrollbar in the dialog
+   */
   root?: string
   formGrid?: FormGrid
 }
@@ -29,7 +32,7 @@ export type DialogMetaData<entityType = any> = {
 
   repo?: Repository<entityType>
   store?: KitStoreItem<entityType>
-  buildor?: KitCellsInput<entityType>
+  cells?: KitCellsInput<entityType>
   defaults?: Partial<entityType>
   classes?: DialogClasses
 
@@ -38,11 +41,17 @@ export type DialogMetaData<entityType = any> = {
   children?: any
   noThrow?: boolean
   wDelete?: boolean
+
+  topicPrefixText?: string
 }
 
-type ResultClose = { success: boolean; item?: KitBaseItemLight; createRequest?: any }
+type ResultClose<entityType = any> = {
+  success: boolean
+  item?: entityType
+  // createRequest?: entityType
+}
 
-type DialogType = 'custom' | 'confirm' | 'confirmDelete' | 'insert' | 'update' | 'view'
+export type DialogType = 'custom' | 'confirm' | 'confirmDelete' | 'insert' | 'update' | 'view'
 export type DialogMetaDataInternal<entityType = any> = DialogMetaData<entityType> & {
   id: number
   type: DialogType
@@ -100,28 +109,37 @@ const createDialogManagement = () => {
       topic: string,
       repo: Repository<entityType>,
       cells: KitCellsInput<entityType>,
-      defaults: Partial<entityType>,
-      classes?: DialogClasses,
-      noThrow?: boolean,
-      wDelete?: boolean,
-      store?: KitStoreItem<entityType>,
+      options?: {
+        defaults?: Partial<entityType>
+        classes?: DialogClasses
+        noThrow?: boolean
+        wDelete?: boolean
+        topicPrefixText?: string
+      },
     ) => {
+      const topicPrefixText = options?.topicPrefixText
+        ? options?.topicPrefixText + ' '
+        : type === 'insert'
+          ? `Créer `
+          : type === 'update'
+            ? 'Modifier '
+            : 'Détail '
       const detail: DialogMetaData<entityType> = {
         detail: {
-          caption:
-            (type === 'insert' ? 'Créer ' : type === 'update' ? 'Modifier ' : 'Détail ') + topic,
+          caption: (topicPrefixText + topic).trim(),
           icon: {
             data:
               type === 'insert' ? LibIcon_Add : type === 'update' ? LibIcon_Edit : LibIcon_Search,
           },
         },
         repo,
-        store,
-        buildor: cells,
-        defaults,
-        classes,
-        noThrow,
-        wDelete,
+        // store,
+        cells,
+        defaults: options?.defaults,
+        classes: options?.classes,
+        noThrow: options?.noThrow,
+        wDelete: options?.wDelete,
+        topicPrefixText,
       }
       return show(detail, type)
     },
@@ -141,6 +159,17 @@ const createDialogManagement = () => {
         return dialogs.filter((dialog) => dialog.id !== id)
       })
     },
+
+    // usefull on navigation you want to close all popups
+    closeAll: () => {
+      update((dialogs) => {
+        dialogs.forEach((dialog) => {
+          dialog.resolve({ success: false })
+        })
+        return []
+      })
+    },
+
     subscribe,
   }
 }

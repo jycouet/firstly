@@ -6,11 +6,12 @@ import type { RequestEvent } from '@sveltejs/kit'
 
 import { Log } from '@kitql/helpers'
 
-import type { KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'
+import type { KitBaseEnum, KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'
 import type { KitCellsInput as KitCellsInputForExport } from './kitCellsBuildor.js'
 import { kitStoreItem } from './kitStoreItem.js'
 import { kitStoreList } from './kitStoreList.js'
 import { default as Button } from './ui/Button.svelte'
+import { default as Clipboardable } from './ui/Clipboardable.svelte'
 import { default as DialogManagement } from './ui/dialog/DialogManagement.svelte'
 import { default as FormEditAction } from './ui/dialog/FormEditAction.svelte'
 import { default as Field } from './ui/Field.svelte'
@@ -18,6 +19,8 @@ import { default as FieldGroup } from './ui/FieldGroup.svelte'
 import { default as Grid } from './ui/Grid.svelte'
 import { default as GridPaginate } from './ui/GridPaginate.svelte'
 import { default as Icon } from './ui/Icon.svelte'
+import { default as FieldContainer } from './ui/internals/FieldContainer.svelte'
+import { default as SelectMelt } from './ui/internals/select/SelectMelt.svelte'
 import { default as Link } from './ui/link/Link.svelte'
 import { default as LinkPlus } from './ui/link/LinkPlus.svelte'
 import { default as Loading } from './ui/Loading.svelte'
@@ -42,13 +45,18 @@ export {
   Button,
   Tooltip,
   DialogManagement,
+  FieldContainer,
+  SelectMelt,
+  Clipboardable,
 }
 export { dialog } from './ui/dialog/dialog.js'
+export type { DialogMetaDataInternal } from './ui/dialog/dialog.js'
 export { KitBaseEnum, getEnum, getEnums } from './KitBaseEnum.js'
 export type { KitBaseEnumOptions } from './KitBaseEnum.js'
 export { KitFields } from './KitFields.js'
+export { KitEntity } from './KitEntity.js'
 export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
-export { getEntityDisplayValue, isError, kitDbNamesOf } from './helper.js'
+export { getEntityDisplayValue, isError, kitDbNamesOf, getFieldLinkDisplayValue } from './helper.js'
 export {
   buildWhere,
   getPlaceholder,
@@ -61,7 +69,7 @@ export { kitStoreItem }
 export { kitStoreList }
 
 export type KitCellsInput<entityType> = KitCellsInputForExport<entityType>
-export type { KitCell } from './kitCellsBuildor.js'
+export type { KitCell, VisibilityMode } from './kitCellsBuildor.js'
 export type { FindOptionsPlus } from './kitStoreList.js'
 export type KitBaseItem = KitBaseEnumOptions & {
   id: string
@@ -91,6 +99,7 @@ export {
   LibIcon_ChevronRight,
   LibIcon_Search,
   LibIcon_Check,
+  LibIcon_MultiCheck,
   LibIcon_Add,
   LibIcon_MultiAdd,
   LibIcon_Edit,
@@ -99,7 +108,12 @@ export {
   LibIcon_Save,
   LibIcon_Man,
   LibIcon_Woman,
-  LibIcon_MultiCheck,
+  LibIcon_Send,
+  LibIcon_Load,
+  LibIcon_Settings,
+  LibIcon_Sort,
+  LibIcon_SortAsc,
+  LibIcon_SortDesc,
 } from './ui/LibIcon.js'
 
 export type { KitIcon }
@@ -124,6 +138,8 @@ declare module 'remult' {
 
     suffix?: string
     suffixWithS?: boolean
+    suffixEdit?: string
+    suffixEditWithS?: boolean
 
     styleRadioUntil?: number
 
@@ -134,14 +150,14 @@ declare module 'remult' {
     // REMULT P3 Noam/Yoni convo
     // difference with `findOptions` of remult ?
     // `findOptionsForEdit` is only for insert & update.
+    // 1-n impact with `findOptions`
     findOptionsForEdit?:
       | ((entity: entityType) => FindOptionsBase<valueType>)
       | FindOptionsBase<valueType>
 
     findOptionsLimit?: number
-    withCreateRequest?: boolean
+    createOptionWhenNoResult?: boolean
 
-    // Currently only for filtering.
     multiSelect?: boolean
 
     skipForDefaultField?: boolean
@@ -150,6 +166,12 @@ declare module 'remult' {
   export interface EntityOptions<entityType> {
     searchableFind?: (str: string) => FindOptionsBase<entityType>
     displayValue?: (item: entityType) => KitBaseItem
+
+    permissionApiCrud?: KitBaseEnum[] | KitBaseEnum
+    permissionApiDelete?: KitBaseEnum[] | KitBaseEnum
+    permissionApiInsert?: KitBaseEnum[] | KitBaseEnum
+    permissionApiRead?: KitBaseEnum[] | KitBaseEnum
+    permissionApiUpdate?: KitBaseEnum[] | KitBaseEnum
   }
 
   export interface UserInfo {

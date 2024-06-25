@@ -1,4 +1,9 @@
-export { displayCurrency, displayPercent, displayCurrencyWOSuffix } from './numbers.js'
+export {
+  displayCurrency,
+  displayCurrencyK,
+  displayPercent,
+  displayCurrencyWOSuffix,
+} from './numbers.js'
 
 export { formatNumber, extractMailInfo } from './strings.js'
 

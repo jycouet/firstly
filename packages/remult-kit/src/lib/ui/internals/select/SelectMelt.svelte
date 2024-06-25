@@ -1,13 +1,11 @@
 <script lang="ts">
   import { createCombobox, createSync, type ComboboxOptionProps } from '@melt-ui/svelte'
-  import { createEventDispatcher, onMount } from 'svelte'
+  import { createEventDispatcher, onMount, tick } from 'svelte'
   import { fly } from 'svelte/transition'
 
   import {
     Button,
     LibIcon_Check,
-    LibIcon_ChevronDown,
-    LibIcon_ChevronUp,
     LibIcon_Cross,
     LibIcon_Search,
     tw,
@@ -22,13 +20,22 @@
   export let items: KitBaseItem[] = []
   let totalCount: number | undefined = undefined
 
+  export let focus: boolean = false
+  const focusNow = (node: any) => {
+    if (focus) {
+      tick().then(() => {
+        node.focus()
+      })
+    }
+  }
+
   export let loadOptions:
     | ((str: string) => Promise<{ items: KitBaseItem[]; totalCount: number }>)
     | undefined = undefined
-  export let loadOptionAt = new Date()
   export let value: string | undefined = undefined
   export let clearable = false
-  export let withCreateRequest = false
+  export let createOptionWhenNoResult = false
+  export let default_select_if_one_item = false
 
   const dispatch = createEventDispatcher()
 
@@ -129,9 +136,15 @@
     $inputValue = $localSelected?.label ?? ''
   }
 
-  // let first = true
-  let filteredItems = items
-  const calcFilteredItems = (touched: boolean, str: string, loadOptionAt: Date) => {
+  $: filteredItems = items
+
+  $: {
+    if (items.length === 1 && default_select_if_one_item) {
+      sync.selected(toOption(items[0]))
+    }
+  }
+
+  const calcFilteredItems = (touched: boolean, str: string, value: any) => {
     if (touched) {
       debounce(async () => {
         const normalizedInput = str.toLowerCase()
@@ -152,7 +165,7 @@
     }
   }
 
-  $: calcFilteredItems($touchedInput, $inputValue, loadOptionAt)
+  $: calcFilteredItems($touchedInput, $inputValue, value)
 </script>
 
 <div class="input input-bordered flex min-w-0 items-center {disabled && 'opacity-40'}">
@@ -172,8 +185,9 @@
   <input
     {...$input}
     use:$input.action
-    class="-mx-8 h-full min-w-0 flex-grow bg-transparent px-10"
+    class="-ml-8 -mr-5 h-full min-w-0 flex-grow bg-transparent px-10"
     {placeholder}
+    use:focusNow
   />
   <div class="pointer-events-none relative right-0 flex gap-2">
     {#if clearable && $localSelected}
@@ -181,11 +195,11 @@
         <Icon data={LibIcon_Cross}></Icon>
       </button>
     {/if}
-    {#if $open}
+    <!-- {#if $open}
       <Icon data={LibIcon_ChevronUp}></Icon>
     {:else}
       <Icon data={LibIcon_ChevronDown}></Icon>
-    {/if}
+    {/if} -->
   </div>
 </div>
 
@@ -227,13 +241,13 @@
           </div>
         </li>
       {:else}
-        {#if withCreateRequest}
+        {#if createOptionWhenNoResult}
           <div class="p-4">
             <Button
               class="w-full"
               on:click={(e) => {
                 dispatchCreateRequest(e, $inputValue)
-              }}>Creer {$inputValue}</Button
+              }}>Créer "{$inputValue}"</Button
             >
           </div>
         {:else}

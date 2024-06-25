@@ -8,15 +8,11 @@ export class RemultLuciaAdapter implements Adapter {
   async getSessionAndUser(
     sessionId: string,
   ): Promise<[session: DatabaseSession | null, user: DatabaseUser | null]> {
-    // console.log(`ccc`, sessionId)
-
     const oSafe = getSafeOptions()
     const session = await remult.repo(oSafe.Session).findId(sessionId)
-    // console.log(`session`, session)
 
     if (session) {
       const user = await remult.repo(oSafe.User).findId(session.userId)
-      // console.log(`user`, user)
 
       return [
         { ...session, attributes: {} },

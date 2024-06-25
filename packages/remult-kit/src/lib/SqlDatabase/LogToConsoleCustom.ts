@@ -67,18 +67,14 @@ export const LogToConsoleCustom = (
 
     const matches = s[i].match(regex)
     if (matches && matches.length > 0) {
-      const keyMatched = matches[0]
-      if (args[keyMatched]) {
-        s[i] = yellow(args[keyMatched])
+      // and it's a match with [$ somthing]
 
-        if (first === 'INSERT') {
-          listArgs.push(s[i])
-        } else {
-          listArgs.push(s[i - 2].replaceAll('"', '') + ': ' + s[i])
-        }
-      }
+      // let newMatches = s[i]
+      matches.reverse().forEach((keys) => {
+        s[i] = s[i].replace(keys, yellow("'" + args[keys] + "'"))
+      })
+      listArgs.push(s[i - 2].replaceAll('"', '') + ': ' + s[i])
     }
-    // console.log(`matches`, matches)
   }
 
   const final_s = s.join(' ').replace(/  +/g, ' ')
@@ -95,16 +91,17 @@ export const LogToConsoleCustom = (
 
   const time = ` ${bgCyan((duration * 1000).toFixed(0).padStart(3) + ' ms ')}`
 
-  const toLogShort =
-    `${typeQuery.get(first) || '💢'}` +
-    `${time}` +
-    ` ${cyan(first)} ${green(mainTable?.replaceAll('"', ''))}` +
-    `${listArgs.length > 0 ? ` { ${listArgs.join(', ')} }` : ``}` +
-    `${subTables.length > 0 ? magenta(` (sub: ${subTables.join(', ')})`) : ``}`
-
-  const toLogLong = `${typeQuery.get(first) || '💢'}` + time + ` ${final_s}`
-
-  const toLog = short ? toLogShort : toLogLong
+  let toLog = ''
+  if (short) {
+    toLog =
+      `${typeQuery.get(first) || '💢'}` +
+      `${time}` +
+      ` ${cyan(first)} ${green(mainTable?.replaceAll('"', ''))}` +
+      `${listArgs.length > 0 ? ` { ${listArgs.join(', ')} }` : ``}` +
+      `${subTables.length > 0 ? magenta(` (sub: ${subTables.join(', ')})`) : ``}`
+  } else {
+    toLog = `${typeQuery.get(first) || '💢'}` + time + ` ${final_s}`
+  }
 
   // Filter out a few things
   const filterOutTable = ['"auth_user"', '"auth_user_session"']

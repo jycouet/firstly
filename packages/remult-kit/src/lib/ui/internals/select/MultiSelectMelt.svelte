@@ -5,8 +5,6 @@
 
   import {
     LibIcon_Check,
-    LibIcon_ChevronDown,
-    LibIcon_ChevronUp,
     LibIcon_Cross,
     LibIcon_MultiCheck,
     LibIcon_Search,
@@ -25,7 +23,6 @@
   export let loadOptions:
     | ((str: string) => Promise<{ items: KitBaseItem[]; totalCount: number }>)
     | undefined = undefined
-  export let loadOptionAt = new Date()
   export let values: string[] | undefined = undefined
   export let clearable = false
 
@@ -47,13 +44,15 @@
 
   const getDefaultValues = (_selectedValue: string[] | undefined) => {
     if (!items) {
-      return
+      return []
     }
 
     const f = items.filter((c) => (_selectedValue ?? []).includes(String(c.id)))
     if (f) {
       return f.map((c) => toOption(c))
     }
+
+    return []
   }
 
   const toOption = (
@@ -95,14 +94,27 @@
   const sync = createSync({ selected: localSelected })
   $: items &&
     sync.selected(getDefaultValues(values), (v) => {
-      const newIds = (v ?? [])
-        .map((c) => c.value.id)
-        .sort()
-        .join(',')
+      const list = (v ?? []).map((c) => c.value.id)
+
+      // Create a map to count occurrences of each element
+      const countMap: Map<string, number> = new Map()
+
+      list.forEach((item) => {
+        countMap.set(item, (countMap.get(item) || 0) + 1)
+      })
+
+      // Filter the list to include only elements that occur exactly once
+      const uniqueList: string[] = list.filter((item) => countMap.get(item) === 1)
+
+      const newIds = uniqueList.sort().join(',')
       const oldSelectedValues = (values ?? []).sort().join(',')
 
       if (newIds !== oldSelectedValues) {
-        dispatchSelectedValues(v?.map((c) => c.value))
+        dispatchSelectedValues(
+          v === undefined
+            ? undefined
+            : v.filter((c) => uniqueList.includes(c.value.id)).map((c) => c.value),
+        )
       }
     })
 
@@ -136,28 +148,31 @@
   }
 
   let filteredItems = items
-  const calcFilteredItems = (touched: boolean, str: string, loadOptionAt: Date) => {
-    if (touched) {
+  const calcFilteredItems = (touched: boolean, str: string, values: any) => {
+    if (touched && !str.endsWith(' éléments')) {
       debounce(async () => {
         const normalizedInput = str.toLowerCase()
 
-        if (loadOptions) {
-          const lo = await loadOptions(normalizedInput)
-          items = lo.items
-          totalCount = lo.totalCount
-          filteredItems = items
-        } else {
-          filteredItems = items.filter((item) => {
-            return item.caption?.toLowerCase().includes(normalizedInput)
-          })
-        }
+        // TODO one day
+        // In a Multi select we can't filter to the server.
+        // If we do I don't knwo what to set to $inputValue. and and list gets shorter... So what do we do about items that are selected but not in the list anymore (because of the filter) ?
+        // if (loadOptions) {
+        //   const lo = await loadOptions(normalizedInput)
+        //   items = lo.items
+        //   totalCount = lo.totalCount
+        //   filteredItems = items
+        // } else {
+        filteredItems = items.filter((item) => {
+          return item.caption?.toLowerCase().includes(normalizedInput)
+        })
+        // }
       })
     } else {
       filteredItems = items
     }
   }
 
-  $: calcFilteredItems($touchedInput, $inputValue, loadOptionAt)
+  $: calcFilteredItems($touchedInput, $inputValue, values)
 </script>
 
 <div class="input input-bordered flex min-w-0 items-center">
@@ -176,7 +191,7 @@
   <input
     {...$input}
     use:$input.action
-    class="-mx-8 h-full min-w-0 flex-grow bg-transparent px-10"
+    class="-ml-8 -mr-5 h-full min-w-0 flex-grow bg-transparent px-10"
     {placeholder}
   />
   <div class="pointer-events-none relative right-0 flex gap-2">
@@ -185,11 +200,11 @@
         <Icon data={LibIcon_Cross}></Icon>
       </button>
     {/if}
-    {#if $open}
+    <!-- {#if $open}
       <Icon data={LibIcon_ChevronUp}></Icon>
     {:else}
       <Icon data={LibIcon_ChevronDown}></Icon>
-    {/if}
+    {/if} -->
   </div>
 </div>
 
@@ -226,7 +241,7 @@
               size={item.icon.size}
             ></Icon>
           {/if}
-          <div class="pl-2">
+          <div class="pl-2 {item.class}">
             <span class="font-medium">{item.caption}</span>
           </div>
         </li>
@@ -234,5 +249,15 @@
         <li class="relative cursor-pointer rounded-md py-1 pl-8 pr-4">Aucun résultat</li>
       {/each}
     </div>
+    {#if totalCount}
+      <div class="bg-base-300 z-50 text-center text-xs">
+        {#if items.length < totalCount}
+          ({items.length} / {totalCount})
+        {:else}
+          <!-- yes, items.length can be bigger if the selected item is not in the limit -->
+          ({items.length})
+        {/if}
+      </div>
+    {/if}
   </ul>
 {/if}

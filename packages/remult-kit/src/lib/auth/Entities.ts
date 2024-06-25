@@ -19,7 +19,7 @@ export class KitAuthUser {
   createdAt!: Date
 
   @Fields.updatedAt()
-  updatedAt!: Date
+  updatedAt?: Date
 
   // @Fields.string<KitAuthUser>({
   @Fields.string({
@@ -57,7 +57,7 @@ export class KitAuthAccount {
   createdAt!: Date
 
   @Fields.updatedAt()
-  updatedAt!: Date
+  updatedAt?: Date
 
   @Fields.string()
   userId!: string

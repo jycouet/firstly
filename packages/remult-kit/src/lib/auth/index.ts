@@ -11,13 +11,14 @@ import type { ClassType, UserInfo } from 'remult'
 import { Log, red } from '@kitql/helpers'
 import { read } from '@kitql/internals'
 
-import { KitRole } from '$lib'
 import type { ResolvedType } from '$lib/utils/types'
 
+import { KitRole } from '../'
 import type { Module } from '../api'
 import { RemultLuciaAdapter } from './Adapter'
-import { AuthController, createSession } from './AuthController'
+import { AuthController } from './AuthController'
 import { KitAuthAccount, KitAuthRole, KitAuthUser, KitAuthUserSession } from './Entities'
+import { createSession } from './helper'
 import { RoleController } from './RoleController'
 import type { RemultKitData } from './types'
 
@@ -41,7 +42,7 @@ export type DynamicAuthorizationURLOptions<T extends KitOAuth2Provider[] = KitOA
       : never
     : never
 
-export const logAuth = new Log('remult-kit | Auth')
+export const logAuth = new Log('remult-kit | auth')
 
 export { KitAuthRole } from './Entities'
 
@@ -280,7 +281,12 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         const selectedOAuth = AUTH_OPTIONS.providers?.oAuths?.find((c) => c.name === keyState)
         if (selectedOAuth && code) {
           const tokens = await selectedOAuth.getArcticProvider().validateAuthorizationCode(code)
-          const info = await selectedOAuth.getUserInfo(tokens)
+          let info: OAuth2UserInfo
+          try {
+            info = await selectedOAuth.getUserInfo(tokens)
+          } catch (error) {
+            redirect(302, redirectUrl)
+          }
 
           if (!info.providerUserId) {
             redirect(302, redirectUrl)
@@ -332,7 +338,6 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         }
 
         redirect(302, redirectUrl)
-        // return resolve(event)
       }
       return { early: false }
     },

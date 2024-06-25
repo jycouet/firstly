@@ -1,7 +1,7 @@
 <script>
   import Button from '../Button.svelte'
   import { dialog } from './dialog'
-  import DialogInsertUpdate from './DialogInsertUpdate.svelte'
+  import DialogForm from './DialogForm.svelte'
   import DialogPrimitive from './DialogPrimitive.svelte'
 
   $: dialogSorted = $dialog.sort((a, b) => a.id - b.id)
@@ -38,7 +38,7 @@
       </svelte:fragment>
     </DialogPrimitive>
   {:else if toShow.type === 'insert' || toShow.type === 'update' || toShow.type === 'view'}
-    <DialogInsertUpdate {toShow}></DialogInsertUpdate>
+    <DialogForm {toShow}></DialogForm>
   {:else if toShow.component && toShow.children}
     <DialogPrimitive
       detail={toShow.detail}

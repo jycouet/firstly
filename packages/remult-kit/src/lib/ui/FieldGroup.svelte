@@ -48,58 +48,6 @@
     return mode
   }
 
-  // const isDisableFieldDynamic = (c: KitCell<T>) => {
-  //   if (c.disabledCondition) {
-  //     const existsKey = c.disabledCondition.exists
-  //     if (existsKey) {
-  //       const isArray = Array.isArray($store.item?.[existsKey])
-  //       if (isArray && $store.item?.[existsKey]?.length) {
-  //         return true
-  //       } else if (!isArray && $store.item?.[existsKey]) {
-  //         return true
-  //       }
-  //     }
-  //   }
-  // }
-
-  // onMount(() => {
-  //   dynamicValues = dynamicItemValues(cells, $store.item)
-  // })
-
-  // let dynamicValues: any = {}
-
-  // const dynamicItemValues = (cells: KitCell<T>[], item: any) => {
-  //   const res: any = {}
-  //   for (const c of cells) {
-  //     if (c.filter?.on) {
-  //       res[c.filter?.on] = item[c.filter?.on]
-  //     }
-  //     if (c.copyForNarrowFind) {
-  //       c.copyForNarrowFind.forEach((key) => {
-  //         res[key] = item[key]
-  //       })
-  //     }
-  //   }
-  //   res.id = item?.id
-  //   return res
-  // }
-
-  // const isDynamicValuesChanged = (cells: KitCell<T>[]) => {
-  //   for (const c of cells) {
-  //     if (c.filter?.on) {
-  //       if (dynamicValues[c.filter?.on] !== $store.item?.[c.filter?.on]) {
-  //         return true
-  //       }
-  //     }
-  //   }
-  // }
-
-  // $: {
-  //   if (isDynamicValuesChanged(cells)) {
-  //     dynamicValues = dynamicItemValues(cells, $store.item)
-  //   }
-  // }
-
   const dispatch = createEventDispatcher()
 
   function dispatchChanged(_data: T | undefined) {
@@ -109,9 +57,24 @@
   $: dispatchChanged($store.item)
 
   let size = ['', 'w-1/2', 'w-1/3', 'w-1/4', 'w-1/5', 'w-1/6']
+
+  function isToFocus(
+    currentKey: string | undefined,
+    focusKey: string | null | undefined,
+    i: number,
+  ): boolean {
+    if (focusKey === null || focusKey === undefined) {
+      if (i === 0) {
+        return true
+      }
+      return false
+    }
+    return focusKey === currentKey
+  }
 </script>
 
 {#each cells as cell, i}
+  {@const focus = isToFocus(cell.field?.key, focusKey, i)}
   {#if shouldHide(cell, mode)}
     <!-- Do nothing -->
   {:else}
@@ -129,7 +92,7 @@
           />
         </FieldContainer>
       {:else if cell.kind === 'slot'}
-        <slot name="field" field={cell.field} />
+        <slot name="field" field={cell.field} {focus} />
       {:else if cell.field && $store.item}
         <Field
           mode={modeToUse(cell, mode)}
@@ -137,8 +100,7 @@
           cellsValues={$store.item}
           bind:value={$store.item[cell.field.key]}
           error={getError($store.errors, cell.field)}
-          focus={focusKey === cell.field.key}
-          {loadOptionAt}
+          {focus}
           on:createRequest
         />
         <!-- disabled={isDisableFieldDynamic(cell)} -->

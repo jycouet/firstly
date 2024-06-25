@@ -1,9 +1,7 @@
 import { BROWSER } from 'esm-env'
-import { derived, get, writable, type Writable } from 'svelte/store'
+import { derived, get, writable } from 'svelte/store'
 
 import type { ErrorInfo, FindOptions, Repository } from 'remult'
-// @ts-ignore
-import type { idType } from 'remult/src/remult3/remult3'
 import { Log } from '@kitql/helpers'
 
 import { isError } from './helper'
@@ -26,23 +24,23 @@ export const kitStoreItem = <T>(
 ) => {
   const internalStore = writable<TheStoreItem<T>>(initValues)
 
-  // Derived store to keep track of current and previous values
-  const historyStore = derived<
-    Writable<TheStoreItem<T>>,
-    { current: T | undefined; previous: T | undefined }
-  >(internalStore, ($currentValue, set) => {
-    const h = historyStore
-    // @ts-ignore (keep this like this, I don't know why when I put get(), it's not working !)
-    const p = h.previous ?? $currentValue.item
+  // Function to watch changes on a specific property of `item`
+  const onChange = (prop: keyof T, callback: (newValue: any, oldValue: any) => void) => {
+    const itemProperty = derived(internalStore, ($s) => $s.item && $s.item[prop])
+    let oldValue: any
 
-    set({ current: $currentValue.item, previous: p })
+    // Subscribe to the derived store to monitor changes
+    itemProperty.subscribe((newValue) => {
+      if (newValue !== oldValue) {
+        if (oldValue !== undefined) {
+          // to avoid running on initial undefined state
 
-    // Update the previous value for the next call
-    // @ts-ignore (this syntax to cut the reactivity)
-    historyStore.previous = { ...$currentValue.item }
-  })
-
-  let fnOnChange: ((newItem: T, previousItem: T | undefined) => boolean) | undefined = undefined
+          callback(newValue, oldValue)
+        }
+        oldValue = newValue
+      }
+    })
+  }
 
   return {
     subscribe: internalStore.subscribe,
@@ -63,7 +61,18 @@ export const kitStoreItem = <T>(
       })
     },
 
-    fetch: async (id: idType<T>, options?: FindOptions<T>, onNewData?: (item: T) => void) => {
+    /**
+     * if you have keys, build the id with
+     * ```ts
+     * const id = repo.metadata.idMetadata.getId({a:1,b:2})
+     * store.fetch(id)
+     * ```
+     */
+    fetch: async (
+      id: Parameters<Repository<T>['findId']>[0],
+      options?: FindOptions<T>,
+      onNewData?: (item: T) => void,
+    ) => {
       if (BROWSER) {
         internalStore.update((s) => ({ ...s, loading: true }))
 
@@ -181,16 +190,6 @@ export const kitStoreItem = <T>(
       }
     },
 
-    setOnChangeAction: (event: (newItem: T, previousItem: T | undefined) => boolean) => {
-      fnOnChange = event
-    },
-
-    // Internal purpose only.
-    onChange: (newItem: T) => {
-      if (fnOnChange) {
-        return fnOnChange(newItem, get(historyStore).previous)
-      }
-      return false
-    },
+    onChange,
   }
 }

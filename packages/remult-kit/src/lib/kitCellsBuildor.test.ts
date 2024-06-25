@@ -17,29 +17,38 @@ test('getPlaceholder', () => {
 })
 
 test('where with search', () => {
-  const where = buildWhere([], [repo.fields.email], {
+  const where = buildWhere(undefined, [], [repo.fields.email], {
     email: 'jyc@test.com',
-    search: 'jyc',
+    search: 'jyc test',
   })
   expect(where).toMatchInlineSnapshot(`
-		{
-		  "$and": [
-		    {
-		      "$or": [
-		        {
-		          "email": {
-		            "$contains": "jyc",
-		          },
-		        },
-		      ],
-		    },
-		  ],
-		}
-	`)
+    {
+      "$and": [
+        {
+          "$or": [
+            {
+              "$and": [
+                {
+                  "email": {
+                    "$contains": "jyc",
+                  },
+                },
+                {
+                  "email": {
+                    "$contains": "test",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+  `)
 })
 
 test('where without search, with enum', () => {
-  const where = buildWhere([], [repo.fields.email], {
+  const where = buildWhere(undefined, [], [repo.fields.email], {
     email: 'jyc@test.com',
     civilite: 'MADAME',
   })
@@ -48,6 +57,22 @@ test('where without search, with enum', () => {
 		  "$and": [],
 		}
 	`)
+})
+
+test('with default where', () => {
+  const where = buildWhere({ isSubContractor: true }, [], [repo.fields.email], {
+    email: 'jyc@test.com',
+    civilite: 'MADAME',
+  })
+  expect(where).toMatchInlineSnapshot(`
+    {
+      "$and": [
+        {
+          "isSubContractor": true,
+        },
+      ],
+    }
+  `)
 })
 
 test('kitBuilder', () => {

@@ -2,7 +2,8 @@ import { Entity, Fields } from 'remult'
 
 import { remultKit } from '$lib/api'
 import { auth, KitAuthUser } from '$lib/auth'
-import { github } from '$lib/auth/providers'
+
+// import { github } from '$lib/auth/providers'
 
 const Role = {
   ADMIN: 'admin',
@@ -51,7 +52,8 @@ export const remultApi = remultKit({
           // TODO: enable signup (bool)
           // TODO: enable email verify (bool)
           resetPassword: async (url) => {
-            console.info(`Mail to send with this url`, url)
+            console.info(`Mail to send with this url:`, url)
+            console.info('You can use the function sendMail() from "remult-kit/mail"')
           },
         },
 
@@ -62,10 +64,10 @@ export const remultApi = remultKit({
         },
 
         oAuths: [
-          github({
-            // authorizationURLOptions: { scopes: ['user:email'] },
-            // log: true,
-          }),
+          // github({
+          //   authorizationURLOptions: { scopes: ['user:email'] },
+          //   log: true,
+          // }),
         ],
       },
     }),

@@ -36,7 +36,9 @@ export function github(options?: {
 
   const clientID = options?.clientID ?? env.GITHUB_CLIENT_ID ?? ''
   const secret = options?.secret ?? env.GITHUB_CLIENT_SECRET ?? ''
-  checkOAuthConfig(name, clientID, secret, false)
+
+  const urlForKeys = 'https://github.com/settings/developers'
+  checkOAuthConfig(name, clientID, secret, urlForKeys, false)
 
   return {
     name,
@@ -44,7 +46,7 @@ export function github(options?: {
     getArcticProvider: () => {
       const redirectURI = options?.redirectURI || `${remult.context.url.origin}/api/auth_callback`
 
-      checkOAuthConfig(name, clientID, secret, true)
+      checkOAuthConfig(name, clientID, secret, urlForKeys, true)
 
       return new GitHub(clientID, secret, { redirectURI })
     },

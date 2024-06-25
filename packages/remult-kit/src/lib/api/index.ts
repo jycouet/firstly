@@ -1,9 +1,14 @@
 import { type Handle, type MaybePromise, type RequestEvent } from '@sveltejs/kit'
+import nodemailer from 'nodemailer'
 
 import { remult, type ClassType } from 'remult'
 import { remultSveltekit } from 'remult/remult-sveltekit'
 import type { RemultServerOptions } from 'remult/server'
 import { Log } from '@kitql/helpers'
+
+import { building } from '$app/environment'
+
+import { mailInit, type MailOptions } from '../mail'
 
 export type Module = {
   /**
@@ -28,6 +33,7 @@ export type Module = {
 type Options = Omit<
   RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
     modules?: Module[] | undefined
+    mail?: MailOptions
     // log?: boolean | string
   },
   'entities' | 'controllers' | 'initRequest' | 'initApi'
@@ -38,9 +44,15 @@ type Options = Omit<
  */
 export const remultKit = (o: Options) => {
   const modulesSorted = modulesFlatAndOrdered(o.modules ?? [])
+  const entities = modulesSorted.flatMap((m) => m.entities ?? [])
+
+  mailInit(nodemailer, o.mail)
 
   return {
     modulesSorted: modulesSorted,
+
+    entities,
+
     server: remultSveltekit({
       // Changing the default default of remult
       logApiEndPoints: false,
@@ -51,7 +63,7 @@ export const remultKit = (o: Options) => {
       ...o,
 
       // Module part
-      entities: modulesSorted.flatMap((m) => m.entities ?? []),
+      entities,
       controllers: modulesSorted.flatMap((m) => m.controllers ?? []),
       initRequest: async (kitEvent, op) => {
         // usefull for later...
@@ -63,7 +75,7 @@ export const remultKit = (o: Options) => {
             try {
               await f(kitEvent, op)
             } catch (error) {
-              const log = new Log(`remult-kit - ${modulesSorted[i].name}`)
+              const log = new Log(`remult-kit | ${modulesSorted[i].name}`)
               log.error(error)
             }
           }
@@ -80,14 +92,16 @@ export const remultKit = (o: Options) => {
         }
       },
       initApi: async (r) => {
-        for (let i = 0; i < modulesSorted.length; i++) {
-          const f = modulesSorted[i].initApi
-          if (f) {
-            try {
-              await f(r)
-            } catch (error) {
-              const log = new Log(`remult-kit [${modulesSorted[i].name}]`)
-              log.error(error)
+        if (!building) {
+          for (let i = 0; i < modulesSorted.length; i++) {
+            const f = modulesSorted[i].initApi
+            if (f) {
+              try {
+                await f(r)
+              } catch (error) {
+                const log = new Log(`remult-kit | ${modulesSorted[i].name}`)
+                log.error(error)
+              }
             }
           }
         }

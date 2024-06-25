@@ -11,6 +11,6 @@ services:
         - docs/**
     envVars:
       - key: NODE_VERSION
-        value: 21.2.0
+        value: 22.1.0
     #   - key: TZ
     #     value: utc

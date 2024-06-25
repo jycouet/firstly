@@ -17,12 +17,19 @@
   import GridLoading from './GridLoading.svelte'
   import Icon from './Icon.svelte'
   import { align, getAligns } from './index.js'
-  import { LibIcon_Settings, LibIcon_Sort, LibIcon_SortAsc, LibIcon_SortDesc } from './LibIcon.js'
+  import {
+    LibIcon_Add,
+    LibIcon_Settings,
+    LibIcon_Sort,
+    LibIcon_SortAsc,
+    LibIcon_SortDesc,
+  } from './LibIcon.js'
   import LinkPlus from './link/LinkPlus.svelte'
 
   export let cells: KitCell<T>[]
   export let store: KitStoreList<T>
 
+  export let withAdd = false
   export let withEdit = false
   export let withDelete = false
 
@@ -33,6 +40,8 @@
   }
   export let orderBy: EntityOrderBy<T> | undefined = undefined
   export let orderByCols: (keyof T)[] | true | undefined = undefined
+
+  export let dicoNoResult = 'Aucun résultat !'
 
   const dispatch = createEventDispatcher()
 
@@ -70,15 +79,20 @@
     }
     return { data: LibIcon_Sort }
   }
+
+  const cellsToTake = (cells: KitCell<T>[]) => {
+    return cells.filter((c) => c.modeView !== 'hide')
+  }
 </script>
 
 <div class="overflow-x-auto">
   <table class="table {classes.table}">
     <thead>
       <tr>
-        {#each cells as b, i}
+        {#each cellsToTake(cells) as b, i}
+          {@const al = align(b.field, b.kind === 'slot')}
           <th
-            class="{align(b.field)} 
+            class="{al} 
 									{i === 0 ? 'rounded-tl-lg' : ''}
 									{i === cells.length - 1 && !withEdit && !withDelete ? 'rounded-tr-lg' : ''}"
           >
@@ -87,47 +101,79 @@
             {:else}
               {@const toSort =
                 orderByCols === true || (orderByCols && orderByCols.includes(b.field?.key))}
-              <button
-                class="flex items-center justify-between gap-2"
-                disabled={!toSort}
-                on:click={() => sorting(toSort ?? false, b)}
-              >
-                <p>
+              {#if toSort}
+                <button
+                  class="flex items-center justify-between gap-2"
+                  disabled={!toSort}
+                  on:click={() => sorting(toSort ?? false, b)}
+                >
                   {b.header ?? b.field?.caption}
-                </p>
-                {#if toSort}
-                  <Icon {...sortingIcon(toSort ?? false, b, orderBy)}></Icon>
-                {/if}
-              </button>
+                  {#if toSort}
+                    <Icon {...sortingIcon(toSort ?? false, b, orderBy)}></Icon>
+                  {/if}
+                </button>
+              {:else}
+                {b.header ?? b.field?.caption}
+              {/if}
             {/if}
           </th>
         {/each}
 
-        {#if withEdit || withDelete}
+        {#if withEdit || withDelete || withAdd}
           <th class="flex justify-end rounded-tr-lg">
-            <Icon data={LibIcon_Settings}></Icon>
+            {#if withAdd}
+              <Button
+                permission={store.getRepo().metadata.options.permissionApiInsert}
+                disabled={!store.getRepo().metadata.apiInsertAllowed()}
+                class="btn btn-square btn-ghost btn-xs"
+                on:click={() => dispatch('add', {})}
+              >
+                <Icon data={LibIcon_Add} />
+              </Button>
+            {:else}
+              <Icon data={LibIcon_Settings}></Icon>
+            {/if}
           </th>
         {/if}
       </tr>
     </thead>
     <tbody>
       <!-- Show loading only if there is no items and loading is true, like this on an update, there will be no jump -->
-      {#if $store.items.length === 0 && $store.loading}
+      {#if $store.items.length === 0 && $store.loading && store.getRepo().metadata.apiReadAllowed}
         <GridLoading columns={getAligns(cells, withEdit || withDelete)} {loadingRows} />
       {:else}
         {#each $store.items as row}
           <tr on:click={() => dispatch('rowclick', row)} class="hover:bg-base-content/20">
-            {#each cells as b}
+            {#each cellsToTake(cells) as b}
               {@const metaType = getFieldMetaType(b.field)}
-              <td class={align(b.field)}>
+              <td class={align(b.field, b.kind === 'slot')}>
                 {#if metaType.kind === 'slot' || b.kind === 'slot'}
-                  <slot name="cell" {row} field={b.field} />
+                  <slot name="cell" {row} field={b.field} cell={b} />
+                {:else if b.kind === 'component'}
+                  {#if b.component}
+                    <div class={b.class}>
+                      <svelte:component
+                        this={b.component}
+                        {...b.props}
+                        {...b.rowToProps ? b.rowToProps(row) : {}}
+                        on:refresh
+                      ></svelte:component>
+                    </div>
+                  {:else}
+                    <pre>Col: {b.col}</pre>
+                    <pre class="bg-error">Component prop needed !</pre>
+                  {/if}
                 {:else if metaType.kind === 'relation'}
                   {@const item = getEntityDisplayValue(
                     metaType.repoTarget,
                     row[metaType.field.key],
                   )}
-                  <LinkPlus {item} />
+                  <LinkPlus
+                    item={{
+                      ...item,
+                      href: b.field?.options?.href ? b.field?.options.href(row) : item?.href,
+                    }}
+                  />
                 {:else if b.kind === 'field_link'}
                   {@const item = getFieldLinkDisplayValue(metaType.field, row)}
                   <LinkPlus {item} />
@@ -135,8 +181,16 @@
                   {@const item = getEntityDisplayValueFromField(metaType.field, row)}
                   <LinkPlus {item} />
                 {:else if metaType.kind === 'enum'}
-                  {@const t = metaType.field.displayValue(row)}
-                  <LinkPlus item={row[metaType.field.key]}></LinkPlus>
+                  {#if metaType.subKind === 'single'}
+                    <LinkPlus item={row[metaType.field.key]}></LinkPlus>
+                  {:else if metaType.subKind === 'multi'}
+                    <!-- {@const t = metaType.field.displayValue(row)} -->
+                    {#each row[metaType.field.key] as enumVal}
+                      <div>
+                        {enumVal.caption}
+                      </div>
+                    {/each}
+                  {/if}
                 {:else if metaType.subKind === 'checkbox'}
                   {@const t = metaType.field.displayValue(row)}
                   {t === 'true' ? 'Oui' : 'Non'}
@@ -163,6 +217,8 @@
                 <div class="flex justify-end gap-2">
                   {#if withEdit}
                     <Button
+                      permission={store.getRepo().metadata.options.permissionApiUpdate}
+                      disabled={!store.getRepo().metadata.apiUpdateAllowed()}
                       class="btn btn-square btn-ghost btn-xs"
                       on:click={() => dispatch('edit', row)}
                     >
@@ -171,6 +227,8 @@
                   {/if}
                   {#if withDelete}
                     <Button
+                      permission={store.getRepo().metadata.options.permissionApiDelete}
+                      disabled={!store.getRepo().metadata.apiDeleteAllowed()}
                       class="btn btn-square btn-ghost btn-xs"
                       on:click={() => dispatch('delete', row)}
                     >
@@ -182,11 +240,25 @@
             {/if}
           </tr>
         {:else}
-          <tr>
-            <td colspan={getAligns(cells, withEdit || withDelete).length} class="text-center py-12">
-              Aucun résultat !
-            </td>
-          </tr>
+          {#if !store.getRepo().metadata.apiReadAllowed}
+            <tr>
+              <td
+                colspan={getAligns(cells, withEdit || withDelete).length}
+                class="text-center py-12"
+              >
+                Vous n'avez pas la permission pour ces données!
+              </td>
+            </tr>
+          {:else if dicoNoResult}
+            <tr>
+              <td
+                colspan={getAligns(cells, withEdit || withDelete).length}
+                class="text-center py-12"
+              >
+                {dicoNoResult}
+              </td>
+            </tr>
+          {/if}
         {/each}
         <slot name="extra" />
       {/if}

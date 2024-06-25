@@ -66,7 +66,7 @@
       ...toRet,
       step: _field?.options?.step ?? undefined,
       name: _field?.key,
-      required: _field?.allowNull === false,
+      // required: _field?.allowNull === false,
     }
   }
 
@@ -80,7 +80,7 @@
 
   const fromInput = (_metadata: FieldMetadata<any, any>, _value: HTMLInputAttributes['value']) => {
     try {
-      // REMULT: If the value is 0 and the field is a number, we keep it as 0, not undefined
+      // REMULT P4 JYC (Open an issue): If the value is 0 and the field is a number, we keep it as 0, not undefined
       if (metaType.subKind === 'number' && _value === 0) {
         return 0
       }
@@ -167,6 +167,30 @@
 
     return { items: arr.map((r) => getEntityDisplayValue(metaTypeObj.repoTarget, r)), totalCount }
   }
+
+  const getMultiValues = (value: any) => {
+    return (value ?? []).map((c: any) => c.id) || value
+  }
+
+  const calcSuffix = (value: any) => {
+    if (cell.field?.options.suffixEdit) {
+      if (cell.field?.options.suffixEditWithS) {
+        return suffixWithS(value, cell.field?.options.suffixEdit)
+      } else {
+        return cell.field?.options.suffixEdit
+      }
+    }
+
+    if (cell.field?.options.suffix) {
+      if (cell.field?.options.suffixWithS) {
+        return suffixWithS(value, cell.field?.options.suffix)
+      } else {
+        return cell.field?.options.suffix
+      }
+    }
+
+    return ''
+  }
 </script>
 
 <FieldContainer
@@ -200,7 +224,7 @@
         {@const v = displayWithDefaultAndSuffix(cell.field, value)}
         <div class="ml-2 flex h-12 items-center gap-4">
           {#if value?.icon}
-            <Icon {...value?.icon} />
+            <Icon {...value.icon} />
           {/if}
           <Clipboardable value={v}>{v}</Clipboardable>
         </div>
@@ -221,34 +245,35 @@
         {...common(cell.field, true)}
         clearable={clearableComputed}
         loadOptions={async (str) => await getLoadOptions(cellsValues, str)}
-        {loadOptionAt}
         values={value}
         on:selected={(e) => dispatchSelected(e.detail)}
       />
     {:else}
       <!-- {items} -->
       <SelectMelt
+        {focus}
         {...common(cell.field, true)}
         clearable={clearableComputed}
         loadOptions={async (str) => await getLoadOptions(cellsValues, str)}
-        {loadOptionAt}
         value={value?.id || value}
         on:selected={(e) => dispatchSelected(e.detail)}
         on:issue={(e) => {
           error = e.detail
         }}
-        withCreateRequest={cell.field?.options.withCreateRequest}
+        createOptionWhenNoResult={cell.field?.options.createOptionWhenNoResult}
         on:createRequest
       />
     {/if}
   {:else if metaType.kind === 'enum'}
-    {#if metaType.field.options.multiSelect}
+    {#if metaType.field.options.multiSelect || metaType.subKind === 'multi'}
       <MultiSelectMelt
         {...common(cell.field, true)}
         clearable={clearableComputed}
         items={metaType.values}
-        values={value}
-        on:selected={(e) => dispatchSelected(e.detail)}
+        values={getMultiValues(value)}
+        on:selected={(e) => {
+          dispatchSelected(e.detail)
+        }}
       />
     {:else if metaType.values.length <= (cell.field?.options.styleRadioUntil ?? 3) && !clearableComputed}
       <SelectRadio
@@ -259,6 +284,7 @@
       />
     {:else}
       <SelectMelt
+        {focus}
         {...common(cell.field, true)}
         clearable={clearableComputed}
         items={metaType.values}
@@ -280,11 +306,10 @@
     </div>
   {:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'dateOnly' || metaType.subKind === 'number'}
     <div class="input input-bordered inline-flex w-full items-center pl-2">
-      <!-- autocomplete={metaType.subKind === 'password' ? 'current-password' : 'off'} -->
       <Input
         {focus}
         {...common(cell.field)}
-        autoComplete="off"
+        autocomplete="off"
         class={tw(
           `join-item placeholder:text-base-content/30 w-full bg-transparent`,
           metaType.subKind === 'number' && 'text-end',
@@ -295,19 +320,15 @@
         on:input={(e) => {
           // @ts-ignore
           value = fromInput(cell.field, e.detail.value)
+          dispatchSelected(value)
         }}
         {...$$restProps}
       />
-      {#if cell.field?.options.suffix}
-        {#if cell.field?.options.suffixWithS}
-          {suffixWithS(value, cell.field?.options.suffix)}
-        {:else}
-          {cell.field?.options.suffix}
-        {/if}
-      {/if}
+      {calcSuffix(value)}
     </div>
   {:else if metaType.subKind === 'textarea'}
     <Textarea
+      {focus}
       {...common(cell.field)}
       value={toInput(cell.field, value)}
       on:input={(e) => {

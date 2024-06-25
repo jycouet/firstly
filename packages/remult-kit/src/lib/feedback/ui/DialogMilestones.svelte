@@ -24,7 +24,7 @@
       on:click={() =>
         dialog.show({
           component: DialogIssues,
-          classes: { root: 'w-5/6 h-5/6' },
+          classes: { root: 'overflow-auto w-5/6 h-5/6' },
           props: { milestoneNumber: milestone.number, milestoneId: milestone.id },
           detail: { caption: milestone.title },
         })}

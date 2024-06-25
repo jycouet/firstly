@@ -24,6 +24,9 @@
 
   export let size: string | number = '1.5rem'
 
+  export let caption: string | undefined = undefined
+  const rmvWarning = caption
+
   /**
    * By default, svg are not rendered on the server side.
    * But the size will be respected to not have glitch on the client side when the icon is coming.

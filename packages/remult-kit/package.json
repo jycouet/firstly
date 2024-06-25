@@ -1,6 +1,6 @@
 {
   "name": "remult-kit",
-  "version": "0.25.6-exp.1",
+  "version": "0.26.15",
   "type": "module",
   "description": "An opinionated Remult setup !",
   "repository": {
@@ -33,41 +33,43 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "remult": "0.25.8-exp.4",
+    "remult": "0.26.14",
     "svelte": ">=4.0.1"
   },
   "devDependencies": {
     "@kitql/helpers": "0.8.9",
     "@kitql/internals": "0.9.5",
-    "@sveltejs/adapter-node": "^4.0.1",
-    "@sveltejs/kit": "2.5.2",
-    "@sveltejs/package": "2.2.2",
-    "@sveltejs/vite-plugin-svelte": "^3.0.0",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.35",
-    "postcss-load-config": "4.0.2",
-    "svelte": "4.2.7",
-    "svelte-check": "3.6.2",
+    "@sveltejs/adapter-node": "^5.0.0",
+    "@sveltejs/kit": "2.5.17",
+    "@sveltejs/package": "2.3.2",
+    "@sveltejs/vite-plugin-svelte": "^3.1.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "postcss-load-config": "5.1.0",
+    "svelte": "4.2.18",
+    "svelte-check": "3.8.2",
     "tslib": "2.6.2",
-    "typescript": "5.4.2",
-    "vitest": "1.3.1"
+    "typescript": "5.4.3",
+    "vitest": "1.6.0"
   },
   "dependencies": {
-    "@clack/prompts": "0.7.0",
-    "@js-temporal/polyfill": "^0.4.4",
-    "@mdi/js": "7.4.47",
-    "@melt-ui/svelte": "0.75.3",
-    "arctic": "1.2.0",
-    "clsx": "2.1.0",
-    "daisyui": "4.7.0",
-    "esm-env": "1.0.0",
-    "lucia": "3.0.1",
-    "oslo": "1.1.0",
-    "tailwind-merge": "2.2.0",
-    "tailwindcss": "3.4.1",
-    "vite": "5.1.6",
-    "vite-plugin-kit-routes": "0.6.1",
-    "vite-plugin-stripper": "0.5.0"
+    "@clack/prompts": "^0.7.0",
+    "@mdi/js": "^7.4.47",
+    "@melt-ui/svelte": "^0.81.0",
+    "@types/nodemailer": "^6.4.15",
+    "arctic": "^1.8.0",
+    "clsx": "^2.1.1",
+    "cron": "^3.1.7",
+    "daisyui": "^4.10.3",
+    "esm-env": "^1.0.0",
+    "lucia": "^3.2.0",
+    "nodemailer": "^6.9.13",
+    "oslo": "^1.2.0",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss": "^3.4.3",
+    "vite": "^5.2.10",
+    "vite-plugin-kit-routes": "^0.6.2",
+    "vite-plugin-stripper": "^0.5.0"
   },
   "sideEffects": false,
   "publishConfig": {
@@ -111,6 +113,18 @@
     "./feedback": {
       "types": "./esm/feedback/index.d.ts",
       "default": "./esm/feedback/index.js"
+    },
+    "./changeLogs": {
+      "types": "./esm/changeLogs/index.d.ts",
+      "default": "./esm/changeLogs/index.js"
+    },
+    "./mail": {
+      "types": "./esm/mail/index.d.ts",
+      "default": "./esm/mail/index.js"
+    },
+    "./cron": {
+      "types": "./esm/cron/index.d.ts",
+      "default": "./esm/cron/index.js"
     }
   },
   "files": [

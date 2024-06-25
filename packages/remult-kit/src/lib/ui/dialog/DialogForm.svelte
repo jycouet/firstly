@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { FieldGroup, getEntityDisplayValue, kitStoreItem } from '../..'
+  import { FieldGroup, kitStoreItem } from '../..'
   import { kitCellsBuildor } from '../../kitCellsBuildor'
   import { dialog, type DialogMetaDataInternal } from './dialog'
   import DialogPrimitive from './DialogPrimitive.svelte'
   import FormEditAction from './FormEditAction.svelte'
 
   export let toShow: DialogMetaDataInternal
-  const cells = kitCellsBuildor(toShow.repo!, toShow.buildor!)
-  const store = toShow.store ?? kitStoreItem(toShow.repo!)
+
+  $: cells = kitCellsBuildor(toShow.repo!, toShow.cells!)
+  $: store = toShow.store ?? kitStoreItem(toShow.repo!)
 
   $: {
     if (toShow.type === 'update' || toShow.type === 'view') {
@@ -17,15 +18,17 @@
     }
   }
 
+  const onCreate = (e: CustomEvent) => {
+    dialog.close(toShow.id, { success: true, item: e.detail })
+  }
+
   let isLoading = false
-  const add = async () => {
+  const onInsert = async () => {
     isLoading = true
     try {
       const result = await store.save()
-      const item = getEntityDisplayValue(toShow.repo!, result)
-
       if (result) {
-        dialog.close(toShow.id, { success: true, item })
+        dialog.close(toShow.id, { success: true, item: result })
       }
     } catch (e) {
       // in some cases we don't want to throw.
@@ -43,18 +46,7 @@
     const res = await dialog.confirmDelete('')
     if (res.success) {
       await store.delete()
-      dialog.close(toShow.id, { success: true })
-    }
-  }
-
-  const onCreateRequest = (e: CustomEvent) => {
-    dialog.close(toShow.id, { success: true, createRequest: e.detail })
-  }
-
-  let loadOptionAt = new Date()
-  const changed = (e: any) => {
-    if (store.onChange(e.detail)) {
-      loadOptionAt = new Date()
+      dialog.close(toShow.id, { success: true, item: $store.item })
     }
   }
 </script>
@@ -65,18 +57,22 @@
   classes={{ root: toShow.classes?.root }}
   on:change={() => dialog.close(toShow.id, { success: false })}
 >
-  <form on:submit|preventDefault={add}>
+  <form on:submit|preventDefault={onInsert}>
     <div class="grid {toShow.classes?.formGrid ?? ''} gap-4 pb-4">
       <FieldGroup
         {cells}
         {store}
         mode={toShow.type === 'view' ? 'view' : 'edit'}
-        on:changed={changed}
-        {loadOptionAt}
-        on:createRequest={onCreateRequest}
+        on:createRequest={onCreate}
       />
     </div>
 
-    <FormEditAction {toShow} {store} on:delete={onDelete}></FormEditAction>
+    <FormEditAction
+      type={toShow.type}
+      wDelete={toShow.wDelete}
+      {store}
+      on:delete={onDelete}
+      textCreate={toShow.topicPrefixText}
+    ></FormEditAction>
   </form>
 </DialogPrimitive>
