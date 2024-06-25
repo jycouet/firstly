@@ -1,5 +1,21 @@
 # remult-kit
 
+## 0.26.15
+
+### Patch Changes
+
+- [#37](https://github.com/jycouet/remult-kit/pull/37) [`eabacf3`](https://github.com/jycouet/remult-kit/commit/eabacf3b771ce7ea5544e3ea8a316162713c33cc) Thanks [@jycouet](https://github.com/jycouet)! - adding KitEntity to enable permission on top (to have nice tooltips)
+
+- [#37](https://github.com/jycouet/remult-kit/pull/37) [`eabacf3`](https://github.com/jycouet/remult-kit/commit/eabacf3b771ce7ea5544e3ea8a316162713c33cc) Thanks [@jycouet](https://github.com/jycouet)! - add permission on button & info in tooltip
+
+- [`f17d077`](https://github.com/jycouet/remult-kit/commit/f17d077ff6e3f5c95e7fa830c86fed2266a0ce9c) Thanks [@jycouet](https://github.com/jycouet)! - update readme to point to the right docs site!
+
+- [#37](https://github.com/jycouet/remult-kit/pull/37) [`eabacf3`](https://github.com/jycouet/remult-kit/commit/eabacf3b771ce7ea5544e3ea8a316162713c33cc) Thanks [@jycouet](https://github.com/jycouet)! - manage hide mode in grid
+
+- [#37](https://github.com/jycouet/remult-kit/pull/37) [`eabacf3`](https://github.com/jycouet/remult-kit/commit/eabacf3b771ce7ea5544e3ea8a316162713c33cc) Thanks [@jycouet](https://github.com/jycouet)! - abstract nodemailer
+
+- [#37](https://github.com/jycouet/remult-kit/pull/37) [`eabacf3`](https://github.com/jycouet/remult-kit/commit/eabacf3b771ce7ea5544e3ea8a316162713c33cc) Thanks [@jycouet](https://github.com/jycouet)! - add some cronTime as examples
+
 ## 0.26.14
 
 ### Patch Changes
