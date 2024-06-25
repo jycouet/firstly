@@ -4,7 +4,7 @@ import { stripper } from 'vite-plugin-stripper'
 
 // import { Log } from '@kitql/helpers'
 
-const toRemove = ['oslo/password', 'oslo']
+const toRemove = ['oslo/password', 'oslo', '@kitql/internals', '$env/dynamic/private']
 
 export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
   stripper?: { debug?: boolean }
