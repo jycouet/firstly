@@ -19,7 +19,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      await AuthController.signUpPassword(email, password)
+      await AuthController.signInPassword(email, password)
       window.location.href = '/'
     } catch (error) {
       if (isError(error)) {
@@ -49,7 +49,7 @@
       {remultKitDataAuth.ui.providers.password.dico.password}
       <input bind:value={password} type="password" />
     </label>
-    <button>{remultKitDataAuth.ui.providers.password.dico.btn_sign_up}</button>
+    <button>{remultKitDataAuth.ui.providers.password.dico.btn_sign_in}</button>
   </form>
 {/if}
 

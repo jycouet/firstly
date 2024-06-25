@@ -39,7 +39,6 @@
 
   export let clearable: boolean | undefined = undefined
   export let disabled = false
-  export let loadOptionAt = new Date()
 
   const dispatch = createEventDispatcher()
 

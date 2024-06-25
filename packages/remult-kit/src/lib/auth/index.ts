@@ -191,8 +191,11 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         return { early: false }
       }
       const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
-      const sign_in = '/sign-in' //AUTH_OPTIONS.ui?.paths?.sign_in ?? '/sign-in'
-      const forgot_password = '/forgot-password' //AUTH_OPTIONS.ui?.paths?.forgot_password ?? '/forgot-password'
+
+      const oAuths =
+        AUTH_OPTIONS.providers?.oAuths?.map((o) => {
+          return o.name
+        }) ?? []
 
       let remultKitData: RemultKitData = {
         module: 'auth',
@@ -201,48 +204,32 @@ export const auth: (o: AuthOptions) => Module = (o) => {
             paths: {
               base,
             },
-          },
-          providers: {
-            password: {
-              dico: {},
-              paths: {},
+            providers: {
+              password: {
+                dico: {
+                  email: 'Email',
+                  email_placeholder: 'Your email address',
+                  password: 'Password',
+                  btn_sign_up: 'Sign up',
+                  btn_sign_in: 'Sign in',
+                  forgot_password: 'Forgot your password?',
+                  send_password_reset_instructions: 'Send password reset instructions',
+                  back_to_sign_in: 'Back to sign in',
+                },
+                paths: {
+                  sign_up: `${base}/sign-up`,
+                  sign_in: `${base}/sign-in`,
+                  forgot_password: `${base}/forgot-password`,
+                  reset_password: `${base}/reset-password`,
+                },
+              },
+              oAuths,
             },
-            oAuths: [],
           },
         },
       }
 
       if (event.url.pathname.startsWith(remultKitData.props.ui.paths.base)) {
-        const oAuths =
-          AUTH_OPTIONS.providers?.oAuths?.map((o) => {
-            return o.name
-          }) ?? []
-
-        remultKitData.props = {
-          ...remultKitData.props,
-          providers: {
-            password: {
-              dico: {
-                email: 'Email',
-                email_placeholder: 'Your email address',
-                password: 'Password',
-                btn_sign_in: 'Sign in',
-                forgot_password: 'Forgot your password?',
-                send_password_reset_instructions: 'Send password reset instructions',
-                back_to_sign_in: 'Back to sign in',
-              },
-              paths: {
-                sign_up: `${base}/sign-up`,
-                sign_in: `${base}/sign-in`,
-                forgot_password: `${base}/forgot-password`,
-                reset_password: `${base}/forgot-password`,
-              },
-            },
-
-            oAuths,
-          },
-        }
-
         return {
           early: true,
           resolve: new Response(

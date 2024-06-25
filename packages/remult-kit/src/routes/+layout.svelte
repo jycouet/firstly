@@ -1,11 +1,15 @@
 <script lang="ts">
   // import { mdiHome } from '@mdi/js'
+  import { remult } from 'remult'
+
   import { page } from '$app/stores'
 
   import { route } from '$lib/ROUTES'
   import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
 
   import '../app.pcss'
+
+  import type { LayoutData } from './$types'
 
   const links = [
     { path: route('/'), text: 'Home' },
@@ -23,6 +27,9 @@
     },
     { path: route('github'), text: '⭐️ remult-kit', target: '_blank' },
   ]
+
+  export let data: LayoutData
+  $: remult.user = data.user
 </script>
 
 <svelte:head>

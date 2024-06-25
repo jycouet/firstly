@@ -196,7 +196,8 @@ export class AuthController {
       )
 
       await remult.repo(oSafe.Account).save(authAccount)
-      const url = `${remult.context.url.origin}/auth/resetPassword?token=${token}`
+      // TODO CUSTOM URL
+      const url = `${remult.context.url.origin}/kit/auth/reset-password?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.resetPassword) {
         await AUTH_OPTIONS.providers?.password.resetPassword(url)
         logAuth.success(`Done with custom ${green('resetPassword')} (${yellow(url)})`)

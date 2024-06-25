@@ -2,20 +2,21 @@
   import { isError } from '../../../../../../remult-kit/src/lib'
   import { AuthController } from '../../../../../../remult-kit/src/lib/auth'
   import type { RemultKitDataAuth } from '../../../../../../remult-kit/src/lib/auth/types'
-  import { autofocus } from '../helpers'
 
   export let remultKitDataAuth: RemultKitDataAuth
-  export let email = ''
+  export let password1 = ''
+  export let password2 = ''
 
   let msgError = ''
   let msgSuccess = ''
 
-  async function forgot() {
-    // msgError = ''
-    // msgSuccess = ''
+  async function reset() {
+    msgError = ''
+    msgSuccess = ''
+    const token = new URL(location.href).searchParams.get('token')
     try {
-      await AuthController.forgotPassword(email)
-      window.location.href = '/kit/auth/sign-in'
+      await AuthController.resetPassword(token, password1)
+      window.location.href = '/'
     } catch (error) {
       if (isError(error)) {
         msgError = error.message ?? ''
@@ -26,14 +27,12 @@
 
 <div class="login">
   <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
-  <form on:submit|preventDefault={forgot}>
-    <input
-      use:autofocus
-      bind:value={email}
-      type="text"
-      placeholder={remultKitDataAuth.ui.providers.password.dico.email_placeholder}
-    />
-    <button>{remultKitDataAuth.ui.providers.password.dico.send_password_reset_instructions}</button>
+  <form on:submit|preventDefault={reset}>
+    {remultKitDataAuth.ui.providers.password.dico.password}
+    <input bind:value={password1} type="password" />
+    {remultKitDataAuth.ui.providers.password.dico.password}
+    <input bind:value={password2} type="password" />
+    <button>reset</button>
   </form>
 </div>
 

@@ -17,7 +17,6 @@
   export let store: KitStoreItem<T>
 
   export let focusKey: string | null | undefined = null
-  export let loadOptionAt = new Date()
 
   const getError = (errors: any, field: FieldMetadata<any, any>) => {
     const fo = getRelationFieldInfo(field)

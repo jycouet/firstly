@@ -24,6 +24,9 @@ export default defineConfig({
     outDir: '../remult-kit/src/lib/auth/static',
     emptyOutDir: true,
     assetsDir: './assets',
+    rollupOptions: {
+      external: ['$env/dynamic/private', '@kitql/internals'],
+    },
   },
   server: {
     port: 4242,
