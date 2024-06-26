@@ -14,17 +14,19 @@
 <div class="wrapper">
   <div class="form">
     <Route>
-      <Route path={remultKitDataAuth.ui.providers.password.paths.sign_up}>
-        <SignUp {remultKitDataAuth} />
+      {#if remultKitDataAuth.ui.providers.password.paths.sign_up}
+        <Route path={remultKitDataAuth.ui.providers.password.paths.sign_up}>
+          <SignUp {remultKitDataAuth} />
 
-        <div class="form-footer">
-          {#if remultKitDataAuth.ui.providers.password.paths.sign_in}
-            <Link href={remultKitDataAuth.ui.providers.password.paths.sign_in}>
-              {remultKitDataAuth.ui.providers.password.dico.back_to_sign_in}
-            </Link>
-          {/if}
-        </div>
-      </Route>
+          <div class="form-footer">
+            {#if remultKitDataAuth.ui.providers.password.paths.sign_in}
+              <Link href={remultKitDataAuth.ui.providers.password.paths.sign_in}>
+                {remultKitDataAuth.ui.providers.password.dico.back_to_sign_in}
+              </Link>
+            {/if}
+          </div>
+        </Route>
+      {/if}
 
       <Route path={remultKitDataAuth.ui.providers.password.paths.sign_in}>
         <SignIn {remultKitDataAuth} />

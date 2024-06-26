@@ -101,7 +101,23 @@ export class AuthController {
       const user = await remult.repo(oSafe.User).insert({
         name: email,
       })
-      // TODO Mail to invite
+
+      const url = `${remult.context.url.origin}`
+
+      if (AUTH_OPTIONS?.invitationSend) {
+        await AUTH_OPTIONS?.invitationSend({ email, url })
+        logAuth.success(`Done with custom ${green('invitationSend')} (${yellow(url)})`)
+        return 'Mail sent !'
+      } else {
+        await sendMail('invite', {
+          to: email,
+          subject: 'Invitation',
+          text: `You were invited here: ${url}`,
+          html: `You were invited <a href="${url}">here</a>`,
+        })
+        logAuth.success(`Done with ${green('sendMail')} (${url})`)
+        return 'Demo Mail sent !'
+      }
     }
 
     return 'ok'
@@ -133,14 +149,40 @@ export class AuthController {
       name: email,
     })
 
+    const token = generateId(40)
+
     await remult.repo(oSafe.Account).insert({
       provider: AuthProvider.PASSWORD.id,
       providerUserId: email,
       userId: user.id,
       hashPassword: await passwordHash(password),
+      token: oSafe.verifiedMethod === 'auto' ? undefined : token,
+      expiresAt:
+        oSafe.verifiedMethod === 'auto'
+          ? undefined
+          : createDate(
+              new TimeSpan(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60, 's'),
+            ),
+      verifiedAt: oSafe.verifiedMethod === 'auto' ? new Date() : undefined,
     })
 
-    await createSession(user.id)
+    if (oSafe.verifiedMethod === 'auto') {
+      await createSession(user.id)
+    } else {
+      const url = `${remult.context.url.origin}${oSafe.remultKitData.props.ui.providers.password.paths.verify_email}?token=${token}`
+      if (AUTH_OPTIONS.providers?.password?.verifyMailSend) {
+        await AUTH_OPTIONS.providers?.password.verifyMailSend({ email, url })
+        logAuth.success(`Done with custom ${green('verifyMailSend')} (${yellow(url)})`)
+      } else {
+        await sendMail('signUpPassword', {
+          to: email,
+          subject: 'Wecome!',
+          text: `You can validate your account here: ${url}`,
+          html: `You can validate your account <a href="${url}">here</a>`,
+        })
+        logAuth.success(`Done with ${green('sendMail')} (${url})`)
+      }
+    }
 
     return 'ok'
   }
@@ -210,11 +252,11 @@ export class AuthController {
       )
 
       await remult.repo(oSafe.Account).save(authAccount)
-      // TODO CUSTOM URL
-      const url = `${remult.context.url.origin}/kit/auth/reset-password?token=${token}`
-      if (AUTH_OPTIONS.providers?.password?.resetPassword) {
-        await AUTH_OPTIONS.providers?.password.resetPassword({ email, url })
-        logAuth.success(`Done with custom ${green('resetPassword')} (${yellow(url)})`)
+
+      const url = `${remult.context.url.origin}${oSafe.remultKitData.props.ui.providers.password.paths.reset_password}?token=${token}`
+      if (AUTH_OPTIONS.providers?.password?.resetPasswordSend) {
+        await AUTH_OPTIONS.providers?.password.resetPasswordSend({ email, url })
+        logAuth.success(`Done with custom ${green('resetPasswordSend')} (${yellow(url)})`)
         return 'Mail sent !'
       } else {
         await sendMail('forgotPassword', {
@@ -224,11 +266,10 @@ export class AuthController {
           html: `You can reset your password <a href="${url}">here</a>`,
         })
         logAuth.success(`Done with ${green('sendMail')} (${url})`)
+        return 'Demo Mail sent !'
       }
-    } else {
-      throw new Error("Une erreur est survenue, contacte l'administrateur!")
     }
-    return 'Hum, something went wrong !'
+    throw new Error("Une erreur est survenue, contacte l'administrateur!")
   }
 
   /**

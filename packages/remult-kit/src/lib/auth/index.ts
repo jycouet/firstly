@@ -107,7 +107,18 @@ type AuthOptions<
    **/
   selfSignUp?: boolean
 
-  // TODO: enable email verify (bool)
+  /**
+   * To be able to sign in user needs to be verified or not?
+   * ```
+   *  `Auto` =>  noting will be checked
+   *  `Email` => users needs to click a link in an email
+   *  `Manual` => an admin needs to verify the user and set verifiedAt in the database
+   * ```
+   * @default auto
+   **/
+  verifiedMethod?: 'auto' | 'email' | 'manual'
+
+  invitationSend?: (args: { email: string; url: string }) => Promise<void>
 
   providers?: {
     demo?: {
@@ -117,11 +128,18 @@ type AuthOptions<
 
     password?: {
       /**
-       * Usually, we send an email to the user to verify his email address.
+       * Reseting the password
        */
-      resetPassword?: (args: { email: string; url: string }) => Promise<void>
+      resetPasswordSend?: (args: { email: string; url: string }) => Promise<void>
       /** in secondes @default 5 minutes */
       resetPasswordExpiresIn?: number
+
+      /**
+       * Verify the Mail
+       */
+      verifyMailSend?: (args: { email: string; url: string }) => Promise<void>
+      /** in secondes @default 5 minutes */
+      verifyMailExpiresIn?: number
 
       /**
        * Some settings for the password hashing algorithm _(using argon2 under the hood)_
@@ -152,14 +170,68 @@ type AuthOptions<
 export let AUTH_OPTIONS: AuthOptions = {}
 
 export const getSafeOptions = () => {
+  const selfSignUp = AUTH_OPTIONS.selfSignUp ?? true
+  const base =
+    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
+
+  const oAuths =
+    AUTH_OPTIONS.providers?.oAuths?.map((o) => {
+      return o.name
+    }) ?? []
+
+  const remultKitData: RemultKitData = {
+    module: 'auth',
+    props: {
+      ui: {
+        paths: {
+          base,
+        },
+        providers: {
+          password: {
+            dico: {
+              email: 'Email',
+              email_placeholder: 'Your email address',
+              password: 'Password',
+              btn_sign_up: 'Sign up',
+              btn_sign_in: 'Sign in',
+              forgot_password: 'Forgot your password?',
+              send_password_reset_instructions: 'Send password reset instructions',
+              back_to_sign_in: 'Back to sign in',
+            },
+            paths: {
+              sign_up: selfSignUp ? `${base}/sign-up` : false,
+              sign_in: `${base}/sign-in`,
+              forgot_password: `${base}/forgot-password`,
+              reset_password: `${base}/reset-password`,
+            },
+          },
+          oAuths,
+        },
+      },
+    },
+  }
+
+  let redirectUrl = AUTH_OPTIONS.defaultRedirect ?? '/'
+  if (!redirectUrl.startsWith('/')) {
+    logAuth.error(
+      `Invalid redirect url ${red(redirectUrl)} (it should be a local one starting with /)`,
+    )
+    redirectUrl = '/'
+  }
+
   return {
     User: AUTH_OPTIONS.customEntities?.User ?? KitAuthUser,
     Session: AUTH_OPTIONS.customEntities?.Session ?? KitAuthUserSession,
     Account: AUTH_OPTIONS.customEntities?.Account ?? KitAuthAccount,
 
-    selfSignUp: AUTH_OPTIONS.selfSignUp ?? true,
+    selfSignUp,
     password_enabled: AUTH_OPTIONS.providers?.password ? true : false,
     otp_enabled: AUTH_OPTIONS.providers?.otp ? true : false,
+
+    verifiedMethod: AUTH_OPTIONS.verifiedMethod ?? 'auto',
+    redirectUrl,
+
+    remultKitData,
   }
 }
 
@@ -195,51 +267,23 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       if (AUTH_OPTIONS.ui === false) {
         return { early: false }
       }
-      const base = AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
+      const oSafe = getSafeOptions()
 
-      const oAuths =
-        AUTH_OPTIONS.providers?.oAuths?.map((o) => {
-          return o.name
-        }) ?? []
+      if (
+        event.url.pathname === oSafe.remultKitData.props.ui.providers.password.paths.verify_email
+      ) {
+        // TODO need to verify the token and set the verifiedAt in the database and we are good.
+        // It's 2 minutes, but I'll be it later :D
 
-      const remultKitData: RemultKitData = {
-        module: 'auth',
-        props: {
-          ui: {
-            paths: {
-              base,
-            },
-            providers: {
-              password: {
-                dico: {
-                  email: 'Email',
-                  email_placeholder: 'Your email address',
-                  password: 'Password',
-                  btn_sign_up: 'Sign up',
-                  btn_sign_in: 'Sign in',
-                  forgot_password: 'Forgot your password?',
-                  send_password_reset_instructions: 'Send password reset instructions',
-                  back_to_sign_in: 'Back to sign in',
-                },
-                paths: {
-                  sign_up: `${base}/sign-up`,
-                  sign_in: `${base}/sign-in`,
-                  forgot_password: `${base}/forgot-password`,
-                  reset_password: `${base}/reset-password`,
-                },
-              },
-              oAuths,
-            },
-          },
-        },
+        redirect(302, oSafe.redirectUrl)
       }
 
-      if (event.url.pathname.startsWith(remultKitData.props.ui.paths.base)) {
+      if (event.url.pathname.startsWith(oSafe.remultKitData.props.ui.paths.base)) {
         return {
           early: true,
           resolve: new Response(
             read('src/lib/auth/static/index.html') +
-              `<script>const remultKitData = ${JSON.stringify(remultKitData)}</script>`,
+              `<script>const remultKitData = ${JSON.stringify(oSafe.remultKitData)}</script>`,
             {
               headers: { 'content-type': 'text/html' },
             },
@@ -288,13 +332,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         if (redirectUrlCookie) {
           event.cookies.delete(`remult_redirect`, { path: '/' })
         }
-        let redirectUrl = redirectUrlCookie ?? AUTH_OPTIONS.defaultRedirect ?? '/'
-        if (!redirectUrl.startsWith('/')) {
-          logAuth.error(
-            `Invalid redirect url ${red(redirectUrl)} (it should be a local one starting with /)`,
-          )
-          redirectUrl = '/'
-        }
+        let redirectUrl = redirectUrlCookie ?? oSafe.redirectUrl
 
         if (!code || !state || !storedState || state !== storedState || !keyState) {
           redirect(302, redirectUrl)
@@ -318,6 +356,11 @@ export const auth: (o: AuthOptions) => Module = (o) => {
             .repo(oSafe.Account)
             .findFirst({ provider: keyState, providerUserId: info.providerUserId })
           if (!account) {
+            if (!oSafe.selfSignUp) {
+              // throw Error("You can't signup by yourself! Contact the administrator.")
+              redirect(302, redirectUrl)
+            }
+
             // for each info.name, we check if it exists take the first option
             // and add the providerUserId to the name if no option available
 
@@ -345,6 +388,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
             account.providerUserId = info.providerUserId
             account.token = tokens.accessToken
             account.userId = user.id
+            account.verifiedAt = new Date()
 
             await remult.repo(oSafe.User).save(user)
             await remult.repo(oSafe.Account).save(account)

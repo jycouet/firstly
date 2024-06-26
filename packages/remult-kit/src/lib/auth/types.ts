@@ -21,10 +21,11 @@ export type RemultKitDataAuth = {
           back_to_sign_in: string
         }
         paths: {
-          sign_up?: string
+          sign_up: string | false
           sign_in?: string
           forgot_password?: string
           reset_password?: string
+          verify_email?: string
         }
       }
       oAuths: string[]
