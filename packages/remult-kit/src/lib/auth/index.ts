@@ -16,7 +16,13 @@ import type { Module } from '../api'
 import type { ResolvedType } from '../utils/types'
 import { RemultLuciaAdapter } from './Adapter'
 import { AuthController } from './AuthController'
-import { KitAuthAccount, KitAuthRole, KitAuthUser, KitAuthUserSession } from './Entities'
+import {
+  AuthProvider,
+  KitAuthAccount,
+  KitAuthRole,
+  KitAuthUser,
+  KitAuthUserSession,
+} from './Entities'
 import { createSession } from './helper'
 import { RoleController } from './RoleController'
 import type { RemultKitData } from './types'
@@ -203,6 +209,7 @@ export const getSafeOptions = () => {
               sign_in: `${base}/sign-in`,
               forgot_password: `${base}/forgot-password`,
               reset_password: `${base}/reset-password`,
+              verify_email: `${base}/verify-email`,
             },
           },
           oAuths,
@@ -274,6 +281,33 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       ) {
         // TODO need to verify the token and set the verifiedAt in the database and we are good.
         // It's 2 minutes, but I'll be it later :D
+        const token = event.url.searchParams.get('token') ?? ''
+
+        if (!oSafe.password_enabled) {
+          throw Error('Password is not enabled!')
+        }
+
+        const account = await remult
+          .repo(oSafe.Account)
+          .findFirst({ token, provider: AuthProvider.PASSWORD.id })
+
+        if (!account) {
+          throw new Error('Invalid token')
+        }
+        if (account.expiresAt && account.expiresAt < new Date()) {
+          throw new Error('token expired')
+        }
+
+        await lucia.invalidateUserSessions(account.userId)
+
+        // update elements
+        account.token = undefined
+        account.expiresAt = undefined
+        account.lastVerifiedAt = new Date()
+
+        await remult.repo(oSafe.Account).save(account)
+
+        await createSession(account.userId)
 
         redirect(302, oSafe.redirectUrl)
       }
@@ -388,7 +422,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
             account.providerUserId = info.providerUserId
             account.token = tokens.accessToken
             account.userId = user.id
-            account.verifiedAt = new Date()
+            account.lastVerifiedAt = new Date()
 
             await remult.repo(oSafe.User).save(user)
             await remult.repo(oSafe.Account).save(account)

@@ -9,6 +9,8 @@
 
   export let remultKitData: RemultKitData
   let remultKitDataAuth = remultKitData.props
+
+  let email = ''
 </script>
 
 <div class="wrapper">
@@ -16,7 +18,7 @@
     <Route>
       {#if remultKitDataAuth.ui.providers.password.paths.sign_up}
         <Route path={remultKitDataAuth.ui.providers.password.paths.sign_up}>
-          <SignUp {remultKitDataAuth} />
+          <SignUp {remultKitDataAuth} bind:email />
 
           <div class="form-footer">
             {#if remultKitDataAuth.ui.providers.password.paths.sign_in}
@@ -29,7 +31,7 @@
       {/if}
 
       <Route path={remultKitDataAuth.ui.providers.password.paths.sign_in}>
-        <SignIn {remultKitDataAuth} />
+        <SignIn {remultKitDataAuth} bind:email />
 
         <div class="form-footer">
           {#if remultKitDataAuth.ui.providers.password.paths.forgot_password}
@@ -47,7 +49,7 @@
       </Route>
 
       <Route path={remultKitDataAuth.ui.providers.password.paths.forgot_password}>
-        <ForgotPassword {remultKitDataAuth} />
+        <ForgotPassword {remultKitDataAuth} bind:email />
 
         <div class="form-footer">
           {#if remultKitDataAuth.ui.providers.password.paths.sign_in}

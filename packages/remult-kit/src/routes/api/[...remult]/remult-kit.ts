@@ -54,6 +54,7 @@ export const remultApi = remultKit({
       // },
 
       // selfSignUp: false,
+      verifiedMethod: 'email',
 
       providers: {
         demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.ADMIN] }],

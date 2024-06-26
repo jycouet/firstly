@@ -163,7 +163,7 @@ export class AuthController {
           : createDate(
               new TimeSpan(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60, 's'),
             ),
-      verifiedAt: oSafe.verifiedMethod === 'auto' ? new Date() : undefined,
+      lastVerifiedAt: oSafe.verifiedMethod === 'auto' ? new Date() : undefined,
     })
 
     if (oSafe.verifiedMethod === 'auto') {
@@ -294,12 +294,14 @@ export class AuthController {
       throw new Error('token expired')
     }
     checkPassword(password)
+
     await lucia.invalidateUserSessions(account.userId)
 
     // update elements
     account.hashPassword = await passwordHash(password)
     account.token = undefined
     account.expiresAt = undefined
+    account.lastVerifiedAt = new Date()
 
     await remult.repo(oSafe.Account).save(account)
 
