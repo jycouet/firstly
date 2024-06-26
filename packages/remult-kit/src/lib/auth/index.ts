@@ -26,7 +26,7 @@ export type { RemultKitData }
 export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'
 export { AuthController } from './AuthController'
 
-// I's sure that we can do better than that! ;)
+// It's sure that we can do better than that! ;)
 export type AuthorizationURLOptions = Record<
   string,
   {
@@ -100,6 +100,15 @@ type AuthOptions<
 
   defaultRedirect?: string
 
+  /**
+   * Can a user sign up by itself? Or we can join only by invitation ?
+   * If false, no one can sign up alone.
+   * @default true
+   **/
+  selfSignUp?: boolean
+
+  // TODO: enable email verify (bool)
+
   providers?: {
     demo?: {
       name: string
@@ -108,16 +117,9 @@ type AuthOptions<
 
     password?: {
       /**
-       * Can a user sign up by itself? Or we can join only by invitation ?
-       * If false, no one can sign up alone.
-       * @default true
-       **/
-      selfSignUp?: boolean
-
-      /**
        * Usually, we send an email to the user to verify his email address.
        */
-      resetPassword?: (url: string) => Promise<void>
+      resetPassword?: (args: { email: string; url: string }) => Promise<void>
       /** in secondes @default 5 minutes */
       resetPasswordExpiresIn?: number
 
@@ -154,6 +156,10 @@ export const getSafeOptions = () => {
     User: AUTH_OPTIONS.customEntities?.User ?? KitAuthUser,
     Session: AUTH_OPTIONS.customEntities?.Session ?? KitAuthUserSession,
     Account: AUTH_OPTIONS.customEntities?.Account ?? KitAuthAccount,
+
+    selfSignUp: AUTH_OPTIONS.selfSignUp ?? true,
+    password_enabled: AUTH_OPTIONS.providers?.password ? true : false,
+    otp_enabled: AUTH_OPTIONS.providers?.otp ? true : false,
   }
 }
 

@@ -7,9 +7,6 @@ import type { KIT_ROUTES } from '$lib/ROUTES'
 import { remultKit } from './src/lib/vite'
 
 const config = defineConfig({
-  // optimizeDeps: {
-  //   exclude: ['@node-rs/argon2-darwin-arm64', '@node-rs/bcrypt-darwin-arm64'],
-  // },
   plugins: [
     remultKit<KIT_ROUTES>({
       kitRoutes: {

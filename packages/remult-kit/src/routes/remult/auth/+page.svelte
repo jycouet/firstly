@@ -111,7 +111,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      msgSuccess = await AuthController.verifyOtp(otp, indentifierOtp)
+      msgSuccess = await AuthController.verifyOtp(indentifierOtp, otp)
       await invalidateAll()
     } catch (error) {
       if (isError(error)) {
