@@ -366,7 +366,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         if (redirectUrlCookie) {
           event.cookies.delete(`remult_redirect`, { path: '/' })
         }
-        let redirectUrl = redirectUrlCookie ?? oSafe.redirectUrl
+        const redirectUrl = redirectUrlCookie ?? oSafe.redirectUrl
 
         if (!code || !state || !storedState || state !== storedState || !keyState) {
           redirect(302, redirectUrl)
