@@ -39,8 +39,8 @@ const config = defineConfig({
       }),
 
       siteConfig: {
-        title: 'firstly',
-        description: 'An opinionated Remult setup for SvelteKit',
+        title: 'Firstly',
+        description: 'Bee-lieve in better code !',
       },
     }),
   ],

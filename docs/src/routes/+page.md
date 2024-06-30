@@ -2,13 +2,13 @@
 title: Welcome to Remult Kit
 heroImage: /firstly.svg
 tagline:
-  Transform your development workflow with built-in essentials Modules like Auth, Media, ...
+  An opinionated Remult setup for SvelteKit. Transform your development workflow with built-in essentials Modules like Auth, Media, ...
   supercharge them with community modules and your own custom ones!
 actions:
-  - label: View on github
+  - label: Getting Started
     type: primary
-    to: https://github.com/jycouet/firstly
-    external: true
+    to: /guide
+    # external: true
 features:
   - title: Based on remult
     link: https://remult.dev/
