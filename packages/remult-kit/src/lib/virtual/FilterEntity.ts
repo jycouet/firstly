@@ -15,4 +15,7 @@ export class FilterEntity {
 
   @Fields.boolean({ caption: 'Même adresse', allowNull: true })
   sameAdress = true
+
+  @Fields.number({ allowNull: false, caption: 'number' })
+  number: number = 200
 }
