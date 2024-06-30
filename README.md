@@ -2,10 +2,7 @@
 
 _This is the monorepo holding `firstly`_
 
-## npm link
+## links
 
-- [firstly](https://www.npmjs.com/package/firstly)
-
-## Doc link
-
-- [firstly](https://firstly.fun)
+- [npm firstly](https://www.npmjs.com/package/firstly)
+- [doc firstly](https://firstly.fun)
