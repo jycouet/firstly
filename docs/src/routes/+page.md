@@ -12,7 +12,7 @@ actions:
 features:
   - title: Based on remult
     link: https://remult.dev/
-    description: Proven and reliable Fullstack Type-safe framework for building web applications.
+    description: Proven and reliable Fullstack Type-safe library for building web applications.
     icon:
       type: iconify
       collection: heroicons
