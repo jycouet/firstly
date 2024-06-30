@@ -42,7 +42,7 @@ export const mailInit: (nodemailer: typeof typeNodemailer, o?: MailOptions) => v
   }
 }
 
-const log = new Log('remult-kit | mail')
+const log = new Log('firstly | mail')
 
 let nodemailerHolder: typeof typeNodemailer
 

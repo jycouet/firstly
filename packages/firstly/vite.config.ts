@@ -19,7 +19,7 @@ const config = defineConfig({
             href: 'https://github.com/[owner]/[repo]',
             params: {
               owner: { default: '"jycouet"' },
-              repo: { default: '"remult-kit"' },
+              repo: { default: '"firstly"' },
             },
           },
         },

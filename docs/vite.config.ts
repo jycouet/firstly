@@ -15,9 +15,9 @@ const config = defineConfig({
           },
         ],
         sidebar,
-        github: 'https://github.com/jycouet/remult-kit',
+        github: 'https://github.com/jycouet/firstly',
         discord: 'https://discord.gg/GXHk7ZfuG5',
-        logo: '/remult-kit.svg',
+        logo: '/firstly.svg',
         themeColor: {
           dark: '#ff3e00',
           light: '#ff3e00',
@@ -39,7 +39,7 @@ const config = defineConfig({
       }),
 
       siteConfig: {
-        title: 'remult-kit',
+        title: 'firstly',
         description: 'An opinionated Remult setup for SvelteKit',
       },
     }),

@@ -25,7 +25,7 @@
       text: '⭐️ remult',
       target: '_blank',
     },
-    { path: route('github'), text: '⭐️ remult-kit', target: '_blank' },
+    { path: route('github'), text: '⭐️ firstly', target: '_blank' },
   ]
 
   export let data: LayoutData

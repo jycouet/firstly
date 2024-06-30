@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { AuthController } from '../../../../../../remult-kit/src/lib/auth/AuthController'
-  import type { RemultKitDataAuth } from '../../../../../../remult-kit/src/lib/auth/types'
-  import { isError } from '../../../../../../remult-kit/src/lib/helper'
+  import { AuthController } from '../../../../../../firstly/src/lib/auth/AuthController'
+  import type { RemultKitDataAuth } from '../../../../../../firstly/src/lib/auth/types'
+  import { isError } from '../../../../../../firstly/src/lib/helper'
   import { autofocus } from '../helpers'
 
   export let remultKitDataAuth: RemultKitDataAuth

@@ -49,7 +49,7 @@ importers:
         specifier: 5.2.10
         version: 5.2.10(@types/node@20.14.9)(terser@5.31.1)
 
-  packages/remult-kit:
+  packages/firstly:
     dependencies:
       '@clack/prompts':
         specifier: ^0.7.0

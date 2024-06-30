@@ -23,5 +23,5 @@ package.json
 CHANGELOG.md
 ROUTES.ts
 *.svelte.d.ts
-packages/remult-kit/src/lib/auth/static
-packages/remult-kit/db
+packages/firstly/src/lib/auth/static
+packages/firstly/db

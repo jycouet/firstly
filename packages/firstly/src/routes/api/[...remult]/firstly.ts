@@ -78,7 +78,7 @@ export const remultApi = remultKit({
           // }
           // resetPassword: async (url) => {
           //   console.info(`Mail to send with this url:`, url)
-          //   console.info('You can use the function sendMail() from "remult-kit/mail"')
+          //   console.info('You can use the function sendMail() from "firstly/mail"')
           // },
         },
 

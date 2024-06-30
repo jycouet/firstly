@@ -49,7 +49,7 @@ export type DynamicAuthorizationURLOptions<T extends KitOAuth2Provider[] = KitOA
       : never
     : never
 
-export const logAuth = new Log('remult-kit | auth')
+export const logAuth = new Log('firstly | auth')
 
 export { KitAuthRole } from './Entities'
 

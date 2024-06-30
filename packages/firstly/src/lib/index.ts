@@ -26,7 +26,7 @@ import { default as LinkPlus } from './ui/link/LinkPlus.svelte'
 import { default as Loading } from './ui/Loading.svelte'
 import { default as Tooltip } from './ui/Tooltip.svelte'
 
-export const logRemultKit = new Log('remult-kit')
+export const logRemultKit = new Log('firstly')
 
 export const KitRole = {
   Admin: 'KitAdmin',

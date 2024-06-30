@@ -1,7 +1,7 @@
-# remult-kit-monorepo
+# firstly-monorepo
 
-_This is the monorepo holding `remult-kit`_
+_This is the monorepo holding `firstly`_
 
 ## npm links
 
-- [remult-kit](https://www.npmjs.com/package/remult-kit)
+- [firstly](https://www.npmjs.com/package/firstly)

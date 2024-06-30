@@ -82,7 +82,7 @@ export const remultKit = (o: Options) => {
             try {
               await f(kitEvent, op)
             } catch (error) {
-              const log = new Log(`remult-kit | ${modulesSorted[i].name}`)
+              const log = new Log(`firstly | ${modulesSorted[i].name}`)
               log.error(error)
             }
           }
@@ -106,7 +106,7 @@ export const remultKit = (o: Options) => {
               try {
                 await f(r)
               } catch (error) {
-                const log = new Log(`remult-kit | ${modulesSorted[i].name}`)
+                const log = new Log(`firstly | ${modulesSorted[i].name}`)
                 log.error(error)
               }
             }

@@ -332,7 +332,7 @@ export class AuthController {
 
       const secretEncoded = encodeHex(secret)
 
-      const issuer = AUTH_OPTIONS.providers.otp.issuer ?? 'remult-kit'
+      const issuer = AUTH_OPTIONS.providers.otp.issuer ?? 'firstly'
 
       const uri = createTOTPKeyURI(issuer, email, secret)
       const oSafe = getSafeOptions()

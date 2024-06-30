@@ -1,8 +1,8 @@
 services:
   - type: web
-    name: remult-kit-static
+    name: firstly-static
     env: static
-    repo: https://github.com/jycouet/remult-kit
+    repo: https://github.com/jycouet/firstly
     branch: main
     buildCommand: npm i -g pnpm; pnpm install --production=false; pnpm -F docs build
     staticPublishPath: ./docs/dist

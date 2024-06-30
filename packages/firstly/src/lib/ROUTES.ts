@@ -40,7 +40,7 @@ const LINKS = {
   "github": (params?: { owner?: (string | number), repo?: (string | number) }) => {
     params = params ?? {}
     params.owner = params.owner ?? "jycouet"; 
-    params.repo = params.repo ?? "remult-kit"; 
+    params.repo = params.repo ?? "firstly"; 
     return `https://github.com/${params.owner}/${params.repo}`
   }
 }

@@ -156,7 +156,7 @@ export const kitStoreItem = <T>(
     delete: async () => {
       const s = get(internalStore)
       if (!s.item) {
-        new Log('remult-kit').error(`To delete an item, you need set it first.`)
+        new Log('firstly').error(`To delete an item, you need set it first.`)
         return
       }
       try {

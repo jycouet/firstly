@@ -17,7 +17,7 @@ const config = {
       handleHttpError: ({ path, _referrer, message }) => {
         // TODO Why it's like this?
         // ignore deliberate link to shiny 404 page
-        if (path === '/.https://github.com/jycouet/remult-kit') {
+        if (path === '/.https://github.com/jycouet/firstly') {
           return
         }
 

@@ -7,10 +7,10 @@ import { read, write } from '@kitql/internals'
 const libAlias = '$' + 'lib'
 
 const pkg = JSON.parse(read('./package.json') ?? '{}')
-const version = pkg.devDependencies?.['remult-kit'] ?? pkg.dependencies?.['remult-kit'] ?? '???'
+const version = pkg.devDependencies?.['firstly'] ?? pkg.dependencies?.['firstly'] ?? '???'
 
 console.info('')
-p.intro(`${green(`⚡️`)} Welcome to remult-kit world! ${gray(` - v${version}`)}`)
+p.intro(`${green(`⚡️`)} Welcome to firstly world! ${gray(` - v${version}`)}`)
 
 const keys = ['all', 'module-demo', 'dependencies'] as const
 
@@ -29,7 +29,7 @@ const options: { value: Keys; label: string; hint?: string | undefined }[] = [
   {
     value: 'dependencies',
     label: 'dependencies',
-    hint: 'Add all dependencies that make sense to use with remult-kit',
+    hint: 'Add all dependencies that make sense to use with firstly',
   },
 ]
 
@@ -108,10 +108,10 @@ GITHUB_CLIENT_ID = ''
 GITHUB_CLIENT_SECRET = ''
 `,
   ],
-  './src/lib/remult-kit/index.ts': [
-    `import { remultKit } from 'remult-kit/api'
-import { auth } from 'remult-kit/auth'
-// import { github } from 'remult-kit/auth/providers'
+  './src/lib/firstly/index.ts': [
+    `import { remultKit } from 'firstly/api'
+import { auth } from 'firstly/auth'
+// import { github } from 'firstly/auth/providers'
 import { Log } from '@kitql/helpers'
 
 import { tasks } from './modules/tasks'
@@ -179,15 +179,15 @@ export const api = remultKit({
   './src/hooks.server.ts': [
     `import { sequence } from '@sveltejs/kit/hooks'
 
-import { remultKit } from 'remult-kit/handle'
+import { remultKit } from 'firstly/handle'
 
-import { api } from '${libAlias}/remult-kit'
+import { api } from '${libAlias}/firstly'
 
 export const handle = sequence(remultKit(api))
 `,
   ],
   './src/routes/api/[...remult]/+server.ts': [
-    `import { api } from '${libAlias}/remult-kit'
+    `import { api } from '${libAlias}/firstly'
 
 export const GET = api.server.GET
 export const POST = api.server.POST
@@ -209,8 +209,8 @@ export const load = (async () => {
   './src/routes/+layout.svelte': [
     `<script lang="ts">
   import { remult } from 'remult'
-  import { isError } from 'remult-kit'
-  import { AuthController } from 'remult-kit/auth'
+  import { isError } from 'firstly'
+  import { AuthController } from 'firstly/auth'
 
   import { invalidateAll } from '$app/navigation'
 
@@ -248,7 +248,7 @@ export const load = (async () => {
   <title>${pkg.name}</title>
   <link
     rel="icon"
-    href="https://raw.githubusercontent.com/jycouet/remult-kit/main/assets/remult-kit.png"
+    href="https://raw.githubusercontent.com/jycouet/firstly/main/assets/firstly.png"
   />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css" />
 </svelte:head>
@@ -270,8 +270,8 @@ export const load = (async () => {
 
 <hr />
 
-<a href={route('github', { owner: 'jycouet', repo: 'remult-kit' })} target="_blank">
-  ⭐️ remult-kit
+<a href={route('github', { owner: 'jycouet', repo: 'firstly' })} target="_blank">
+  ⭐️ firstly
 </a>
 |
 <a href={route('github', { owner: 'remult', repo: 'remult' })} target="_blank">⭐️ remult</a>
@@ -303,7 +303,7 @@ export const load = (async () => {
     `import { sveltekit } from '@sveltejs/kit/vite'
 import { defineConfig } from 'vite'
 
-import { remultKit } from 'remult-kit/vite'
+import { remultKit } from 'firstly/vite'
 
 import type { KIT_ROUTES } from '${libAlias}/ROUTES'
 
@@ -319,10 +319,10 @@ export default defineConfig({
 })
 `,
   ],
-  './src/lib/remult-kit/modules/tasks/index.ts': [
-    `import type { Module } from 'remult-kit/api'
+  './src/lib/firstly/modules/tasks/index.ts': [
+    `import type { Module } from 'firstly/api'
 
-import { log } from '${libAlias}/remult-kit'
+import { log } from '${libAlias}/firstly'
 
 import { Task } from './Task'
 import { TaskController } from './TaskController'
@@ -338,9 +338,9 @@ export const tasks: (o: { specialInfo: string }) => Module = ({ specialInfo }) =
   }
 }`,
   ],
-  './src/lib/remult-kit/modules/tasks/Task.ts': [
+  './src/lib/firstly/modules/tasks/Task.ts': [
     `import { Entity, Field, Fields, ValueListFieldType } from 'remult'
-import { KitBaseEnum, LibIcon_Add, LibIcon_Delete, type KitBaseEnumOptions } from 'remult-kit'
+import { KitBaseEnum, LibIcon_Add, LibIcon_Delete, type KitBaseEnumOptions } from 'firstly'
 
 @Entity('tasks', {
   allowApiCrud: true,
@@ -382,10 +382,10 @@ export class TypeOfTaskEnum extends KitBaseEnum {
 }    
 `,
   ],
-  './src/lib/remult-kit/modules/tasks/TaskController.ts': [
+  './src/lib/firstly/modules/tasks/TaskController.ts': [
     `import { BackendMethod } from 'remult'
 
-import { log } from '${libAlias}/remult-kit'
+import { log } from '${libAlias}/firstly'
 
 /**
  * await TaskController.sayHiFromTask("JYC")
@@ -405,7 +405,7 @@ for (const [path, content] of Object.entries(obj)) {
     write(path, content)
   } else {
     if (res.includes('module-demo')) {
-      if (path.startsWith('./src/lib/remult-kit/modules/tasks')) {
+      if (path.startsWith('./src/lib/firstly/modules/tasks')) {
         write(path, content)
       }
     }
@@ -418,7 +418,7 @@ new Log('').info(
   gray(
     italic(
       `${bold('❔ More help')} ` +
-        `at ${cyan('https://github.com/jycouet/remult-kit')} ` +
+        `at ${cyan('https://github.com/jycouet/firstly')} ` +
         `(📄 Docs, ⭐ Github, 📣 Discord, ...)\n`,
     ),
   ),

@@ -1,12 +1,12 @@
 {
-  "name": "remult-kit",
-  "version": "0.26.15",
+  "name": "firstly",
+  "version": "0.0.2",
   "type": "module",
-  "description": "An opinionated Remult setup !",
+  "description": "Firstly, an opinionated Remult setup!",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jycouet/remult-kit",
-    "homepage": "https://github.com/jycouet/remult-kit"
+    "url": "https://github.com/jycouet/firstly",
+    "homepage": "https://github.com/jycouet/firstly"
   },
   "license": "MIT",
   "engines": {

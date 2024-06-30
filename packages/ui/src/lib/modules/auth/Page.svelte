@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Link, Route } from 'svelte-micro'
 
-  import type { RemultKitData } from '../../../../../remult-kit/src/lib/auth/types'
+  import type { RemultKitData } from '../../../../../firstly/src/lib/auth/types'
   import ForgotPassword from './components/ForgotPassword.svelte'
   import ResetPassword from './components/ResetPassword.svelte'
   import SignIn from './components/SignIn.svelte'

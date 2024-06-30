@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  import type { RemultKitData } from '../../remult-kit/src/lib/auth/types'
+  import type { RemultKitData } from '../../firstly/src/lib/auth/types'
 
   export let remultKitData: RemultKitData
 

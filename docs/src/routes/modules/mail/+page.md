@@ -2,29 +2,29 @@
 title: Core Module - Mail
 ---
 
-To it's core, `remult-kit` provides you the ability to send emails. For this, we didn't reinvent the
+To it's core, `firstly` provides you the ability to send emails. For this, we didn't reinvent the
 wheel and use the great [nodemailer](https://nodemailer.com/) package.
 
 Anywhere in your code you can then:
 
 ```ts
-import { sendMail } from 'remult-kit/mail'
+import { sendMail } from 'firstly/mail'
 
 await sendMail('my_first_mail', {
   to: '...@...',
-  subject: 'Hello from remult-kit',
+  subject: 'Hello from firstly',
   test: 'hello hello 👋',
   html: 'hello <b>hello</b> 👋'
 })
 ```
 
-By default, remult-kit will create a demo on the fly account, of couse, you will need to configure
+By default, firstly will create a demo on the fly account, of couse, you will need to configure
 the mailer And use your own credentials:
 
 Something like _(nodemailer example)_:
 
 ```ts
-export const api = remultKit({
+export const api = firstly({
   mail: {
     transport = nodemailer.createTransport({
       host: "smtp.ethereal.email",

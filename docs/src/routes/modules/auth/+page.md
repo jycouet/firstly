@@ -9,10 +9,10 @@ just use it!
 To use it, here is the idea, just tune to your needs:
 
 ```ts
-import { remultKit } from 'remult-kit/api'
-import { auth, KitAuthUser } from 'remult-kit/auth'
+import { remultKit } from 'firstly/api'
+import { auth, KitAuthUser } from 'firstly/auth'
 
-// import { github } from 'remult-kit/auth/providers'
+// import { github } from 'firstly/auth/providers'
 
 const Role = {
   ADMIN: 'admin'
@@ -57,7 +57,7 @@ export const remultApi = remultKit({
 ## lucia adapter
 
 Under the hood, we created a lucia adapter, you can check the code
-[here](https://github.com/jycouet/remult-kit/blob/main/packages/remult-kit/src/lib/auth/Adapter.ts).
+[here](https://github.com/jycouet/firstly/blob/main/packages/firstly/src/lib/auth/Adapter.ts).
 _Feel free to copy/paste it in your own codebase._ You can also suggest improvements here 😉.
 
 By default, all tables/fields will show up in your admin and you are able to extend then with your

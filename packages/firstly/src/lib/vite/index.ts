@@ -10,11 +10,11 @@ export function remultKit<KIT_ROUTES extends RouteMappings>(options?: {
   stripper?: { debug?: boolean }
   kitRoutes?: Options<KIT_ROUTES>
 }): PluginOption {
-  // const log = new Log('remult-kit')
+  // const log = new Log('firstly')
 
   return [
     {
-      name: 'vite-plugin-remult-kit',
+      name: 'vite-plugin-firstly',
       enforce: 'pre',
 
       config: async (a) => {

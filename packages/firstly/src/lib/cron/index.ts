@@ -4,7 +4,7 @@ import { green, Log, magenta, red, yellow } from '@kitql/helpers'
 
 import type { Module } from '../api'
 
-const log = new Log('remult-kit | cron')
+const log = new Log('firstly | cron')
 
 export const jobs: Record<
   string,
@@ -45,7 +45,7 @@ export const cronTime = {
  * usage:
  *
  * ```ts
- * import { cron, cronTime } from 'remult-kit/cron'
+ * import { cron, cronTime } from 'firstly/cron'
  *
  * export const api = remultKit({
  *   modules: [

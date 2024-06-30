@@ -1,13 +1,13 @@
 ---
 title: Welcome to Remult Kit
-heroImage: /remult-kit.svg
+heroImage: /firstly.svg
 tagline:
   Transform your development workflow with built-in essentials Modules like Auth, Media, ...
   supercharge them with community modules and your own custom ones!
 actions:
   - label: View on github
     type: primary
-    to: https://github.com/jycouet/remult-kit
+    to: https://github.com/jycouet/firstly
     external: true
 features:
   - title: Based on remult

@@ -7,7 +7,7 @@ import type { RemultSveltekitServer } from 'remult/remult-sveltekit'
 
 import type { Module } from '../api'
 
-// const log = new Log('remult-kit')
+// const log = new Log('firstly')
 
 /**
  * to bring `remult.` on the server side (after this hook, you have assess to `remult.user` for example !)
