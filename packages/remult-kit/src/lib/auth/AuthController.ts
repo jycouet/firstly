@@ -131,7 +131,7 @@ export class AuthController {
   static async signUpPassword(email: string, password: string) {
     const oSafe = getSafeOptions()
 
-    if (!oSafe.selfSignUp) {
+    if (!oSafe.signUp) {
       throw Error("You can't signup by yourself! Contact the administrator.")
     }
 

@@ -111,7 +111,7 @@ type AuthOptions<
    * If false, no one can sign up alone.
    * @default true
    **/
-  selfSignUp?: boolean
+  signUp?: boolean
 
   /**
    * To be able to sign in user needs to be verified or not?
@@ -176,7 +176,7 @@ type AuthOptions<
 export let AUTH_OPTIONS: AuthOptions = {}
 
 export const getSafeOptions = () => {
-  const selfSignUp = AUTH_OPTIONS.selfSignUp ?? true
+  const signUp = AUTH_OPTIONS.signUp ?? true
   const base =
     AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
 
@@ -205,7 +205,7 @@ export const getSafeOptions = () => {
               back_to_sign_in: 'Back to sign in',
             },
             paths: {
-              sign_up: selfSignUp ? `${base}/sign-up` : false,
+              sign_up: signUp ? `${base}/sign-up` : false,
               sign_in: `${base}/sign-in`,
               forgot_password: `${base}/forgot-password`,
               reset_password: `${base}/reset-password`,
@@ -231,7 +231,7 @@ export const getSafeOptions = () => {
     Session: AUTH_OPTIONS.customEntities?.Session ?? KitAuthUserSession,
     Account: AUTH_OPTIONS.customEntities?.Account ?? KitAuthAccount,
 
-    selfSignUp,
+    signUp,
     password_enabled: AUTH_OPTIONS.providers?.password ? true : false,
     otp_enabled: AUTH_OPTIONS.providers?.otp ? true : false,
 
@@ -390,7 +390,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
             .repo(oSafe.Account)
             .findFirst({ provider: keyState, providerUserId: info.providerUserId })
           if (!account) {
-            if (!oSafe.selfSignUp) {
+            if (!oSafe.signUp) {
               // throw Error("You can't signup by yourself! Contact the administrator.")
               redirect(302, redirectUrl)
             }
