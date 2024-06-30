@@ -169,7 +169,7 @@ export class AuthController {
     if (oSafe.verifiedMethod === 'auto') {
       await createSession(user.id)
     } else {
-      const url = `${remult.context.url.origin}${oSafe.remultKitData.props.ui.providers.password.paths.verify_email}?token=${token}`
+      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui.providers.password.paths.verify_email}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.verifyMailSend) {
         await AUTH_OPTIONS.providers?.password.verifyMailSend({ email, url })
         logAuth.success(`Done with custom ${green('verifyMailSend')} (${yellow(url)})`)
@@ -253,7 +253,7 @@ export class AuthController {
 
       await remult.repo(oSafe.Account).save(authAccount)
 
-      const url = `${remult.context.url.origin}${oSafe.remultKitData.props.ui.providers.password.paths.reset_password}?token=${token}`
+      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui.providers.password.paths.reset_password}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.resetPasswordSend) {
         await AUTH_OPTIONS.providers?.password.resetPasswordSend({ email, url })
         logAuth.success(`Done with custom ${green('resetPasswordSend')} (${yellow(url)})`)

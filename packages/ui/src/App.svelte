@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  import type { RemultKitData } from '../../firstly/src/lib/auth/types'
+  import type { firstlyData } from '../../firstly/src/lib/auth/types'
 
-  export let remultKitData: RemultKitData
+  export let firstlyData: firstlyData
 
   const modules = {
     auth: import('./lib/modules/auth/Page.svelte'),
@@ -11,7 +11,7 @@
     storage: import('./lib/modules/storage/Page.svelte'),
   } as const
 
-  // const localRemultKitData = remultKitData
+  // const localfirstlyData = firstlyData
 
   let activeModuleRef: any
 
@@ -22,16 +22,16 @@
 
   const getKeys = () => Object.keys(modules) as (keyof typeof modules)[]
 
-  // Load the initial module based on remultKitData
+  // Load the initial module based on firstlyData
   onMount(() => {
-    loadModule(remultKitData.module)
+    loadModule(firstlyData.module)
   })
 </script>
 
 <main>
   {#if activeModuleRef}
     {#await activeModuleRef then { default: ModuleComponent }}
-      <ModuleComponent {remultKitData} />
+      <ModuleComponent {firstlyData} />
     {/await}
   {/if}
 </main>

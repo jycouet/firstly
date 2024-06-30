@@ -1,10 +1,10 @@
 <script lang="ts">
   import { isError } from '../../../../../../firstly/src/lib'
   import { AuthController } from '../../../../../../firstly/src/lib/auth'
-  import type { RemultKitDataAuth } from '../../../../../../firstly/src/lib/auth/types'
+  import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
   import { autofocus } from '../helpers'
 
-  export let remultKitDataAuth: RemultKitDataAuth
+  export let firstlyDataAuth: firstlyDataAuth
   export let email = ''
 
   let msgError = ''
@@ -31,9 +31,9 @@
       use:autofocus
       bind:value={email}
       type="text"
-      placeholder={remultKitDataAuth.ui.providers.password.dico.email_placeholder}
+      placeholder={firstlyDataAuth.ui.providers.password.dico.email_placeholder}
     />
-    <button>{remultKitDataAuth.ui.providers.password.dico.send_password_reset_instructions}</button>
+    <button>{firstlyDataAuth.ui.providers.password.dico.send_password_reset_instructions}</button>
   </form>
 </div>
 

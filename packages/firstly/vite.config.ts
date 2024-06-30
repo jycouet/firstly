@@ -4,11 +4,11 @@ import { defineConfig } from 'vite'
 import type { KIT_ROUTES } from '$lib/ROUTES'
 
 // import { authRoutes } from './src/lib/auth/index'
-import { remultKit } from './src/lib/vite'
+import { firstly } from './src/lib/vite'
 
 const config = defineConfig({
   plugins: [
-    remultKit<KIT_ROUTES>({
+    firstly<KIT_ROUTES>({
       kitRoutes: {
         LINKS: {
           // ...authRoutes()?.routes,

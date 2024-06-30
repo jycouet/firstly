@@ -1,4 +1,4 @@
-import { logRemultKit } from '../'
+import { logFirstly } from '../'
 
 export const dateISOToPlainDate = (iso: string) => {
   try {
@@ -10,7 +10,7 @@ export const dateISOToPlainDate = (iso: string) => {
     }
   } catch (error) {}
   const msg = `fn dateISOToPlainDate -> "${iso}" is not valid iso`
-  logRemultKit.error(msg)
+  logFirstly.error(msg)
   throw new Error(msg)
 }
 

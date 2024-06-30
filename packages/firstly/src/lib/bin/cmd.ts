@@ -109,7 +109,7 @@ GITHUB_CLIENT_SECRET = ''
 `,
   ],
   './src/lib/firstly/index.ts': [
-    `import { remultKit } from 'firstly/api'
+    `import { firstly } from 'firstly/api'
 import { auth } from 'firstly/auth'
 // import { github } from 'firstly/auth/providers'
 import { Log } from '@kitql/helpers'
@@ -129,7 +129,7 @@ export const Role = {
 /** Define your log instance and user it accross your all app */
 export const log = new Log('${pkg.name}')
 
-export const api = remultKit({
+export const api = firstly({
   // dataProvider: await createPostgresConnection({
   //  connectionString: DATABASE_URL,
   // }),
@@ -179,11 +179,11 @@ export const api = remultKit({
   './src/hooks.server.ts': [
     `import { sequence } from '@sveltejs/kit/hooks'
 
-import { remultKit } from 'firstly/handle'
+import { firstly } from 'firstly/handle'
 
 import { api } from '${libAlias}/firstly'
 
-export const handle = sequence(remultKit(api))
+export const handle = sequence(firstly(api))
 `,
   ],
   './src/routes/api/[...remult]/+server.ts': [
@@ -303,13 +303,13 @@ export const load = (async () => {
     `import { sveltekit } from '@sveltejs/kit/vite'
 import { defineConfig } from 'vite'
 
-import { remultKit } from 'firstly/vite'
+import { firstly } from 'firstly/vite'
 
 import type { KIT_ROUTES } from '${libAlias}/ROUTES'
 
 export default defineConfig({
   plugins: [
-    remultKit<KIT_ROUTES>({
+    firstly<KIT_ROUTES>({
       kitRoutes: {
         LINKS: { github: 'https://github.com/[owner]/[repo]' },
       }

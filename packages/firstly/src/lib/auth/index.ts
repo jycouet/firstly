@@ -25,9 +25,9 @@ import {
 } from './Entities'
 import { createSession } from './helper'
 import { RoleController } from './RoleController'
-import type { RemultKitData } from './types'
+import type { firstlyData } from './types'
 
-export type { RemultKitData }
+export type { firstlyData }
 
 export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'
 export { AuthController } from './AuthController'
@@ -185,7 +185,7 @@ export const getSafeOptions = () => {
       return o.name
     }) ?? []
 
-  const remultKitData: RemultKitData = {
+  const firstlyData: firstlyData = {
     module: 'auth',
     props: {
       ui: {
@@ -238,7 +238,7 @@ export const getSafeOptions = () => {
     verifiedMethod: AUTH_OPTIONS.verifiedMethod ?? 'auto',
     redirectUrl,
 
-    remultKitData,
+    firstlyData,
   }
 }
 
@@ -276,9 +276,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
       const oSafe = getSafeOptions()
 
-      if (
-        event.url.pathname === oSafe.remultKitData.props.ui.providers.password.paths.verify_email
-      ) {
+      if (event.url.pathname === oSafe.firstlyData.props.ui.providers.password.paths.verify_email) {
         // TODO need to verify the token and set the verifiedAt in the database and we are good.
         // It's 2 minutes, but I'll be it later :D
         const token = event.url.searchParams.get('token') ?? ''
@@ -312,12 +310,12 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         redirect(302, oSafe.redirectUrl)
       }
 
-      if (event.url.pathname.startsWith(oSafe.remultKitData.props.ui.paths.base)) {
+      if (event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)) {
         return {
           early: true,
           resolve: new Response(
             read('src/lib/auth/static/index.html') +
-              `<script>const remultKitData = ${JSON.stringify(oSafe.remultKitData)}</script>`,
+              `<script>const firstlyData = ${JSON.stringify(oSafe.firstlyData)}</script>`,
             {
               headers: { 'content-type': 'text/html' },
             },

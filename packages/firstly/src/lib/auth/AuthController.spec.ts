@@ -3,19 +3,19 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { InMemoryDataProvider } from 'remult'
 
 import { isError } from '$lib'
-import { remultKit } from '$lib/api'
+import { firstly } from '$lib/api'
 
 import { auth, AuthController } from '.'
 
 describe('test auth controller', () => {
-  let api: ReturnType<typeof remultKit>
+  let api: ReturnType<typeof firstly>
   beforeEach(() => {
     // remult.dataProvider = new InMemoryDataProvider()
     // remult.context. = { setCookie: () => {} }
   })
 
   it('Invalid Demo User Fails', async () => {
-    remultKit({
+    firstly({
       dataProvider: new InMemoryDataProvider(),
       modules: [
         auth({

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { AuthController } from '../../../../../../firstly/src/lib/auth/AuthController'
-  import type { RemultKitDataAuth } from '../../../../../../firstly/src/lib/auth/types'
+  import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
   import { isError } from '../../../../../../firstly/src/lib/helper'
   import { autofocus } from '../helpers'
 
-  export let remultKitDataAuth: RemultKitDataAuth
+  export let firstlyDataAuth: firstlyDataAuth
 
   export let view = 'login'
   export let email = ''
@@ -37,19 +37,19 @@
   <form on:submit|preventDefault={signIn}>
     <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
     <label>
-      {remultKitDataAuth.ui.providers.password.dico.email}
+      {firstlyDataAuth.ui.providers.password.dico.email}
       <input
         bind:value={email}
         use:autofocus
         type="text"
-        placeholder={remultKitDataAuth.ui.providers.password.dico.email_placeholder}
+        placeholder={firstlyDataAuth.ui.providers.password.dico.email_placeholder}
       />
     </label>
     <label>
-      {remultKitDataAuth.ui.providers.password.dico.password}
+      {firstlyDataAuth.ui.providers.password.dico.password}
       <input bind:value={password} type="password" />
     </label>
-    <button>{remultKitDataAuth.ui.providers.password.dico.btn_sign_in}</button>
+    <button>{firstlyDataAuth.ui.providers.password.dico.btn_sign_in}</button>
   </form>
 {/if}
 

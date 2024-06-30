@@ -42,7 +42,7 @@ type Options = Omit<
 /**
  * it's basically `remultSveltekit` with the `modules` option
  */
-export const remultKit = (o: Options) => {
+export const firstly = (o: Options) => {
   const modulesSorted = modulesFlatAndOrdered(o.modules ?? [])
   const entities = modulesSorted.flatMap((m) => m.entities ?? [])
 

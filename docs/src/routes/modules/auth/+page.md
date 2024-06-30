@@ -9,7 +9,7 @@ just use it!
 To use it, here is the idea, just tune to your needs:
 
 ```ts
-import { remultKit } from 'firstly/api'
+import { firstly } from 'firstly/api'
 import { auth, KitAuthUser } from 'firstly/auth'
 
 // import { github } from 'firstly/auth/providers'
@@ -18,7 +18,7 @@ const Role = {
   ADMIN: 'admin'
 }
 
-export const remultApi = remultKit({
+export const remultApi = firstly({
   modules: [
     auth({
       providers: {

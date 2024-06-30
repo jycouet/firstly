@@ -1,9 +1,9 @@
-export type RemultKitData = {
+export type firstlyData = {
   module: 'auth'
-  props: RemultKitDataAuth
+  props: firstlyDataAuth
 }
 
-export type RemultKitDataAuth = {
+export type firstlyDataAuth = {
   ui: {
     paths: {
       base: string

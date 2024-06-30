@@ -1,6 +1,6 @@
 import { Entity, Fields } from 'remult'
 
-import { remultKit } from '$lib/api'
+import { firstly } from '$lib/api'
 import { auth, KitAuthUser } from '$lib/auth'
 
 // import { github } from '$lib/auth/providers'
@@ -24,7 +24,7 @@ export class _AppUser extends KitAuthUser {
 
 // const t: DynamicAuthorizationURLOptions<typeof oAuths> = { github: {} }
 
-export const remultApi = remultKit({
+export const remultApi = firstly({
   modules: [
     {
       name: 'init',

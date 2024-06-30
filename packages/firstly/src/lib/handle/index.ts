@@ -31,7 +31,7 @@ const internalRemultHandle: (server: RemultSveltekitServer, modules?: Module[]) 
     })
   }
 
-export const remultKit: (api: {
+export const firstly: (api: {
   server: RemultSveltekitServer
   modulesSorted: Module[]
 }) => Handle = ({ server, modulesSorted }) => {

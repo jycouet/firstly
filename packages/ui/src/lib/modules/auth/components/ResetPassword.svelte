@@ -1,9 +1,9 @@
 <script lang="ts">
   import { isError } from '../../../../../../firstly/src/lib'
   import { AuthController } from '../../../../../../firstly/src/lib/auth'
-  import type { RemultKitDataAuth } from '../../../../../../firstly/src/lib/auth/types'
+  import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 
-  export let remultKitDataAuth: RemultKitDataAuth
+  export let firstlyDataAuth: firstlyDataAuth
   export let password1 = ''
   export let password2 = ''
 
@@ -28,9 +28,9 @@
 <div class="login">
   <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
   <form on:submit|preventDefault={reset}>
-    {remultKitDataAuth.ui.providers.password.dico.password}
+    {firstlyDataAuth.ui.providers.password.dico.password}
     <input bind:value={password1} type="password" />
-    {remultKitDataAuth.ui.providers.password.dico.password}
+    {firstlyDataAuth.ui.providers.password.dico.password}
     <input bind:value={password2} type="password" />
     <button>reset</button>
   </form>

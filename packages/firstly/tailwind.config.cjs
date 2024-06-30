@@ -10,7 +10,7 @@ module.exports = {
   daisyui: {
     themes: [
       {
-        RemultKit: {
+        firstly: {
           // dracula
           // luxury
           // night

@@ -47,7 +47,7 @@ export const cronTime = {
  * ```ts
  * import { cron, cronTime } from 'firstly/cron'
  *
- * export const api = remultKit({
+ * export const api = firstly({
  *   modules: [
  *     cron([{
  *       topic: 'first_cron',

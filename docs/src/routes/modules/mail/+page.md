@@ -49,7 +49,7 @@ import nodemailerSendgrid from 'nodemailer-sendgrid'
 
 import { SENDGRID_API_KEY } from '$env/static/private'
 
-export const api = remultKit({
+export const api = firstly({
   mail: {
     transport: nodemailerSendgrid({
       apiKey: SENDGRID_API_KEY
@@ -61,7 +61,7 @@ export const api = remultKit({
 ## Other params
 
 ```ts
-export const api = remultKit({
+export const api = firstly({
   mail: {
     // Like this you don't need to pass the `from` param in every call
     from: {
