@@ -88,8 +88,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       remult:
-        specifier: 0.26.14
-        version: 0.26.14
+        specifier: 0.26.15
+        version: 0.26.15
       tailwind-merge:
         specifier: ^2.3.0
         version: 2.3.0
@@ -4777,8 +4777,8 @@ packages:
   remove-trailing-separator@1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
 
-  remult@0.26.14:
-    resolution: {integrity: sha512-+Jbru2oO1eA6rQiXcWDMNx8IerA9DhzqR26rxZZE+IzbNfVYcxJlXu7pAXKxieB6LqmR5ZkiA9XNqt5+jrDbjg==}
+  remult@0.26.15:
+    resolution: {integrity: sha512-yhzKv2Wq1Y/e3PUB3X9Q6sCbK752fR71Lz8glY7QFpSyMZe2aVM1II3F7TPmZlLp0g4Ft/9btaZa1WhQNrA+4Q==}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -11761,7 +11761,7 @@ snapshots:
 
   remove-trailing-separator@1.1.0: {}
 
-  remult@0.26.14:
+  remult@0.26.15:
     dependencies:
       '@paralleldrive/cuid2': 2.2.2
       reflect-metadata: 0.1.14
