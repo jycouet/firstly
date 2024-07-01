@@ -6,6 +6,9 @@ import { read, write } from '@kitql/internals'
 // Need this trick to be be replaced by the real lib alias here ;)
 const libAlias = '$' + 'lib'
 
+const pkgFirstly = JSON.parse(read('./node_modules/firstly/package.json') ?? '{}')
+const versionFirstly = pkgFirstly?.peerDependencies?.['remult'] ?? 'latest'
+
 const pkg = JSON.parse(read('./package.json') ?? '{}')
 const version = pkg.devDependencies?.['firstly'] ?? pkg.dependencies?.['firstly'] ?? '???'
 
@@ -38,13 +41,26 @@ const res = (await p.multiselect({
   options,
 })) as Keys[]
 
-pkg.devDependencies = {
+const devDependenciesPrepare: Record<string, string> = {
   '@kitql/eslint-config': '0.3.2',
   '@kitql/helpers': '0.8.9',
-  remult: '0.26.14',
+  remult: versionFirstly,
   pg: '8.11.3',
   ...pkg.devDependencies,
 }
+
+// sort by name
+const devDependenciesSorted = Object.keys(devDependenciesPrepare)
+  .sort()
+  .reduce(
+    (acc, key) => {
+      acc[key] = devDependenciesPrepare[key]
+      return acc
+    },
+    {} as Record<string, string>,
+  )
+
+pkg.devDependencies = devDependenciesSorted
 pkg.scripts = {
   ...pkg.scripts,
   '//// ---- BEST PRACTICES ---- ////': '',

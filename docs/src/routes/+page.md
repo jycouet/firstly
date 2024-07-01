@@ -1,5 +1,5 @@
 ---
-title: Welcome to Remult Kit
+title: Welcome
 heroImage: /firstly.svg
 tagline:
   An opinionated Remult setup for SvelteKit. Transform your development workflow with built-in essentials Modules like Auth, Media, ...

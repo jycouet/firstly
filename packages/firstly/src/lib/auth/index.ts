@@ -311,11 +311,14 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
 
       if (event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)) {
+        const content =
+          read('src/lib/auth/static/index.html') ??
+          read('node_modules/firstly/esm/auth/static/index.html')
+
         return {
           early: true,
           resolve: new Response(
-            read('src/lib/auth/static/index.html') +
-              `<script>const firstlyData = ${JSON.stringify(oSafe.firstlyData)}</script>`,
+            content + `<script>const firstlyData = ${JSON.stringify(oSafe.firstlyData)}</script>`,
             {
               headers: { 'content-type': 'text/html' },
             },

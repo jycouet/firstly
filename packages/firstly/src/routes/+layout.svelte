@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-  <title>Remult Kit</title>
+  <title>Firstly</title>
 </svelte:head>
 
 <DialogManagement />
@@ -180,7 +180,7 @@
           />
           <circle cx="512" cy="353.28" r="114.688" class="fill-base-100" />
         </svg>
-        Remult Kit
+        Firstly
       </div>
       <ul class="menu">
         {#each links as link}
