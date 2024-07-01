@@ -45,7 +45,7 @@ const devDependenciesPrepare: Record<string, string> = {
   '@kitql/eslint-config': '0.3.2',
   '@kitql/helpers': '0.8.9',
   remult: versionFirstly,
-  pg: '8.11.3',
+  pg: '8.12.0',
   ...pkg.devDependencies,
 }
 
