@@ -1,20 +1,18 @@
 import { Allow, BackendMethod, remult } from 'remult'
 import { stry } from '@kitql/helpers'
 
-import { env } from '$env/dynamic/private'
-
 import { FEEDBACK_OPTIONS } from '.'
 
 const GITHUB_GRAPHQL_ENDPOINT = 'https://api.github.com/graphql'
 
 async function getGitHub(query: string, variables?: Record<string, any>) {
-  if (!env.GITHUB_API_TOKEN) {
+  if (!FEEDBACK_OPTIONS.GITHUB_API_TOKEN) {
     throw new Error('GITHUB_API_TOKEN not found in .env')
   }
 
   try {
     const headers: Headers = new Headers({
-      Authorization: 'Bearer ' + env.GITHUB_API_TOKEN,
+      Authorization: 'Bearer ' + FEEDBACK_OPTIONS.GITHUB_API_TOKEN,
       'Content-Type': 'application/json',
     })
     const body = stry({ query, variables }, 0)

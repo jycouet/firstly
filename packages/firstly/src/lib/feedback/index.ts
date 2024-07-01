@@ -5,6 +5,7 @@ import { default as Feedback } from './ui/Feedback.svelte'
 export { FeedbackController, Feedback }
 
 type FeedbackOptions = {
+  GITHUB_API_TOKEN: string
   repo: {
     owner: string
     name: string
@@ -16,7 +17,10 @@ type FeedbackOptions = {
   create_label?: string
 }
 
-export let FEEDBACK_OPTIONS: FeedbackOptions = { repo: { owner: '', name: '' } }
+export let FEEDBACK_OPTIONS: FeedbackOptions = {
+  GITHUB_API_TOKEN: '',
+  repo: { owner: '', name: '' },
+}
 
 export const feedback: (o: FeedbackOptions) => Module = (o) => {
   FEEDBACK_OPTIONS = o
