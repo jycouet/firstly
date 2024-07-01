@@ -37,7 +37,7 @@ export const mailInit: (nodemailer: typeof typeNodemailer, o?: MailOptions) => v
         })
       })
     } catch (error) {
-      log.error('Error', error)
+      log.error("Error nodemailer.createTestAccount() can't be done.")
     }
   }
 }
