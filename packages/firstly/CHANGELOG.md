@@ -1,5 +1,12 @@
 # firstly
 
+## 0.0.3
+
+### Patch Changes
+
+- [`aab33e7`](https://github.com/jycouet/firstly/commit/aab33e7681b06c8336c263471a87b97cc6186c6e)
+  Thanks [@jycouet](https://github.com/jycouet)! - deploy ui in package (test!)
+
 ## 0.0.2
 
 ### Patch Changes
