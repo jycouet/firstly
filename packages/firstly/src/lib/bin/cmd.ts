@@ -112,6 +112,7 @@ GITHUB_CLIENT_SECRET = ''
     `import { firstly } from 'firstly/api'
 import { auth } from 'firstly/auth'
 // import { github } from 'firstly/auth/providers'
+// import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private'
 import { Log } from '@kitql/helpers'
 
 import { tasks } from './modules/tasks'
@@ -155,7 +156,7 @@ export const api = firstly({
           //      async function oauth() {
           //        window.location.href = await AuthController.signInOAuthGetUrl({ provider: 'github', redirect: window.location.pathname })
           //      }
-          // github()
+          // github( { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } )
         ],
       },
     }),

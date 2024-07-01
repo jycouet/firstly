@@ -2,8 +2,6 @@ import { Strava } from 'arctic'
 
 import { remult } from 'remult'
 
-import { env } from '$env/dynamic/private'
-
 import { checkOAuthConfig } from '.'
 import { logAuth, type KitOAuth2Provider } from '../'
 
@@ -24,9 +22,9 @@ import { logAuth, type KitOAuth2Provider } from '../'
  * _FYI: STRAVA_REDIRECT_URI is optional as auth module will default to "${origin}/api/auth_callback"._
  */
 export function strava(options?: {
-  clientID: string
-  secret: string
-  redirectURI?: string
+  STRAVA_CLIENT_ID: string
+  STRAVA_CLIENT_SECRET: string
+  STRAVA_REDIRECT_URI?: string
   authorizationURLOptions?: ReturnType<
     KitOAuth2Provider<'strava', Strava>['authorizationURLOptions']
   >
@@ -34,8 +32,8 @@ export function strava(options?: {
 }): KitOAuth2Provider<'strava', Strava> {
   const name = 'strava'
 
-  const clientID = options?.clientID ?? env.GITHUB_CLIENT_ID ?? ''
-  const secret = options?.secret ?? env.GITHUB_CLIENT_SECRET ?? ''
+  const clientID = options?.STRAVA_CLIENT_ID ?? ''
+  const secret = options?.STRAVA_CLIENT_SECRET ?? ''
 
   const urlForKeys = 'https://www.strava.com/settings/api'
   checkOAuthConfig(name, clientID, secret, urlForKeys, false)
@@ -44,7 +42,8 @@ export function strava(options?: {
     name,
     isPKCE: false,
     getArcticProvider: () => {
-      const redirectURI = options?.redirectURI || `${remult.context.url.origin}/api/auth_callback`
+      const redirectURI =
+        options?.STRAVA_REDIRECT_URI || `${remult.context.url.origin}/api/auth_callback`
       checkOAuthConfig(name, clientID, secret, urlForKeys, true)
       return new Strava(clientID, secret, redirectURI)
     },

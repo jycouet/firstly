@@ -2,8 +2,6 @@ import { GitHub } from 'arctic'
 
 import { remult } from 'remult'
 
-import { env } from '$env/dynamic/private'
-
 import { checkOAuthConfig } from '.'
 import { logAuth, type KitOAuth2Provider } from '../'
 
@@ -24,9 +22,9 @@ import { logAuth, type KitOAuth2Provider } from '../'
  * _FYI: GITHUB_REDIRECT_URI is optional as auth module will default to "${origin}/api/auth_callback"._
  */
 export function github(options?: {
-  clientID?: string
-  secret?: string
-  redirectURI?: string
+  GITHUB_CLIENT_ID: string
+  GITHUB_CLIENT_SECRET: string
+  GITHUB_REDIRECT_URI?: string
   authorizationURLOptions?: ReturnType<
     KitOAuth2Provider<'github', GitHub>['authorizationURLOptions']
   >
@@ -34,8 +32,8 @@ export function github(options?: {
 }): KitOAuth2Provider<'github', GitHub> {
   const name = 'github'
 
-  const clientID = options?.clientID ?? env.GITHUB_CLIENT_ID ?? ''
-  const secret = options?.secret ?? env.GITHUB_CLIENT_SECRET ?? ''
+  const clientID = options?.GITHUB_CLIENT_ID ?? ''
+  const secret = options?.GITHUB_CLIENT_SECRET ?? ''
 
   const urlForKeys = 'https://github.com/settings/developers'
   checkOAuthConfig(name, clientID, secret, urlForKeys, false)
@@ -44,7 +42,8 @@ export function github(options?: {
     name,
     isPKCE: false,
     getArcticProvider: () => {
-      const redirectURI = options?.redirectURI || `${remult.context.url.origin}/api/auth_callback`
+      const redirectURI =
+        options?.GITHUB_REDIRECT_URI || `${remult.context.url.origin}/api/auth_callback`
 
       checkOAuthConfig(name, clientID, secret, urlForKeys, true)
 
