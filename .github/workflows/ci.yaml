@@ -39,8 +39,8 @@ jobs:
         run: npx playwright install
 
         # we need to build before linting as Houdini is generating some types
-      - name: 🚀 build firstly
-        run: pnpm -F firstly build
+      - name: 🚀 compile firstly
+        run: pnpm -F firstly compile
 
       - name: 🧹 lint
         run: pnpm -r lint
