@@ -55,7 +55,7 @@
   "dependencies": {
     "@clack/prompts": "^0.7.0",
     "@mdi/js": "^7.4.47",
-    "@melt-ui/svelte": "^0.81.0",
+    "@melt-ui/svelte": "^0.83.0",
     "@types/nodemailer": "^6.4.15",
     "arctic": "^1.8.0",
     "clsx": "^2.1.1",
