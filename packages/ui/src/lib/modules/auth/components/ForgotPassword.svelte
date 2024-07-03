@@ -15,7 +15,7 @@
     // msgSuccess = ''
     try {
       await AuthController.forgotPassword(email)
-      window.location.href = '/kit/auth/sign-in'
+      window.location.href = '/fly/auth/sign-in'
     } catch (error) {
       if (isError(error)) {
         msgError = error.message ?? ''
