@@ -35,7 +35,7 @@ const ACTIONS = {
  * LINKS
  */
 const LINKS = {
-  "kit_sign_in": `/kit/auth/sign-in`,
+  "kit_sign_in": `/fly/auth/sign-in`,
   "remult_admin": `/api/admin`,
   "github": (params?: { owner?: (string | number), repo?: (string | number) }) => {
     params = params ?? {}
