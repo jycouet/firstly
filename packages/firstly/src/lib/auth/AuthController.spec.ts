@@ -5,7 +5,8 @@ import { InMemoryDataProvider } from 'remult'
 import { isError } from '$lib'
 import { firstly } from '$lib/api'
 
-import { auth, AuthController } from '.'
+import { auth } from '.'
+import { AuthControllerServer } from './AuthController.server'
 
 describe('test auth controller', () => {
   let api: ReturnType<typeof firstly>
@@ -25,7 +26,7 @@ describe('test auth controller', () => {
           name: 'test',
           initApi: async () => {
             try {
-              await AuthController.signInDemo('Noam2')
+              await AuthControllerServer.signInDemo('Noam2')
               expect('Should never').toBe('be here (1)')
             } catch (error) {
               if (isError(error)) {

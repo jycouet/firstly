@@ -4,7 +4,13 @@ import { stripper } from 'vite-plugin-stripper'
 
 // import { Log } from '@kitql/helpers'
 
-const toRemove = ['oslo/password', 'oslo', '@kitql/internals', '$env/dynamic/private']
+const toRemove = [
+  'oslo/password',
+  'oslo',
+  '@kitql/internals',
+  '$env/dynamic/private',
+  '@jridgewell/sourcemap-codec',
+]
 
 export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
   stripper?: { debug?: boolean }
