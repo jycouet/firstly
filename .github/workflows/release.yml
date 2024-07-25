@@ -33,7 +33,7 @@ jobs:
         name: setup env
         with:
           nodeVersion: 22.1.0
-          pnpmVersion: 9.3.0
+          pnpmVersion: 9.6.0
         # with:
         #   nodeVersion: 18
 

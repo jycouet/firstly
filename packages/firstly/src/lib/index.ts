@@ -1,9 +1,9 @@
-import type { FindOptionsBase, Repository } from 'remult'
-
-import 'remult'
+// I'm not sure I can remove this or not ?
+// import 'remult'
 
 import type { RequestEvent } from '@sveltejs/kit'
 
+import type { FindOptionsBase, Repository } from 'remult'
 import { Log } from '@kitql/helpers'
 
 import type { KitBaseEnum, KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'

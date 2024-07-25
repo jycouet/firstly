@@ -1,14 +1,9 @@
-import {
-  dbNamesOf,
-  getEntityRef,
-  type ErrorInfo,
-  type FieldMetadata,
-  type Repository,
-} from 'remult'
+import { dbNamesOf, getEntityRef } from 'remult'
+import type { ErrorInfo, FieldMetadata, Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { suffixWithS } from './formats/strings.js'
-import { type KitBaseItem } from './index.js'
+import type { KitBaseItem } from './index.js'
 
 export function isError<T>(object: any): object is ErrorInfo<T> {
   return object

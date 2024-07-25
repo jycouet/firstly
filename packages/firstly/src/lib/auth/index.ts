@@ -16,6 +16,7 @@ import type { Module } from '../api'
 import type { ResolvedType } from '../utils/types'
 import { RemultLuciaAdapter } from './Adapter'
 import { AuthController } from './AuthController'
+import { AuthControllerServer } from './AuthController.server'
 import {
   AuthProvider,
   KitAuthAccount,
@@ -24,13 +25,12 @@ import {
   KitAuthUserSession,
 } from './Entities'
 import { createSession } from './helper'
-import { RoleController } from './RoleController'
+import { initRoleFromEnv } from './RoleHelpers'
 import type { firstlyData } from './types'
 
 export type { firstlyData }
-
-export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'
-export { AuthController } from './AuthController'
+export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession }
+export { AuthController }
 
 // It's sure that we can do better than that! ;)
 export type AuthorizationURLOptions = Record<
@@ -178,7 +178,7 @@ export let AUTH_OPTIONS: AuthOptions = {}
 export const getSafeOptions = () => {
   const signUp = AUTH_OPTIONS.signUp ?? true
   const base =
-    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
+    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/fly/auth'
 
   const oAuths =
     AUTH_OPTIONS.providers?.oAuths?.map((o) => {
@@ -249,6 +249,19 @@ export const getSafeOptions = () => {
 export const auth: (o: AuthOptions) => Module = (o) => {
   AUTH_OPTIONS = o
   const oSafe = getSafeOptions()
+
+  // abstract the call
+  AuthController.signOutFn = AuthControllerServer.signOut
+  AuthController.signInDemoFn = AuthControllerServer.signInDemo
+  AuthController.inviteFn = AuthControllerServer.invite
+  AuthController.signUpPasswordFn = AuthControllerServer.signUpPassword
+  AuthController.signInPasswordFn = AuthControllerServer.signInPassword
+  AuthController.forgotPasswordFn = AuthControllerServer.forgotPassword
+  AuthController.resetPasswordFn = AuthControllerServer.resetPassword
+  AuthController.signInOTPFn = AuthControllerServer.signInOTP
+  AuthController.verifyOtpFn = AuthControllerServer.verifyOtp
+  AuthController.signInOAuthGetUrlFn = AuthControllerServer.signInOAuthGetUrl
+
   return {
     name: 'auth',
     index: -777,
@@ -310,10 +323,10 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         redirect(302, oSafe.redirectUrl)
       }
 
+      const staticPath = DEV ? './src/lib/auth/static/' : './node_modules/firstly/esm/auth/static/'
+
       if (event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)) {
-        const content =
-          read('src/lib/auth/static/index.html') ??
-          read('node_modules/firstly/esm/auth/static/index.html')
+        const content = read(`${staticPath}index.html`)
 
         return {
           early: true,
@@ -327,9 +340,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
 
       if (event.url.pathname.startsWith('/api/static')) {
-        const content = read(
-          `src/lib/auth/static/${event.url.pathname.replaceAll('/api/static/', '')}`,
-        )
+        const content = read(`${staticPath}${event.url.pathname.replaceAll('/api/static/', '')}`)
         if (content) {
           const seg = event.url.pathname.split('.')
           const map: Record<string, string> = {
@@ -443,8 +454,9 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       return { early: false }
     },
     initApi: async () => {
-      await RoleController.initRoleFromEnv(logAuth, oSafe.User, 'KIT_ADMIN', KitRole.Admin)
-      await RoleController.initRoleFromEnv(logAuth, oSafe.User, 'KIT_AUTH_ADMIN', KitAuthRole.Admin)
+      // Todo... need to pass env to options
+      await initRoleFromEnv(logAuth, oSafe.User, 'KIT_ADMIN', KitRole.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, 'KIT_AUTH_ADMIN', KitAuthRole.Admin)
     },
   }
 }

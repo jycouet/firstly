@@ -12,7 +12,7 @@ const config = defineConfig({
       kitRoutes: {
         LINKS: {
           // ...authRoutes()?.routes,
-          kit_sign_in: '/kit/auth/sign-in',
+          firstly_sign_in: '/fly/auth/sign-in',
           //
           remult_admin: '/api/admin',
           github: {
