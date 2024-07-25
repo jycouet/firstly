@@ -7,9 +7,7 @@ import { stripper } from 'vite-plugin-stripper'
 const toRemove = [
   'oslo/password',
   'oslo',
-  '@kitql/internals',
-  '$env/dynamic/private',
-  '@jridgewell/sourcemap-codec',
+  '@kitql/internals'
 ]
 
 export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
