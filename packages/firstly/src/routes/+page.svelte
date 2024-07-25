@@ -23,6 +23,6 @@
       Sign out
     </Button>
   {:else}
-    <a class="btn btn-primary" href={route('kit_sign_in')}>Auth</a>
+    <a class="btn btn-primary" href={route('firstly_sign_in')}>Auth</a>
   {/if}
 </div>
