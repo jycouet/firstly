@@ -41,6 +41,7 @@ export type DialogMetaData<entityType = any> = {
   children?: any
   noThrow?: boolean
   wDelete?: boolean
+  focusKey?: string
 
   topicPrefixText?: string
 }
@@ -115,6 +116,7 @@ const createDialogManagement = () => {
         noThrow?: boolean
         wDelete?: boolean
         topicPrefixText?: string
+        focusKey?: string
       },
     ) => {
       const topicPrefixText = options?.topicPrefixText
@@ -139,6 +141,7 @@ const createDialogManagement = () => {
         classes: options?.classes,
         noThrow: options?.noThrow,
         wDelete: options?.wDelete,
+        focusKey: options?.focusKey,
         topicPrefixText,
       }
       return show(detail, type)
