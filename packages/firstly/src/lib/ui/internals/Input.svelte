@@ -47,7 +47,11 @@
       if (e.data === '.' || e.data === ',') {
         e.preventDefault()
       } else {
-        value = +target.value
+        // This convert well the input into a valid number... But "12,0" will be converted into "12" so we can't write "12,01" for example!
+        // value = +target.value
+
+        // For now, let's always put a "." as a separator.
+        value = target.value.toString().replaceAll(',', '.')
       }
     } else {
       value = target.value
