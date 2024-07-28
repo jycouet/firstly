@@ -98,7 +98,8 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
     return {
       kind: 'relation',
       subKind: fieldRelationInfo.type,
-      repoTarget: fieldRelationInfo.toRepo,
+      // REMULT P3 JYC: type issue with unknown and any
+      repoTarget: fieldRelationInfo.toRepo as Repository<any>,
       field,
     }
   }
