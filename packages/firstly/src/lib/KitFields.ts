@@ -70,9 +70,7 @@ export class KitFields {
     return Fields.string<entityType, valueType>({ ...o, validate })
   }
 
-  static currency<entityType = any, valueType = any>(
-    o?: FieldOptions<entityType> & FieldOptions<entityType>,
-  ) {
+  static currency<entityType = unknown>(o?: FieldOptions<entityType, number>) {
     // let's return the field
     return Fields.number({
       ...o,

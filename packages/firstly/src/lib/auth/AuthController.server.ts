@@ -201,7 +201,7 @@ export class AuthControllerServer {
     const accountPassword = existingUser?.accounts.find(
       (c) => c.provider === AuthProvider.PASSWORD.id,
     )
-    if (accountPassword) {
+    if (accountPassword && existingUser) {
       const validPassword = await passwordVerify(
         accountPassword?.hashPassword ?? '',
         password ?? '',
@@ -374,7 +374,7 @@ export class AuthControllerServer {
     const account = accounts[0]
     const user = await remult.repo(oSafe.User).findId(account.userId)
 
-    if (user.name !== email) {
+    if (user?.name !== email) {
       throw new Error('Invalid otp.')
     }
 

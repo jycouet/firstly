@@ -143,7 +143,7 @@ export const buildWhere = <Entity>(
     const rfi = getRelationFieldInfo(field)
 
     // if there is a value
-    if (obj[field.key]) {
+    if (rfi && obj[field.key]) {
       if (field.inputType === 'checkbox') {
         // @ts-ignore
         and.push({ [field.key]: obj[field.key] })
