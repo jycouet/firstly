@@ -217,7 +217,13 @@
           {#if item && item?.icon}
             <Icon {...item.icon} />
           {/if}
-          <span>{cell?.header ?? item?.caption ?? '-'}</span>
+          <div class="grid grid-cols-1">
+            <span>{cell?.header ?? item?.caption ?? '-'}</span>
+            <!-- && captionSubStyle === 'inline' -->
+            {#if item?.captionSub}
+              <span class="text-base-content/70 text-xs italic">{item.captionSub}</span>
+            {/if}
+          </div>
         </div>
       {:else if metaType.kind === 'enum'}
         {@const v = displayWithDefaultAndSuffix(cell.field, value)}
