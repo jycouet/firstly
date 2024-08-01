@@ -140,10 +140,9 @@ export const buildWhere = <Entity>(
     and.push(...buildSearchWhere(fields_search, obj.search))
   }
   for (const field of fields_filter) {
-    const rfi = getRelationFieldInfo(field)
-
     // if there is a value
-    if (rfi && obj[field.key]) {
+    if (obj[field.key]) {
+      const rfi = getRelationFieldInfo(field)
       if (field.inputType === 'checkbox') {
         // @ts-ignore
         and.push({ [field.key]: obj[field.key] })
@@ -155,8 +154,8 @@ export const buildWhere = <Entity>(
         const wheretoUse = theEnum?.where ?? new KitBaseEnum(obj[field.key])
         // @ts-ignore
         and.push({ [field.key]: wheretoUse })
-      } else if (rfi.type === 'toOne') {
-        // @ts-ignore (stting the id of the relation)
+      } else if (rfi?.type === 'toOne') {
+        // @ts-ignore (setting the id of the relation)
         and.push({ [field.key]: obj[field.key] })
       } else {
         console.info(`Not handled filter field ${field.key} ${field.inputType}`)
