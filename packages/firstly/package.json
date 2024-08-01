@@ -33,7 +33,7 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "remult": "0.26.23-next.1",
+    "remult": "0.26.23",
     "svelte": ">=4.0.1"
   },
   "devDependencies": {
