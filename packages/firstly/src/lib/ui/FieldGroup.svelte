@@ -4,7 +4,7 @@
   import type { FieldMetadata } from 'remult'
   import { getRelationFieldInfo } from 'remult/internals'
 
-  import { tw, type KitStoreItem } from '..'
+  import { isHidden, tw, type KitStoreItem } from '..'
   import type { KitCell } from '../kitCellsBuildor'
   import Field from './Field.svelte'
   import FieldContainer from './internals/FieldContainer.svelte'
@@ -76,6 +76,9 @@
   {@const focus = isToFocus(cell.field?.key, focusKey, i)}
   {#if shouldHide(cell, mode)}
     <!-- Do nothing -->
+  {:else if cell.field && isHidden(cell.field, $store.item)}
+    <!-- Do nothing, but keep the class... -->
+    <div class={cell.class}></div>
   {:else}
     <div class={cell.class}>
       {#if cell.kind === 'header'}
