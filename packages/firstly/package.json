@@ -33,7 +33,7 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "remult": "0.26.15",
+    "remult": "0.27.3",
     "svelte": ">=4.0.1"
   },
   "devDependencies": {
@@ -49,13 +49,13 @@
     "svelte": "4.2.18",
     "svelte-check": "3.8.2",
     "tslib": "2.6.2",
-    "typescript": "5.4.3",
+    "typescript": "5.5.4",
     "vitest": "1.6.0"
   },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
     "@mdi/js": "^7.4.47",
-    "@melt-ui/svelte": "^0.81.0",
+    "@melt-ui/svelte": "^0.83.0",
     "@types/nodemailer": "^6.4.15",
     "arctic": "^1.8.0",
     "clsx": "^2.1.1",
