@@ -63,6 +63,8 @@ export const getEntityDisplayValueFromField = (
 
   const repo = getEntityRef(row).repository
 
+  // FIXME: unknown vs any... My vscode don't display the error... It's a setting of what version to use ?
+  // @ts-ignore
   return { href: '', ...getEntityDisplayValue(repo, row) }
 }
 
