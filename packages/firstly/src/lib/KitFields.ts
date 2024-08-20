@@ -26,6 +26,37 @@ export function addValidator(
   return atStart ? [...newValidators, ...validatorsArray] : [...validatorsArray, ...newValidators]
 }
 
+// REMULT P2: A/ Add in the doc that allowNull is false by default
+//            B/ Would be great to have a Validators.required automatically when allowNull is not true.
+//            C/ WARNING Validators.required is also checking for empty string
+const validate_update_when_not_allow_null = <entityType, valueType>(
+  o: FieldOptions<entityType, valueType>,
+) => {
+  const validate: FieldValidator<entityType, valueType>[] = []
+
+  if (
+    o.includeInApi !== false &&
+    o.serverExpression === undefined &&
+    o.sqlExpression === undefined &&
+    (o.allowNull === undefined || o.allowNull === false) &&
+    // if require: false is explicitly set, then we don't need to add required validator
+    o.required !== false
+  ) {
+    validate.push(Validators.required)
+  }
+
+  // let's add original validate if any
+  if (o.validate) {
+    if (Array.isArray(o.validate)) {
+      validate.push(...o.validate)
+    } else {
+      validate.push(o.validate)
+    }
+  }
+
+  return validate
+}
+
 export class KitFields {
   static string<entityType = unknown, valueType = string>(
     o?: StringFieldOptions<entityType, valueType>,
@@ -34,30 +65,11 @@ export class KitFields {
       o = {}
     }
 
-    const validate: FieldValidator<entityType, valueType>[] = []
-
-    if (
-      o.includeInApi !== false &&
-      (!o.allowNull || o.required) &&
-      // if require: false is explicitly set, then we don't need to add required validator
-      o.required !== false &&
-      o.serverExpression === undefined &&
-      o.sqlExpression === undefined
-    ) {
-      validate.push(Validators.required)
-    }
-
-    // let's add original validate if any
-    if (o.validate) {
-      if (Array.isArray(o.validate)) {
-        validate.push(...o.validate)
-      } else {
-        validate.push(o.validate)
-      }
-    }
-
     // let's return the field
-    return Fields.string<entityType, valueType>({ ...o, validate })
+    return Fields.string<entityType, valueType>({
+      ...o,
+      validate: validate_update_when_not_allow_null(o),
+    })
   }
 
   static currency<entityType = unknown>(o?: FieldOptions<entityType, number>) {
@@ -96,30 +108,10 @@ export class KitFields {
       o = {}
     }
 
-    const validate: FieldValidator<entityType, Date>[] = []
-
-    if (
-      o.includeInApi !== false &&
-      (!o.allowNull || o.required) &&
-      // if require: false is explicitly set, then we don't need to add required validator
-      o.required !== false
-    ) {
-      validate.push(Validators.required)
-    }
-
-    // let's add original validate if any
-    if (o.validate) {
-      if (Array.isArray(o.validate)) {
-        validate.push(...o.validate)
-      } else {
-        validate.push(o.validate)
-      }
-    }
-
     o.inputType = 'dateOnly'
 
     // let's return the field
-    return Fields.dateOnly({ ...o, validate })
+    return Fields.dateOnly({ ...o, validate: validate_update_when_not_allow_null(o) })
   }
 
   static arrayEnum<enumType = any, entityType = any>(
