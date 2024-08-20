@@ -61,7 +61,7 @@ export const getEntityDisplayValueFromField = (
     return { href: '/', id: '', caption: '-' }
   }
 
-  const repo = getEntityRef(row).repository
+  const repo = getEntityRef(row).repository as Repository<any>
 
   return { href: '', ...getEntityDisplayValue(repo, row) }
 }
