@@ -100,7 +100,7 @@ export const getPlaceholder = <Entity>(fields: FieldMetadata<any, Entity>[]) => 
 }
 
 export const buildSearchWhere = <Entity>(
-  entity: Entity,
+  entity: Entity | undefined,
   fields: FieldMetadata<any, Entity>[],
   search?: string | null,
 ): EntityFilter<Entity>[] => {
@@ -115,7 +115,7 @@ export const buildSearchWhere = <Entity>(
           // check if this field has a specific filter function
           const fnName = f.key + 'Filter'
           // @ts-ignore
-          if (entity[fnName]) {
+          if (entity && entity[fnName]) {
             // @ts-ignore
             return entity[fnName](search)
           }
