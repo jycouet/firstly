@@ -1,6 +1,6 @@
 import type { SvelteComponent } from 'svelte'
 
-import { type EntityFilter, type FieldMetadata, type Repository } from 'remult'
+import { repo, type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { getEnum, KitBaseEnum } from './KitBaseEnum.js'
@@ -100,6 +100,7 @@ export const getPlaceholder = <Entity>(fields: FieldMetadata<any, Entity>[]) => 
 }
 
 export const buildSearchWhere = <Entity>(
+  entity: Entity,
   fields: FieldMetadata<any, Entity>[],
   search?: string | null,
 ): EntityFilter<Entity>[] => {
@@ -110,6 +111,18 @@ export const buildSearchWhere = <Entity>(
   const f: EntityFilter<any>[] = [
     {
       $or: fields.map((f) => {
+        if (f.isServerExpression) {
+          // check if this field has a specific filter function
+          const fnName = f.key + 'Filter'
+          // @ts-ignore
+          if (entity[fnName]) {
+            // @ts-ignore
+            return entity[fnName](search)
+          }
+
+          return {}
+        }
+
         if (f.inputType === 'number') {
           return { [f.key]: search }
         }
@@ -125,6 +138,7 @@ export const buildSearchWhere = <Entity>(
 }
 
 export const buildWhere = <Entity>(
+  entity: Entity,
   defaultWhere: EntityFilter<Entity> | undefined,
   fields_filter: FieldMetadata<any, Entity>[],
   fields_search: FieldMetadata<any, Entity>[],
@@ -137,7 +151,7 @@ export const buildWhere = <Entity>(
   }
 
   if (obj.search) {
-    and.push(...buildSearchWhere(fields_search, obj.search))
+    and.push(...buildSearchWhere(entity, fields_search, obj.search))
   }
   for (const field of fields_filter) {
     // if there is a value
