@@ -1,6 +1,6 @@
 import type { SvelteComponent } from 'svelte'
 
-import { repo, type EntityFilter, type FieldMetadata, type Repository } from 'remult'
+import { type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { getEnum, KitBaseEnum } from './KitBaseEnum.js'
