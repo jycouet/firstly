@@ -63,8 +63,6 @@ export const getEntityDisplayValueFromField = (
 
   const repo = getEntityRef(row).repository
 
-  // FIXME: unknown vs any... My vscode don't display the error... It's a setting of what version to use ?
-  // @ts-ignore
   return { href: '', ...getEntityDisplayValue(repo, row) }
 }
 
@@ -100,7 +98,6 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
     return {
       kind: 'relation',
       subKind: fieldRelationInfo.type,
-      // REMULT P3 JYC: type issue with unknown and any
       repoTarget: fieldRelationInfo.toRepo as Repository<any>,
       field,
     }
@@ -145,9 +142,6 @@ export const displayWithDefaultAndSuffix = (
   value: any,
 ) => {
   const toRet = []
-  // TODO: This method should be reviewed. Specifically, server expression & Field.date have
-  // valueConverter by defualt, so we can't use displayValue if checking for valueConverter
-  // Hummm... JYC: I didn't understand the above comment.
   if (field && field.valueConverter?.displayValue && !field.isServerExpression) {
     toRet.push(field.valueConverter?.displayValue(value) ?? '-')
   } else {

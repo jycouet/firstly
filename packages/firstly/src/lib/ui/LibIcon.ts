@@ -1,9 +1,6 @@
 // Lib Icons
 // https://icones.js.org/ and https://pictogrammers.com/library/mdi/
 
-// Lib or App let's not grow to much here !
-// TODO : check code spliting...
-
 import {
   mdiAccountTie,
   mdiAccountTieWoman,

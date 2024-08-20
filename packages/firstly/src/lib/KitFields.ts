@@ -26,20 +26,10 @@ export function addValidator(
   return atStart ? [...newValidators, ...validatorsArray] : [...validatorsArray, ...newValidators]
 }
 
-// static string<entityType = any, valueType = string>(
-//   ...param: Parameters<typeof Fields.string<entityType, valueType>>
-// ) {
 export class KitFields {
   static string<entityType = unknown, valueType = string>(
-    o?: StringFieldOptions<entityType, valueType> & FieldOptions<entityType, valueType>,
+    o?: StringFieldOptions<entityType, valueType>,
   ) {
-    // const f = Fields.string(...param)
-
-    // f.validate = addValidator(f.validate, Validators.required)
-
-    // return f
-
-    // empty if there is nothing coming here.
     if (o === undefined) {
       o = {}
     }
@@ -50,10 +40,10 @@ export class KitFields {
       o.includeInApi !== false &&
       (!o.allowNull || o.required) &&
       // if require: false is explicitly set, then we don't need to add required validator
-      o.required !== false
+      o.required !== false &&
+      o.serverExpression === undefined &&
+      o.sqlExpression === undefined
     ) {
-      // REMULT P2 JYC (Open an issue): to repro + issue type issue? - Probably typescript
-      // @ts-ignore
       validate.push(Validators.required)
     }
 
@@ -114,8 +104,6 @@ export class KitFields {
       // if require: false is explicitly set, then we don't need to add required validator
       o.required !== false
     ) {
-      // REMULT P2 JYC (Open an issue): to repro + issue type issue? - Probably typescript
-      // @ts-ignore
       validate.push(Validators.required)
     }
 
@@ -160,7 +148,6 @@ export class KitFields {
           return `{${[...new Set((arr ?? []).map((c) => c.id))].join(',')}}`
         },
         displayValue: (v) => {
-          // TODO to transform in enum & item one day
           return v.map((c) => c.caption).join(', ')
         },
         // REMULT P2 Noam: how to do this in an official way?
@@ -189,7 +176,6 @@ export class KitFields {
           return `{${[...new Set((arr ?? []).map((c) => c.id))].join(',')}}`
         },
         displayValue: (v) => {
-          // TODO to transform in enum & item one day
           return v.map((c) => c.caption).join(', ')
         },
         // REMULT P2 Noam: how to do this in an official way?

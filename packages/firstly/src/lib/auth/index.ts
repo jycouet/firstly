@@ -290,8 +290,6 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       const oSafe = getSafeOptions()
 
       if (event.url.pathname === oSafe.firstlyData.props.ui.providers.password.paths.verify_email) {
-        // TODO need to verify the token and set the verifiedAt in the database and we are good.
-        // It's 2 minutes, but I'll be it later :D
         const token = event.url.searchParams.get('token') ?? ''
 
         if (!oSafe.password_enabled) {

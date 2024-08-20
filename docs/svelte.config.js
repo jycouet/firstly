@@ -15,7 +15,6 @@ const config = {
     prerender: {
       // handleMissingId: "ignore",
       handleHttpError: ({ path, _referrer, message }) => {
-        // TODO Why it's like this?
         // ignore deliberate link to shiny 404 page
         if (path === '/.https://github.com/jycouet/firstly') {
           return
