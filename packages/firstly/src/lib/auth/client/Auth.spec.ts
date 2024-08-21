@@ -5,8 +5,8 @@ import { InMemoryDataProvider } from 'remult'
 import { isError } from '$lib'
 import { firstly } from '$lib/api'
 
-import { auth } from '.'
-import { AuthControllerServer } from './AuthController.server'
+import { auth } from '..'
+import { AuthControllerServer } from '../AuthController.server'
 
 describe('test auth controller', () => {
   let api: ReturnType<typeof firstly>

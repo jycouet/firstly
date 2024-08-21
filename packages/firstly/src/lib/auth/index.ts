@@ -15,8 +15,8 @@ import { KitRole } from '../'
 import type { Module } from '../api'
 import type { ResolvedType } from '../utils/types'
 import { RemultLuciaAdapter } from './Adapter'
-import { AuthController } from './AuthController'
 import { AuthControllerServer } from './AuthController.server'
+import { Auth } from './client'
 import {
   AuthProvider,
   KitAuthAccount,
@@ -30,7 +30,6 @@ import type { firstlyData } from './types'
 
 export type { firstlyData }
 export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession }
-export { AuthController }
 
 // It's sure that we can do better than that! ;)
 export type AuthorizationURLOptions = Record<
@@ -251,22 +250,22 @@ export const auth: (o: AuthOptions) => Module = (o) => {
   const oSafe = getSafeOptions()
 
   // abstract the call
-  AuthController.signOutFn = AuthControllerServer.signOut
-  AuthController.signInDemoFn = AuthControllerServer.signInDemo
-  AuthController.inviteFn = AuthControllerServer.invite
-  AuthController.signUpPasswordFn = AuthControllerServer.signUpPassword
-  AuthController.signInPasswordFn = AuthControllerServer.signInPassword
-  AuthController.forgotPasswordFn = AuthControllerServer.forgotPassword
-  AuthController.resetPasswordFn = AuthControllerServer.resetPassword
-  AuthController.signInOTPFn = AuthControllerServer.signInOTP
-  AuthController.verifyOtpFn = AuthControllerServer.verifyOtp
-  AuthController.signInOAuthGetUrlFn = AuthControllerServer.signInOAuthGetUrl
+  Auth.signOutFn = AuthControllerServer.signOut
+  Auth.signInDemoFn = AuthControllerServer.signInDemo
+  Auth.inviteFn = AuthControllerServer.invite
+  Auth.signUpPasswordFn = AuthControllerServer.signUpPassword
+  Auth.signInPasswordFn = AuthControllerServer.signInPassword
+  Auth.forgotPasswordFn = AuthControllerServer.forgotPassword
+  Auth.resetPasswordFn = AuthControllerServer.resetPassword
+  Auth.signInOTPFn = AuthControllerServer.signInOTP
+  Auth.verifyOtpFn = AuthControllerServer.verifyOtp
+  Auth.signInOAuthGetUrlFn = AuthControllerServer.signInOAuthGetUrl
 
   return {
     name: 'auth',
     index: -777,
     entities: [oSafe.User, oSafe.Session, oSafe.Account],
-    controllers: [AuthController],
+    controllers: [Auth],
     initRequest: async (event) => {
       // std session
       const sessionId = event.cookies.get(lucia.sessionCookieName)
@@ -321,7 +320,11 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         redirect(302, oSafe.redirectUrl)
       }
 
-      const staticPath = DEV ? './src/lib/auth/static/' : './node_modules/firstly/esm/auth/static/'
+      // When building firstly...
+      // let staticPath = './src/lib/auth/static/'
+      // For users...
+      let staticPath = './node_modules/firstly/esm/auth/static/'
+      // TODO: We can't use `DEV` switch because users are also in DEV mode... Maybe we should check if files exist?!?
 
       if (event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)) {
         const content = read(`${staticPath}index.html`)

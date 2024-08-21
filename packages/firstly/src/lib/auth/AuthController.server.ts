@@ -409,7 +409,7 @@ export class AuthControllerServer {
    *
    * To be used like this for example:
    * ```
-   * const url = await AuthController.signInOAuthGetUrl('github')
+   * const url = await Auth.signInOAuthGetUrl('github')
    * window.location.href = url
    * ```
    *

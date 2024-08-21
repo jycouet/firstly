@@ -105,6 +105,10 @@
       "types": "./esm/auth/index.d.ts",
       "default": "./esm/auth/index.js"
     },
+    "./auth/client": {
+      "types": "./esm/auth/client/index.d.ts",
+      "default": "./esm/auth/client/index.js"
+    },
     "./auth/providers": {
       "types": "./esm/auth/providers/index.d.ts",
       "default": "./esm/auth/providers/index.js"
