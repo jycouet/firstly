@@ -323,7 +323,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       // When building firstly...
       // let staticPath = './src/lib/auth/static/'
       // For users...
-      let staticPath = './node_modules/firstly/esm/auth/static/'
+      const staticPath = './node_modules/firstly/esm/auth/static/'
       // TODO: We can't use `DEV` switch because users are also in DEV mode... Maybe we should check if files exist?!?
 
       if (event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)) {

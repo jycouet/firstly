@@ -14,8 +14,7 @@ Feel free to use:
 ```bash
 # compile firstly
 pnpm compile
-
-# go to dist & package
+cd dist
 npm pack
 
 # go to another project and add the package like (adapt the path)
