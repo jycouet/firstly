@@ -60,6 +60,7 @@
   <form on:submit|preventDefault={onInsert}>
     <div class="grid {toShow.classes?.formGrid ?? ''} gap-4 pb-4">
       <FieldGroup
+        focusKey={toShow.focusKey}
         {cells}
         {store}
         mode={toShow.type === 'view' ? 'view' : 'edit'}

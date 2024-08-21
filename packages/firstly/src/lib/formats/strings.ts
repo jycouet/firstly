@@ -19,21 +19,6 @@ const formatPhone = (phone: string): string => {
   }
 
   return phone
-
-  // TODO: Let's be smart one day... and add a ton of tests!
-  // const replaced = phone.replaceAll(' ', '').replaceAll('.', '')
-
-  // let formatted: string = replaced
-
-  // if (replaced.charAt(0) === '+') {
-  // 	return formatted
-  // } else if (replaced.slice(0, 2) === '00') {
-  // 	return `+${formatted.slice(2)}`
-  // } else if (replaced.length > 10) {
-  // 	formatted = replaced.slice(0, 10)
-  // }
-
-  // return `+33${formatted.slice(1)}`
 }
 
 export const arrToStr = (arr: string | undefined | (string | undefined)[]) => {

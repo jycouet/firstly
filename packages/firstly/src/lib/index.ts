@@ -1,9 +1,9 @@
-import type { FindOptionsBase, Repository } from 'remult'
-
-import 'remult'
+// I'm not sure I can remove this or not ?
+// import 'remult'
 
 import type { RequestEvent } from '@sveltejs/kit'
 
+import type { FieldMetadata, FindOptionsBase, Repository } from 'remult'
 import { Log } from '@kitql/helpers'
 
 import type { KitBaseEnum, KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'
@@ -161,6 +161,8 @@ declare module 'remult' {
     multiSelect?: boolean
 
     skipForDefaultField?: boolean
+
+    isHidden?: (item: entityType) => boolean
   }
 
   export interface EntityOptions<entityType> {
@@ -180,4 +182,12 @@ declare module 'remult' {
       expiresAt: Date
     }
   }
+}
+
+export const isHidden = (fm: FieldMetadata, row: any) => {
+  if (fm.options.isHidden) {
+    return fm.options.isHidden(row)
+  }
+
+  return false
 }

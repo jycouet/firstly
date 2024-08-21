@@ -83,12 +83,12 @@ export const kitStoreItem = <T>(
           internalStore.update((s) => ({
             ...s,
             loading: false,
-            item,
+            item: item ?? ({} as T),
             errors: undefined,
             globalError: undefined,
           }))
           if (onNewData) {
-            onNewData(item)
+            onNewData(item ?? ({} as T))
           }
         } catch (error) {
           if (isError<T>(error)) {

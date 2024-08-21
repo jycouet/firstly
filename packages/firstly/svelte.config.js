@@ -5,8 +5,6 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 const config = {
   // Consult https://kit.svelte.dev/docs/integrations#preprocessors
   // for more information about preprocessors
-  // TODO DISCORD: https://discord.com/channels/1116682155809067049/1202401392153595934
-  // TODO: https://discord.com/channels/457912077277855764/1202334218143662150
   preprocess: [vitePreprocess({}), { prebundleSvelteLibraries: true }],
   kit: {
     // adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.

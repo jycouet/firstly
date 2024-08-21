@@ -4,7 +4,7 @@
   import { invalidateAll } from '$app/navigation'
 
   import { isError } from '$lib'
-  import { AuthController } from '$lib/auth/AuthController.js'
+  import { Auth } from '$lib/auth/client/Auth.js'
   import Button from '$lib/ui/Button.svelte'
 
   let msgError = ''
@@ -20,7 +20,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      await AuthController.signUpPassword(indentifier, password)
+      await Auth.signUpPassword(indentifier, password)
       await invalidateAll()
     } catch (error) {
       if (isError(error)) {
@@ -33,7 +33,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      await AuthController.signInPassword(indentifier, password)
+      await Auth.signInPassword(indentifier, password)
       await invalidateAll()
     } catch (error) {
       if (isError(error)) {
@@ -46,7 +46,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      await AuthController.signOut()
+      await Auth.signOut()
       await invalidateAll()
     } catch (error) {
       if (isError(error)) {
@@ -59,7 +59,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      msgSuccess = await AuthController.forgotPassword(indentifier)
+      msgSuccess = await Auth.forgotPassword(indentifier)
       await invalidateAll()
     } catch (error) {
       if (isError(error)) {
@@ -72,7 +72,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      msgSuccess = await AuthController.resetPassword(token, rPassword)
+      msgSuccess = await Auth.resetPassword(token, rPassword)
       await invalidateAll()
     } catch (error) {
       if (isError(error)) {
@@ -85,7 +85,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      msgSuccess = await AuthController.signInDemo(username)
+      msgSuccess = await Auth.signInDemo(username)
       await invalidateAll()
     } catch (error) {
       if (isError(error)) {
@@ -98,7 +98,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      msgSuccess = await AuthController.signInOTP(indentifierOtp)
+      msgSuccess = await Auth.signInOTP(indentifierOtp)
       await invalidateAll()
     } catch (error) {
       if (isError(error)) {
@@ -111,7 +111,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      msgSuccess = await AuthController.verifyOtp(indentifierOtp, otp)
+      msgSuccess = await Auth.verifyOtp(indentifierOtp, otp)
       await invalidateAll()
     } catch (error) {
       if (isError(error)) {
@@ -123,7 +123,7 @@
   async function signInOAuth(p: 'github' | 'strava') {
     msgError = ''
     try {
-      const url = await AuthController.signInOAuthGetUrl({
+      const url = await Auth.signInOAuthGetUrl({
         provider: p,
         redirect: window.location.pathname,
         // options: { scopes: p === 'strava' ? ['read'] : [] },

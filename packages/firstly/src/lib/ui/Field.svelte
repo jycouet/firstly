@@ -79,15 +79,7 @@
 
   const fromInput = (_metadata: FieldMetadata<any, any>, _value: HTMLInputAttributes['value']) => {
     try {
-      // REMULT P4 JYC (Open an issue): If the value is 0 and the field is a number, we keep it as 0, not undefined
-      if (metaType.subKind === 'number' && _value === 0) {
-        return 0
-      }
-
-      const val = _metadata?.valueConverter.fromInput(_value, metaType.subKind)
-      // console.log(`val`, val)
-
-      return val
+      return _metadata?.valueConverter.fromInput(_value, metaType.subKind)
     } catch (error) {
       console.error(`error fromInput w field '${_metadata.key}'`, error)
     }
@@ -158,7 +150,6 @@
 
     if (!cell.field?.options.multiSelect) {
       // let's get the current item if it's not in the default list (only when there is no searchFilter going on)
-      // TODO JYC: Maybe can be set by directly wo being fetched?
       if (str === '' && getId() && !arr.find((r) => String(r.id) === String(getId()))) {
         arr.unshift(await metaTypeObj.repoTarget.findId(getId()))
       }
@@ -217,7 +208,13 @@
           {#if item && item?.icon}
             <Icon {...item.icon} />
           {/if}
-          <span>{cell?.header ?? item?.caption ?? '-'}</span>
+          <div class="grid grid-cols-1">
+            <span>{cell?.header ?? item?.caption ?? '-'}</span>
+            <!-- && captionSubStyle === 'inline' -->
+            {#if item?.captionSub}
+              <span class="text-base-content/70 text-xs italic">{item.captionSub}</span>
+            {/if}
+          </div>
         </div>
       {:else if metaType.kind === 'enum'}
         {@const v = displayWithDefaultAndSuffix(cell.field, value)}

@@ -100,6 +100,7 @@ export const getPlaceholder = <Entity>(fields: FieldMetadata<any, Entity>[]) => 
 }
 
 export const buildSearchWhere = <Entity>(
+  entity: Entity | undefined,
   fields: FieldMetadata<any, Entity>[],
   search?: string | null,
 ): EntityFilter<Entity>[] => {
@@ -110,6 +111,18 @@ export const buildSearchWhere = <Entity>(
   const f: EntityFilter<any>[] = [
     {
       $or: fields.map((f) => {
+        if (f.isServerExpression) {
+          // check if this field has a specific filter function
+          const fnName = f.key + 'Filter'
+          // @ts-ignore
+          if (entity && entity[fnName]) {
+            // @ts-ignore
+            return entity[fnName](search)
+          }
+
+          return {}
+        }
+
         if (f.inputType === 'number') {
           return { [f.key]: search }
         }
@@ -125,6 +138,7 @@ export const buildSearchWhere = <Entity>(
 }
 
 export const buildWhere = <Entity>(
+  entity: Entity | undefined,
   defaultWhere: EntityFilter<Entity> | undefined,
   fields_filter: FieldMetadata<any, Entity>[],
   fields_search: FieldMetadata<any, Entity>[],
@@ -137,13 +151,12 @@ export const buildWhere = <Entity>(
   }
 
   if (obj.search) {
-    and.push(...buildSearchWhere(fields_search, obj.search))
+    and.push(...buildSearchWhere(entity, fields_search, obj.search))
   }
   for (const field of fields_filter) {
-    const rfi = getRelationFieldInfo(field)
-
     // if there is a value
     if (obj[field.key]) {
+      const rfi = getRelationFieldInfo(field)
       if (field.inputType === 'checkbox') {
         // @ts-ignore
         and.push({ [field.key]: obj[field.key] })
@@ -155,8 +168,8 @@ export const buildWhere = <Entity>(
         const wheretoUse = theEnum?.where ?? new KitBaseEnum(obj[field.key])
         // @ts-ignore
         and.push({ [field.key]: wheretoUse })
-      } else if (rfi.type === 'toOne') {
-        // @ts-ignore (stting the id of the relation)
+      } else if (rfi?.type === 'toOne') {
+        // @ts-ignore (setting the id of the relation)
         and.push({ [field.key]: obj[field.key] })
       } else {
         console.info(`Not handled filter field ${field.key} ${field.inputType}`)

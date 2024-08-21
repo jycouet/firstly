@@ -1,7 +1,7 @@
 <script lang="ts">
   import { remult } from 'remult'
 
-  // import { AuthController } from '$lib/auth'
+  // import { Auth } from '$lib/auth/client'
   import { route } from '$lib/ROUTES'
   import Button from '$lib/ui/Button.svelte'
 </script>
@@ -16,13 +16,13 @@
     <Button
       class="btn-outline btn-warning"
       on:click={async () => {
-        // await AuthController.signOut()
+        // await Auth.signOut()
         window.location.href = '/'
       }}
     >
       Sign out
     </Button>
   {:else}
-    <a class="btn btn-primary" href={route('kit_sign_in')}>Auth</a>
+    <a class="btn btn-primary" href={route('firstly_sign_in')}>Auth</a>
   {/if}
 </div>

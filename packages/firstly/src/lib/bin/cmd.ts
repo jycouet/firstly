@@ -42,7 +42,7 @@ const res = (await p.multiselect({
 })) as Keys[]
 
 const devDependenciesPrepare: Record<string, string> = {
-  '@kitql/eslint-config': '0.3.2',
+  '@kitql/eslint-config': '0.3.6',
   '@kitql/helpers': '0.8.9',
   remult: versionFirstly,
   pg: '8.12.0',
@@ -170,7 +170,7 @@ export const api = firstly({
           // 2/ uncomment imports & github() call below
           // 3/ under a button click call something like this:
           //      async function oauth() {
-          //        window.location.href = await AuthController.signInOAuthGetUrl({ provider: 'github', redirect: window.location.pathname })
+          //        window.location.href = await Auth.signInOAuthGetUrl({ provider: 'github', redirect: window.location.pathname })
           //      }
           // github( { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } )
         ],
@@ -227,7 +227,7 @@ export const load = (async () => {
     `<script lang="ts">
   import { remult } from 'remult'
   import { isError } from 'firstly'
-  import { AuthController } from 'firstly/auth'
+  import { Auth } from 'firstly/auth/client'
 
   import { invalidateAll } from '$app/navigation'
 
@@ -237,7 +237,7 @@ export const load = (async () => {
 
   const login = async (identif: string) => {
     try {
-      await AuthController.signInDemo(identif)
+      await Auth.signInDemo(identif)
       invalidateAll()
     } catch (error) {
       if (isError(error)) {
@@ -248,7 +248,7 @@ export const load = (async () => {
 
   const logout = async () => {
     try {
-      await AuthController.signOut()
+      await Auth.signOut()
       invalidateAll()
     } catch (error) {
       if (isError(error)) {
@@ -279,6 +279,7 @@ export const load = (async () => {
   <button on:click={() => login('Ermin')}>Login as Ermin</button>
   <button on:click={() => login('JYC')}>Login as JYC</button>
   <button on:click={() => login('Noam')}>Login as Noam</button>
+  <a href="/fly/auth/sign-in">Have a look also this integrated Auth UI !</a>
 {/if}
 
 <hr />

@@ -15,7 +15,8 @@ import { KitRole } from '../'
 import type { Module } from '../api'
 import type { ResolvedType } from '../utils/types'
 import { RemultLuciaAdapter } from './Adapter'
-import { AuthController } from './AuthController'
+import { AuthControllerServer } from './AuthController.server'
+import { Auth } from './client'
 import {
   AuthProvider,
   KitAuthAccount,
@@ -24,13 +25,11 @@ import {
   KitAuthUserSession,
 } from './Entities'
 import { createSession } from './helper'
-import { RoleController } from './RoleController'
+import { initRoleFromEnv } from './RoleHelpers'
 import type { firstlyData } from './types'
 
 export type { firstlyData }
-
-export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession } from './Entities'
-export { AuthController } from './AuthController'
+export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession }
 
 // It's sure that we can do better than that! ;)
 export type AuthorizationURLOptions = Record<
@@ -178,7 +177,7 @@ export let AUTH_OPTIONS: AuthOptions = {}
 export const getSafeOptions = () => {
   const signUp = AUTH_OPTIONS.signUp ?? true
   const base =
-    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/kit/auth'
+    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/fly/auth'
 
   const oAuths =
     AUTH_OPTIONS.providers?.oAuths?.map((o) => {
@@ -249,11 +248,24 @@ export const getSafeOptions = () => {
 export const auth: (o: AuthOptions) => Module = (o) => {
   AUTH_OPTIONS = o
   const oSafe = getSafeOptions()
+
+  // abstract the call
+  Auth.signOutFn = AuthControllerServer.signOut
+  Auth.signInDemoFn = AuthControllerServer.signInDemo
+  Auth.inviteFn = AuthControllerServer.invite
+  Auth.signUpPasswordFn = AuthControllerServer.signUpPassword
+  Auth.signInPasswordFn = AuthControllerServer.signInPassword
+  Auth.forgotPasswordFn = AuthControllerServer.forgotPassword
+  Auth.resetPasswordFn = AuthControllerServer.resetPassword
+  Auth.signInOTPFn = AuthControllerServer.signInOTP
+  Auth.verifyOtpFn = AuthControllerServer.verifyOtp
+  Auth.signInOAuthGetUrlFn = AuthControllerServer.signInOAuthGetUrl
+
   return {
     name: 'auth',
     index: -777,
     entities: [oSafe.User, oSafe.Session, oSafe.Account],
-    controllers: [AuthController],
+    controllers: [Auth],
     initRequest: async (event) => {
       // std session
       const sessionId = event.cookies.get(lucia.sessionCookieName)
@@ -277,8 +289,6 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       const oSafe = getSafeOptions()
 
       if (event.url.pathname === oSafe.firstlyData.props.ui.providers.password.paths.verify_email) {
-        // TODO need to verify the token and set the verifiedAt in the database and we are good.
-        // It's 2 minutes, but I'll be it later :D
         const token = event.url.searchParams.get('token') ?? ''
 
         if (!oSafe.password_enabled) {
@@ -310,10 +320,14 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         redirect(302, oSafe.redirectUrl)
       }
 
+      // When building firstly...
+      // let staticPath = './src/lib/auth/static/'
+      // For users...
+      const staticPath = './node_modules/firstly/esm/auth/static/'
+      // TODO: We can't use `DEV` switch because users are also in DEV mode... Maybe we should check if files exist?!?
+
       if (event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)) {
-        const content =
-          read('src/lib/auth/static/index.html') ??
-          read('node_modules/firstly/esm/auth/static/index.html')
+        const content = read(`${staticPath}index.html`)
 
         return {
           early: true,
@@ -327,9 +341,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
 
       if (event.url.pathname.startsWith('/api/static')) {
-        const content = read(
-          `src/lib/auth/static/${event.url.pathname.replaceAll('/api/static/', '')}`,
-        )
+        const content = read(`${staticPath}${event.url.pathname.replaceAll('/api/static/', '')}`)
         if (content) {
           const seg = event.url.pathname.split('.')
           const map: Record<string, string> = {
@@ -443,8 +455,9 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       return { early: false }
     },
     initApi: async () => {
-      await RoleController.initRoleFromEnv(logAuth, oSafe.User, 'KIT_ADMIN', KitRole.Admin)
-      await RoleController.initRoleFromEnv(logAuth, oSafe.User, 'KIT_AUTH_ADMIN', KitAuthRole.Admin)
+      // Todo... need to pass env to options
+      await initRoleFromEnv(logAuth, oSafe.User, 'KIT_ADMIN', KitRole.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, 'KIT_AUTH_ADMIN', KitAuthRole.Admin)
     },
   }
 }

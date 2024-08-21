@@ -3,14 +3,14 @@ import { DEV } from 'esm-env'
 import { generateId } from 'lucia'
 import { createDate, TimeSpan } from 'oslo'
 
-import { BackendMethod, remult } from 'remult'
+import { remult } from 'remult'
 import { green, yellow } from '@kitql/helpers'
 
 import { AUTH_OPTIONS, getSafeOptions, logAuth, lucia, type AuthorizationURLOptions } from '.'
 import { sendMail } from '../mail'
 import { AuthProvider } from './Entities.js'
 import { createSession } from './helper'
-import { mergeRoles } from './RoleController'
+import { mergeRoles } from './RoleHelpers'
 
 async function getArgon() {
   const { Argon2id } = await import('oslo/password')
@@ -35,11 +35,10 @@ function checkPassword(password: string) {
   }
 }
 
-export class AuthController {
+export class AuthControllerServer {
   /**
    * Sign out the current user
    */
-  @BackendMethod({ allowed: true })
   static async signOut() {
     if (remult.user?.session.id) {
       await lucia.invalidateSession(remult.user?.session.id)
@@ -57,7 +56,6 @@ export class AuthController {
    * Sign in with a demo account
    * _(The easiest way to demo & test your application)_
    */
-  @BackendMethod({ allowed: true })
   static async signInDemo(name: string) {
     const accounts = AUTH_OPTIONS.providers?.demo ?? []
     if (accounts.length === 0) {
@@ -90,7 +88,6 @@ export class AuthController {
    * This is for login / password authentication SignUp
    * _(The first param `name` can be "anything")_
    */
-  @BackendMethod({ allowed: false })
   static async invite(email: string) {
     const oSafe = getSafeOptions()
 
@@ -127,7 +124,6 @@ export class AuthController {
    * This is for login / password authentication SignUp
    * _(The first param `email` can be "anything")_
    */
-  @BackendMethod({ allowed: true })
   static async signUpPassword(email: string, password: string) {
     const oSafe = getSafeOptions()
 
@@ -191,7 +187,6 @@ export class AuthController {
    * This is for login / password authentication SignIn
    * _(The first param `email` can be "anything")_
    */
-  @BackendMethod({ allowed: true })
   static async signInPassword(email: string, password: string) {
     const oSafe = getSafeOptions()
 
@@ -206,7 +201,7 @@ export class AuthController {
     const accountPassword = existingUser?.accounts.find(
       (c) => c.provider === AuthProvider.PASSWORD.id,
     )
-    if (accountPassword) {
+    if (accountPassword && existingUser) {
       const validPassword = await passwordVerify(
         accountPassword?.hashPassword ?? '',
         password ?? '',
@@ -224,7 +219,6 @@ export class AuthController {
   /**
    * Forgot your password ? Send a mail to reset it.
    */
-  @BackendMethod({ allowed: true })
   static async forgotPassword(email: string) {
     const oSafe = getSafeOptions()
 
@@ -275,7 +269,6 @@ export class AuthController {
   /**
    * Reset your password with a token
    */
-  @BackendMethod({ allowed: true })
   static async resetPassword(token: string, password: string) {
     const oSafe = getSafeOptions()
 
@@ -311,7 +304,6 @@ export class AuthController {
   }
 
   /** OTP */
-  @BackendMethod({ allowed: true })
   static async signInOTP(email: string) {
     const oSafe = getSafeOptions()
 
@@ -369,7 +361,6 @@ export class AuthController {
   /**
    * Verify the OTP code
    */
-  @BackendMethod({ allowed: true })
   static async verifyOtp(email: string, otp: string | number) {
     const oSafe = getSafeOptions()
 
@@ -383,7 +374,7 @@ export class AuthController {
     const account = accounts[0]
     const user = await remult.repo(oSafe.User).findId(account.userId)
 
-    if (user.name !== email) {
+    if (user?.name !== email) {
       throw new Error('Invalid otp.')
     }
 
@@ -418,13 +409,12 @@ export class AuthController {
    *
    * To be used like this for example:
    * ```
-   * const url = await AuthController.signInOAuthGetUrl('github')
+   * const url = await Auth.signInOAuthGetUrl('github')
    * window.location.href = url
    * ```
    *
    * _(popup example should work too, and a nice example/componant would be appreciated)_
    */
-  @BackendMethod({ allowed: true })
   static async signInOAuthGetUrl<T extends keyof AuthorizationURLOptions>(o: {
     provider: T
     options?: AuthorizationURLOptions[T]

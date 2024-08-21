@@ -22,7 +22,7 @@ export class KitAuthUser {
   updatedAt?: Date
 
   // @Fields.string<KitAuthUser>({
-  @Fields.string({
+  @Fields.string<KitAuthUser>({
     validate: [
       Validators.unique(),
       (e) => {

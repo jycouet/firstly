@@ -1,14 +1,9 @@
-import {
-  dbNamesOf,
-  getEntityRef,
-  type ErrorInfo,
-  type FieldMetadata,
-  type Repository,
-} from 'remult'
+import { dbNamesOf, getEntityRef } from 'remult'
+import type { ErrorInfo, FieldMetadata, Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { suffixWithS } from './formats/strings.js'
-import { type KitBaseItem } from './index.js'
+import type { KitBaseItem } from './index.js'
 
 export function isError<T>(object: any): object is ErrorInfo<T> {
   return object
@@ -66,7 +61,7 @@ export const getEntityDisplayValueFromField = (
     return { href: '/', id: '', caption: '-' }
   }
 
-  const repo = getEntityRef(row).repository
+  const repo = getEntityRef(row).repository as Repository<any>
 
   return { href: '', ...getEntityDisplayValue(repo, row) }
 }
@@ -103,7 +98,7 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
     return {
       kind: 'relation',
       subKind: fieldRelationInfo.type,
-      repoTarget: fieldRelationInfo.toRepo,
+      repoTarget: fieldRelationInfo.toRepo as Repository<any>,
       field,
     }
   }
@@ -147,9 +142,6 @@ export const displayWithDefaultAndSuffix = (
   value: any,
 ) => {
   const toRet = []
-  // TODO: This method should be reviewed. Specifically, server expression & Field.date have
-  // valueConverter by defualt, so we can't use displayValue if checking for valueConverter
-  // Hummm... JYC: I didn't understand the above comment.
   if (field && field.valueConverter?.displayValue && !field.isServerExpression) {
     toRet.push(field.valueConverter?.displayValue(value) ?? '-')
   } else {

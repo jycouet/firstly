@@ -1,6 +1,6 @@
 <script lang="ts">
   import { isError } from '../../../../../../firstly/src/lib'
-  import { AuthController } from '../../../../../../firstly/src/lib/auth'
+  import { Auth } from '../../../../../../firstly/src/lib/auth/client'
   import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 
   export let firstlyDataAuth: firstlyDataAuth
@@ -15,7 +15,7 @@
     msgSuccess = ''
     const token = new URL(location.href).searchParams.get('token')
     try {
-      await AuthController.resetPassword(token ?? '', password1)
+      await Auth.resetPassword(token ?? '', password1)
       window.location.href = '/'
     } catch (error) {
       if (isError(error)) {
