@@ -1,5 +1,13 @@
 # firstly
 
+## 0.0.4
+
+### Patch Changes
+
+- [#16](https://github.com/jycouet/firstly/pull/16)
+  [`ac00e70`](https://github.com/jycouet/firstly/commit/ac00e703af515009bbe7e078998f77ef3a9e9ce5)
+  Thanks [@jycouet](https://github.com/jycouet)! - WIP next version / split client & server imports.
+
 ## 0.0.3
 
 ### Patch Changes
