@@ -8,9 +8,9 @@ import {
   LibIcon_Delete,
   LibIcon_Edit,
   LibIcon_Search,
-  type KitBaseItemLight,
-  type KitCellsInput,
-  type KitStoreItem,
+  type BaseItemLight,
+  type CellsInput,
+  type StoreItem,
 } from '../../'
 
 export type DialogClasses = {
@@ -28,11 +28,11 @@ export type FormGrid =
   | 'grid-cols-1 lg:grid-cols-4'
 
 export type DialogMetaData<entityType = any> = {
-  detail?: KitBaseItemLight
+  detail?: BaseItemLight
 
   repo?: Repository<entityType>
-  store?: KitStoreItem<entityType>
-  cells?: KitCellsInput<entityType>
+  store?: StoreItem<entityType>
+  cells?: CellsInput<entityType>
   defaults?: Partial<entityType>
   classes?: DialogClasses
 
@@ -109,7 +109,7 @@ const createDialogManagement = () => {
       type: 'insert' | 'update' | 'view',
       topic: string,
       repo: Repository<entityType>,
-      cells: KitCellsInput<entityType>,
+      cells: CellsInput<entityType>,
       options?: {
         defaults?: Partial<entityType>
         classes?: DialogClasses

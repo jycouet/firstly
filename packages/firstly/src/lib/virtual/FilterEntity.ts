@@ -1,6 +1,6 @@
 import { Entity, Fields } from 'remult'
 
-// import { KitFields } from '../KitFields.js'
+// import { FF_Fields } from '../FF_Fields.js'
 
 @Entity('filterEntities', {})
 export class FilterEntity {

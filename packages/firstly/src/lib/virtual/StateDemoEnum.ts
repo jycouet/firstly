@@ -1,14 +1,14 @@
 import { ValueListFieldType } from 'remult'
 
-import { KitBaseEnum } from '../KitBaseEnum'
-import type { KitBaseEnumOptions } from '../KitBaseEnum'
+import { BaseEnum } from '../BaseEnum'
+import type { BaseEnumOptions } from '../BaseEnum'
 
 import '../ui/LibIcon'
 
 import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '../ui/LibIcon'
 
 @ValueListFieldType()
-export class StateDemoEnum extends KitBaseEnum {
+export class StateDemoEnum extends BaseEnum {
   static CHECK = new StateDemoEnum('CHECK', {
     caption: 'Check',
     icon: {
@@ -33,7 +33,7 @@ export class StateDemoEnum extends KitBaseEnum {
     },
   })
 
-  constructor(id: string, options?: KitBaseEnumOptions<StateDemoEnum>) {
+  constructor(id: string, options?: BaseEnumOptions<StateDemoEnum>) {
     super(id, options)
   }
 }

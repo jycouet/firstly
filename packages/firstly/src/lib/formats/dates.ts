@@ -1,4 +1,4 @@
-import { logFirstly } from '../'
+import { ff_Log } from '../'
 
 export const dateISOToPlainDate = (iso: string) => {
   try {
@@ -10,7 +10,7 @@ export const dateISOToPlainDate = (iso: string) => {
     }
   } catch (error) {}
   const msg = `fn dateISOToPlainDate -> "${iso}" is not valid iso`
-  logFirstly.error(msg)
+  ff_Log.error(msg)
   throw new Error(msg)
 }
 

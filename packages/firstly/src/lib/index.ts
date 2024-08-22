@@ -3,10 +3,10 @@ import type { RequestEvent } from '@sveltejs/kit'
 import type { FindOptionsBase } from 'remult'
 import { Log } from '@kitql/helpers'
 
-import type { KitBaseEnum, KitBaseEnumOptions, KitBaseItem, KitIcon } from './KitBaseEnum.js'
-import type { KitCellsInput as KitCellsInputForExport } from './kitCellsBuildor.js'
-import { kitStoreItem } from './kitStoreItem.js'
-import { kitStoreList } from './kitStoreList.js'
+import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
+import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
+import { storeItem } from './storeItem.js'
+import { storeList } from './storeList.js'
 import { default as Button } from './ui/Button.svelte'
 import { default as Clipboardable } from './ui/Clipboardable.svelte'
 import { default as DialogManagement } from './ui/dialog/DialogManagement.svelte'
@@ -47,7 +47,7 @@ export {
 // ******************************
 // Objects
 // ******************************
-export const logFirstly = new Log('firstly')
+export const ff_Log = new Log('firstly')
 
 export const FF_Role = {
   Admin: 'FF_Admin',
@@ -56,42 +56,50 @@ export const FF_Role = {
 // ******************************
 // Helpers types
 // ******************************
+export type { BaseEnumOptions } from './BaseEnum.js'
+export type { BaseItem }
+export type BaseItemLight = Partial<BaseItem>
+
 export type { DialogMetaDataInternal } from './ui/dialog/dialog.js'
-export type { KitBaseEnumOptions } from './KitBaseEnum.js'
-export type KitCellsInput<entityType> = KitCellsInputForExport<entityType>
-export type { KitCell, VisibilityMode } from './kitCellsBuildor.js'
-export type { FindOptionsPlus } from './kitStoreList.js'
-export type KitStoreItem<T> = ReturnType<typeof kitStoreItem<T>>
-export type KitStoreList<T> = ReturnType<typeof kitStoreList<T>>
-export type { KitBaseItem }
-export type KitBaseItemLight = Partial<KitBaseItem>
+export type CellsInput<entityType> = CellsInput_ForExport<entityType>
+export type { Cell, VisibilityMode } from './cellsBuildor.js'
+export type { FF_FindOptions } from './storeList.js'
+export type StoreItem<T> = ReturnType<typeof storeItem<T>>
+export type StoreList<T> = ReturnType<typeof storeList<T>>
 export type { ResolvedType, UnArray } from './utils/types.js'
 
 // ******************************
 // Helpers
 // ******************************
+export { FF_Fields } from './FF_Fields.js'
+export { FF_Entity } from './FF_Entity.js'
+export { FF_LogToConsole } from './SqlDatabase/FF_LogToConsole.js'
+export { BaseEnum } from './BaseEnum.js'
 export { dialog } from './ui/dialog/dialog.js'
-export { KitBaseEnum, getEnum, getEnums } from './KitBaseEnum.js'
-export { KitFields } from './KitFields.js'
-export { KitEntity } from './KitEntity.js'
-export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
-export { getEntityDisplayValue, isError, kitDbNamesOf, getFieldLinkDisplayValue } from './helper.js'
+export {
+  getEntityDisplayValue,
+  isError,
+  getFieldLinkDisplayValue,
+  getEnum,
+  getEnums,
+} from './helper.js'
 export {
   buildWhere,
   getPlaceholder,
   buildSearchWhere,
-  kitCellsBuildor,
-  kitCellBuildor,
+  cellsBuildor,
+  cellBuildor,
   fieldsOf,
-} from './kitCellsBuildor.js'
-export { kitStoreItem }
-export { kitStoreList }
-export { FilterEntity } from './virtual/FilterEntity.js'
-export { UIEntity } from './virtual/UIEntity.js'
+} from './cellsBuildor.js'
+export { storeItem }
+export { storeList }
 export { displayPhone, arrToStr } from './formats/strings.js'
 export { displayCurrency } from './formats/numbers.js'
 export { tw } from './utils/tailwind.js'
-export { litOrStr } from './utils/types.js'
+
+// Hummm... I don't know if we should keep it...
+export { FilterEntity } from './virtual/FilterEntity.js'
+export { UIEntity } from './virtual/UIEntity.js'
 
 // ******************************
 // Icons
@@ -122,7 +130,7 @@ export {
   LibIcon_SortDesc,
 } from './ui/LibIcon.js'
 
-export type { KitIcon }
+export type { FF_Icon }
 
 // ******************************
 // Additions to Remult
@@ -167,13 +175,13 @@ declare module 'remult' {
 
   export interface EntityOptions<entityType> {
     searchableFind?: (str: string) => FindOptionsBase<entityType>
-    displayValue?: (item: entityType) => KitBaseItem
+    displayValue?: (item: entityType) => BaseItem
 
-    permissionApiCrud?: KitBaseEnum[] | KitBaseEnum
-    permissionApiDelete?: KitBaseEnum[] | KitBaseEnum
-    permissionApiInsert?: KitBaseEnum[] | KitBaseEnum
-    permissionApiRead?: KitBaseEnum[] | KitBaseEnum
-    permissionApiUpdate?: KitBaseEnum[] | KitBaseEnum
+    permissionApiCrud?: BaseEnum[] | BaseEnum
+    permissionApiDelete?: BaseEnum[] | BaseEnum
+    permissionApiInsert?: BaseEnum[] | BaseEnum
+    permissionApiRead?: BaseEnum[] | BaseEnum
+    permissionApiUpdate?: BaseEnum[] | BaseEnum
   }
 
   export interface UserInfo {

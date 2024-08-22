@@ -1,11 +1,11 @@
 <script lang="ts">
   import { remult } from 'remult'
 
-  import { FieldGroup, kitCellsBuildor, kitStoreItem, UIEntity } from '$lib'
+  import { cellsBuildor, FF_Entity, FieldGroup, storeItem } from '$lib'
 
-  const repo = remult.repo(UIEntity)
+  const repo = remult.repo(FF_Entity)
 
-  const cells = kitCellsBuildor(repo, [
+  const cells = cellsBuildor(repo, [
     'state',
     'id',
     'createdAt',
@@ -21,7 +21,7 @@
     'arrivalDateOnly',
   ])
 
-  const store = kitStoreItem(repo)
+  const store = storeItem(repo)
   $: store.fetch(-1)
 
   let isEdit = true

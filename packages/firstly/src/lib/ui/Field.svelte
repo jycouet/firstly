@@ -4,7 +4,7 @@
 
   import { type FieldMetadata, type FindOptions } from 'remult'
 
-  import { type KitBaseItem, type KitCell } from '../'
+  import { type BaseItem, type Cell } from '../'
   import { suffixWithS } from '../formats/strings'
   import {
     displayWithDefaultAndSuffix,
@@ -23,7 +23,7 @@
   import SelectRadio from './internals/select/SelectRadio.svelte'
   import Textarea from './internals/Textarea.svelte'
 
-  export let cell: KitCell<T>
+  export let cell: Cell<T>
   export let value: HTMLInputAttributes['value'] = undefined
 
   // values of other fields in same context e.g. in form
@@ -42,7 +42,7 @@
 
   const dispatch = createEventDispatcher()
 
-  function dispatchSelected(_data: KitBaseItem | KitBaseItem[] | undefined) {
+  function dispatchSelected(_data: BaseItem | BaseItem[] | undefined) {
     value = _data
     dispatch('selected', _data)
   }

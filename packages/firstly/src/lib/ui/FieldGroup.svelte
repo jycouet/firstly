@@ -4,8 +4,8 @@
   import type { FieldMetadata } from 'remult'
   import { getRelationFieldInfo } from 'remult/internals'
 
-  import { tw, type KitStoreItem } from '..'
-  import type { KitCell } from '../kitCellsBuildor'
+  import { tw, type StoreItem } from '../'
+  import type { Cell } from '../cellsBuildor'
   import Field from './Field.svelte'
   import FieldContainer from './internals/FieldContainer.svelte'
   import Loading from './Loading.svelte'
@@ -13,8 +13,8 @@
   type Mode = 'edit' | 'view' | 'filtre'
   export let mode: Mode = 'edit'
 
-  export let cells: KitCell<T>[]
-  export let store: KitStoreItem<T>
+  export let cells: Cell<T>[]
+  export let store: StoreItem<T>
 
   export let focusKey: string | null | undefined = null
 
@@ -27,7 +27,7 @@
     return undefined
   }
 
-  const shouldHide = (c: KitCell<T>, mode: Mode) => {
+  const shouldHide = (c: Cell<T>, mode: Mode) => {
     if (mode === 'edit' && c.modeEdit === 'hide') {
       return true
     }
@@ -37,7 +37,7 @@
     return false
   }
 
-  const modeToUse = (c: KitCell<T>, mode: Mode) => {
+  const modeToUse = (c: Cell<T>, mode: Mode) => {
     if (mode === 'edit' && c.modeEdit === 'view') {
       return 'view'
     }

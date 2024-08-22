@@ -1,7 +1,7 @@
 import { Entity, Fields, Relations, Validators, ValueListFieldType } from 'remult'
 
-import { FF_Role, KitBaseEnum } from '../'
-import type { KitBaseEnumOptions } from '../'
+import { BaseEnum, FF_Role } from '../'
+import type { BaseEnumOptions } from '../'
 
 export const KitAuthRole = {
   Admin: 'KitAuthAdmin',
@@ -103,13 +103,13 @@ export class KitAuthUserSession {
 }
 
 @ValueListFieldType()
-export class AuthProvider extends KitBaseEnum {
+export class AuthProvider extends BaseEnum {
   static DEMO = new AuthProvider('DEMO', { caption: 'Demo' })
   static PASSWORD = new AuthProvider('PASSWORD', { caption: 'Password' })
   static OTP = new AuthProvider('OTP', { caption: 'TOTP' })
   static OAUTH = new AuthProvider('OAUTH', { caption: 'OAUTH' })
 
-  constructor(id: string, o?: KitBaseEnumOptions) {
+  constructor(id: string, o?: BaseEnumOptions) {
     super(id, {
       ...o,
     })

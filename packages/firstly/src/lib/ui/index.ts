@@ -1,6 +1,6 @@
 import type { FieldMetadata } from 'remult'
 
-import type { KitCell } from '../'
+import type { Cell } from '../'
 
 export type Align = 'text-left' | 'text-center' | 'text-right'
 
@@ -16,7 +16,7 @@ export const align = (f?: FieldMetadata, isSlot?: boolean): Align => {
   return 'text-left'
 }
 
-export const getAligns = (cells: KitCell<any>[], withAction: boolean) => {
+export const getAligns = (cells: Cell<any>[], withAction: boolean) => {
   const cols = [...cells.map((c) => align(c.field, c.kind === 'slot'))]
   if (withAction) {
     cols.push('text-right')

@@ -6,7 +6,7 @@
   import { page } from '$app/stores'
 
   import { FeedbackController } from '..'
-  import { Button, Field, FilterEntity, kitCellBuildor, Loading, type ResolvedType } from '../..'
+  import { Button, cellBuildor, Field, FilterEntity, Loading, type ResolvedType } from '../..'
   import Textarea from '../../ui/internals/Textarea.svelte'
 
   export let dialogId: number
@@ -99,7 +99,7 @@
       </div>
     {:else}
       {#if issueNumber === null}
-        <Field cell={kitCellBuildor(repo(FilterEntity), 'title')} bind:value={title} />
+        <Field cell={cellBuildor(repo(FilterEntity), 'title')} bind:value={title} />
       {/if}
       <Textarea bind:value={content}></Textarea>
       <div class="flex justify-between">

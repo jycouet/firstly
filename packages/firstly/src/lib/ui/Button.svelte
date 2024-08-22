@@ -5,13 +5,13 @@
 
   import { remult } from 'remult'
 
-  import { KitBaseEnum, tw } from '../'
+  import { BaseEnum, tw } from '../'
 
   export let isLoading = false
   let className: string | undefined | null = undefined
   export { className as class }
 
-  export let permission: KitBaseEnum[] | KitBaseEnum | undefined = undefined
+  export let permission: BaseEnum[] | BaseEnum | undefined = undefined
 
   let permissionDisabled = false
   $: disabled = $$restProps.disabled || permissionDisabled || isLoading
@@ -25,7 +25,7 @@
       }
     }, 200)
 
-  let updates = (param: { permission: KitBaseEnum[] | KitBaseEnum | undefined }) => {
+  let updates = (param: { permission: BaseEnum[] | BaseEnum | undefined }) => {
     if (param && param.permission) {
       permissionDisabled = !remult.isAllowed(
         Array.isArray(param.permission) ? param.permission.map((c) => c.id) : param.permission.id,
@@ -42,7 +42,7 @@
   }
 
   let disabledWhy = ''
-  const isAllowed: Action<HTMLElement, { permission: KitBaseEnum[] | KitBaseEnum | undefined }> = (
+  const isAllowed: Action<HTMLElement, { permission: BaseEnum[] | BaseEnum | undefined }> = (
     node,
     param,
   ) => {

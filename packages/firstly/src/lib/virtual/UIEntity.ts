@@ -1,6 +1,6 @@
 import { Entity, Field, Fields } from 'remult'
 
-import { KitFields } from '../KitFields.js'
+import { FF_Fields } from '../FF_Fields.js'
 import { StateDemoEnum } from './StateDemoEnum.js'
 
 @Entity('uiEntities', {
@@ -17,13 +17,13 @@ export class UIEntity {
   @Fields.updatedAt()
   updatedAt = new Date()
 
-  @KitFields.string({ caption: "Nom de l'utilisateur", placeholder: 'Jean-Yves', suffix: 'sdsd' })
+  @FF_Fields.string({ caption: "Nom de l'utilisateur", placeholder: 'Jean-Yves', suffix: 'sdsd' })
   username!: string
 
   @Fields.string({ caption: 'E Mail', inputType: 'email', placeholder: 'prénom.nom@se.com' })
   email!: string
 
-  @KitFields.string({
+  @FF_Fields.string({
     caption: 'Mot de passe',
     inputType: 'password',
     placeholder: '********',
@@ -59,6 +59,6 @@ export class UIEntity {
   @Fields.date({ allowNull: true, allowApiUpdate: false })
   arrivalDate?: Date
 
-  @KitFields.dateOnly({ allowNull: true })
+  @FF_Fields.dateOnly({ allowNull: true })
   arrivalDateOnly?: Date
 }

@@ -358,7 +358,7 @@ export const tasks: (o: { specialInfo: string }) => Module = ({ specialInfo }) =
   ],
   './src/lib/firstly/modules/tasks/Task.ts': [
     `import { Entity, Field, Fields, ValueListFieldType } from 'remult'
-import { KitBaseEnum, LibIcon_Add, LibIcon_Delete, type KitBaseEnumOptions } from 'firstly'
+import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'firstly'
 
 @Entity('tasks', {
   allowApiCrud: true,
@@ -385,7 +385,7 @@ export class Task {
 }
 
 @ValueListFieldType()
-export class TypeOfTaskEnum extends KitBaseEnum {
+export class TypeOfTaskEnum extends BaseEnum {
   static EASY = new TypeOfTaskEnum('EASY', {
     caption: 'Easy',
     icon: { data: LibIcon_Add },
@@ -394,7 +394,7 @@ export class TypeOfTaskEnum extends KitBaseEnum {
     caption: 'Hard',
     icon: { data: LibIcon_Delete },
   })
-  constructor(id: string, o?: KitBaseEnumOptions<TypeOfTaskEnum>) {
+  constructor(id: string, o?: BaseEnumOptions<TypeOfTaskEnum>) {
     super(id, o)
   }
 }    

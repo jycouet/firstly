@@ -7,7 +7,7 @@ import {
 } from 'remult'
 
 import { displayCurrency } from './formats'
-import { getEnums } from './KitBaseEnum'
+import { getEnums } from './helper'
 
 // Translate default messages
 // REMULT P3 JYC: I need to set this here the one of my app are not overwriting these...
@@ -15,16 +15,16 @@ import { getEnums } from './KitBaseEnum'
 Validators.unique.defaultMessage = 'Existe déjà!'
 Validators.required.defaultMessage = 'Obligatoire!'
 
-export function addValidator(
-  validators: FieldOptions['validate'],
-  newValidator: FieldOptions['validate'],
-  atStart = false,
-) {
-  if (!newValidator) return validators
-  const newValidators = Array.isArray(newValidator) ? newValidator : [newValidator]
-  const validatorsArray = Array.isArray(validators) ? validators : validators ? [validators] : []
-  return atStart ? [...newValidators, ...validatorsArray] : [...validatorsArray, ...newValidators]
-}
+// export function addValidators(
+//   validators: FieldOptions['validate'],
+//   newValidator: FieldOptions['validate'],
+//   atStart = false,
+// ) {
+//   if (!newValidator) return validators
+//   const newValidators = Array.isArray(newValidator) ? newValidator : [newValidator]
+//   const validatorsArray = Array.isArray(validators) ? validators : validators ? [validators] : []
+//   return atStart ? [...newValidators, ...validatorsArray] : [...validatorsArray, ...newValidators]
+// }
 
 // REMULT P2: A/ Add in the doc that allowNull is false by default
 //            B/ Would be great to have a Validators.required automatically when allowNull is not true.
@@ -42,6 +42,7 @@ const validate_update_when_not_allow_null = <entityType, valueType>(
     // if require: false is explicitly set, then we don't need to add required validator
     o.required !== false
   ) {
+    // addValidators(o.validate, [Validators.required], true)
     validate.push(Validators.required)
   }
 
@@ -57,7 +58,7 @@ const validate_update_when_not_allow_null = <entityType, valueType>(
   return validate
 }
 
-export class KitFields {
+export class FF_Fields {
   static string<entityType = unknown, valueType = string>(
     o?: StringFieldOptions<entityType, valueType>,
   ) {

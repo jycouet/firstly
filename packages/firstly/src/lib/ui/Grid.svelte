@@ -3,6 +3,7 @@
 
   import type { EntityOrderBy } from 'remult'
 
+  import type { Cell } from '../cellsBuildor.js'
   import {
     displayWithDefaultAndSuffix,
     getEntityDisplayValue,
@@ -10,8 +11,7 @@
     getFieldLinkDisplayValue,
     getFieldMetaType,
   } from '../helper.js'
-  import { LibIcon_Delete, LibIcon_Edit, type KitStoreList } from '../index.js'
-  import type { KitCell } from '../kitCellsBuildor.js'
+  import { LibIcon_Delete, LibIcon_Edit, type StoreList } from '../index.js'
   import Button from './Button.svelte'
   import Clipboardable from './Clipboardable.svelte'
   import GridLoading from './GridLoading.svelte'
@@ -26,8 +26,8 @@
   } from './LibIcon.js'
   import LinkPlus from './link/LinkPlus.svelte'
 
-  export let cells: KitCell<T>[]
-  export let store: KitStoreList<T>
+  export let cells: Cell<T>[]
+  export let store: StoreList<T>
 
   export let withAdd = false
   export let withEdit = false
@@ -45,7 +45,7 @@
 
   const dispatch = createEventDispatcher()
 
-  const sorting = (toSort: boolean, b: KitCell<T>) => {
+  const sorting = (toSort: boolean, b: Cell<T>) => {
     if (!toSort) {
       return
     }
@@ -65,7 +65,7 @@
     }
   }
 
-  const sortingIcon = (toSort: boolean, b: KitCell<T>, _orderBy: EntityOrderBy<T> | undefined) => {
+  const sortingIcon = (toSort: boolean, b: Cell<T>, _orderBy: EntityOrderBy<T> | undefined) => {
     if (!toSort) {
       return
     }
@@ -80,7 +80,7 @@
     return { data: LibIcon_Sort }
   }
 
-  const cellsToTake = (cells: KitCell<T>[]) => {
+  const cellsToTake = (cells: Cell<T>[]) => {
     return cells.filter((c) => c.modeView !== 'hide')
   }
 </script>

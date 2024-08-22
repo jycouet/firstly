@@ -6,7 +6,7 @@ import type { FindOptions, Repository } from 'remult'
 
 type TheStoreList<T> = { items: T[]; loading: boolean; totalCount: number | undefined }
 
-export type FindOptionsPlus<T> = FindOptions<T> & { withCount?: boolean; withItems?: boolean }
+export type FF_FindOptions<T> = FindOptions<T> & { withCount?: boolean; withItems?: boolean }
 
 /**
  * @param repo remult repository to listen to
@@ -22,7 +22,7 @@ export type FindOptionsPlus<T> = FindOptions<T> & { withCount?: boolean; withIte
  * $: browser && tasks.listen(data.options)
  * ```
  */
-export const kitStoreList = <T>(
+export const storeList = <T>(
   repo: Repository<T>,
   initValues: TheStoreList<T> = { items: [], loading: true, totalCount: undefined },
 ) => {
@@ -50,7 +50,7 @@ export const kitStoreList = <T>(
     },
 
     fetch: async (
-      options?: FindOptionsPlus<T>,
+      options?: FF_FindOptions<T>,
       onNewData?: (items?: T[], totalCount?: number) => void,
     ) => {
       if (BROWSER) {
@@ -86,7 +86,7 @@ export const kitStoreList = <T>(
       }
     },
 
-    listen: async (options?: FindOptionsPlus<T>) => {
+    listen: async (options?: FF_FindOptions<T>) => {
       if (BROWSER) {
         await plzUnSub()
 

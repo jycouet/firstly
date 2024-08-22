@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { FieldGroup, kitStoreItem } from '../..'
-  import { kitCellsBuildor } from '../../kitCellsBuildor'
+  import { FieldGroup, storeItem } from '../..'
+  import { cellsBuildor } from '../../cellsBuildor'
   import { dialog, type DialogMetaDataInternal } from './dialog'
   import DialogPrimitive from './DialogPrimitive.svelte'
   import FormEditAction from './FormEditAction.svelte'
 
   export let toShow: DialogMetaDataInternal
 
-  $: cells = kitCellsBuildor(toShow.repo!, toShow.cells!)
-  $: store = toShow.store ?? kitStoreItem(toShow.repo!)
+  $: cells = cellsBuildor(toShow.repo!, toShow.cells!)
+  $: store = toShow.store ?? storeItem(toShow.repo!)
 
   $: {
     if (toShow.type === 'update' || toShow.type === 'view') {
