@@ -9,7 +9,6 @@ export const FF_Auth_Role = {
 
 @Entity('ff_auth.users', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  // dbName: 'ff_auth.users',
   caption: 'Auth - Users',
 })
 export class FFAuthUser {
@@ -22,7 +21,6 @@ export class FFAuthUser {
   @Fields.updatedAt()
   updatedAt?: Date
 
-  // @Fields.string<KitAuthUser>({
   @Fields.string<FFAuthUser>({
     validate: [
       Validators.unique(),
@@ -50,7 +48,6 @@ export class FFAuthUser {
 
 @Entity<FFAuthAccount>('ff_auth.accounts', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  // dbName: 'ff_auth.accounts',
   caption: 'Auth - Accounts',
   // id: { provider: true, userId: true },
 })
@@ -89,10 +86,9 @@ export class FFAuthAccount {
   lastVerifiedAt?: Date
 }
 
-@Entity('ff_auth.user_sessions', {
+@Entity('ff_auth.users_sessions', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  // dbName: 'ff_auth.user_sessions',
-  caption: 'Auth - User sessions',
+  caption: 'Auth - Users sessions',
 })
 export class FFAuthUserSession {
   @Fields.cuid()

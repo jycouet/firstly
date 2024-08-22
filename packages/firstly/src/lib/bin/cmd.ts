@@ -184,7 +184,7 @@ export const api = firstly({
           // To enable OAuth via Github (2/2)
           // Instructions by hovering the method \`github\`
           //----------------------------------------
-          // github()
+          // github(),
         ],
       },
     }),
