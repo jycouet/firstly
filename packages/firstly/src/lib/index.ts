@@ -1,12 +1,9 @@
-// I'm not sure I can remove this or not ?
-// import 'remult'
-
 import type { RequestEvent } from '@sveltejs/kit'
 
-import type { FindOptionsBase, Repository } from 'remult'
+import type { FindOptionsBase } from 'remult'
 import { Log } from '@kitql/helpers'
 
-import type { KitBaseEnum, KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'
+import type { KitBaseEnum, KitBaseEnumOptions, KitBaseItem, KitIcon } from './KitBaseEnum.js'
 import type { KitCellsInput as KitCellsInputForExport } from './kitCellsBuildor.js'
 import { kitStoreItem } from './kitStoreItem.js'
 import { kitStoreList } from './kitStoreList.js'
@@ -26,12 +23,9 @@ import { default as LinkPlus } from './ui/link/LinkPlus.svelte'
 import { default as Loading } from './ui/Loading.svelte'
 import { default as Tooltip } from './ui/Tooltip.svelte'
 
-export const logFirstly = new Log('firstly')
-
-export const KitRole = {
-  Admin: 'KitAdmin',
-}
-
+// ******************************
+// Svelte Components
+// ******************************
 export {
   Field,
   FormEditAction,
@@ -49,10 +43,35 @@ export {
   SelectMelt,
   Clipboardable,
 }
-export { dialog } from './ui/dialog/dialog.js'
+
+// ******************************
+// Objects
+// ******************************
+export const logFirstly = new Log('firstly')
+
+export const FF_Role = {
+  Admin: 'FF_Admin',
+}
+
+// ******************************
+// Helpers types
+// ******************************
 export type { DialogMetaDataInternal } from './ui/dialog/dialog.js'
-export { KitBaseEnum, getEnum, getEnums } from './KitBaseEnum.js'
 export type { KitBaseEnumOptions } from './KitBaseEnum.js'
+export type KitCellsInput<entityType> = KitCellsInputForExport<entityType>
+export type { KitCell, VisibilityMode } from './kitCellsBuildor.js'
+export type { FindOptionsPlus } from './kitStoreList.js'
+export type KitStoreItem<T> = ReturnType<typeof kitStoreItem<T>>
+export type KitStoreList<T> = ReturnType<typeof kitStoreList<T>>
+export type { KitBaseItem }
+export type KitBaseItemLight = Partial<KitBaseItem>
+export type { ResolvedType, UnArray } from './utils/types.js'
+
+// ******************************
+// Helpers
+// ******************************
+export { dialog } from './ui/dialog/dialog.js'
+export { KitBaseEnum, getEnum, getEnums } from './KitBaseEnum.js'
 export { KitFields } from './KitFields.js'
 export { KitEntity } from './KitEntity.js'
 export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
@@ -67,29 +86,16 @@ export {
 } from './kitCellsBuildor.js'
 export { kitStoreItem }
 export { kitStoreList }
-
-export type KitCellsInput<entityType> = KitCellsInputForExport<entityType>
-export type { KitCell, VisibilityMode } from './kitCellsBuildor.js'
-export type { FindOptionsPlus } from './kitStoreList.js'
-export type KitBaseItem = KitBaseEnumOptions & {
-  id: string
-  captionSub?: string | (string | undefined)[]
-  href?: string
-  repo?: Repository<any>
-  sub?: {
-    captionPre?: string
-    repo?: Repository<any>
-    item?: any
-  }
-}
-export type KitStoreItem<T> = ReturnType<typeof kitStoreItem<T>>
-export type KitStoreList<T> = ReturnType<typeof kitStoreList<T>>
-export type KitBaseItemLight = Partial<KitBaseItem>
-
 export { FilterEntity } from './virtual/FilterEntity.js'
 export { UIEntity } from './virtual/UIEntity.js'
+export { displayPhone, arrToStr } from './formats/strings.js'
+export { displayCurrency } from './formats/numbers.js'
+export { tw } from './utils/tailwind.js'
+export { litOrStr } from './utils/types.js'
 
+// ******************************
 // Icons
+// ******************************
 export {
   LibIcon_Empty,
   LibIcon_Forbidden,
@@ -118,13 +124,9 @@ export {
 
 export type { KitIcon }
 
-// Formats & Utils
-export { displayPhone, arrToStr } from './formats/strings.js'
-export { displayCurrency } from './formats/numbers.js'
-export { tw } from './utils/tailwind.js'
-export { litOrStr } from './utils/types.js'
-export type { ResolvedType, UnArray } from './utils/types.js'
-
+// ******************************
+// Additions to Remult
+// ******************************
 declare module 'remult' {
   export interface RemultContext {
     url: URL

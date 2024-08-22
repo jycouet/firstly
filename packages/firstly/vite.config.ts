@@ -7,6 +7,12 @@ import type { KIT_ROUTES } from '$lib/ROUTES'
 import { firstly } from './src/lib/vite'
 
 const config = defineConfig({
+  server: {
+    fs: {
+      // FIXME: Allow serving files from one level up to the project root (I don't know why this is necessary... I probably did something wrong in the monorepo...)
+      allow: ['../../../..'],
+    },
+  },
   plugins: [
     firstly<KIT_ROUTES>({
       kitRoutes: {

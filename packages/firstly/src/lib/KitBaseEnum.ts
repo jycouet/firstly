@@ -1,5 +1,5 @@
 import { getValueList, type IdFilter } from 'remult'
-import type { ClassType, FindOptionsBase } from 'remult'
+import type { ClassType, FindOptionsBase, Repository } from 'remult'
 
 export type KitIcon = {
   data?: string | string[]
@@ -7,6 +7,18 @@ export type KitIcon = {
   class?: string | string[]
   style?: string | string[]
   caption?: string
+}
+
+export type KitBaseItem = KitBaseEnumOptions & {
+  id: string
+  captionSub?: string | (string | undefined)[]
+  href?: string
+  repo?: Repository<any>
+  sub?: {
+    captionPre?: string
+    repo?: Repository<any>
+    item?: any
+  }
 }
 
 export type KitBaseEnumOptions<Entity = any> = {

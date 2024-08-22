@@ -11,7 +11,7 @@ import type { ClassType, UserInfo } from 'remult'
 import { Log, red } from '@kitql/helpers'
 import { read } from '@kitql/internals'
 
-import { KitRole } from '../'
+import { FF_Role } from '../'
 import type { Module } from '../api'
 import type { ResolvedType } from '../utils/types'
 import { RemultLuciaAdapter } from './Adapter'
@@ -321,9 +321,9 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
 
       // When building firstly...
-      // let staticPath = './src/lib/auth/static/'
+      let staticPath = './src/lib/auth/static/'
       // For users...
-      const staticPath = './node_modules/firstly/esm/auth/static/'
+      // const staticPath = './node_modules/firstly/esm/auth/static/'
       // TODO: We can't use `DEV` switch because users are also in DEV mode... Maybe we should check if files exist?!?
 
       if (event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)) {
@@ -456,7 +456,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
     },
     initApi: async () => {
       // Todo... need to pass env to options
-      await initRoleFromEnv(logAuth, oSafe.User, 'KIT_ADMIN', KitRole.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, 'KIT_ADMIN', FF_Role.Admin)
       await initRoleFromEnv(logAuth, oSafe.User, 'KIT_AUTH_ADMIN', KitAuthRole.Admin)
     },
   }

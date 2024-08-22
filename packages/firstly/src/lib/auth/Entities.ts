@@ -1,6 +1,6 @@
 import { Entity, Fields, Relations, Validators, ValueListFieldType } from 'remult'
 
-import { KitBaseEnum, KitRole } from '../'
+import { FF_Role, KitBaseEnum } from '../'
 import type { KitBaseEnumOptions } from '../'
 
 export const KitAuthRole = {
@@ -8,7 +8,7 @@ export const KitAuthRole = {
 } as const
 
 @Entity('kit_auth_user', {
-  allowApiCrud: [KitAuthRole.Admin, KitRole.Admin],
+  allowApiCrud: [KitAuthRole.Admin, FF_Role.Admin],
   dbName: 'auth.kit_auth_user',
 })
 export class KitAuthUser {
@@ -48,7 +48,7 @@ export class KitAuthUser {
 }
 
 @Entity<KitAuthAccount>('kit_auth_account', {
-  allowApiCrud: [KitAuthRole.Admin, KitRole.Admin],
+  allowApiCrud: [KitAuthRole.Admin, FF_Role.Admin],
   dbName: 'auth.kit_auth_account',
   id: { provider: true, userId: true },
 })
@@ -85,7 +85,7 @@ export class KitAuthAccount {
 }
 
 @Entity('kit_auth_session', {
-  allowApiCrud: [KitAuthRole.Admin, KitRole.Admin],
+  allowApiCrud: [KitAuthRole.Admin, FF_Role.Admin],
   dbName: 'auth.kit_auth_session',
 })
 export class KitAuthUserSession {
