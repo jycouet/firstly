@@ -480,6 +480,8 @@ export class AuthControllerServer {
       }
     }
 
-    throw new Error(`${o.provider} is not configured!`)
+    throw new Error(
+      `${o.provider} is not configured! (Module: auth, section: providers.oAuths: [${o.provider}] missing)`,
+    )
   }
 }

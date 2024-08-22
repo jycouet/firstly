@@ -1,9 +1,17 @@
 <script lang="ts">
   import { remult } from 'remult'
 
+  import { Auth } from '$lib/auth/client'
   // import { Auth } from '$lib/auth/client'
   import { route } from '$lib/ROUTES'
   import Button from '$lib/ui/Button.svelte'
+
+  async function oauth() {
+    window.location.href = await Auth.signInOAuthGetUrl({
+      provider: 'github',
+      redirect: window.location.pathname,
+    })
+  }
 </script>
 
 <div class="flex flex-col gap-4">
@@ -23,6 +31,7 @@
       Sign out
     </Button>
   {:else}
-    <a class="btn btn-primary" href={route('firstly_sign_in')}>Auth</a>
+    <a class="btn btn-primary" href={route('firstly_sign_in')}>Firstly Auth</a>
+    <button class="btn btn-primary" on:click={oauth}>OAuth</button>
   {/if}
 </div>

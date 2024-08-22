@@ -4,12 +4,13 @@ import { BaseEnum, FF_Role } from '../'
 import type { BaseEnumOptions } from '../'
 
 export const FF_Auth_Role = {
-  Admin: 'FF_Auth_Role',
+  Admin: 'FF_Auth_Role.Admin',
 } as const
 
 @Entity('ff_auth.users', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
   // dbName: 'ff_auth.users',
+  caption: 'Auth - Users',
 })
 export class FFAuthUser {
   @Fields.cuid()
@@ -50,9 +51,13 @@ export class FFAuthUser {
 @Entity<FFAuthAccount>('ff_auth.accounts', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
   // dbName: 'ff_auth.accounts',
-  id: { provider: true, userId: true },
+  caption: 'Auth - Accounts',
+  // id: { provider: true, userId: true },
 })
 export class FFAuthAccount {
+  @Fields.cuid()
+  id!: string
+
   @Fields.createdAt()
   createdAt!: Date
 
@@ -87,6 +92,7 @@ export class FFAuthAccount {
 @Entity('ff_auth.user_sessions', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
   // dbName: 'ff_auth.user_sessions',
+  caption: 'Auth - User sessions',
 })
 export class FFAuthUserSession {
   @Fields.cuid()

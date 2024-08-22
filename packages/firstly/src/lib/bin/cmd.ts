@@ -44,8 +44,8 @@ const res = (await p.multiselect({
 const devDependenciesPrepare: Record<string, string> = {
   '@kitql/eslint-config': '0.3.6',
   '@kitql/helpers': '0.8.9',
-  remult: versionFirstly,
   pg: '8.12.0',
+  remult: versionFirstly,
   ...pkg.devDependencies,
 }
 
@@ -74,11 +74,11 @@ if (res.includes('all') || res.includes('dependencies')) {
 const obj = {
   './.eslintrc.cjs': [
     `module.exports = {
-    extends: ['@kitql'],
-    rules: {
-      // Your overrides here
-    }
+  extends: ['@kitql'],
+  rules: {
+    // Your overrides here
   }
+}
   `,
   ],
   './.prettierignore': [
@@ -105,14 +105,14 @@ src/lib/ROUTES.ts
   ],
   './.prettierrc.cjs': [
     `const {
-    //plugins,
-    ...prettierConfig
-  } = require('@kitql/eslint-config/.prettierrc.cjs')
-  
-  module.exports = {
-    ...prettierConfig,
-    // Your overrides here
-  }`,
+  //plugins,
+  ...prettierConfig
+} = require('@kitql/eslint-config/.prettierrc.cjs')
+
+module.exports = {
+  ...prettierConfig,
+  // Your overrides here
+}`,
   ],
   '.env.example': [
     `# Enable some roles
@@ -120,12 +120,13 @@ src/lib/ROUTES.ts
 # FF_AUTH_ADMIN = ''
 
 # Enable GitHub login
-GITHUB_CLIENT_ID = ''
-GITHUB_CLIENT_SECRET = ''
+# GITHUB_CLIENT_ID = ''
+# GITHUB_CLIENT_SECRET = ''
 `,
   ],
   './src/lib/firstly/index.ts': [
-    `import { firstly } from 'firstly/api'
+    `import { FF_Role } from 'firstly'
+import { firstly } from 'firstly/api'
 import { auth } from 'firstly/auth'
 import { Log } from '@kitql/helpers'
 
@@ -146,8 +147,7 @@ import { task } from './modules/task'
  * Your roles, use them in your app !
  */
 export const Role = {
-  ADMIN: 'admin',
-  SUPER_ADMIN: 'super_admin',
+  Boss: 'Boss',
 }
 
 /**
@@ -171,8 +171,8 @@ export const api = firstly({
       providers: {
         demo: [
           { name: 'Ermin' },
-          { name: 'JYC', roles: [Role.ADMIN] },
-          { name: 'Noam', roles: [Role.SUPER_ADMIN] },
+          { name: 'JYC', roles: [FF_Role.Admin] },
+          { name: 'Noam', roles: [FF_Role.Admin, Role.Boss] },
         ],
 
         // password: {},
@@ -242,36 +242,12 @@ export const load = (async () => {
   './src/routes/+layout.svelte': [
     `<script lang="ts">
   import { remult } from 'remult'
-  import { isError } from 'firstly'
-  import { Auth } from 'firstly/auth/client'
-
-  import { invalidateAll } from '$app/navigation'
 
   import { route } from '${libAlias}/ROUTES'
+  import SignIn from '${libAlias}/ui/SignIn.svelte'
+  import SignOut from '${libAlias}/ui/SignOut.svelte'
 
   import type { LayoutData } from './$types'
-
-  const login = async (identif: string) => {
-    try {
-      await Auth.signInDemo(identif)
-      invalidateAll()
-    } catch (error) {
-      if (isError(error)) {
-        alert(error.message)
-      }
-    }
-  }
-
-  const logout = async () => {
-    try {
-      await Auth.signOut()
-      invalidateAll()
-    } catch (error) {
-      if (isError(error)) {
-        alert(error.message)
-      }
-    }
-  }
 
   export let data: LayoutData
   $: remult.user = data.user
@@ -289,13 +265,17 @@ export const load = (async () => {
 <h1>${pkg.name}</h1>
 
 {#if remult.authenticated()}
-  <button style="float:right;" on:click={logout}>Logout</button>
+  <div style="float:right;">
+    <SignOut></SignOut>
+  </div>
   <span>{remult.user?.name} ({remult.user?.roles})<br /><br /></span>
 {:else}
-  <button on:click={() => login('Ermin')}>Login as Ermin</button>
-  <button on:click={() => login('JYC')}>Login as JYC</button>
-  <button on:click={() => login('Noam')}>Login as Noam</button>
-  <a href="/ff/auth/sign-in">Have a look also this integrated Auth UI !</a>
+  <SignIn demo="Ermin"></SignIn>
+  <SignIn demo="JYC"></SignIn>
+  <SignIn demo="Noam"></SignIn>
+  <br />
+  <SignIn ffLink></SignIn>
+  <SignIn oauth="github"></SignIn>
 {/if}
 
 <hr />
@@ -304,11 +284,87 @@ export const load = (async () => {
 
 <hr />
 
-<a href={route('github', { owner: 'jycouet', repo: 'firstly' })} target="_blank">
-  ⭐️ firstly
-</a>
+<div style="float: right; text-align: right;">
+  <a href={route('remult_admin')} target="_blank">🚀 admin</a>
+  <p style="font-size: small;">
+    <i>Login as <b>JYC</b> to get admin rights ☝️</i>
+  </p>
+</div>
+<a href={route('github', { owner: 'jycouet', repo: 'firstly' })} target="_blank"> ⭐️ firstly </a>
 |
 <a href={route('github', { owner: 'remult', repo: 'remult' })} target="_blank">⭐️ remult</a>
+`,
+  ],
+  './src/lib/ui/SignIn.svelte': [
+    `<script lang="ts">
+  import { isError } from 'firstly'
+  import { Auth } from 'firstly/auth/client'
+
+  import { goto, invalidateAll } from '$app/navigation'
+
+  import { route } from '$lib/ROUTES'
+
+  // Examples of signin modes
+  export let demo = ''
+  export let ffLink = false
+  export let oauth: 'github' | undefined = undefined
+
+  const signinDemo = async (identif: string) => {
+    try {
+      await Auth.signInDemo(identif)
+      invalidateAll()
+    } catch (error) {
+      if (isError(error)) {
+        // TODO: You will probably not leave this alert in production
+        alert(error.message)
+      }
+    }
+  }
+
+  async function signinOAuth(provider: 'github') {
+    try {
+      window.location.href = await Auth.signInOAuthGetUrl({
+        provider,
+        redirect: window.location.pathname,
+      })
+    } catch (error) {
+      if (isError(error)) {
+        // TODO: You will probably not leave this alert in production
+        alert(error.message)
+      }
+    }
+  }
+</script>
+
+{#if demo}
+  <button on:click={() => signinDemo(demo)}>Login as {demo}</button>
+{:else if ffLink}
+  <button on:click={() => goto(route('firstly_sign_in'))}>Login with Firstly</button>
+{:else if oauth}
+  <button on:click={() => signinOAuth(oauth)}>Login With {oauth}</button>
+{/if}
+`,
+  ],
+  './src/lib/ui/SignOut.svelte': [
+    `<script lang="ts">
+  import { isError } from 'firstly'
+  import { Auth } from 'firstly/auth/client'
+
+  import { invalidateAll } from '$app/navigation'
+
+  const logout = async () => {
+    try {
+      await Auth.signOut()
+      invalidateAll()
+    } catch (error) {
+      if (isError(error)) {
+        alert(error.message)
+      }
+    }
+  }
+</script>
+
+<button on:click={logout}>Logout</button>
 `,
   ],
   './tsconfig.json': [
@@ -345,12 +401,37 @@ export default defineConfig({
   plugins: [
     firstly<KIT_ROUTES>({
       kitRoutes: {
-        LINKS: { github: 'https://github.com/[owner]/[repo]' },
+        LINKS: { 
+          firstly_sign_in: 'ff/auth/sign-in',
+          github: 'https://github.com/[owner]/[repo]',
+          remult_admin: 'api/admin',
+        },
       }
     }),
     sveltekit(),
   ],
 })
+`,
+  ],
+  './.gitignore': [
+    `node_modules
+
+# Output
+/.svelte-kit
+/build
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Firstly / Remult
+/db
 `,
   ],
   './src/lib/firstly/modules/task/index.ts': [

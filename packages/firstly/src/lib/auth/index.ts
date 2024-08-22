@@ -11,6 +11,8 @@ import type { ClassType, UserInfo } from 'remult'
 import { Log, red } from '@kitql/helpers'
 import { getRelativePackagePath, read } from '@kitql/internals'
 
+import { env } from '$env/dynamic/private'
+
 import { FF_Role } from '../'
 import type { Module } from '../api'
 import type { ResolvedType } from '../utils/types'
@@ -457,9 +459,8 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       return { early: false }
     },
     initApi: async () => {
-      // Todo... need to pass env to options
-      await initRoleFromEnv(logAuth, oSafe.User, process.env.FF_ADMIN, FF_Role.Admin)
-      await initRoleFromEnv(logAuth, oSafe.User, process.env.FF_AUTH_ADMIN, FF_Auth_Role.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, env.FF_ADMIN, FF_Role.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, env.FF_AUTH_ADMIN, FF_Auth_Role.Admin)
     },
   }
 }

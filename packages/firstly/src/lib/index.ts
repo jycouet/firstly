@@ -50,7 +50,7 @@ export {
 export const ff_Log = new Log('firstly')
 
 export const FF_Role = {
-  Admin: 'FF_Admin',
+  Admin: 'FF_Role.Admin',
 }
 
 // ******************************

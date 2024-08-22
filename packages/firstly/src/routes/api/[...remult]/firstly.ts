@@ -2,6 +2,7 @@ import { Entity, Fields } from 'remult'
 
 import { firstly } from '$lib/api'
 import { auth, FFAuthUser } from '$lib/auth'
+import { github } from '$lib/auth/providers'
 
 // import { github } from '$lib/auth/providers'
 
@@ -89,10 +90,10 @@ export const remultApi = firstly({
         },
 
         oAuths: [
-          // github({
-          //   authorizationURLOptions: { scopes: ['user:email'] },
-          //   log: true,
-          // }),
+          github({
+            authorizationURLOptions: { scopes: ['user:email'] },
+            log: true,
+          }),
         ],
       },
     }),

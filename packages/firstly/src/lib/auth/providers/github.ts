@@ -2,6 +2,8 @@ import { GitHub } from 'arctic'
 
 import { remult } from 'remult'
 
+import { env } from '$env/dynamic/private'
+
 import { checkOAuthConfig } from '.'
 import { logAuth, type FFOAuth2Provider } from '../'
 
@@ -44,8 +46,8 @@ export function github(options?: {
 }): FFOAuth2Provider<'github', GitHub> {
   const name = 'github'
 
-  const clientID = options?.GITHUB_CLIENT_ID ?? process.env.GITHUB_CLIENT_ID ?? ''
-  const secret = options?.GITHUB_CLIENT_SECRET ?? process.env.GITHUB_CLIENT_ID ?? ''
+  const clientID = options?.GITHUB_CLIENT_ID ?? env.GITHUB_CLIENT_ID ?? ''
+  const secret = options?.GITHUB_CLIENT_SECRET ?? env.GITHUB_CLIENT_SECRET ?? ''
 
   const urlForKeys = 'https://github.com/settings/developers'
   checkOAuthConfig(name, clientID, secret, urlForKeys, false)
@@ -56,7 +58,7 @@ export function github(options?: {
     getArcticProvider: () => {
       const redirectURI =
         options?.GITHUB_REDIRECT_URI ??
-        process.env.GITHUB_CLIENT_ID ??
+        env.GITHUB_REDIRECT_URI ??
         `${remult.context.url.origin}/api/auth_callback`
 
       checkOAuthConfig(name, clientID, secret, urlForKeys, true)

@@ -2,6 +2,8 @@ import { Strava } from 'arctic'
 
 import { remult } from 'remult'
 
+import { env } from '$env/dynamic/private'
+
 import { checkOAuthConfig } from '.'
 import { logAuth, type FFOAuth2Provider } from '../'
 
@@ -37,8 +39,8 @@ export function strava(options?: {
 }): FFOAuth2Provider<'strava', Strava> {
   const name = 'strava'
 
-  const clientID = options?.STRAVA_CLIENT_ID ?? process.env.STRAVA_CLIENT_ID ?? ''
-  const secret = options?.STRAVA_CLIENT_SECRET ?? process.env.STRAVA_CLIENT_ID ?? ''
+  const clientID = options?.STRAVA_CLIENT_ID ?? env.STRAVA_CLIENT_ID ?? ''
+  const secret = options?.STRAVA_CLIENT_SECRET ?? env.STRAVA_CLIENT_SECRET ?? ''
 
   const urlForKeys = 'https://www.strava.com/settings/api'
   checkOAuthConfig(name, clientID, secret, urlForKeys, false)
@@ -49,7 +51,7 @@ export function strava(options?: {
     getArcticProvider: () => {
       const redirectURI =
         options?.STRAVA_REDIRECT_URI ??
-        process.env.STRAVA_CLIENT_ID ??
+        env.STRAVA_REDIRECT_URI ??
         `${remult.context.url.origin}/api/auth_callback`
       checkOAuthConfig(name, clientID, secret, urlForKeys, true)
       return new Strava(clientID, secret, redirectURI)
