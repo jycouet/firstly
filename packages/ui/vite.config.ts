@@ -6,6 +6,12 @@ import { watchAndRun } from 'vite-plugin-watch-and-run'
 import { firstly } from '../firstly/src/lib/vite'
 
 export default defineConfig({
+  server: {
+    port: 4242,
+    fs: {
+      allow: ['..'],
+    },
+  },
   plugins: [
     firstly(),
     svelte(),
@@ -25,8 +31,5 @@ export default defineConfig({
     rollupOptions: {
       external: ['$env/dynamic/private', '@kitql/internals'],
     },
-  },
-  server: {
-    port: 4242,
   },
 })
