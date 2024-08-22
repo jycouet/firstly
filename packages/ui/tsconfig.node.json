@@ -6,5 +6,5 @@
     "moduleResolution": "bundler",
     "strict": true
   },
-  "include": ["vite.config.ts", "../firstly/src/lib/vite"]
+  "include": ["vite.config.ts"]
 }

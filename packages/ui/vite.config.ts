@@ -3,17 +3,11 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { defineConfig } from 'vite'
 import { watchAndRun } from 'vite-plugin-watch-and-run'
 
-import { firstly } from '../firstly/src/lib/vite'
-
 export default defineConfig({
   server: {
     port: 4242,
-    fs: {
-      allow: ['..'],
-    },
   },
   plugins: [
-    firstly(),
     svelte(),
     watchAndRun([
       {
