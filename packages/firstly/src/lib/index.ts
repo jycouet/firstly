@@ -3,7 +3,7 @@
 
 import type { RequestEvent } from '@sveltejs/kit'
 
-import type { FieldMetadata, FindOptionsBase, Repository } from 'remult'
+import type { FindOptionsBase, Repository } from 'remult'
 import { Log } from '@kitql/helpers'
 
 import type { KitBaseEnum, KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'
