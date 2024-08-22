@@ -321,7 +321,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
 
       // When building firstly...
-      const staticPath = './src/lib/auth/static/'
+      const staticPath = ge './src/lib/auth/static/'
       // For users...
       // const staticPath = './node_modules/firstly/esm/auth/static/'
       // TODO: We can't use `DEV` switch because users are also in DEV mode... Maybe we should check if files exist?!?

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { remult } from 'remult'
 
-  import { cellsBuildor, FF_Entity, FieldGroup, storeItem } from '$lib'
+  import { cellsBuildor, FieldGroup, storeItem, UIEntity } from '$lib'
 
-  const repo = remult.repo(FF_Entity)
+  const repo = remult.repo(UIEntity)
 
   const cells = cellsBuildor(repo, [
     'state',

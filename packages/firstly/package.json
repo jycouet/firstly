@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@kitql/helpers": "0.8.9",
-    "@kitql/internals": "0.9.5",
+    "@kitql/internals": "0.9.6",
     "@sveltejs/adapter-node": "5.0.0",
     "@sveltejs/kit": "2.5.17",
     "@sveltejs/package": "2.3.2",
