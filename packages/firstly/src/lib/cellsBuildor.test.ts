@@ -3,9 +3,9 @@ import { expect, test } from 'vitest'
 import { remult } from 'remult'
 
 import { buildWhere, cellsBuildor, fieldsOf, getPlaceholder } from './cellsBuildor.js'
-import { FF_Entity } from './virtual/FF_Entity.js'
+import { UIEntity } from './virtual/UIEntity.js'
 
-const repo = remult.repo(FF_Entity)
+const repo = remult.repo(UIEntity)
 test('getPlaceholder', () => {
   expect(
     getPlaceholder([

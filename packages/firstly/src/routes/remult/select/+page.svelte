@@ -4,9 +4,9 @@
   import { storeItem } from '$lib'
   import { cellsBuildor } from '$lib/cellsBuildor'
   import FieldGroup from '$lib/ui/FieldGroup.svelte'
-  import { FF_Entity } from '$lib/virtual/FF_Entity'
+  import { UIEntity } from '$lib/virtual/UIEntity'
 
-  const repo = remult.repo(FF_Entity)
+  const repo = remult.repo(UIEntity)
 
   const cells = cellsBuildor(repo, ['state'])
 
