@@ -1,4 +1,4 @@
-import { dbNamesOf, getEntityRef, getValueList } from 'remult'
+import { getEntityRef, getValueList } from 'remult'
 import type { ClassType, ErrorInfo, FieldMetadata, Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
