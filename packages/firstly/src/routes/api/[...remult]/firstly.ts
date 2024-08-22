@@ -4,8 +4,6 @@ import { firstly } from '$lib/api'
 import { auth, FFAuthUser } from '$lib/auth'
 import { github } from '$lib/auth/providers'
 
-// import { github } from '$lib/auth/providers'
-
 const Role = {
   ADMIN: 'admin',
 }

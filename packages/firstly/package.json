@@ -38,7 +38,6 @@
   },
   "devDependencies": {
     "@kitql/helpers": "0.8.9",
-    "@kitql/internals": "0.9.8",
     "@sveltejs/adapter-node": "5.2.2",
     "@sveltejs/kit": "2.5.17",
     "@sveltejs/package": "2.3.2",
@@ -53,6 +52,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
+    "@kitql/internals": "0.9.8",
     "@mdi/js": "^7.4.47",
     "@melt-ui/svelte": "^0.81.0",
     "@types/nodemailer": "^6.4.15",
