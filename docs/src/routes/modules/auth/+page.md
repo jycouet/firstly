@@ -10,7 +10,7 @@ To use it, here is the idea, just tune to your needs:
 
 ```ts
 import { firstly } from 'firstly/api'
-import { auth, KitAuthUser } from 'firstly/auth'
+import { auth } from 'firstly/auth'
 
 // import { github } from 'firstly/auth/providers'
 
@@ -57,8 +57,8 @@ export const remultApi = firstly({
 ## lucia adapter
 
 Under the hood, we created a lucia adapter, you can check the code
-[here](https://github.com/jycouet/firstly/blob/main/packages/firstly/src/lib/auth/Adapter.ts).
-_Feel free to copy/paste it in your own codebase._ You can also suggest improvements here 😉.
+[here](https://github.com/jycouet/firstly/blob/main/packages/firstly/src/lib/auth/Adapter.ts). _Feel
+free to copy/paste it in your own codebase._ You can also suggest improvements here 😉.
 
 By default, all tables/fields will show up in your admin and you are able to extend then with your
 own fields.

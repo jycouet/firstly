@@ -9,7 +9,7 @@ import { Lucia, TimeSpan, type SessionCookieOptions } from 'lucia'
 import { remult } from 'remult'
 import type { ClassType, UserInfo } from 'remult'
 import { Log, red } from '@kitql/helpers'
-import { read } from '@kitql/internals'
+import { getRelativePackagePath, read } from '@kitql/internals'
 
 import { FF_Role } from '../'
 import type { Module } from '../api'
@@ -19,8 +19,8 @@ import { AuthControllerServer } from './AuthController.server'
 import { Auth } from './client'
 import {
   AuthProvider,
+  FF_Auth_Role,
   KitAuthAccount,
-  KitAuthRole,
   KitAuthUser,
   KitAuthUserSession,
 } from './Entities'
@@ -50,7 +50,7 @@ export type DynamicAuthorizationURLOptions<T extends KitOAuth2Provider[] = KitOA
 
 export const logAuth = new Log('firstly | auth')
 
-export { KitAuthRole } from './Entities'
+export { FF_Auth_Role } from './Entities'
 
 type OAuth2UserInfo = {
   raw?: any
@@ -177,7 +177,7 @@ export let AUTH_OPTIONS: AuthOptions = {}
 export const getSafeOptions = () => {
   const signUp = AUTH_OPTIONS.signUp ?? true
   const base =
-    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/fly/auth'
+    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/ff/auth'
 
   const oAuths =
     AUTH_OPTIONS.providers?.oAuths?.map((o) => {
@@ -320,11 +320,13 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         redirect(302, oSafe.redirectUrl)
       }
 
-      // When building firstly...
-      const staticPath = ge './src/lib/auth/static/'
-      // For users...
-      // const staticPath = './node_modules/firstly/esm/auth/static/'
-      // TODO: We can't use `DEV` switch because users are also in DEV mode... Maybe we should check if files exist?!?
+      // For lib author (us), it's good to have this local path.
+      let staticPath = './src/lib/auth/static/'
+      // For users, let's serve the static files from the installed package
+      const installedFirstlyPath = getRelativePackagePath('firstly')
+      if (installedFirstlyPath) {
+        staticPath = `${installedFirstlyPath}/esm/auth/static/`
+      }
 
       if (event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)) {
         const content = read(`${staticPath}index.html`)
@@ -456,8 +458,8 @@ export const auth: (o: AuthOptions) => Module = (o) => {
     },
     initApi: async () => {
       // Todo... need to pass env to options
-      await initRoleFromEnv(logAuth, oSafe.User, 'KIT_ADMIN', FF_Role.Admin)
-      await initRoleFromEnv(logAuth, oSafe.User, 'KIT_AUTH_ADMIN', KitAuthRole.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, 'FF_ADMIN', FF_Role.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, 'FF_AUTH_ADMIN', KitAuthRole.Admin)
     },
   }
 }

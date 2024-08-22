@@ -116,8 +116,8 @@ importers:
         specifier: 0.8.9
         version: 0.8.9
       '@kitql/internals':
-        specifier: 0.9.6
-        version: 0.9.6
+        specifier: 0.9.8
+        version: 0.9.8
       '@sveltejs/adapter-node':
         specifier: 5.0.0
         version: 5.0.0(@sveltejs/kit@2.5.17(@sveltejs/vite-plugin-svelte@3.1.0(svelte@4.2.18)(vite@5.4.1(@types/node@22.4.2)(terser@5.31.1)))(svelte@4.2.18)(vite@5.4.1(@types/node@22.4.2)(terser@5.31.1)))
@@ -1418,8 +1418,8 @@ packages:
     resolution: {integrity: sha512-HkqjpT2BUwINmMuZQUjjDNEAGKrOaS8vR8xEEdhkJl4w/5BgOzgSpRlojilH9liNcfGtdz5HHbRoXN91VLf0Ng==}
     engines: {node: ^16.14 || >=18}
 
-  '@kitql/internals@0.9.6':
-    resolution: {integrity: sha512-FFMvh4qTEto0kHzc6c497Usz+pl4YwCSrrqyMvQEgmWvn/LhbqDQqeP4L8ZFPyIPaXpwEao9FU4X+rLF0OV+6A==}
+  '@kitql/internals@0.9.8':
+    resolution: {integrity: sha512-0aTyYAaO9u2rjILeWhZKzZ+jCPSY27d4cmVwHo2Ssuf6kqw6ZPvOlhJP8Gv4/L+Bv439PtoL9fsTuWRAeGecuQ==}
     engines: {node: ^16.14 || >=18}
 
   '@lukeed/csprng@1.1.0':
@@ -7422,7 +7422,7 @@ snapshots:
       recast: 0.23.9
       svelte: 4.2.1
 
-  '@kitql/internals@0.9.6':
+  '@kitql/internals@0.9.8':
     dependencies:
       '@babel/parser': 7.25.3
       '@kitql/helpers': 0.8.9

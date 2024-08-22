@@ -26,7 +26,7 @@ const options: { value: Keys; label: string; hint?: string | undefined }[] = [
   },
   {
     value: 'module-demo',
-    label: 'module tasks',
+    label: 'module task',
     hint: 'A default module with a task entity and a controller (you can rename the folder and make it yours)',
   },
   {
@@ -116,8 +116,8 @@ src/lib/ROUTES.ts
   ],
   '.env.example': [
     `# Enable some roles
-# KIT_ADMIN = 'JYC'
-# KIT_AUTH_ADMIN = ''
+# FF_ADMIN = 'JYC'
+# FF_AUTH_ADMIN = ''
 
 # Enable GitHub login
 GITHUB_CLIENT_ID = ''
@@ -127,31 +127,46 @@ GITHUB_CLIENT_SECRET = ''
   './src/lib/firstly/index.ts': [
     `import { firstly } from 'firstly/api'
 import { auth } from 'firstly/auth'
-// import { github } from 'firstly/auth/providers'
-// import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private'
 import { Log } from '@kitql/helpers'
 
-import { tasks } from './modules/tasks'
+import { task } from './modules/task'
 
-// When you will want to use postgres, create a .env file with DATABASE_URL
+//----------------------------------------
+// To switch to postgres (1/2)
+//----------------------------------------
 // import { createPostgresConnection } from 'remult/postgres'
 // import { DATABASE_URL } from '$env/static/private'
 
-/** Define your roles here and use them in your app */
+//----------------------------------------
+// To enable OAuth via Github (1/2)
+//----------------------------------------
+// import { github } from 'firstly/auth/providers'
+
+/**
+ * Your roles, use them in your app !
+ */
 export const Role = {
   ADMIN: 'admin',
   SUPER_ADMIN: 'super_admin',
 }
 
-/** Define your log instance and user it accross your all app */
+/**
+ * Your logs with a nice prefix, use \`log.info("Hello")\` / \`log.success("Yeah")\` / \`log.error("Ho nooo!")\` and see !
+ */
 export const log = new Log('${pkg.name}')
 
 export const api = firstly({
+  //----------------------------------------
+  // To switch to postgres (2/2)
+  //----------------------------------------
   // dataProvider: await createPostgresConnection({
   //  connectionString: DATABASE_URL,
   // }),
+
   modules: [
-    // core module: auth
+    //----------------------------------------
+    // Core Module: auth
+    //----------------------------------------
     auth({
       providers: {
         demo: [
@@ -165,22 +180,23 @@ export const api = firstly({
         // otp: {},
 
         oAuths: [
-          // To enable GitHub auth,
-          // 1/ Add your GitHub credentials to .env file (example in .env.example)
-          // 2/ uncomment imports & github() call below
-          // 3/ under a button click call something like this:
-          //      async function oauth() {
-          //        window.location.href = await Auth.signInOAuthGetUrl({ provider: 'github', redirect: window.location.pathname })
-          //      }
-          // github( { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } )
+          //----------------------------------------
+          // To enable OAuth via Github (2/2)
+          // Instructions by hovering the method \`github\`
+          //----------------------------------------
+          // github()
         ],
       },
     }),
 
+    //----------------------------------------
     // example of a userland module
-    tasks({ specialInfo: 'hello from userland' }),
+    //----------------------------------------
+    task({ specialInfo: 'hello from userland' }),
 
+    //----------------------------------------
     // example of a userland inline module
+    //----------------------------------------
     {
       name: 'app',
       entities: [],
@@ -279,7 +295,7 @@ export const load = (async () => {
   <button on:click={() => login('Ermin')}>Login as Ermin</button>
   <button on:click={() => login('JYC')}>Login as JYC</button>
   <button on:click={() => login('Noam')}>Login as Noam</button>
-  <a href="/fly/auth/sign-in">Have a look also this integrated Auth UI !</a>
+  <a href="/ff/auth/sign-in">Have a look also this integrated Auth UI !</a>
 {/if}
 
 <hr />
@@ -337,7 +353,7 @@ export default defineConfig({
 })
 `,
   ],
-  './src/lib/firstly/modules/tasks/index.ts': [
+  './src/lib/firstly/modules/task/index.ts': [
     `import type { Module } from 'firstly/api'
 
 import { log } from '${libAlias}/firstly'
@@ -345,7 +361,7 @@ import { log } from '${libAlias}/firstly'
 import { Task } from './Task'
 import { TaskController } from './TaskController'
 
-export const tasks: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
+export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
   return {
     name: 'task',
     entities: [Task],
@@ -356,11 +372,11 @@ export const tasks: (o: { specialInfo: string }) => Module = ({ specialInfo }) =
   }
 }`,
   ],
-  './src/lib/firstly/modules/tasks/Task.ts': [
+  './src/lib/firstly/modules/task/Task.ts': [
     `import { Entity, Field, Fields, ValueListFieldType } from 'remult'
 import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'firstly'
 
-@Entity('tasks', {
+@Entity('task', {
   allowApiCrud: true,
 })
 export class Task {
@@ -400,7 +416,7 @@ export class TypeOfTaskEnum extends BaseEnum {
 }    
 `,
   ],
-  './src/lib/firstly/modules/tasks/TaskController.ts': [
+  './src/lib/firstly/modules/task/TaskController.ts': [
     `import { BackendMethod } from 'remult'
 
 import { log } from '${libAlias}/firstly'
@@ -423,7 +439,7 @@ for (const [path, content] of Object.entries(obj)) {
     write(path, content)
   } else {
     if (res.includes('module-demo')) {
-      if (path.startsWith('./src/lib/firstly/modules/tasks')) {
+      if (path.startsWith('./src/lib/firstly/modules/task')) {
         write(path, content)
       }
     }

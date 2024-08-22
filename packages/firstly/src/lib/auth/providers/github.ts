@@ -2,28 +2,35 @@ import { GitHub } from 'arctic'
 
 import { remult } from 'remult'
 
+import { env } from '$env/dynamic/private'
+
 import { checkOAuthConfig } from '.'
 import { logAuth, type KitOAuth2Provider } from '../'
 
 /**
- * GitHub OAuth2 provider
+ * ## GitHub OAuth2 provider
  *
- * In GitHub, set your callback url to
- * - dev: `http://localhost:5173/api/auth_callback`
- * - prod: `https://MY_SUPER_SITE/api/auth_callback`
- *
- * In your project add a `.env` file with the following:
- *
- * ```env
- * GITHUB_CLIENT_ID= 'your-client-id'
- * GITHUB_CLIENT_SECRET= 'your-client-secret'
+ * 1. Get your **id** & **secret** from [GitHub (direct link)](https://github.com/settings/developers).
+ * 2. In GitHub, set your callback url to
+ * - [ ] dev: `http://localhost:5173/api/auth_callback`
+ * - [ ] prod: `https://MY_SUPER_SITE/api/auth_callback`
+ * 3. In your project add a `.env` file with the following:
+ * ```bash
+ * GITHUB_CLIENT_ID = 'your-client-id'
+ * GITHUB_CLIENT_SECRET = 'your-client-secret'
+ * # GITHUB_REDIRECT_URI = '' # optional, will default to "${origin}/api/auth_callback"
  * ```
- *
- * _FYI: GITHUB_REDIRECT_URI is optional as auth module will default to "${origin}/api/auth_callback"._
+ * 4. In your frontend, under a button click call something like:
+ * ```ts
+ * async function oauth() {
+ *   window.location.href = await Auth.signInOAuthGetUrl({ provider: 'github', redirect: window.location.pathname })
+ * }
+ * ```
+ * 5. Enjoy 🥳
  */
 export function github(options?: {
-  GITHUB_CLIENT_ID: string
-  GITHUB_CLIENT_SECRET: string
+  GITHUB_CLIENT_ID?: string
+  GITHUB_CLIENT_SECRET?: string
   GITHUB_REDIRECT_URI?: string
   authorizationURLOptions?: ReturnType<
     KitOAuth2Provider<'github', GitHub>['authorizationURLOptions']
@@ -32,8 +39,8 @@ export function github(options?: {
 }): KitOAuth2Provider<'github', GitHub> {
   const name = 'github'
 
-  const clientID = options?.GITHUB_CLIENT_ID ?? ''
-  const secret = options?.GITHUB_CLIENT_SECRET ?? ''
+  const clientID = options?.GITHUB_CLIENT_ID ?? env.GITHUB_CLIENT_ID ?? ''
+  const secret = options?.GITHUB_CLIENT_SECRET ?? env.GITHUB_CLIENT_ID ?? ''
 
   const urlForKeys = 'https://github.com/settings/developers'
   checkOAuthConfig(name, clientID, secret, urlForKeys, false)
@@ -43,7 +50,9 @@ export function github(options?: {
     isPKCE: false,
     getArcticProvider: () => {
       const redirectURI =
-        options?.GITHUB_REDIRECT_URI || `${remult.context.url.origin}/api/auth_callback`
+        options?.GITHUB_REDIRECT_URI ??
+        env.GITHUB_CLIENT_ID ??
+        `${remult.context.url.origin}/api/auth_callback`
 
       checkOAuthConfig(name, clientID, secret, urlForKeys, true)
 
