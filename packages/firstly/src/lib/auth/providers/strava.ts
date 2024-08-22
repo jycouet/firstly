@@ -3,7 +3,7 @@ import { Strava } from 'arctic'
 import { remult } from 'remult'
 
 import { checkOAuthConfig } from '.'
-import { logAuth, type KitOAuth2Provider } from '../'
+import { logAuth, type FFOAuth2Provider } from '../'
 
 /**
  * Strava OAuth2 provider
@@ -26,10 +26,10 @@ export function strava(options?: {
   STRAVA_CLIENT_SECRET: string
   STRAVA_REDIRECT_URI?: string
   authorizationURLOptions?: ReturnType<
-    KitOAuth2Provider<'strava', Strava>['authorizationURLOptions']
+    FFOAuth2Provider<'strava', Strava>['authorizationURLOptions']
   >
   log?: boolean
-}): KitOAuth2Provider<'strava', Strava> {
+}): FFOAuth2Provider<'strava', Strava> {
   const name = 'strava'
 
   const clientID = options?.STRAVA_CLIENT_ID ?? ''

@@ -2,7 +2,7 @@ import { repo } from 'remult'
 import type { ClassType } from 'remult'
 import { cyan, green, Log, yellow } from '@kitql/helpers'
 
-import { KitAuthUser } from './Entities'
+import { FFAuthUser } from './Entities'
 
 /**
  * will merge the roles and remove duplicates
@@ -22,8 +22,8 @@ export const mergeRoles = (existing: string[], newOnes: string[] | undefined) =>
 
 export const initRoleFromEnv = async (
   log: Log,
-  userEntity: ClassType<KitAuthUser>,
-  envValue: string,
+  userEntity: ClassType<FFAuthUser>,
+  envValue: string | undefined,
   role: string,
 ) => {
   const names = envValue === undefined ? [] : (envValue ?? '').split(',').map((c) => c.trim())

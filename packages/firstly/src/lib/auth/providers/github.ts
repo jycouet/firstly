@@ -5,7 +5,7 @@ import { remult } from 'remult'
 import { env } from '$env/dynamic/private'
 
 import { checkOAuthConfig } from '.'
-import { logAuth, type KitOAuth2Provider } from '../'
+import { logAuth, type FFOAuth2Provider } from '../'
 
 /**
  * ## GitHub OAuth2 provider
@@ -33,10 +33,10 @@ export function github(options?: {
   GITHUB_CLIENT_SECRET?: string
   GITHUB_REDIRECT_URI?: string
   authorizationURLOptions?: ReturnType<
-    KitOAuth2Provider<'github', GitHub>['authorizationURLOptions']
+    FFOAuth2Provider<'github', GitHub>['authorizationURLOptions']
   >
   log?: boolean
-}): KitOAuth2Provider<'github', GitHub> {
+}): FFOAuth2Provider<'github', GitHub> {
   const name = 'github'
 
   const clientID = options?.GITHUB_CLIENT_ID ?? env.GITHUB_CLIENT_ID ?? ''

@@ -7,11 +7,11 @@ export const FF_Auth_Role = {
   Admin: 'FF_Auth_Role',
 } as const
 
-@Entity('kit_auth_user', {
+@Entity('ff_auth.users', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  dbName: 'auth.kit_auth_user',
+  // dbName: 'ff_auth.users',
 })
-export class KitAuthUser {
+export class FFAuthUser {
   @Fields.cuid()
   id!: string
 
@@ -22,7 +22,7 @@ export class KitAuthUser {
   updatedAt?: Date
 
   // @Fields.string<KitAuthUser>({
-  @Fields.string<KitAuthUser>({
+  @Fields.string<FFAuthUser>({
     validate: [
       Validators.unique(),
       (e) => {
@@ -32,7 +32,7 @@ export class KitAuthUser {
   })
   name!: string
 
-  @Fields.object<KitAuthUser, string[]>({
+  @Fields.object<FFAuthUser, string[]>({
     valueConverter: {
       toDb: (x) => (x ? x.join(',') : undefined),
       fromDb: (x) => (x ? x.split(',') : undefined),
@@ -40,19 +40,19 @@ export class KitAuthUser {
   })
   roles: string[] = []
 
-  @Relations.toMany<KitAuthUser, KitAuthAccount>(() => KitAuthAccount, 'userId')
-  accounts!: KitAuthAccount[]
+  @Relations.toMany<FFAuthUser, FFAuthAccount>(() => FFAuthAccount, 'userId')
+  accounts!: FFAuthAccount[]
 
-  @Relations.toMany<KitAuthUser, KitAuthUserSession>(() => KitAuthUserSession, 'userId')
-  sessions!: KitAuthUserSession[]
+  @Relations.toMany<FFAuthUser, FFAuthUserSession>(() => FFAuthUserSession, 'userId')
+  sessions!: FFAuthUserSession[]
 }
 
-@Entity<KitAuthAccount>('kit_auth_account', {
+@Entity<FFAuthAccount>('ff_auth.accounts', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  dbName: 'auth.kit_auth_account',
+  // dbName: 'ff_auth.accounts',
   id: { provider: true, userId: true },
 })
-export class KitAuthAccount {
+export class FFAuthAccount {
   @Fields.createdAt()
   createdAt!: Date
 
@@ -62,11 +62,11 @@ export class KitAuthAccount {
   @Fields.string()
   userId!: string
 
-  @Relations.toOne<KitAuthAccount, KitAuthUser>(() => KitAuthUser, 'userId')
-  user!: KitAuthUser
+  @Relations.toOne<FFAuthAccount, FFAuthUser>(() => FFAuthUser, 'userId')
+  user!: FFAuthUser
 
   @Fields.string()
-  provider = AuthProvider.PASSWORD.id
+  provider = FFAuthProvider.PASSWORD.id
 
   @Fields.string()
   providerUserId = ''
@@ -84,11 +84,11 @@ export class KitAuthAccount {
   lastVerifiedAt?: Date
 }
 
-@Entity('kit_auth_session', {
+@Entity('ff_auth.user_sessions', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  dbName: 'auth.kit_auth_session',
+  // dbName: 'ff_auth.user_sessions',
 })
-export class KitAuthUserSession {
+export class FFAuthUserSession {
   @Fields.cuid()
   id!: string
 
@@ -98,16 +98,16 @@ export class KitAuthUserSession {
   @Fields.string()
   userId!: string
 
-  @Relations.toOne<KitAuthUserSession, KitAuthUser>(() => KitAuthUser, 'userId')
-  user!: KitAuthUser
+  @Relations.toOne<FFAuthUserSession, FFAuthUser>(() => FFAuthUser, 'userId')
+  user!: FFAuthUser
 }
 
 @ValueListFieldType()
-export class AuthProvider extends BaseEnum {
-  static DEMO = new AuthProvider('DEMO', { caption: 'Demo' })
-  static PASSWORD = new AuthProvider('PASSWORD', { caption: 'Password' })
-  static OTP = new AuthProvider('OTP', { caption: 'TOTP' })
-  static OAUTH = new AuthProvider('OAUTH', { caption: 'OAUTH' })
+export class FFAuthProvider extends BaseEnum {
+  static DEMO = new FFAuthProvider('DEMO', { caption: 'Demo' })
+  static PASSWORD = new FFAuthProvider('PASSWORD', { caption: 'Password' })
+  static OTP = new FFAuthProvider('OTP', { caption: 'TOTP' })
+  static OAUTH = new FFAuthProvider('OAUTH', { caption: 'OAUTH' })
 
   constructor(id: string, o?: BaseEnumOptions) {
     super(id, {

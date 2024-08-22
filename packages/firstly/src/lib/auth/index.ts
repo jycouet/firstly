@@ -11,6 +11,8 @@ import type { ClassType, UserInfo } from 'remult'
 import { Log, red } from '@kitql/helpers'
 import { getRelativePackagePath, read } from '@kitql/internals'
 
+import { env } from '$env/dynamic/private'
+
 import { FF_Role } from '../'
 import type { Module } from '../api'
 import type { ResolvedType } from '../utils/types'
@@ -18,18 +20,18 @@ import { RemultLuciaAdapter } from './Adapter'
 import { AuthControllerServer } from './AuthController.server'
 import { Auth } from './client'
 import {
-  AuthProvider,
   FF_Auth_Role,
-  KitAuthAccount,
-  KitAuthUser,
-  KitAuthUserSession,
+  FFAuthAccount,
+  FFAuthProvider,
+  FFAuthUser,
+  FFAuthUserSession,
 } from './Entities'
 import { createSession } from './helper'
 import { initRoleFromEnv } from './RoleHelpers'
 import type { firstlyData } from './types'
 
 export type { firstlyData }
-export { KitAuthUser, KitAuthAccount, AuthProvider, KitAuthUserSession }
+export { FFAuthUser, FFAuthAccount, FFAuthProvider, FFAuthUserSession }
 
 // It's sure that we can do better than that! ;)
 export type AuthorizationURLOptions = Record<
@@ -39,9 +41,9 @@ export type AuthorizationURLOptions = Record<
   }
 >
 
-export type DynamicAuthorizationURLOptions<T extends KitOAuth2Provider[] = KitOAuth2Provider[]> =
+export type DynamicAuthorizationURLOptions<T extends FFOAuth2Provider[] = FFOAuth2Provider[]> =
   T extends Array<infer O>
-    ? O extends KitOAuth2Provider
+    ? O extends FFOAuth2Provider
       ? {
           [P in O['name']]: ReturnType<O['authorizationURLOptions']>
         }
@@ -58,7 +60,7 @@ type OAuth2UserInfo = {
   /** Will take the first option available */
   nameOptions: string[]
 }
-export type KitOAuth2Provider<
+export type FFOAuth2Provider<
   LitName extends string = string,
   T extends ArcticOAuth2Provider | ArcticOAuth2ProviderWithPKCE = ArcticOAuth2Provider,
 > = {
@@ -81,9 +83,9 @@ export type KitOAuth2Provider<
 }
 
 type AuthOptions<
-  TUserEntity extends KitAuthUser = KitAuthUser,
-  TSessionEntity extends KitAuthUserSession = KitAuthUserSession,
-  TAccountEntity extends KitAuthAccount = KitAuthAccount,
+  TUserEntity extends FFAuthUser = FFAuthUser,
+  TSessionEntity extends FFAuthUserSession = FFAuthUserSession,
+  TAccountEntity extends FFAuthAccount = FFAuthAccount,
 > = {
   customEntities?: {
     User?: ClassType<TUserEntity>
@@ -168,7 +170,7 @@ type AuthOptions<
       send?: (data: { name: string; otp: string; uri: string }) => Promise<void>
     }
 
-    oAuths?: KitOAuth2Provider[]
+    oAuths?: FFOAuth2Provider[]
   }
 }
 
@@ -226,9 +228,9 @@ export const getSafeOptions = () => {
   }
 
   return {
-    User: AUTH_OPTIONS.customEntities?.User ?? KitAuthUser,
-    Session: AUTH_OPTIONS.customEntities?.Session ?? KitAuthUserSession,
-    Account: AUTH_OPTIONS.customEntities?.Account ?? KitAuthAccount,
+    User: AUTH_OPTIONS.customEntities?.User ?? FFAuthUser,
+    Session: AUTH_OPTIONS.customEntities?.Session ?? FFAuthUserSession,
+    Account: AUTH_OPTIONS.customEntities?.Account ?? FFAuthAccount,
 
     signUp,
     password_enabled: AUTH_OPTIONS.providers?.password ? true : false,
@@ -297,7 +299,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
 
         const account = await remult
           .repo(oSafe.Account)
-          .findFirst({ token, provider: AuthProvider.PASSWORD.id })
+          .findFirst({ token, provider: FFAuthProvider.PASSWORD.id })
 
         if (!account) {
           throw new Error('Invalid token')
@@ -458,8 +460,8 @@ export const auth: (o: AuthOptions) => Module = (o) => {
     },
     initApi: async () => {
       // Todo... need to pass env to options
-      await initRoleFromEnv(logAuth, oSafe.User, 'FF_ADMIN', FF_Role.Admin)
-      await initRoleFromEnv(logAuth, oSafe.User, 'FF_AUTH_ADMIN', KitAuthRole.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, env.FF_ADMIN, FF_Role.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, env.FF_AUTH_ADMIN, FF_Auth_Role.Admin)
     },
   }
 }

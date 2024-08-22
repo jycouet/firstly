@@ -1,7 +1,7 @@
 import { Entity, Fields } from 'remult'
 
 import { firstly } from '$lib/api'
-import { auth, KitAuthUser } from '$lib/auth'
+import { auth, FFAuthUser } from '$lib/auth'
 
 // import { github } from '$lib/auth/providers'
 
@@ -17,7 +17,7 @@ const Role = {
     console.info(`Yop ${e.name} 👋`)
   },
 })
-export class _AppUser extends KitAuthUser {
+export class _AppUser extends FFAuthUser {
   @Fields.string()
   jobTitle: string = 'CEO'
 }
