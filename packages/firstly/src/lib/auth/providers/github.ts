@@ -49,7 +49,7 @@ export function github(options?: {
     getArcticProvider: () => {
       const redirectURI =
         options?.GITHUB_REDIRECT_URI ??
-        env.GITHUB_CLIENT_ID ??
+        process.env.GITHUB_CLIENT_ID ??
         `${remult.context.url.origin}/api/auth_callback`
 
       checkOAuthConfig(name, clientID, secret, urlForKeys, true)
