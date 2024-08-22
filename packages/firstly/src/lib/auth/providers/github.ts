@@ -5,6 +5,13 @@ import { remult } from 'remult'
 import { checkOAuthConfig } from '.'
 import { logAuth, type FFOAuth2Provider } from '../'
 
+//------------------------------
+// For developers (future me ?), To do another OAuth2 provider:
+// Replace GITHUB / Github / github
+// update "https://github.com/settings/developers" to the correct URL (2 places)
+// update "https://api.github.com/user" the fetch user info
+//------------------------------
+
 /**
  * ## GitHub OAuth2 provider
  *
