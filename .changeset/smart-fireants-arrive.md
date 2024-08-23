@@ -2,4 +2,4 @@
 'firstly': patch
 ---
 
-WIP 0.0.6
+fix auth & mail (logs & co)
