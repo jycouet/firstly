@@ -23,6 +23,37 @@ By default, firstly will create a demo account on [ethereal.email](https://ether
 will **NEVER** send a real email, but you can see the email sent in the ethereal dashboard. You also
 get a link to the email preview in the console.
 
+## Use the template
+
+Instead of passing the `html` param, you can pass `props`, and it will use a nice default template.
+
+```ts
+await sendMail('my_second_mail', {
+  to: '...@...',
+  subject: 'Hello from firstly (a second time)',
+
+  props: {
+    title: 'firstly 👋',
+    previewText: 'This is the mail you were waiting for',
+    sections: [
+      {
+        text: 'Then, How are you today ?',
+        highlighted: true
+      },
+      {
+        text: 'Did you star the repo ?',
+        cta: {
+          text: 'Check it out',
+          link: 'https://github.com/jycouet/firstly'
+        }
+      }
+    ]
+  }
+})
+```
+
+# How to really send email ?
+
 ## Manually configure your service
 
 ```ts
@@ -70,6 +101,8 @@ export const api = firstly({
       name: 'My Cool App',
       address: 'noreply@coolApp.io'
     }
+    // Using https://github.com/carstenlebek/svelte-email
+    template: AnySvelteComponent
   }
 })
 ```

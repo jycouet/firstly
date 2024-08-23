@@ -6,8 +6,12 @@ import type SESTransport from 'nodemailer/lib/ses-transport'
 import type SMTPPool from 'nodemailer/lib/smtp-pool'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import type StreamTransport from 'nodemailer/lib/stream-transport'
+import type { ComponentProps, ComponentType, SvelteComponent } from 'svelte'
+import { render } from 'svelte-email'
 
 import { cyan, green, Log, magenta, red, sleep, white } from '@kitql/helpers'
+
+import { DefaultMail } from '../'
 
 export type TransportTypes =
   | SMTPTransport
@@ -35,8 +39,9 @@ export type DefaultOptions =
   | SESTransport.Options
   | typeNodemailer.TransportOptions
 
-export type MailOptions = {
+export type MailOptions<ComponentTemplateDefault extends SvelteComponent> = {
   from?: Mail.Options['from']
+  template?: ComponentType<ComponentTemplateDefault>
   transport?: TransportTypes
   defaults?: DefaultOptions
   apiUrl?: Parameters<typeof typeNodemailer.createTestAccount>[0]
@@ -47,12 +52,12 @@ const log = new Log('firstly | mail')
 let nodemailerHolder: typeof typeNodemailer
 let transporter: ReturnType<typeof typeNodemailer.createTransport>
 
-let globalOptions: MailOptions | undefined
+let globalOptions: MailOptions<SvelteComponent> | undefined
 
-export const mailInit: (nodemailer: typeof typeNodemailer, o?: MailOptions) => void = async (
-  nodemailer,
-  o,
-) => {
+export const mailInit: (
+  nodemailer: typeof typeNodemailer,
+  o?: MailOptions<SvelteComponent>,
+) => void = async (nodemailer, o) => {
   nodemailerHolder = nodemailer
   globalOptions = o
 
@@ -77,12 +82,21 @@ export const mailInit: (nodemailer: typeof typeNodemailer, o?: MailOptions) => v
       log.error("Error nodemailer.createTestAccount() can't be done.")
     }
   }
+
+  if (o?.template === undefined) {
+    globalOptions = {
+      ...globalOptions,
+      template: DefaultMail,
+    }
+  }
 }
 
-export const sendMail: (
+export const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
   /** usefull for logs, it has NO impact on the mail itself */
   topic: string,
-  mailOptions: Parameters<typeof transporter.sendMail>[0],
+  mailOptions: Parameters<typeof transporter.sendMail>[0] & {
+    props?: ComponentProps<ComponentTemplateDefault> | undefined
+  },
 ) => ReturnType<typeof transporter.sendMail> = async (topic, mailOptions) => {
   // if the transporter is not ready, wait for it! (it can happen only if nothing is set...)
   for (let i = 0; i < 30; i++) {
@@ -92,6 +106,24 @@ export const sendMail: (
     await sleep(100)
   }
   try {
+    if (!mailOptions.html) {
+      mailOptions.text = render({
+        template: globalOptions?.template ?? DefaultMail,
+        props: mailOptions.props,
+        options: {
+          plainText: true,
+          pretty: true,
+        },
+      })
+      mailOptions.html = render({
+        template: globalOptions?.template ?? DefaultMail,
+        props: mailOptions.props,
+        options: {
+          pretty: true,
+        },
+      })
+    }
+
     const info = await transporter.sendMail({
       ...mailOptions,
       ...{ from: mailOptions.from ?? globalOptions?.from },

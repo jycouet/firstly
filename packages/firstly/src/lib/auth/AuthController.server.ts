@@ -109,9 +109,26 @@ export class AuthControllerServer {
         await sendMail('invite', {
           to: email,
           subject: 'Invitation',
-          text: `You were invited here: ${url}`,
-          html: `You were invited <a href="${url}">here</a>`,
+
+          props: {
+            title: 'Invitation 👋',
+            previewText: 'This is the mail you were waiting for',
+            sections: [
+              {
+                text: 'Today is your lucky day !',
+                highlighted: true,
+              },
+              {
+                text: 'You were invited to join the team',
+                cta: {
+                  text: 'JOIN',
+                  link: url,
+                },
+              },
+            ],
+          },
         })
+
         logAuth.success(`Done with ${green('sendMail')} (${url})`)
         return 'Demo Mail sent !'
       }
@@ -165,17 +182,30 @@ export class AuthControllerServer {
     if (oSafe.verifiedMethod === 'auto') {
       await createSession(user.id)
     } else {
-      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui.providers.password.paths.verify_email}?token=${token}`
+      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.verifyMailSend) {
         await AUTH_OPTIONS.providers?.password.verifyMailSend({ email, url })
         logAuth.success(`Done with custom ${green('verifyMailSend')} (${yellow(url)})`)
       } else {
         await sendMail('signUpPassword', {
           to: email,
-          subject: 'Wecome!',
-          text: `You can validate your account here: ${url}`,
-          html: `You can validate your account <a href="${url}">here</a>`,
+          subject: 'Wecome',
+
+          props: {
+            title: 'Wecome 👋',
+            previewText: 'This is the mail you were waiting for',
+            sections: [
+              {
+                text: 'You can validate your account',
+                cta: {
+                  text: 'HERE',
+                  link: url,
+                },
+              },
+            ],
+          },
         })
+
         logAuth.success(`Done with ${green('sendMail')} (${url})`)
       }
     }
@@ -247,7 +277,7 @@ export class AuthControllerServer {
 
       await remult.repo(oSafe.Account).save(authAccount)
 
-      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui.providers.password.paths.reset_password}?token=${token}`
+      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.resetPasswordSend) {
         await AUTH_OPTIONS.providers?.password.resetPasswordSend({ email, url })
         logAuth.success(`Done with custom ${green('resetPasswordSend')} (${yellow(url)})`)
@@ -256,9 +286,26 @@ export class AuthControllerServer {
         await sendMail('forgotPassword', {
           to: email,
           subject: 'Reset your password',
-          text: `You can reset your password here: ${url}`,
-          html: `You can reset your password <a href="${url}">here</a>`,
+
+          props: {
+            title: 'Reset your password 👋',
+            previewText: 'This is the mail you were waiting for',
+            sections: [
+              {
+                text: 'Did you forgot something ?',
+                highlighted: true,
+              },
+              {
+                text: 'No worries, you can reset your password',
+                cta: {
+                  text: 'HERE',
+                  link: url,
+                },
+              },
+            ],
+          },
         })
+
         logAuth.success(`Done with ${green('sendMail')} (${url})`)
         return 'Demo Mail sent !'
       }

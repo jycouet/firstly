@@ -1,5 +1,6 @@
 import { type Handle, type MaybePromise, type RequestEvent } from '@sveltejs/kit'
 import nodemailer from 'nodemailer'
+import type { SvelteComponent } from 'svelte'
 
 import { remult, type ClassType } from 'remult'
 import { remultSveltekit } from 'remult/remult-sveltekit'
@@ -33,7 +34,7 @@ export type Module = {
 type Options = Omit<
   RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
     modules?: Module[] | undefined
-    mail?: MailOptions
+    mail?: MailOptions<any>
     // log?: boolean | string
   },
   'entities' | 'controllers' | 'initRequest' | 'initApi'

@@ -10,6 +10,7 @@
  */
 const PAGES = {
   "/": `/`,
+  "/mail": `/mail`,
   "/remult": `/remult`,
   "/remult/auth": `/remult/auth`,
   "/remult/enum": `/remult/enum`,
@@ -142,7 +143,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 * ```
 */
 export type KIT_ROUTES = {
-  PAGES: { '/': never, '/remult': never, '/remult/auth': never, '/remult/enum': never, '/remult/select': never, '/ui': never }
+  PAGES: { '/': never, '/mail': never, '/remult': never, '/remult/auth': never, '/remult/enum': never, '/remult/select': never, '/ui': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
   LINKS: { 'firstly_sign_in': never, 'remult_admin': never, 'github': 'owner' | 'repo' }
