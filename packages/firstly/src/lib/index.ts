@@ -1,15 +1,12 @@
-// I'm not sure I can remove this or not ?
-// import 'remult'
-
 import type { RequestEvent } from '@sveltejs/kit'
 
-import type { FieldMetadata, FindOptionsBase, Repository } from 'remult'
+import type { FindOptionsBase } from 'remult'
 import { Log } from '@kitql/helpers'
 
-import type { KitBaseEnum, KitBaseEnumOptions, KitIcon } from './KitBaseEnum.js'
-import type { KitCellsInput as KitCellsInputForExport } from './kitCellsBuildor.js'
-import { kitStoreItem } from './kitStoreItem.js'
-import { kitStoreList } from './kitStoreList.js'
+import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
+import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
+import { storeItem } from './storeItem.js'
+import { storeList } from './storeList.js'
 import { default as Button } from './ui/Button.svelte'
 import { default as Clipboardable } from './ui/Clipboardable.svelte'
 import { default as DialogManagement } from './ui/dialog/DialogManagement.svelte'
@@ -26,12 +23,9 @@ import { default as LinkPlus } from './ui/link/LinkPlus.svelte'
 import { default as Loading } from './ui/Loading.svelte'
 import { default as Tooltip } from './ui/Tooltip.svelte'
 
-export const logFirstly = new Log('firstly')
-
-export const KitRole = {
-  Admin: 'KitAdmin',
-}
-
+// ******************************
+// Svelte Components
+// ******************************
 export {
   Field,
   FormEditAction,
@@ -49,47 +43,67 @@ export {
   SelectMelt,
   Clipboardable,
 }
-export { dialog } from './ui/dialog/dialog.js'
+
+// ******************************
+// Objects
+// ******************************
+export const ff_Log = new Log('firstly')
+
+export const FF_Role = {
+  Admin: 'FF_Role.Admin',
+}
+
+// ******************************
+// Helpers types
+// ******************************
+export type { BaseEnumOptions } from './BaseEnum.js'
+export type { BaseItem }
+export type BaseItemLight = Partial<BaseItem>
+
 export type { DialogMetaDataInternal } from './ui/dialog/dialog.js'
-export { KitBaseEnum, getEnum, getEnums } from './KitBaseEnum.js'
-export type { KitBaseEnumOptions } from './KitBaseEnum.js'
-export { KitFields } from './KitFields.js'
-export { KitEntity } from './KitEntity.js'
-export { LogToConsoleCustom } from './SqlDatabase/LogToConsoleCustom.js'
-export { getEntityDisplayValue, isError, kitDbNamesOf, getFieldLinkDisplayValue } from './helper.js'
+export type CellsInput<entityType> = CellsInput_ForExport<entityType>
+export type { Cell, VisibilityMode } from './cellsBuildor.js'
+export type { FF_FindOptions } from './storeList.js'
+export type StoreItem<T> = ReturnType<typeof storeItem<T>>
+export type StoreList<T> = ReturnType<typeof storeList<T>>
+export type { ResolvedType, UnArray } from './utils/types.js'
+
+// ******************************
+// Helpers
+// ******************************
+export { FF_Fields } from './FF_Fields.js'
+export { FF_Entity } from './FF_Entity.js'
+export { FF_LogToConsole } from './SqlDatabase/FF_LogToConsole.js'
+export { BaseEnum } from './BaseEnum.js'
+export { dialog } from './ui/dialog/dialog.js'
+export {
+  getEntityDisplayValue,
+  isError,
+  getFieldLinkDisplayValue,
+  getEnum,
+  getEnums,
+} from './helper.js'
 export {
   buildWhere,
   getPlaceholder,
   buildSearchWhere,
-  kitCellsBuildor,
-  kitCellBuildor,
+  cellsBuildor,
+  cellBuildor,
   fieldsOf,
-} from './kitCellsBuildor.js'
-export { kitStoreItem }
-export { kitStoreList }
+} from './cellsBuildor.js'
+export { storeItem }
+export { storeList }
+export { displayPhone, arrToStr } from './formats/strings.js'
+export { displayCurrency } from './formats/numbers.js'
+export { tw } from './utils/tailwind.js'
 
-export type KitCellsInput<entityType> = KitCellsInputForExport<entityType>
-export type { KitCell, VisibilityMode } from './kitCellsBuildor.js'
-export type { FindOptionsPlus } from './kitStoreList.js'
-export type KitBaseItem = KitBaseEnumOptions & {
-  id: string
-  captionSub?: string | (string | undefined)[]
-  href?: string
-  repo?: Repository<any>
-  sub?: {
-    captionPre?: string
-    repo?: Repository<any>
-    item?: any
-  }
-}
-export type KitStoreItem<T> = ReturnType<typeof kitStoreItem<T>>
-export type KitStoreList<T> = ReturnType<typeof kitStoreList<T>>
-export type KitBaseItemLight = Partial<KitBaseItem>
-
+// Hummm... I don't know if we should keep it...
 export { FilterEntity } from './virtual/FilterEntity.js'
 export { UIEntity } from './virtual/UIEntity.js'
 
+// ******************************
 // Icons
+// ******************************
 export {
   LibIcon_Empty,
   LibIcon_Forbidden,
@@ -116,15 +130,11 @@ export {
   LibIcon_SortDesc,
 } from './ui/LibIcon.js'
 
-export type { KitIcon }
+export type { FF_Icon }
 
-// Formats & Utils
-export { displayPhone, arrToStr } from './formats/strings.js'
-export { displayCurrency } from './formats/numbers.js'
-export { tw } from './utils/tailwind.js'
-export { litOrStr } from './utils/types.js'
-export type { ResolvedType, UnArray } from './utils/types.js'
-
+// ******************************
+// Additions to Remult
+// ******************************
 declare module 'remult' {
   export interface RemultContext {
     url: URL
@@ -161,19 +171,17 @@ declare module 'remult' {
     multiSelect?: boolean
 
     skipForDefaultField?: boolean
-
-    isHidden?: (item: entityType) => boolean
   }
 
   export interface EntityOptions<entityType> {
     searchableFind?: (str: string) => FindOptionsBase<entityType>
-    displayValue?: (item: entityType) => KitBaseItem
+    displayValue?: (item: entityType) => BaseItem
 
-    permissionApiCrud?: KitBaseEnum[] | KitBaseEnum
-    permissionApiDelete?: KitBaseEnum[] | KitBaseEnum
-    permissionApiInsert?: KitBaseEnum[] | KitBaseEnum
-    permissionApiRead?: KitBaseEnum[] | KitBaseEnum
-    permissionApiUpdate?: KitBaseEnum[] | KitBaseEnum
+    permissionApiCrud?: BaseEnum[] | BaseEnum
+    permissionApiDelete?: BaseEnum[] | BaseEnum
+    permissionApiInsert?: BaseEnum[] | BaseEnum
+    permissionApiRead?: BaseEnum[] | BaseEnum
+    permissionApiUpdate?: BaseEnum[] | BaseEnum
   }
 
   export interface UserInfo {
@@ -182,12 +190,4 @@ declare module 'remult' {
       expiresAt: Date
     }
   }
-}
-
-export const isHidden = (fm: FieldMetadata, row: any) => {
-  if (fm.options.isHidden) {
-    return fm.options.isHidden(row)
-  }
-
-  return false
 }

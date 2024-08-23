@@ -9,15 +9,15 @@
     LibIcon_Cross,
     LibIcon_Search,
     tw,
-    type KitBaseItem,
-    type KitIcon,
+    type BaseItem,
+    type FF_Icon,
   } from '../../../'
   import Icon from '../../Icon.svelte'
 
   export let id: string
   export let disabled: boolean = false
   export let placeholder: string = ''
-  export let items: KitBaseItem[] = []
+  export let items: BaseItem[] = []
   let totalCount: number | undefined = undefined
 
   export let focus: boolean = false
@@ -30,7 +30,7 @@
   }
 
   export let loadOptions:
-    | ((str: string) => Promise<{ items: KitBaseItem[]; totalCount: number }>)
+    | ((str: string) => Promise<{ items: BaseItem[]; totalCount: number }>)
     | undefined = undefined
   export let value: string | undefined = undefined
   export let clearable = false
@@ -39,7 +39,7 @@
 
   const dispatch = createEventDispatcher()
 
-  function dispatchSelectedValue(_data: KitBaseItem | undefined) {
+  function dispatchSelectedValue(_data: BaseItem | undefined) {
     dispatch('selected', _data)
   }
 
@@ -88,9 +88,9 @@
   }
 
   const toOption = (
-    item: KitBaseItem,
-  ): ComboboxOptionProps<KitBaseItem> & {
-    icon?: KitIcon
+    item: BaseItem,
+  ): ComboboxOptionProps<BaseItem> & {
+    icon?: FF_Icon
   } => ({
     value: item,
     label: item.caption,
@@ -102,7 +102,7 @@
     elements: { menu, input, option },
     states: { open, inputValue, touchedInput, selected: localSelected },
     // helpers: { isSelected },
-  } = createCombobox<KitBaseItem>({
+  } = createCombobox<BaseItem>({
     forceVisible: true,
     disabled,
     ids: { label: id },

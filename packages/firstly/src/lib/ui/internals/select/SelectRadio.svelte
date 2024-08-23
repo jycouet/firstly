@@ -1,18 +1,18 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte'
 
-  import type { KitBaseItem } from '../../../'
+  import type { BaseItem } from '../../../'
   import Icon from '../../../ui/Icon.svelte'
 
   export let id: string
   export let disabled: boolean = false
   export let placeholder: string = ''
-  export let items: KitBaseItem[] = []
+  export let items: BaseItem[] = []
   export let value: string | number | undefined = undefined
 
   const dispatch = createEventDispatcher()
 
-  function dispatchSelected(_data: KitBaseItem | undefined) {
+  function dispatchSelected(_data: BaseItem | undefined) {
     dispatch('selected', _data)
   }
 </script>

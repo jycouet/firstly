@@ -3,14 +3,12 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { defineConfig } from 'vite'
 import { watchAndRun } from 'vite-plugin-watch-and-run'
 
-import { firstly } from '../firstly/dist/esm/vite'
-
-// https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    port: 4242,
+  },
   plugins: [
-    firstly(),
     svelte(),
-    // @ts-ignore
     watchAndRun([
       {
         name: 'update',
@@ -27,8 +25,5 @@ export default defineConfig({
     rollupOptions: {
       external: ['$env/dynamic/private', '@kitql/internals'],
     },
-  },
-  server: {
-    port: 4242,
   },
 })

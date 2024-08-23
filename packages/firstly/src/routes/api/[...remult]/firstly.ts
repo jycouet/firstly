@@ -1,9 +1,8 @@
 import { Entity, Fields } from 'remult'
 
 import { firstly } from '$lib/api'
-import { auth, KitAuthUser } from '$lib/auth'
-
-// import { github } from '$lib/auth/providers'
+import { auth, FFAuthUser } from '$lib/auth'
+import { github } from '$lib/auth/providers'
 
 const Role = {
   ADMIN: 'admin',
@@ -17,7 +16,7 @@ const Role = {
     console.info(`Yop ${e.name} 👋`)
   },
 })
-export class _AppUser extends KitAuthUser {
+export class _AppUser extends FFAuthUser {
   @Fields.string()
   jobTitle: string = 'CEO'
 }
@@ -89,10 +88,10 @@ export const remultApi = firstly({
         },
 
         oAuths: [
-          // github({
-          //   authorizationURLOptions: { scopes: ['user:email'] },
-          //   log: true,
-          // }),
+          github({
+            authorizationURLOptions: { scopes: ['user:email'] },
+            log: true,
+          }),
         ],
       },
     }),

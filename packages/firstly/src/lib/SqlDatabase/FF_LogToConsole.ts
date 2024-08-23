@@ -19,7 +19,7 @@ const typeQuery = new Map<string, string>([
 const keys = ['FROM', 'WHERE', 'LIMIT', 'OFFSET']
 const typeQueryKey = Array.from(typeQuery.keys())
 
-export const LogToConsoleCustom = (
+export const FF_LogToConsole = (
   duration: number,
   query: string,
   args: Record<string, any>,

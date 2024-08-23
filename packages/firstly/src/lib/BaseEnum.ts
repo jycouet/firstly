@@ -1,7 +1,7 @@
-import { getValueList, type IdFilter } from 'remult'
-import type { ClassType, FindOptionsBase } from 'remult'
+import { type IdFilter } from 'remult'
+import type { FindOptionsBase, Repository } from 'remult'
 
-export type KitIcon = {
+export type FF_Icon = {
   data?: string | string[]
   size?: string | number
   class?: string | string[]
@@ -9,21 +9,33 @@ export type KitIcon = {
   caption?: string
 }
 
-export type KitBaseEnumOptions<Entity = any> = {
+export type BaseItem = BaseEnumOptions & {
+  id: string
+  captionSub?: string | (string | undefined)[]
+  href?: string
+  repo?: Repository<any>
+  sub?: {
+    captionPre?: string
+    repo?: Repository<any>
+    item?: any
+  }
+}
+
+export type BaseEnumOptions<Entity = any> = {
   caption?: string
-  icon?: KitIcon
+  icon?: FF_Icon
   where?: IdFilter<Entity> | FindOptionsBase<Entity>['where']
   class?: string
 }
 
-export class KitBaseEnum<Entity = any> {
+export class BaseEnum<Entity = any> {
   public id: string
   public caption?: string
-  icon?: KitIcon
+  icon?: FF_Icon
   public where?: IdFilter<Entity> | FindOptionsBase<Entity>['where']
   public class?: string
 
-  constructor(_id: string | number, options?: KitBaseEnumOptions<Entity>) {
+  constructor(_id: string | number, options?: BaseEnumOptions<Entity>) {
     this.id = _id.toString()
     this.caption = options?.caption ?? this.id
     this.icon = options?.icon
@@ -38,21 +50,4 @@ export class KitBaseEnum<Entity = any> {
   getWhere = () => {
     return this.where ? this.where : this
   }
-}
-
-export const getEnum = <T extends KitBaseEnum>(
-  baseEnum: ClassType<T>,
-  id: string | undefined | null,
-) => {
-  if (!id) {
-    return undefined
-  }
-
-  // @ts-ignore
-  const found = getValueList(baseEnum).find((c) => c.id === id)
-  return found
-}
-
-export const getEnums = <T extends KitBaseEnum>(baseEnum: ClassType<T>) => {
-  return getValueList(baseEnum) || []
 }

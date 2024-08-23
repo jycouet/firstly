@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { remult } from 'remult'
 
-import { buildWhere, fieldsOf, getPlaceholder, kitCellsBuildor } from './kitCellsBuildor.js'
+import { buildWhere, cellsBuildor, fieldsOf, getPlaceholder } from './cellsBuildor.js'
 import { UIEntity } from './virtual/UIEntity.js'
 
 const repo = remult.repo(UIEntity)
@@ -75,8 +75,8 @@ test('with default where', () => {
   `)
 })
 
-test('kitBuilder', () => {
-  const cells = kitCellsBuildor(repo, ['email', 'password'])
+test('cellsBuildor', () => {
+  const cells = cellsBuildor(repo, ['email', 'password'])
   // Let's get the selection done
   expect(fieldsOf(cells).map((c) => c.key)).toMatchInlineSnapshot(`
 		[

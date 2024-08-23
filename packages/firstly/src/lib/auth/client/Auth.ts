@@ -107,6 +107,6 @@ export class Auth {
     options?: AuthorizationURLOptions[T]
     redirect?: string
   }) {
-    return await Auth.signInOAuthGetUrlFn(o.provider, o.options, o.redirect)
+    return await Auth.signInOAuthGetUrlFn(o)
   }
 }

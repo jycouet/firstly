@@ -3,12 +3,12 @@
   import { createEventDispatcher } from 'svelte'
   import { fade } from 'svelte/transition'
 
-  import { LibIcon_Cross, tw, type KitBaseItemLight } from '../../'
+  import { LibIcon_Cross, tw, type BaseItemLight } from '../../'
   import { flyAndScale } from '../../utils/transition'
   import Icon from '../Icon.svelte'
   import LinkPlus from '../link/LinkPlus.svelte'
 
-  export let detail: KitBaseItemLight | undefined = undefined
+  export let detail: BaseItemLight | undefined = undefined
   export let open: boolean = false
   export let classes: { root?: string } = {}
 

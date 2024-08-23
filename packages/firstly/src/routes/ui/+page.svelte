@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { KitBaseItem } from '$lib'
+  import type { BaseItem } from '$lib'
   import { Button } from '$lib'
   import { dialog } from '$lib/ui/dialog/dialog'
   import FieldContainer from '$lib/ui/internals/FieldContainer.svelte'
@@ -9,7 +9,7 @@
 
   import DemoDialog from './DemoDialog.svelte'
 
-  let bicycles: KitBaseItem[] = [
+  let bicycles: BaseItem[] = [
     {
       id: '1',
       caption: 'Mountain Bike',

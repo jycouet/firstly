@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { tw, type KitBaseItemLight } from '../..'
+  import { tw, type BaseItemLight } from '../..'
   import Icon from '../Icon.svelte'
   import Tooltip from '../Tooltip.svelte'
   import Link from './Link.svelte'
 
-  export let item: KitBaseItemLight | undefined
+  export let item: BaseItemLight | undefined
   export let noIcon = false
   export let captionSubStyle: 'under' | 'inline' | 'none' = 'under'
 </script>

@@ -1,13 +1,13 @@
 <script lang="ts" generics="T extends any">
   import { createEventDispatcher } from 'svelte'
 
-  import type { KitStoreItem } from '../..'
+  import type { StoreItem } from '../..'
   import Button from '../Button.svelte'
   import Icon from '../Icon.svelte'
   import { LibIcon_Add, LibIcon_Check, LibIcon_Delete } from '../LibIcon'
   import type { DialogType } from './dialog'
 
-  export let store: KitStoreItem<T>
+  export let store: StoreItem<T>
   export let type: DialogType
   export let wDelete = false
 

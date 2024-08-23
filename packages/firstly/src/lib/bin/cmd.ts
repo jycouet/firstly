@@ -26,7 +26,7 @@ const options: { value: Keys; label: string; hint?: string | undefined }[] = [
   },
   {
     value: 'module-demo',
-    label: 'module tasks',
+    label: 'module task',
     hint: 'A default module with a task entity and a controller (you can rename the folder and make it yours)',
   },
   {
@@ -44,8 +44,9 @@ const res = (await p.multiselect({
 const devDependenciesPrepare: Record<string, string> = {
   '@kitql/eslint-config': '0.3.6',
   '@kitql/helpers': '0.8.9',
-  remult: versionFirstly,
   pg: '8.12.0',
+  oslo: '^1.2.0',
+  remult: versionFirstly,
   ...pkg.devDependencies,
 }
 
@@ -74,11 +75,11 @@ if (res.includes('all') || res.includes('dependencies')) {
 const obj = {
   './.eslintrc.cjs': [
     `module.exports = {
-    extends: ['@kitql'],
-    rules: {
-      // Your overrides here
-    }
+  extends: ['@kitql'],
+  rules: {
+    // Your overrides here
   }
+}
   `,
   ],
   './.prettierignore': [
@@ -105,59 +106,74 @@ src/lib/ROUTES.ts
   ],
   './.prettierrc.cjs': [
     `const {
-    //plugins,
-    ...prettierConfig
-  } = require('@kitql/eslint-config/.prettierrc.cjs')
-  
-  module.exports = {
-    ...prettierConfig,
-    // Your overrides here
-  }`,
+  //plugins,
+  ...prettierConfig
+} = require('@kitql/eslint-config/.prettierrc.cjs')
+
+module.exports = {
+  ...prettierConfig,
+  // Your overrides here
+}`,
   ],
   '.env.example': [
     `# Enable some roles
-# KIT_ADMIN = 'JYC'
-# KIT_AUTH_ADMIN = ''
+# FF_ADMIN = 'JYC'
+# FF_AUTH_ADMIN = ''
 
 # Enable GitHub login
-GITHUB_CLIENT_ID = ''
-GITHUB_CLIENT_SECRET = ''
+# GITHUB_CLIENT_ID = ''
+# GITHUB_CLIENT_SECRET = ''
 `,
   ],
   './src/lib/firstly/index.ts': [
-    `import { firstly } from 'firstly/api'
+    `import { FF_Role } from 'firstly'
+import { firstly } from 'firstly/api'
 import { auth } from 'firstly/auth'
-// import { github } from 'firstly/auth/providers'
-// import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private'
 import { Log } from '@kitql/helpers'
 
-import { tasks } from './modules/tasks'
+import { task } from './modules/task'
 
-// When you will want to use postgres, create a .env file with DATABASE_URL
+//----------------------------------------
+// To switch to postgres (1/2)
+//----------------------------------------
 // import { createPostgresConnection } from 'remult/postgres'
 // import { DATABASE_URL } from '$env/static/private'
 
-/** Define your roles here and use them in your app */
+//----------------------------------------
+// To enable OAuth via Github (1/2)
+//----------------------------------------
+// import { github } from 'firstly/auth/providers'
+
+/**
+ * Your roles, use them in your app !
+ */
 export const Role = {
-  ADMIN: 'admin',
-  SUPER_ADMIN: 'super_admin',
+  Boss: 'Boss',
 }
 
-/** Define your log instance and user it accross your all app */
+/**
+ * Your logs with a nice prefix, use \`log.info("Hello")\` / \`log.success("Yeah")\` / \`log.error("Ho nooo!")\` and see !
+ */
 export const log = new Log('${pkg.name}')
 
 export const api = firstly({
+  //----------------------------------------
+  // To switch to postgres (2/2)
+  //----------------------------------------
   // dataProvider: await createPostgresConnection({
   //  connectionString: DATABASE_URL,
   // }),
+
   modules: [
-    // core module: auth
+    //----------------------------------------
+    // Core Module: auth
+    //----------------------------------------
     auth({
       providers: {
         demo: [
           { name: 'Ermin' },
-          { name: 'JYC', roles: [Role.ADMIN] },
-          { name: 'Noam', roles: [Role.SUPER_ADMIN] },
+          { name: 'JYC', roles: [FF_Role.Admin] },
+          { name: 'Noam', roles: [FF_Role.Admin, Role.Boss] },
         ],
 
         // password: {},
@@ -165,22 +181,23 @@ export const api = firstly({
         // otp: {},
 
         oAuths: [
-          // To enable GitHub auth,
-          // 1/ Add your GitHub credentials to .env file (example in .env.example)
-          // 2/ uncomment imports & github() call below
-          // 3/ under a button click call something like this:
-          //      async function oauth() {
-          //        window.location.href = await Auth.signInOAuthGetUrl({ provider: 'github', redirect: window.location.pathname })
-          //      }
-          // github( { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } )
+          //----------------------------------------
+          // To enable OAuth via Github (2/2)
+          // Instructions by hovering the method \`github\`
+          //----------------------------------------
+          // github(),
         ],
       },
     }),
 
+    //----------------------------------------
     // example of a userland module
-    tasks({ specialInfo: 'hello from userland' }),
+    //----------------------------------------
+    task({ specialInfo: 'hello from userland' }),
 
+    //----------------------------------------
     // example of a userland inline module
+    //----------------------------------------
     {
       name: 'app',
       entities: [],
@@ -226,36 +243,12 @@ export const load = (async () => {
   './src/routes/+layout.svelte': [
     `<script lang="ts">
   import { remult } from 'remult'
-  import { isError } from 'firstly'
-  import { Auth } from 'firstly/auth/client'
-
-  import { invalidateAll } from '$app/navigation'
 
   import { route } from '${libAlias}/ROUTES'
+  import SignIn from '${libAlias}/ui/SignIn.svelte'
+  import SignOut from '${libAlias}/ui/SignOut.svelte'
 
   import type { LayoutData } from './$types'
-
-  const login = async (identif: string) => {
-    try {
-      await Auth.signInDemo(identif)
-      invalidateAll()
-    } catch (error) {
-      if (isError(error)) {
-        alert(error.message)
-      }
-    }
-  }
-
-  const logout = async () => {
-    try {
-      await Auth.signOut()
-      invalidateAll()
-    } catch (error) {
-      if (isError(error)) {
-        alert(error.message)
-      }
-    }
-  }
 
   export let data: LayoutData
   $: remult.user = data.user
@@ -273,13 +266,17 @@ export const load = (async () => {
 <h1>${pkg.name}</h1>
 
 {#if remult.authenticated()}
-  <button style="float:right;" on:click={logout}>Logout</button>
+  <div style="float:right;">
+    <SignOut></SignOut>
+  </div>
   <span>{remult.user?.name} ({remult.user?.roles})<br /><br /></span>
 {:else}
-  <button on:click={() => login('Ermin')}>Login as Ermin</button>
-  <button on:click={() => login('JYC')}>Login as JYC</button>
-  <button on:click={() => login('Noam')}>Login as Noam</button>
-  <a href="/fly/auth/sign-in">Have a look also this integrated Auth UI !</a>
+  <SignIn demo="Ermin"></SignIn>
+  <SignIn demo="JYC"></SignIn>
+  <SignIn demo="Noam"></SignIn>
+  <br />
+  <SignIn ffLink></SignIn>
+  <SignIn oauth="github"></SignIn>
 {/if}
 
 <hr />
@@ -288,11 +285,87 @@ export const load = (async () => {
 
 <hr />
 
-<a href={route('github', { owner: 'jycouet', repo: 'firstly' })} target="_blank">
-  ⭐️ firstly
-</a>
+<div style="float: right; text-align: right;">
+  <a href={route('remult_admin')} target="_blank">🚀 admin</a>
+  <p style="font-size: small;">
+    <i>Login as <b>JYC</b> to get admin rights ☝️</i>
+  </p>
+</div>
+<a href={route('github', { owner: 'jycouet', repo: 'firstly' })} target="_blank"> ⭐️ firstly </a>
 |
 <a href={route('github', { owner: 'remult', repo: 'remult' })} target="_blank">⭐️ remult</a>
+`,
+  ],
+  './src/lib/ui/SignIn.svelte': [
+    `<script lang="ts">
+  import { isError } from 'firstly'
+  import { Auth } from 'firstly/auth/client'
+
+  import { goto, invalidateAll } from '$app/navigation'
+
+  import { route } from '$lib/ROUTES'
+
+  // Examples of signin modes
+  export let demo = ''
+  export let ffLink = false
+  export let oauth: 'github' | undefined = undefined
+
+  const signinDemo = async (identif: string) => {
+    try {
+      await Auth.signInDemo(identif)
+      invalidateAll()
+    } catch (error) {
+      if (isError(error)) {
+        // TODO: You will probably not leave this alert in production
+        alert(error.message)
+      }
+    }
+  }
+
+  async function signinOAuth(provider: 'github') {
+    try {
+      window.location.href = await Auth.signInOAuthGetUrl({
+        provider,
+        redirect: window.location.pathname,
+      })
+    } catch (error) {
+      if (isError(error)) {
+        // TODO: You will probably not leave this alert in production
+        alert(error.message)
+      }
+    }
+  }
+</script>
+
+{#if demo}
+  <button on:click={() => signinDemo(demo)}>Login as {demo}</button>
+{:else if ffLink}
+  <button on:click={() => goto(route('firstly_sign_in'))}>Login with Firstly</button>
+{:else if oauth}
+  <button on:click={() => signinOAuth(oauth)}>Login With {oauth}</button>
+{/if}
+`,
+  ],
+  './src/lib/ui/SignOut.svelte': [
+    `<script lang="ts">
+  import { isError } from 'firstly'
+  import { Auth } from 'firstly/auth/client'
+
+  import { invalidateAll } from '$app/navigation'
+
+  const logout = async () => {
+    try {
+      await Auth.signOut()
+      invalidateAll()
+    } catch (error) {
+      if (isError(error)) {
+        alert(error.message)
+      }
+    }
+  }
+</script>
+
+<button on:click={logout}>Logout</button>
 `,
   ],
   './tsconfig.json': [
@@ -329,7 +402,11 @@ export default defineConfig({
   plugins: [
     firstly<KIT_ROUTES>({
       kitRoutes: {
-        LINKS: { github: 'https://github.com/[owner]/[repo]' },
+        LINKS: { 
+          firstly_sign_in: 'ff/auth/sign-in',
+          github: 'https://github.com/[owner]/[repo]',
+          remult_admin: 'api/admin',
+        },
       }
     }),
     sveltekit(),
@@ -337,7 +414,28 @@ export default defineConfig({
 })
 `,
   ],
-  './src/lib/firstly/modules/tasks/index.ts': [
+  './.gitignore': [
+    `node_modules
+
+# Output
+/.svelte-kit
+/build
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Firstly / Remult
+/db
+`,
+  ],
+  './src/lib/firstly/modules/task/index.ts': [
     `import type { Module } from 'firstly/api'
 
 import { log } from '${libAlias}/firstly'
@@ -345,7 +443,7 @@ import { log } from '${libAlias}/firstly'
 import { Task } from './Task'
 import { TaskController } from './TaskController'
 
-export const tasks: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
+export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
   return {
     name: 'task',
     entities: [Task],
@@ -356,11 +454,11 @@ export const tasks: (o: { specialInfo: string }) => Module = ({ specialInfo }) =
   }
 }`,
   ],
-  './src/lib/firstly/modules/tasks/Task.ts': [
+  './src/lib/firstly/modules/task/Task.ts': [
     `import { Entity, Field, Fields, ValueListFieldType } from 'remult'
-import { KitBaseEnum, LibIcon_Add, LibIcon_Delete, type KitBaseEnumOptions } from 'firstly'
+import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'firstly'
 
-@Entity('tasks', {
+@Entity('task', {
   allowApiCrud: true,
 })
 export class Task {
@@ -385,7 +483,7 @@ export class Task {
 }
 
 @ValueListFieldType()
-export class TypeOfTaskEnum extends KitBaseEnum {
+export class TypeOfTaskEnum extends BaseEnum {
   static EASY = new TypeOfTaskEnum('EASY', {
     caption: 'Easy',
     icon: { data: LibIcon_Add },
@@ -394,13 +492,13 @@ export class TypeOfTaskEnum extends KitBaseEnum {
     caption: 'Hard',
     icon: { data: LibIcon_Delete },
   })
-  constructor(id: string, o?: KitBaseEnumOptions<TypeOfTaskEnum>) {
+  constructor(id: string, o?: BaseEnumOptions<TypeOfTaskEnum>) {
     super(id, o)
   }
 }    
 `,
   ],
-  './src/lib/firstly/modules/tasks/TaskController.ts': [
+  './src/lib/firstly/modules/task/TaskController.ts': [
     `import { BackendMethod } from 'remult'
 
 import { log } from '${libAlias}/firstly'
@@ -423,7 +521,7 @@ for (const [path, content] of Object.entries(obj)) {
     write(path, content)
   } else {
     if (res.includes('module-demo')) {
-      if (path.startsWith('./src/lib/firstly/modules/tasks')) {
+      if (path.startsWith('./src/lib/firstly/modules/task')) {
         write(path, content)
       }
     }

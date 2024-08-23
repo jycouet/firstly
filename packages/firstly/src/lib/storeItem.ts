@@ -13,7 +13,7 @@ type TheStoreItem<T> = {
   globalError?: string | undefined
 }
 
-export const kitStoreItem = <T>(
+export const storeItem = <T>(
   repo: Repository<T>,
   initValues: TheStoreItem<T> = {
     item: undefined,

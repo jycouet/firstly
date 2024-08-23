@@ -8,7 +8,7 @@ import { green, yellow } from '@kitql/helpers'
 
 import { AUTH_OPTIONS, getSafeOptions, logAuth, lucia, type AuthorizationURLOptions } from '.'
 import { sendMail } from '../mail'
-import { AuthProvider } from './Entities.js'
+import { FFAuthProvider } from './Entities.js'
 import { createSession } from './helper'
 import { mergeRoles } from './RoleHelpers'
 
@@ -148,7 +148,7 @@ export class AuthControllerServer {
     const token = generateId(40)
 
     await remult.repo(oSafe.Account).insert({
-      provider: AuthProvider.PASSWORD.id,
+      provider: FFAuthProvider.PASSWORD.id,
       providerUserId: email,
       userId: user.id,
       hashPassword: await passwordHash(password),
@@ -199,7 +199,7 @@ export class AuthControllerServer {
       .findOne({ where: { name: email }, include: { accounts: true } })
 
     const accountPassword = existingUser?.accounts.find(
-      (c) => c.provider === AuthProvider.PASSWORD.id,
+      (c) => c.provider === FFAuthProvider.PASSWORD.id,
     )
     if (accountPassword && existingUser) {
       const validPassword = await passwordVerify(
@@ -235,7 +235,7 @@ export class AuthControllerServer {
       if (!authAccount) {
         authAccount = remult.repo(oSafe.Account).create()
         authAccount.userId = u.id
-        authAccount.provider = AuthProvider.PASSWORD.id
+        authAccount.provider = FFAuthProvider.PASSWORD.id
         authAccount.providerUserId = email
       }
 
@@ -278,7 +278,7 @@ export class AuthControllerServer {
 
     const account = await remult
       .repo(oSafe.Account)
-      .findFirst({ token, provider: AuthProvider.PASSWORD.id })
+      .findFirst({ token, provider: FFAuthProvider.PASSWORD.id })
 
     if (!account) {
       throw new Error('Invalid token')
@@ -338,12 +338,12 @@ export class AuthControllerServer {
 
       let account = await remult
         .repo(oSafe.Account)
-        .findFirst({ userId: user.id, provider: AuthProvider.OTP.id })
+        .findFirst({ userId: user.id, provider: FFAuthProvider.OTP.id })
       if (!account) {
         account = remult.repo(oSafe.Account).create()
       }
       account.userId = user.id
-      account.provider = AuthProvider.OTP.id
+      account.provider = FFAuthProvider.OTP.id
       account.token = otp
       account.hashPassword = secretEncoded
 
@@ -365,7 +365,7 @@ export class AuthControllerServer {
     const oSafe = getSafeOptions()
 
     const accounts = await remult.repo(oSafe.Account).find({
-      where: { token: String(otp), provider: AuthProvider.OTP.id },
+      where: { token: String(otp), provider: FFAuthProvider.OTP.id },
     })
 
     if (accounts.length === 0) {
@@ -480,6 +480,8 @@ export class AuthControllerServer {
       }
     }
 
-    throw new Error(`${o.provider} is not configured!`)
+    throw new Error(
+      `${o.provider} is not configured! (Module: auth, section: providers.oAuths: [${o.provider}] missing)`,
+    )
   }
 }

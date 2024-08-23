@@ -9,26 +9,26 @@
     LibIcon_MultiCheck,
     LibIcon_Search,
     tw,
-    type KitBaseItem,
-    type KitIcon,
+    type BaseItem,
+    type FF_Icon,
   } from '../../..'
   import Icon from '../../Icon.svelte'
 
   export let id: string
   export let disabled: boolean = false
   export let placeholder: string = ''
-  export let items: KitBaseItem[] = []
+  export let items: BaseItem[] = []
   let totalCount: number | undefined = undefined
 
   export let loadOptions:
-    | ((str: string) => Promise<{ items: KitBaseItem[]; totalCount: number }>)
+    | ((str: string) => Promise<{ items: BaseItem[]; totalCount: number }>)
     | undefined = undefined
   export let values: string[] | undefined = undefined
   export let clearable = false
 
   const dispatch = createEventDispatcher()
 
-  function dispatchSelectedValues(_data: KitBaseItem[] | undefined) {
+  function dispatchSelectedValues(_data: BaseItem[] | undefined) {
     values = _data?.map((_data) => _data.id)
     dispatch('selected', _data)
   }
@@ -56,9 +56,9 @@
   }
 
   const toOption = (
-    item: KitBaseItem,
-  ): ComboboxOptionProps<KitBaseItem> & {
-    icon?: KitIcon
+    item: BaseItem,
+  ): ComboboxOptionProps<BaseItem> & {
+    icon?: FF_Icon
   } => ({
     value: item,
     label: item.caption,
@@ -70,7 +70,7 @@
     elements: { menu, input, option },
     states: { open, inputValue, touchedInput, selected: localSelected },
     helpers: { isSelected },
-  } = createCombobox<KitBaseItem, true>({
+  } = createCombobox<BaseItem, true>({
     forceVisible: true,
     multiple: true,
     disabled,
@@ -129,7 +129,7 @@
   }
   $: $inputValue = labelToDisplayInInput($localSelected)
 
-  const iconToDisplayInInput = (_localSelected: typeof $localSelected): KitIcon => {
+  const iconToDisplayInInput = (_localSelected: typeof $localSelected): FF_Icon => {
     if (_localSelected === undefined || _localSelected.length === 0) {
       return { data: LibIcon_Search }
     }
@@ -139,7 +139,7 @@
     return { data: LibIcon_MultiCheck }
   }
 
-  const isChecked = (_localSelected: typeof $localSelected, _item: KitBaseItem) => {
+  const isChecked = (_localSelected: typeof $localSelected, _item: BaseItem) => {
     const f = (_localSelected ?? []).filter((c) => c.value?.id === _item.id)
     if (f.length > 0) {
       return true

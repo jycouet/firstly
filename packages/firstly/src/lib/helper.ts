@@ -1,9 +1,9 @@
-import { dbNamesOf, getEntityRef } from 'remult'
-import type { ErrorInfo, FieldMetadata, Repository } from 'remult'
+import { getEntityRef, getValueList } from 'remult'
+import type { ClassType, ErrorInfo, FieldMetadata, Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { suffixWithS } from './formats/strings.js'
-import type { KitBaseItem } from './index.js'
+import type { BaseEnum, BaseItem } from './index.js'
 
 export function isError<T>(object: any): object is ErrorInfo<T> {
   return object
@@ -26,10 +26,7 @@ export const getFirstInterestingField = <Entity>(repo: Repository<Entity>) => {
   return fields[0]
 }
 
-export const getEntityDisplayValue = <Entity>(
-  repo: Repository<Entity>,
-  row: Entity,
-): KitBaseItem => {
+export const getEntityDisplayValue = <Entity>(repo: Repository<Entity>, row: Entity): BaseItem => {
   if (repo.metadata.options.displayValue) {
     return repo.metadata.options.displayValue(row)
   }
@@ -42,7 +39,7 @@ export const getEntityDisplayValue = <Entity>(
 export const getFieldLinkDisplayValue = (
   field: FieldMetadata,
   row: any,
-): KitBaseItem & { href: string } => {
+): BaseItem & { href: string } => {
   const caption = field.displayValue(row)
 
   let href = ''
@@ -56,7 +53,7 @@ export const getFieldLinkDisplayValue = (
 export const getEntityDisplayValueFromField = (
   field: FieldMetadata,
   row: any,
-): KitBaseItem & { href: string } => {
+): BaseItem & { href: string } => {
   if (row === null || row === undefined) {
     return { href: '/', id: '', caption: '-' }
   }
@@ -75,7 +72,7 @@ export type MetaTypeRelation = {
 type MetaTypeEnum = {
   kind: 'enum'
   subKind: 'single' | 'multi'
-  values: KitBaseItem[]
+  values: BaseItem[]
   field: FieldMetadata
 }
 type MetaTypePrimitive = {
@@ -107,10 +104,8 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
     return {
       kind: 'enum',
       subKind: 'multi',
-      // // @ts-ignore
-      // values: getEnums(field.target) as KitBaseItem[],
       // @ts-ignore
-      values: field.options.valueConverter.values as KitBaseItem[],
+      values: field.options.valueConverter.values as BaseItem[],
       field,
     }
   }
@@ -128,7 +123,7 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
       kind: 'enum',
       subKind: 'single',
       // @ts-ignore
-      values: field.options.valueConverter.values as KitBaseItem[],
+      values: field.options.valueConverter.values as BaseItem[],
       field,
     }
   }
@@ -163,9 +158,21 @@ export const displayWithDefaultAndSuffix = (
   return toRet.join(' ')
 }
 
-/**
- * same as `dbNamesOf` but with `tableName` set to `true` by default
- */
-export const kitDbNamesOf = async <Entity>(...p: Parameters<typeof dbNamesOf<Entity>>) => {
-  return dbNamesOf(p[0], { tableName: true, ...p[1] })
+// FIXME: to remove ?
+export const getEnum = <T extends BaseEnum>(
+  baseEnum: ClassType<T>,
+  id: string | undefined | null,
+) => {
+  if (!id) {
+    return undefined
+  }
+
+  // @ts-ignore
+  const found = getValueList(baseEnum).find((c) => c.id === id)
+  return found
+}
+
+// FIXME: to remove ?
+export const getEnums = <T extends BaseEnum>(baseEnum: ClassType<T>) => {
+  return getValueList(baseEnum) || []
 }

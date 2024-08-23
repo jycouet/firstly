@@ -3,12 +3,12 @@ import type { SvelteComponent } from 'svelte'
 import { type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
-import { getEnum, KitBaseEnum } from './KitBaseEnum.js'
+import { type BaseEnum } from './BaseEnum.js'
 import type { UnArray } from './utils/types.js'
 
 export type VisibilityMode = 'view' | 'edit' | 'hide'
 
-type KitCellInternal<Entity> = {
+type CellInternal<Entity> = {
   col?: keyof Entity
   kind?:
     | 'field' // using the std displayValue of the field
@@ -33,21 +33,21 @@ type KitCellInternal<Entity> = {
   rowToProps?: (row: any) => any
 }
 
-export type KitCell<Entity> = KitCellInternal<Entity> & {
+export type Cell<Entity> = CellInternal<Entity> & {
   field?: FieldMetadata<any, Entity>
 }
 
-export type KitCellsInput<Entity> = (keyof Entity | KitCellInternal<Entity>)[]
+export type CellsInput<Entity> = (keyof Entity | CellInternal<Entity>)[]
 
 /**
- * kitCellsBuildor is a function to build cells for a <Grid /> or <FieldGroup /> component.
+ * cellsBuildor is a function to build cells for a <Grid /> or <FieldGroup /> component.
  *
  * ```html
  * <script lang="ts">
  *   import { repo } from 'remult'
  *
- *   const cells = kitCellsBuildor(repo(Site), ['name', 'description'])
- *   const store = kitStoreList( repo(Site) )
+ *   const cells = cellsBuildor(repo(Site), ['name', 'description'])
+ *   const store = storeList( repo(Site) )
  *   $: store.fetch()
  * </script>
  *
@@ -55,16 +55,16 @@ export type KitCellsInput<Entity> = (keyof Entity | KitCellInternal<Entity>)[]
  * ```
  *
  */
-export function kitCellsBuildor<Entity>(
+export function cellsBuildor<Entity>(
   repo: Repository<Entity>,
-  inputBuildor: KitCellsInput<Entity>,
-): KitCell<Entity>[] {
-  const buildor: KitCell<Entity>[] = []
+  inputBuildor: CellsInput<Entity>,
+): Cell<Entity>[] {
+  const buildor: Cell<Entity>[] = []
 
   for (let i = 0; i < inputBuildor.length; i++) {
     const item = inputBuildor[i]
 
-    let b: KitCell<Entity>
+    let b: Cell<Entity>
     if (item instanceof Object) {
       b = { ...item, field: repo.fields[item.col] }
     } else {
@@ -84,14 +84,14 @@ export function kitCellsBuildor<Entity>(
   return buildor
 }
 
-export function kitCellBuildor<Entity>(
+export function cellBuildor<Entity>(
   repo: Repository<Entity>,
-  inputBuildor: UnArray<KitCellsInput<Entity>>,
+  inputBuildor: UnArray<CellsInput<Entity>>,
 ) {
-  return kitCellsBuildor(repo, [inputBuildor])[0]
+  return cellsBuildor(repo, [inputBuildor])[0]
 }
 
-export const fieldsOf = <Entity>(b: KitCell<Entity>[]) => {
+export const fieldsOf = <Entity>(b: Cell<Entity>[]) => {
   return b.filter((c) => c.field).map((c) => c.field!) ?? []
 }
 
@@ -165,7 +165,7 @@ export const buildWhere = <Entity>(
         const theEnum = getEnum(field, obj[field.key])
         // Take the where of the enum if it exists, or it's using this selection as a filter
         // @ts-ignore
-        const wheretoUse = theEnum?.where ?? new KitBaseEnum(obj[field.key])
+        const wheretoUse = theEnum?.where ?? new BaseEnum(obj[field.key])
         // @ts-ignore
         and.push({ [field.key]: wheretoUse })
       } else if (rfi?.type === 'toOne') {
