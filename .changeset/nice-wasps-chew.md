@@ -2,4 +2,4 @@
 'firstly': patch
 ---
 
-WIP 0.0.5
+[BREAKING] Renaming almost all exports! (Some `FF_` and `ff_` only when direct collision with other packages)
