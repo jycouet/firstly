@@ -1,12 +1,9 @@
-import { render } from 'svelte-email'
 
 import { Entity, Fields } from 'remult'
 
 import { firstly } from '$lib/api'
 import { auth, FFAuthUser } from '$lib/auth'
 import { github } from '$lib/auth/providers'
-import { sendMail } from '$lib/mail'
-import DefaultMail from '$lib/mail/templates/DefaultMail.svelte'
 
 const Role = {
   ADMIN: 'admin',

@@ -1,6 +1,5 @@
 import { type Handle, type MaybePromise, type RequestEvent } from '@sveltejs/kit'
 import nodemailer from 'nodemailer'
-import type { SvelteComponent } from 'svelte'
 
 import { remult, type ClassType } from 'remult'
 import { remultSveltekit } from 'remult/remult-sveltekit'
