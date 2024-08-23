@@ -1,14 +1,5 @@
 <script lang="ts">
-  import {
-    Button,
-    Container,
-    Head,
-    Heading,
-    Html,
-    Preview,
-    Section,
-    Text,
-  } from 'svelte-email'
+  import { Button, Container, Head, Heading, Html, Preview, Section, Text } from 'svelte-email'
 
   export let previewText: string | undefined
   export let title: string | undefined
@@ -17,7 +8,7 @@
     highlighted?: boolean
     cta?: { text: string; link: string } | undefined
   }[] = []
-  export let primaryColor = '#5B68DF'
+  export let brandColor = '#5B68DF'
 
   const fontFamily =
     '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif'
@@ -62,7 +53,7 @@
 
   const button = {
     fontFamily,
-    backgroundColor: primaryColor,
+    backgroundColor: brandColor,
     borderRadius: '5px',
     color: '#fff',
     fontSize: '18px',

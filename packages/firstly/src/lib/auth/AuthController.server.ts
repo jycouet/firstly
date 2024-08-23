@@ -110,7 +110,7 @@ export class AuthControllerServer {
           to: email,
           subject: 'Invitation',
 
-          props: {
+          templateProps: {
             title: 'Invitation 👋',
             previewText: 'This is the mail you were waiting for',
             sections: [
@@ -191,7 +191,7 @@ export class AuthControllerServer {
           to: email,
           subject: 'Wecome',
 
-          props: {
+          templateProps: {
             title: 'Wecome 👋',
             previewText: 'This is the mail you were waiting for',
             sections: [
@@ -287,7 +287,7 @@ export class AuthControllerServer {
           to: email,
           subject: 'Reset your password',
 
-          props: {
+          templateProps: {
             title: 'Reset your password 👋',
             previewText: 'This is the mail you were waiting for',
             sections: [

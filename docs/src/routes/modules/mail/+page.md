@@ -25,14 +25,15 @@ get a link to the email preview in the console.
 
 ## Use the template
 
-Instead of passing the `html` param, you can pass `props`, and it will use a nice default template.
+Instead of passing the `html` param, you can pass `templateProps`, and it will use a nice default
+template.
 
 ```ts
 await sendMail('my_second_mail', {
   to: '...@...',
   subject: 'Hello from firstly (a second time)',
 
-  props: {
+  templateProps: {
     title: 'firstly 👋',
     previewText: 'This is the mail you were waiting for',
     sections: [
@@ -101,8 +102,12 @@ export const api = firstly({
       name: 'My Cool App',
       address: 'noreply@coolApp.io'
     }
-    // Using https://github.com/carstenlebek/svelte-email
-    template: AnySvelteComponent
+    template: {
+      // Using https://github.com/carstenlebek/svelte-email
+      component: AnySvelteComponent
+      // to match your own branding
+      brandColor: '#E10098'
+    }
   }
 })
 ```

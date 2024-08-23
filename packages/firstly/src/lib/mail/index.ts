@@ -41,7 +41,10 @@ export type DefaultOptions =
 
 export type MailOptions<ComponentTemplateDefault extends SvelteComponent> = {
   from?: Mail.Options['from']
-  template?: ComponentType<ComponentTemplateDefault>
+  template?: {
+    component?: ComponentType<ComponentTemplateDefault>
+    brandColor?: string
+  }
   transport?: TransportTypes
   defaults?: DefaultOptions
   apiUrl?: Parameters<typeof typeNodemailer.createTestAccount>[0]
@@ -82,20 +85,13 @@ export const mailInit: (
       log.error("Error nodemailer.createTestAccount() can't be done.")
     }
   }
-
-  if (o?.template === undefined) {
-    globalOptions = {
-      ...globalOptions,
-      template: DefaultMail,
-    }
-  }
 }
 
 export const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
   /** usefull for logs, it has NO impact on the mail itself */
   topic: string,
   mailOptions: Parameters<typeof transporter.sendMail>[0] & {
-    props?: ComponentProps<ComponentTemplateDefault> | undefined
+    templateProps?: ComponentProps<ComponentTemplateDefault> | undefined
   },
 ) => ReturnType<typeof transporter.sendMail> = async (topic, mailOptions) => {
   // if the transporter is not ready, wait for it! (it can happen only if nothing is set...)
@@ -107,21 +103,14 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
   }
   try {
     if (!mailOptions.html) {
-      mailOptions.text = render({
-        template: globalOptions?.template ?? DefaultMail,
-        props: mailOptions.props,
-        options: {
-          plainText: true,
-          pretty: true,
-        },
-      })
-      mailOptions.html = render({
-        template: globalOptions?.template ?? DefaultMail,
-        props: mailOptions.props,
-        options: {
-          pretty: true,
-        },
-      })
+      const template = globalOptions?.template?.component ?? DefaultMail
+      const props = {
+        brandColor: globalOptions?.template?.brandColor ?? '#5B68DF',
+        ...mailOptions.templateProps,
+      }
+
+      mailOptions.text = render({ template, props, options: { plainText: true, pretty: true } })
+      mailOptions.html = render({ template, props, options: { plainText: false, pretty: true } })
     }
 
     const info = await transporter.sendMail({
