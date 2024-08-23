@@ -1,5 +1,18 @@
 # firstly
 
+## 0.0.5
+
+### Patch Changes
+
+- [#20](https://github.com/jycouet/firstly/pull/20)
+  [`5b365a4`](https://github.com/jycouet/firstly/commit/5b365a474619f611b0eb0bfe38bbbb262acb3a7e)
+  Thanks [@jycouet](https://github.com/jycouet)! - [BREAKING] Renaming almost all exports! (Some
+  `FF_` and `ff_` only when direct collision with other packages)
+
+- [#20](https://github.com/jycouet/firstly/pull/20)
+  [`b1ea110`](https://github.com/jycouet/firstly/commit/b1ea1101c45c137e477a937a8c6d130b346b2bb9)
+  Thanks [@jycouet](https://github.com/jycouet)! - tweak cli, update github auth
+
 ## 0.0.4
 
 ### Patch Changes
