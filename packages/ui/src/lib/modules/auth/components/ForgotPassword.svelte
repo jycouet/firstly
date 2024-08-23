@@ -31,9 +31,9 @@
       use:autofocus
       bind:value={email}
       type="text"
-      placeholder={firstlyDataAuth.ui.providers.password.dico.email_placeholder}
+      placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
     />
-    <button>{firstlyDataAuth.ui.providers.password.dico.send_password_reset_instructions}</button>
+    <button>{firstlyDataAuth.ui?.strings.send_password_reset_instructions}</button>
   </form>
 </div>
 

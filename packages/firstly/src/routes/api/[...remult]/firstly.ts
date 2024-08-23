@@ -3,6 +3,7 @@ import { Entity, Fields } from 'remult'
 import { firstly } from '$lib/api'
 import { auth, FFAuthUser } from '$lib/auth'
 import { github } from '$lib/auth/providers'
+import { sendMail } from '$lib/mail'
 
 const Role = {
   ADMIN: 'admin',
@@ -24,6 +25,19 @@ export class _AppUser extends FFAuthUser {
 // const t: DynamicAuthorizationURLOptions<typeof oAuths> = { github: {} }
 
 export const remultApi = firstly({
+  mail: {
+    from: 'jycouet@gmail.com',
+    transport: {
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false, // Use `true` for port 465, `false` for all other ports
+      auth: {
+        user: 'shanny78@ethereal.email',
+        pass: 'Tv3CAXK6gKQ4UQvH4g',
+      },
+    },
+  },
+
   modules: [
     {
       name: 'init',
@@ -42,7 +56,11 @@ export const remultApi = firstly({
       customEntities: {
         User: _AppUser,
       },
-
+      // ui: {
+      //   strings: {
+      //     email_placeholder: 'Yes ?',
+      //   },
+      // },
       // ui: {
       //   // paths: {
       //   //   // base: '',
@@ -72,6 +90,8 @@ export const remultApi = firstly({
         demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.ADMIN] }],
 
         password: {
+          verifyMailSend: async () => {},
+
           // ui: {
           //   forgot: "oups"
           // }
@@ -97,6 +117,14 @@ export const remultApi = firstly({
     }),
     {
       name: 'theEnd',
+      async initApi() {
+        await sendMail('my_first_mail', {
+          to: 'jycouet@gmail.com',
+          subject: 'Hello from firstly',
+          text: 'hello hello 👋',
+          html: 'hello <b>hello</b> 👋',
+        })
+      },
       handlePreRemult: async (h) => {
         return h.resolve(h.event)
       },

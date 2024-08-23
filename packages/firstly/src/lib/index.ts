@@ -66,7 +66,7 @@ export type { Cell, VisibilityMode } from './cellsBuildor.js'
 export type { FF_FindOptions } from './storeList.js'
 export type StoreItem<T> = ReturnType<typeof storeItem<T>>
 export type StoreList<T> = ReturnType<typeof storeList<T>>
-export type { ResolvedType, UnArray } from './utils/types.js'
+export type { ResolvedType, UnArray, RecursivePartial } from './utils/types.js'
 
 // ******************************
 // Helpers

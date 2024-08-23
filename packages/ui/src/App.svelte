@@ -11,8 +11,6 @@
     storage: import('./lib/modules/storage/Page.svelte'),
   } as const
 
-  // const localfirstlyData = firstlyData
-
   let activeModuleRef: any
 
   // Function to load a specific module
@@ -36,11 +34,13 @@
   {/if}
 </main>
 
-<div class="debug">
-  {#each getKeys() as module}
-    <button on:click={() => loadModule(module)}>Load {module}</button>
-  {/each}
-</div>
+{#if firstlyData.debug}
+  <div class="debug">
+    {#each getKeys() as module}
+      <button on:click={() => loadModule(module)}>Load {module}</button>
+    {/each}
+  </div>
+{/if}
 
 <style>
   .debug {

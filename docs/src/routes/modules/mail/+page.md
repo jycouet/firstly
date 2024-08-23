@@ -2,6 +2,8 @@
 title: Core Module - Mail
 ---
 
+## Usage
+
 To it's core, `firstly` provides you the ability to send emails. For this, we didn't reinvent the
 wheel and use the great [nodemailer](https://nodemailer.com/) package.
 
@@ -13,33 +15,33 @@ import { sendMail } from 'firstly/mail'
 await sendMail('my_first_mail', {
   to: '...@...',
   subject: 'Hello from firstly',
-  test: 'hello hello 👋',
   html: 'hello <b>hello</b> 👋'
 })
 ```
 
-By default, firstly will create a demo on the fly account, of couse, you will need to configure
-the mailer And use your own credentials:
+By default, firstly will create a demo account on [ethereal.email](https://ethereal.email/), this
+will **NEVER** send a real email, but you can see the email sent in the ethereal dashboard. You also
+get a link to the email preview in the console.
 
-Something like _(nodemailer example)_:
+## Manually configure your service
 
 ```ts
 export const api = firstly({
   mail: {
-    transport = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
+    transport: {
+      host: '...',
       port: 587,
       secure: false, // Use `true` for port 465, `false` for all other ports
       auth: {
-        user: "maddison53@ethereal.email",
-        pass: "jn7jnAPss4f63QBp6D",
-      },
-    })
+        user: '...',
+        pass: '...'
+      }
+    }
   }
 })
 ```
 
-## Other transport
+## Service sendgrid example
 
 or you can use another transport like
 [nodemailer-sendgrid](https://www.npmjs.com/package/nodemailer-sendgrid):

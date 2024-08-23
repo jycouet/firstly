@@ -37,19 +37,19 @@
   <form on:submit|preventDefault={signIn}>
     <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
     <label>
-      {firstlyDataAuth.ui.providers.password.dico.email}
+      {firstlyDataAuth.ui?.strings.email}
       <input
         bind:value={email}
         use:autofocus
         type="text"
-        placeholder={firstlyDataAuth.ui.providers.password.dico.email_placeholder}
+        placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
       />
     </label>
     <label>
-      {firstlyDataAuth.ui.providers.password.dico.password}
+      {firstlyDataAuth.ui?.strings.password}
       <input bind:value={password} type="password" />
     </label>
-    <button>{firstlyDataAuth.ui.providers.password.dico.btn_sign_in}</button>
+    <button>{firstlyDataAuth.ui?.strings.btn_sign_in}</button>
   </form>
 {/if}
 

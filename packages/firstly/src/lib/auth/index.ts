@@ -15,7 +15,7 @@ import { env } from '$env/dynamic/private'
 
 import { FF_Role } from '../'
 import type { Module } from '../api'
-import type { ResolvedType } from '../utils/types'
+import type { RecursivePartial, ResolvedType } from '../utils/types'
 import { RemultLuciaAdapter } from './Adapter'
 import { AuthControllerServer } from './AuthController.server'
 import { Auth } from './client'
@@ -28,7 +28,7 @@ import {
 } from './Entities'
 import { createSession } from './helper'
 import { initRoleFromEnv } from './RoleHelpers'
-import type { firstlyData } from './types'
+import type { firstlyData, firstlyDataAuth } from './types'
 
 export type { firstlyData }
 export { FFAuthUser, FFAuthAccount, FFAuthProvider, FFAuthUserSession }
@@ -93,13 +93,8 @@ type AuthOptions<
     Account?: ClassType<TAccountEntity>
   }
 
-  ui?:
-    | {
-        paths?: {
-          base?: string
-        }
-      }
-    | false
+  debug?: boolean
+  ui?: false | RecursivePartial<firstlyDataAuth['ui']>
 
   /** in secondes @default 15 days */
   sessionExpiresIn?: number
@@ -174,48 +169,68 @@ type AuthOptions<
   }
 }
 
-export let AUTH_OPTIONS: AuthOptions = {}
+export let AUTH_OPTIONS: AuthOptions = { ui: {} }
+
+const buildUrlOrDefault = (base: string, userSetting: string | undefined, fallback: string) => {
+  if (userSetting) {
+    return `${base}/${userSetting}`
+  }
+  return `${base}/${fallback}`
+}
 
 export const getSafeOptions = () => {
   const signUp = AUTH_OPTIONS.signUp ?? true
   const base =
     AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/ff/auth'
 
-  const oAuths =
-    AUTH_OPTIONS.providers?.oAuths?.map((o) => {
-      return o.name
-    }) ?? []
+  // const oAuths =
+  //   AUTH_OPTIONS.providers?.oAuths?.map((o) => {
+  //     return o.name
+  //   }) ?? []
 
   const firstlyData: firstlyData = {
     module: 'auth',
+    debug: AUTH_OPTIONS.debug,
     props: {
-      ui: {
-        paths: {
-          base,
-        },
-        providers: {
-          password: {
-            dico: {
-              email: 'Email',
-              email_placeholder: 'Your email address',
-              password: 'Password',
-              btn_sign_up: 'Sign up',
-              btn_sign_in: 'Sign in',
-              forgot_password: 'Forgot your password?',
-              send_password_reset_instructions: 'Send password reset instructions',
-              back_to_sign_in: 'Back to sign in',
+      ui:
+        AUTH_OPTIONS.ui === false
+          ? undefined
+          : {
+              paths: {
+                base,
+                sign_up: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_up, 'sign-up'),
+                sign_in: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_in, 'sign-in'),
+                forgot_password: buildUrlOrDefault(
+                  base,
+                  AUTH_OPTIONS.ui?.paths?.forgot_password,
+                  'forgot-password',
+                ),
+                reset_password: buildUrlOrDefault(
+                  base,
+                  AUTH_OPTIONS.ui?.paths?.reset_password,
+                  'reset-password',
+                ),
+                verify_email: buildUrlOrDefault(
+                  base,
+                  AUTH_OPTIONS.ui?.paths?.verify_email,
+                  'verify-email',
+                ),
+              },
+              strings: {
+                email: AUTH_OPTIONS.ui?.strings?.email ?? 'Email',
+                email_placeholder:
+                  AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',
+                password: AUTH_OPTIONS.ui?.strings?.password ?? 'Password',
+                btn_sign_up: AUTH_OPTIONS.ui?.strings?.btn_sign_up ?? 'Sign up',
+                btn_sign_in: AUTH_OPTIONS.ui?.strings?.btn_sign_in ?? 'Sign in',
+                forgot_password:
+                  AUTH_OPTIONS.ui?.strings?.forgot_password ?? 'Forgot your password?',
+                send_password_reset_instructions:
+                  AUTH_OPTIONS.ui?.strings?.send_password_reset_instructions ??
+                  'Send password reset instructions',
+                back_to_sign_in: AUTH_OPTIONS.ui?.strings?.back_to_sign_in ?? 'Back to sign in',
+              },
             },
-            paths: {
-              sign_up: signUp ? `${base}/sign-up` : false,
-              sign_in: `${base}/sign-in`,
-              forgot_password: `${base}/forgot-password`,
-              reset_password: `${base}/reset-password`,
-              verify_email: `${base}/verify-email`,
-            },
-          },
-          oAuths,
-        },
-      },
     },
   }
 
@@ -285,12 +300,12 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     },
     earlyReturn: async ({ event, resolve }) => {
-      if (AUTH_OPTIONS.ui === false) {
-        return { early: false }
-      }
+      // if (AUTH_OPTIONS.ui === false) {
+      //   return { early: false }
+      // }
       const oSafe = getSafeOptions()
 
-      if (event.url.pathname === oSafe.firstlyData.props.ui.providers.password.paths.verify_email) {
+      if (event.url.pathname === oSafe.firstlyData.props.ui?.paths?.verify_email) {
         const token = event.url.searchParams.get('token') ?? ''
 
         if (!oSafe.password_enabled) {
@@ -330,7 +345,10 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         staticPath = `${installedFirstlyPath}/esm/auth/static/`
       }
 
-      if (event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)) {
+      if (
+        oSafe.firstlyData.props.ui?.paths?.base &&
+        event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)
+      ) {
         const content = read(`${staticPath}index.html`)
 
         return {
