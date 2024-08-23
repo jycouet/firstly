@@ -33,7 +33,7 @@ export type Module = {
 type Options = Omit<
   RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
     modules?: Module[] | undefined
-    mail?: MailOptions
+    mail?: MailOptions<any>
     // log?: boolean | string
   },
   'entities' | 'controllers' | 'initRequest' | 'initApi'

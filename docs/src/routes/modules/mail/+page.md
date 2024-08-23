@@ -2,6 +2,8 @@
 title: Core Module - Mail
 ---
 
+## Usage
+
 To it's core, `firstly` provides you the ability to send emails. For this, we didn't reinvent the
 wheel and use the great [nodemailer](https://nodemailer.com/) package.
 
@@ -13,33 +15,65 @@ import { sendMail } from 'firstly/mail'
 await sendMail('my_first_mail', {
   to: '...@...',
   subject: 'Hello from firstly',
-  test: 'hello hello 👋',
   html: 'hello <b>hello</b> 👋'
 })
 ```
 
-By default, firstly will create a demo on the fly account, of couse, you will need to configure
-the mailer And use your own credentials:
+By default, firstly will create a demo account on [ethereal.email](https://ethereal.email/), this
+will **NEVER** send a real email, but you can see the email sent in the ethereal dashboard. You also
+get a link to the email preview in the console.
 
-Something like _(nodemailer example)_:
+## Use the template
+
+Instead of passing the `html` param, you can pass `templateProps`, and it will use a nice default
+template.
 
 ```ts
-export const api = firstly({
-  mail: {
-    transport = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false, // Use `true` for port 465, `false` for all other ports
-      auth: {
-        user: "maddison53@ethereal.email",
-        pass: "jn7jnAPss4f63QBp6D",
+await sendMail('my_second_mail', {
+  to: '...@...',
+  subject: 'Hello from firstly (a second time)',
+
+  templateProps: {
+    title: 'firstly 👋',
+    previewText: 'This is the mail you were waiting for',
+    sections: [
+      {
+        text: 'Then, How are you today ?',
+        highlighted: true
       },
-    })
+      {
+        text: 'Did you star the repo ?',
+        cta: {
+          text: 'Check it out',
+          link: 'https://github.com/jycouet/firstly'
+        }
+      }
+    ]
   }
 })
 ```
 
-## Other transport
+# How to really send email ?
+
+## Manually configure your service
+
+```ts
+export const api = firstly({
+  mail: {
+    transport: {
+      host: '...',
+      port: 587,
+      secure: false, // Use `true` for port 465, `false` for all other ports
+      auth: {
+        user: '...',
+        pass: '...'
+      }
+    }
+  }
+})
+```
+
+## Service sendgrid example
 
 or you can use another transport like
 [nodemailer-sendgrid](https://www.npmjs.com/package/nodemailer-sendgrid):
@@ -67,6 +101,12 @@ export const api = firstly({
     from: {
       name: 'My Cool App',
       address: 'noreply@coolApp.io'
+    }
+    template: {
+      // Using https://github.com/carstenlebek/svelte-email
+      component: AnySvelteComponent
+      // to match your own branding
+      brandColor: '#E10098'
     }
   }
 })

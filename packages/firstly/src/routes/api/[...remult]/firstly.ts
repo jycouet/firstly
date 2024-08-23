@@ -3,6 +3,7 @@ import { Entity, Fields } from 'remult'
 import { firstly } from '$lib/api'
 import { auth, FFAuthUser } from '$lib/auth'
 import { github } from '$lib/auth/providers'
+import { sendMail } from '$lib/mail'
 
 const Role = {
   ADMIN: 'admin',
@@ -24,6 +25,13 @@ export class _AppUser extends FFAuthUser {
 // const t: DynamicAuthorizationURLOptions<typeof oAuths> = { github: {} }
 
 export const remultApi = firstly({
+  mail: {
+    template: {
+      // component: MyCustomThing
+      brandColor: '#E10098',
+    },
+  },
+
   modules: [
     {
       name: 'init',
@@ -42,36 +50,22 @@ export const remultApi = firstly({
       customEntities: {
         User: _AppUser,
       },
-
       // ui: {
-      //   // paths: {
-      //   //   // base: '',
-      //   //   // login: '/login',
-      //   // },
-      //   // strings: {
-      //   // }
+      //   strings: {
+      //     email_placeholder: 'Yes ?',
+      //   },
       // },
 
       // signUp: false,
 
       verifiedMethod: 'email',
 
-      // ui: {
-      //   paths: {
-      //     //
-      //     base: '/kit',
-      //     signin : "/signin"
-      //   },
-      //   password: {
-
-      //   },
-      //   btn_login: "Login"
-      // },
-
       providers: {
         demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.ADMIN] }],
 
         password: {
+          verifyMailSend: async () => {},
+
           // ui: {
           //   forgot: "oups"
           // }
@@ -97,6 +91,26 @@ export const remultApi = firstly({
     }),
     {
       name: 'theEnd',
+      async initApi() {
+        await sendMail('my_first_mail', {
+          to: 'jycouet@gmail.com',
+          subject: 'Hello from firstly',
+          templateProps: {
+            title: 'firstly 👋',
+            previewText: 'This is the mail you were waiting for',
+            sections: [
+              {
+                text: 'Then, How are you today ?',
+                highlighted: true,
+              },
+              {
+                text: 'Did you star the repo ?',
+                cta: { text: 'Check it out', link: 'https://github.com/jycouet/firstly' },
+              },
+            ],
+          },
+        })
+      },
       handlePreRemult: async (h) => {
         return h.resolve(h.event)
       },

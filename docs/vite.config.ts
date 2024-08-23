@@ -5,6 +5,11 @@ import { defineConfig } from 'vite'
 import { sidebar } from './config/sidebar'
 
 const config = defineConfig({
+  server: {
+    fs: {
+      allow: ['../../..'],
+    },
+  },
   plugins: [
     sveltepress({
       theme: defaultTheme({

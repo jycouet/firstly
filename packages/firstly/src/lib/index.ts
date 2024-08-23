@@ -5,6 +5,7 @@ import { Log } from '@kitql/helpers'
 
 import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
 import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
+import { default as DefaultMail } from './mail/templates/DefaultMail.svelte'
 import { storeItem } from './storeItem.js'
 import { storeList } from './storeList.js'
 import { default as Button } from './ui/Button.svelte'
@@ -42,6 +43,7 @@ export {
   FieldContainer,
   SelectMelt,
   Clipboardable,
+  DefaultMail,
 }
 
 // ******************************
@@ -66,7 +68,7 @@ export type { Cell, VisibilityMode } from './cellsBuildor.js'
 export type { FF_FindOptions } from './storeList.js'
 export type StoreItem<T> = ReturnType<typeof storeItem<T>>
 export type StoreList<T> = ReturnType<typeof storeList<T>>
-export type { ResolvedType, UnArray } from './utils/types.js'
+export type { ResolvedType, UnArray, RecursivePartial } from './utils/types.js'
 
 // ******************************
 // Helpers

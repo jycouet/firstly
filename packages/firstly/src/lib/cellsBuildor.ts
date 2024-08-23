@@ -3,7 +3,8 @@ import type { SvelteComponent } from 'svelte'
 import { type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
-import { type BaseEnum } from './BaseEnum.js'
+import { BaseEnum } from './BaseEnum.js'
+import { getEnum } from './helper.js'
 import type { UnArray } from './utils/types.js'
 
 export type VisibilityMode = 'view' | 'edit' | 'hide'
@@ -164,7 +165,6 @@ export const buildWhere = <Entity>(
         // @ts-ignore
         const theEnum = getEnum(field, obj[field.key])
         // Take the where of the enum if it exists, or it's using this selection as a filter
-        // @ts-ignore
         const wheretoUse = theEnum?.where ?? new BaseEnum(obj[field.key])
         // @ts-ignore
         and.push({ [field.key]: wheretoUse })

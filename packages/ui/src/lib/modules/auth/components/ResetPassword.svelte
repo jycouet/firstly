@@ -28,9 +28,9 @@
 <div class="login">
   <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
   <form on:submit|preventDefault={reset}>
-    {firstlyDataAuth.ui.providers.password.dico.password}
+    {firstlyDataAuth.ui?.strings.password}
     <input bind:value={password1} type="password" />
-    {firstlyDataAuth.ui.providers.password.dico.password}
+    {firstlyDataAuth.ui?.strings.password}
     <input bind:value={password2} type="password" />
     <button>reset</button>
   </form>
