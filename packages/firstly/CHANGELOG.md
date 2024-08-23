@@ -1,5 +1,13 @@
 # firstly
 
+## 0.0.6
+
+### Patch Changes
+
+- [#23](https://github.com/jycouet/firstly/pull/23)
+  [`c188eb3`](https://github.com/jycouet/firstly/commit/c188eb3d81a9e75b246387512621b5213bbe8dbd)
+  Thanks [@jycouet](https://github.com/jycouet)! - fix auth & mail (logs & co)
+
 ## 0.0.5
 
 ### Patch Changes
