@@ -1,5 +1,17 @@
 # firstly
 
+## 0.0.7
+
+### Patch Changes
+
+- [#25](https://github.com/jycouet/firstly/pull/25)
+  [`54f2f6a`](https://github.com/jycouet/firstly/commit/54f2f6a833c1977c3163e91ce3172fa8edc9da47)
+  Thanks [@jycouet](https://github.com/jycouet)! - adding e2e tests for accounts
+
+- [#25](https://github.com/jycouet/firstly/pull/25)
+  [`943e9d0`](https://github.com/jycouet/firstly/commit/943e9d0b6d5d6a631dc78661d188a76f254d4632)
+  Thanks [@jycouet](https://github.com/jycouet)! - rename name to identifier in db
+
 ## 0.0.6
 
 ### Patch Changes
