@@ -26,13 +26,13 @@ export const initRoleFromEnv = async (
   envValue: string | undefined,
   role: string,
 ) => {
-  const names = envValue === undefined ? [] : (envValue ?? '').split(',').map((c) => c.trim())
-  for (let i = 0; i < names.length; i++) {
-    const name = names[i].trim()
-    if (name !== '') {
-      let user = await repo(userEntity).findFirst({ name })
+  const identifiers = envValue === undefined ? [] : (envValue ?? '').split(',').map((c) => c.trim())
+  for (let i = 0; i < identifiers.length; i++) {
+    const identifier = identifiers[i].trim()
+    if (identifier !== '') {
+      let user = await repo(userEntity).findFirst({ identifier })
       if (!user) {
-        user = repo(userEntity).create({ name, roles: [role] })
+        user = repo(userEntity).create({ identifier, roles: [role] })
         await repo(userEntity).save(user)
       } else {
         if (!user.roles.includes(role)) {
@@ -42,9 +42,9 @@ export const initRoleFromEnv = async (
       }
     }
   }
-  if (names.length > 0) {
+  if (identifiers.length > 0) {
     log.info(
-      `${cyan(role)}: ${names.map((c: any) => green(c.trim())).join(', ')} added via ${yellow(`.env`)}.`,
+      `${cyan(role)}: ${identifiers.map((c: any) => green(c.trim())).join(', ')} added via ${yellow(`.env`)}.`,
     )
   } else {
     log.info(`${cyan(role)}: No users added via ${yellow(`.env`)}.`)

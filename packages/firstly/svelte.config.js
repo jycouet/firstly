@@ -14,6 +14,12 @@ const config = {
     alias: {},
   },
   compilerOptions: {},
+  onwarn(warning, defaultHandler) {
+    // Do not show 3rd party warnings
+    if (warning.filename.includes('node_modules')) return
+
+    defaultHandler(warning)
+  },
 }
 
 export default config

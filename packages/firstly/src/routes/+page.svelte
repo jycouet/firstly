@@ -2,36 +2,30 @@
   import { remult } from 'remult'
 
   import { Auth } from '$lib/auth/client'
-  // import { Auth } from '$lib/auth/client'
-  import { route } from '$lib/ROUTES'
   import Button from '$lib/ui/Button.svelte'
-
-  async function oauth() {
-    window.location.href = await Auth.signInOAuthGetUrl({
-      provider: 'github',
-      redirect: window.location.pathname,
-    })
-  }
 </script>
 
 <div class="flex flex-col gap-4">
-  <div>Home 👋</div>
-  <div class="text-2xl">
-    Welcome <b>{remult.user?.name}</b>
-  </div>
-
   {#if remult.user}
-    <Button
-      class="btn-outline btn-warning"
-      on:click={async () => {
-        // await Auth.signOut()
-        window.location.href = '/'
-      }}
-    >
-      Sign out
-    </Button>
+    <div class="flex justify-between">
+      <div class="text-2xl">
+        Welcome <b>{remult.user?.name}</b>
+      </div>
+      <div>
+        <Button
+          class="btn-outline btn-warning"
+          on:click={async () => {
+            await Auth.signOut()
+            window.location.href = '/'
+          }}
+        >
+          Sign out
+        </Button>
+      </div>
+    </div>
   {:else}
-    <a class="btn btn-primary" href={route('firstly_sign_in')}>Firstly Auth</a>
-    <button class="btn btn-primary" on:click={oauth}>OAuth</button>
+    <div class="text-2xl">
+      Welcome <b>👋</b>
+    </div>
   {/if}
 </div>

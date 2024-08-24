@@ -25,11 +25,11 @@ export class FFAuthUser {
     validate: [
       Validators.unique(),
       (e) => {
-        if (e.name.length < 2) throw 'Must be at least 2 characters long'
+        if (e.identifier.length < 2) throw 'Must be at least 2 characters long'
       },
     ],
   })
-  name!: string
+  identifier!: string
 
   @Fields.object<FFAuthUser, string[]>({
     valueConverter: {

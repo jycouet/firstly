@@ -35,7 +35,7 @@ export class Auth {
    * This is for login / password authentication SignUp
    * _(The first param `name` can be "anything")_
    */
-  @BackendMethod({ allowed: false })
+  @BackendMethod({ allowed: true })
   static async invite(email: string) {
     return await Auth.inviteFn(email)
   }

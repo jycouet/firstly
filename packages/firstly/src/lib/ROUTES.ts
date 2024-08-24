@@ -10,12 +10,12 @@
  */
 const PAGES = {
   "/": `/`,
+  "/auth": `/auth`,
   "/mail": `/mail`,
-  "/remult": `/remult`,
-  "/remult/auth": `/remult/auth`,
-  "/remult/enum": `/remult/enum`,
-  "/remult/select": `/remult/select`,
-  "/ui": `/ui`
+  "/ui/dialog": `/ui/dialog`,
+  "/ui/enum": `/ui/enum`,
+  "/ui/fieldGroup": `/ui/fieldGroup`,
+  "/ui/select": `/ui/select`
 }
 
 /**
@@ -143,7 +143,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 * ```
 */
 export type KIT_ROUTES = {
-  PAGES: { '/': never, '/mail': never, '/remult': never, '/remult/auth': never, '/remult/enum': never, '/remult/select': never, '/ui': never }
+  PAGES: { '/': never, '/auth': never, '/mail': never, '/ui/dialog': never, '/ui/enum': never, '/ui/fieldGroup': never, '/ui/select': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
   LINKS: { 'firstly_sign_in': never, 'remult_admin': never, 'github': 'owner' | 'repo' }
