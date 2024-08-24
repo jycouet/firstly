@@ -55,6 +55,19 @@
     }
   }
 
+  async function invite() {
+    msgError = ''
+    msgSuccess = ''
+    try {
+      msgSuccess = await Auth.invite(indentifier)
+      await invalidateAll()
+    } catch (error) {
+      if (isError(error)) {
+        msgError = error.message ?? ''
+      }
+    }
+  }
+
   async function forgotPassword() {
     msgError = ''
     msgSuccess = ''
@@ -157,9 +170,9 @@
 	</div> -->
   <div class="col-span-4 text-right">
     {#if msgError}
-      <p class="text-error">{msgError}</p>
+      <p class="text-error" data-testid="msg-error">{msgError}</p>
     {:else if msgSuccess}
-      <p class="text-primary">{msgSuccess}</p>
+      <p class="text-primary" data-testid="msg-success">{msgSuccess}</p>
     {:else}
       &nbsp;
     {/if}
@@ -187,7 +200,7 @@
 
   <Button on:click={signUp}>SignUp</Button>
   <Button on:click={signIn}>SignIn</Button>
-  <div></div>
+  <Button on:click={invite}>Invite</Button>
   <div></div>
   <div></div>
   <Button on:click={forgotPassword}>Forgot Password</Button>
@@ -227,7 +240,7 @@
 
   <!-- Logged -->
   <div class="divider col-span-4">Logged ?</div>
-  <pre class="col-span-3">User: {JSON.stringify(remult.user, null, 2)}</pre>
+  <pre class="col-span-3" data-testid="msg-info">User: {JSON.stringify(remult.user, null, 2)}</pre>
   <Button class="btn-outline btn-error" disabled={remult.user === undefined} on:click={signOut}
     >SignOut</Button
   >

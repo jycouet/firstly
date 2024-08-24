@@ -4,7 +4,7 @@ import { generateId } from 'lucia'
 import { createDate, TimeSpan } from 'oslo'
 
 import { remult } from 'remult'
-import { green, yellow } from '@kitql/helpers'
+import { green, magenta, yellow } from '@kitql/helpers'
 
 import { AUTH_OPTIONS, getSafeOptions, logAuth, lucia, type AuthorizationURLOptions } from '.'
 import { sendMail } from '../mail'
@@ -91,22 +91,37 @@ export class AuthControllerServer {
   static async invite(email: string) {
     const oSafe = getSafeOptions()
 
-    const existingUser = await remult.repo(oSafe.User).findOne({ where: { name: email } })
-    if (existingUser) {
+    const existingAccount = await remult.repo(oSafe.Account).findOne({
+      where: {
+        providerUserId: email,
+        provider: FFAuthProvider.PASSWORD.id,
+      },
+    })
+    if (existingAccount) {
       // throw Error("Already invited !")
     } else {
-      const user = await remult.repo(oSafe.User).insert({
-        name: email,
+      const token = generateId(40)
+
+      await remult.repo(oSafe.Account).insert({
+        provider: FFAuthProvider.PASSWORD.id,
+        providerUserId: email,
+        // userId: user.id,
+        // hashPassword: await passwordHash(password),
+        token: oSafe.verifiedMethod === 'auto' ? undefined : token,
+        expiresAt: createDate(
+          new TimeSpan(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60, 's'),
+        ),
+        lastVerifiedAt: undefined,
       })
 
-      const url = `${remult.context.url.origin}`
+      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
 
       if (AUTH_OPTIONS?.invitationSend) {
         await AUTH_OPTIONS?.invitationSend({ email, url })
-        logAuth.success(`Done with custom ${green('invitationSend')} (${yellow(url)})`)
+        logAuth.success(`${green('[custom]')}${magenta('[invitationSend]')} (${yellow(url)})`)
         return 'Mail sent !'
       } else {
-        await sendMail('invite', {
+        await sendMail('invitationSend', {
           to: email,
           subject: 'Invitation',
 
@@ -129,7 +144,7 @@ export class AuthControllerServer {
           },
         })
 
-        logAuth.success(`Done with ${green('sendMail')} (${url})`)
+        logAuth.success(`${magenta('[invitationSend]')} (${yellow(url)})`)
         return 'Demo Mail sent !'
       }
     }
@@ -152,42 +167,53 @@ export class AuthControllerServer {
       throw Error('Password is not enabled!')
     }
 
-    const existingUser = await remult.repo(oSafe.User).findOne({ where: { name: email } })
-    if (existingUser) {
+    const existingAccount = await remult.repo(oSafe.Account).findOne({
+      where: {
+        providerUserId: email,
+        provider: FFAuthProvider.PASSWORD.id,
+      },
+    })
+    if (existingAccount) {
       throw Error("You can't signup twice !")
     }
 
     checkPassword(password)
-    const user = await remult.repo(oSafe.User).insert({
-      name: email,
-    })
-
     const token = generateId(40)
 
-    await remult.repo(oSafe.Account).insert({
-      provider: FFAuthProvider.PASSWORD.id,
-      providerUserId: email,
-      userId: user.id,
-      hashPassword: await passwordHash(password),
-      token: oSafe.verifiedMethod === 'auto' ? undefined : token,
-      expiresAt:
-        oSafe.verifiedMethod === 'auto'
-          ? undefined
-          : createDate(
-              new TimeSpan(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60, 's'),
-            ),
-      lastVerifiedAt: oSafe.verifiedMethod === 'auto' ? new Date() : undefined,
+    await remult.dataProvider.transaction(async () => {
+      const user = await remult.repo(oSafe.User).insert({
+        name: email,
+      })
+      await remult.repo(oSafe.Account).insert({
+        provider: FFAuthProvider.PASSWORD.id,
+        providerUserId: email,
+        userId: user.id,
+        hashPassword: await passwordHash(password),
+        token: oSafe.verifiedMethod === 'auto' ? undefined : token,
+        expiresAt:
+          oSafe.verifiedMethod === 'auto'
+            ? undefined
+            : createDate(
+                new TimeSpan(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60, 's'),
+              ),
+        lastVerifiedAt: oSafe.verifiedMethod === 'auto' ? new Date() : undefined,
+      })
     })
 
     if (oSafe.verifiedMethod === 'auto') {
-      await createSession(user.id)
+      const user = await remult.repo(oSafe.User).findFirst({
+        name: email,
+      })
+      if (user) {
+        await createSession(user.id)
+      }
     } else {
       const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.verifyMailSend) {
         await AUTH_OPTIONS.providers?.password.verifyMailSend({ email, url })
-        logAuth.success(`Done with custom ${green('verifyMailSend')} (${yellow(url)})`)
+        logAuth.success(`${green('[custom]')}${magenta('[verifyMailSend]')} (${yellow(url)})`)
       } else {
-        await sendMail('signUpPassword', {
+        await sendMail('verifyMailSend', {
           to: email,
           subject: 'Wecome',
 
@@ -206,7 +232,7 @@ export class AuthControllerServer {
           },
         })
 
-        logAuth.success(`Done with ${green('sendMail')} (${url})`)
+        logAuth.success(`${magenta('[verifyMailSend]')} (${yellow(url)})`)
       }
     }
 
@@ -224,25 +250,25 @@ export class AuthControllerServer {
       throw Error('Password is not enabled!')
     }
 
-    const existingUser = await remult
-      .repo(oSafe.User)
-      .findOne({ where: { name: email }, include: { accounts: true } })
-
-    const accountPassword = existingUser?.accounts.find(
-      (c) => c.provider === FFAuthProvider.PASSWORD.id,
-    )
-    if (accountPassword && existingUser) {
+    const existingAccount = await remult.repo(oSafe.Account).findOne({
+      where: {
+        providerUserId: email,
+        provider: FFAuthProvider.PASSWORD.id,
+      },
+    })
+    if (existingAccount) {
       const validPassword = await passwordVerify(
-        accountPassword?.hashPassword ?? '',
+        existingAccount?.hashPassword ?? '',
         password ?? '',
       )
       if (validPassword) {
-        await createSession(existingUser.id)
+        await createSession(existingAccount.userId)
 
         return 'ok'
       }
       throw Error('Incorrect username or password')
     }
+
     throw Error('Incorrect username or password.')
   }
 
@@ -256,34 +282,29 @@ export class AuthControllerServer {
       throw Error('Password is not enabled!')
     }
 
-    const u = await remult.repo(getSafeOptions().User).findFirst({ name: email })
+    const existingAccount = await remult.repo(oSafe.Account).findOne({
+      where: {
+        providerUserId: email,
+        provider: FFAuthProvider.PASSWORD.id,
+      },
+    })
 
-    if (u) {
-      let authAccount = await remult.repo(oSafe.Account).findFirst({
-        userId: u.id,
-      })
-      if (!authAccount) {
-        authAccount = remult.repo(oSafe.Account).create()
-        authAccount.userId = u.id
-        authAccount.provider = FFAuthProvider.PASSWORD.id
-        authAccount.providerUserId = email
-      }
-
+    if (existingAccount) {
       const token = generateId(40)
-      authAccount.token = token
-      authAccount.expiresAt = createDate(
+      existingAccount.token = token
+      existingAccount.expiresAt = createDate(
         new TimeSpan(AUTH_OPTIONS.providers?.password?.resetPasswordExpiresIn ?? 5 * 60, 's'),
       )
 
-      await remult.repo(oSafe.Account).save(authAccount)
+      await remult.repo(oSafe.Account).save(existingAccount)
 
       const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.resetPasswordSend) {
         await AUTH_OPTIONS.providers?.password.resetPasswordSend({ email, url })
-        logAuth.success(`Done with custom ${green('resetPasswordSend')} (${yellow(url)})`)
+        logAuth.success(`${green('[custom]')}${magenta('[resetPasswordSend]')} (${yellow(url)})`)
         return 'Mail sent !'
       } else {
-        await sendMail('forgotPassword', {
+        await sendMail('resetPasswordSend', {
           to: email,
           subject: 'Reset your password',
 
@@ -306,7 +327,7 @@ export class AuthControllerServer {
           },
         })
 
-        logAuth.success(`Done with ${green('sendMail')} (${url})`)
+        logAuth.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
         return 'Demo Mail sent !'
       }
     }

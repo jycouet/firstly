@@ -22,7 +22,7 @@
     "check:w": "svelte-check --tsconfig ./tsconfig.json --watch",
     "//// ---- TEST ---- ////": "",
     "test:bin": "pnpm compile && node ./dist/esm/bin/cmd.js",
-    "test:e2e_HOLD": "playwright test",
+    "test:e2e": "CI=true PORT=4142 playwright test",
     "test:unit": "TZ=Europe/Paris vitest",
     "test:unit:ci": "TZ=Europe/Paris vitest run",
     "//// ---- PROD ---- ////": "",

@@ -1,4 +1,4 @@
-import { Entity, Fields, Relations, Validators, ValueListFieldType } from 'remult'
+import { Entity, Field, Fields, Relations, Validators, ValueListFieldType } from 'remult'
 
 import { BaseEnum, FF_Role } from '../'
 import type { BaseEnumOptions } from '../'

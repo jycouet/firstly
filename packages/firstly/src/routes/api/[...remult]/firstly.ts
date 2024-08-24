@@ -64,15 +64,7 @@ export const remultApi = firstly({
         demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.ADMIN] }],
 
         password: {
-          verifyMailSend: async () => {},
-
-          // ui: {
-          //   forgot: "oups"
-          // }
-          // resetPassword: async (url) => {
-          //   console.info(`Mail to send with this url:`, url)
-          //   console.info('You can use the function sendMail() from "firstly/mail"')
-          // },
+          //   verifyMailSend: async () => {},
         },
 
         otp: {
@@ -92,24 +84,24 @@ export const remultApi = firstly({
     {
       name: 'theEnd',
       async initApi() {
-        await sendMail('my_first_mail', {
-          to: 'jycouet@gmail.com',
-          subject: 'Hello from firstly',
-          templateProps: {
-            title: 'firstly 👋',
-            previewText: 'This is the mail you were waiting for',
-            sections: [
-              {
-                text: 'Then, How are you today ?',
-                highlighted: true,
-              },
-              {
-                text: 'Did you star the repo ?',
-                cta: { text: 'Check it out', link: 'https://github.com/jycouet/firstly' },
-              },
-            ],
-          },
-        })
+        // await sendMail('my_first_mail', {
+        //   to: 'jycouet@gmail.com',
+        //   subject: 'Hello from firstly',
+        //   templateProps: {
+        //     title: 'firstly 👋',
+        //     previewText: 'This is the mail you were waiting for',
+        //     sections: [
+        //       {
+        //         text: 'Then, How are you today ?',
+        //         highlighted: true,
+        //       },
+        //       {
+        //         text: 'Did you star the repo ?',
+        //         cta: { text: 'Check it out', link: 'https://github.com/jycouet/firstly' },
+        //       },
+        //     ],
+        //   },
+        // })
       },
       handlePreRemult: async (h) => {
         return h.resolve(h.event)

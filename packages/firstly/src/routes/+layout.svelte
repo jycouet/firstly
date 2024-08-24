@@ -13,11 +13,12 @@
 
   const links = [
     { path: route('/'), text: 'Home' },
-    { path: route('/ui'), text: 'UI' },
-    { path: route('/remult'), text: 'Remult' },
-    { path: route('/remult/select'), text: 'Remult Select' },
-    { path: route('/remult/enum'), text: 'Remult Enum' },
-    { path: route('/remult/auth'), text: 'Remult Auth' },
+    { path: route('/auth'), text: 'Manual Auth' },
+    { path: route('/mail'), text: 'Mail' },
+    { path: route('/ui/dialog'), text: 'UI / Dialog' },
+    { path: route('/ui/enum'), text: 'UI / Enum' },
+    { path: route('/ui/fieldGroup'), text: 'UI / FieldGroup' },
+    { path: route('/ui/select'), text: 'UI / Select' },
     { path: route('firstly_sign_in'), text: '🔑 Module Auth', target: '_blank' },
     { path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
     {
