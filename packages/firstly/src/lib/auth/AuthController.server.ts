@@ -68,12 +68,12 @@ export class AuthControllerServer {
     }
 
     const oSafe = getSafeOptions()
-    let user = await remult.repo(oSafe.User).findFirst({ name })
+    let user = await remult.repo(oSafe.User).findFirst({ identifier: name })
 
     if (!user) {
       user = remult.repo(oSafe.User).create()
     }
-    user.name = name
+    user.identifier = name
     const r = mergeRoles(user.roles, account.roles)
     user.roles = r.roles
 
@@ -182,7 +182,7 @@ export class AuthControllerServer {
 
     await remult.dataProvider.transaction(async () => {
       const user = await remult.repo(oSafe.User).insert({
-        name: email,
+        identifier: email,
       })
       await remult.repo(oSafe.Account).insert({
         provider: FFAuthProvider.PASSWORD.id,
@@ -202,7 +202,7 @@ export class AuthControllerServer {
 
     if (oSafe.verifiedMethod === 'auto') {
       const user = await remult.repo(oSafe.User).findFirst({
-        name: email,
+        identifier: email,
       })
       if (user) {
         await createSession(user.id)
@@ -396,11 +396,11 @@ export class AuthControllerServer {
 
       const uri = createTOTPKeyURI(issuer, email, secret)
       const oSafe = getSafeOptions()
-      let user = await remult.repo(oSafe.User).findFirst({ name: email })
+      let user = await remult.repo(oSafe.User).findFirst({ identifier: email })
       if (!user) {
         user = remult.repo(oSafe.User).create()
       }
-      user.name = email
+      user.identifier = email
 
       user = await remult.repo(oSafe.User).save(user)
 
@@ -442,7 +442,7 @@ export class AuthControllerServer {
     const account = accounts[0]
     const user = await remult.repo(oSafe.User).findId(account.userId)
 
-    if (user?.name !== email) {
+    if (user?.identifier !== email) {
       throw new Error('Invalid otp.')
     }
 

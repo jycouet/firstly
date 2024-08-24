@@ -437,7 +437,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
             for (let i = 0; i < info.nameOptions.length; i++) {
               const existingUser = await remult
                 .repo(oSafe.User)
-                .findOne({ where: { name: info.nameOptions[i] } })
+                .findOne({ where: { identifier: info.nameOptions[i] } })
               if (existingUser) {
                 // Don't do anything
               } else {
@@ -450,7 +450,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
             }
 
             const user = remult.repo(oSafe.User).create()
-            user.name = nameToUse
+            user.identifier = nameToUse
 
             account = remult.repo(oSafe.Account).create()
             account.provider = keyState

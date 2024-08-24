@@ -13,7 +13,7 @@ const Role = {
   // this overrides the default CRUD... So be carefull !
   // allowApiCrud: true,
   saving(e) {
-    console.info(`Yop ${e.name} 👋`)
+    console.info(`Yop ${e.identifier} 👋`)
   },
 })
 export class _AppUser extends FFAuthUser {
