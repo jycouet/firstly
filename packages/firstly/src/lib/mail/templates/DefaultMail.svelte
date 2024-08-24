@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Container, Head, Heading, Html, Preview, Section, Text } from 'svelte-email'
+  import { Button, Container, Head, Heading, Html, Preview, Section, Text } from 'svelty-email'
 
   export let previewText: string | undefined
   export let title: string | undefined

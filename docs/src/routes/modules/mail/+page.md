@@ -103,7 +103,7 @@ export const api = firstly({
       address: 'noreply@coolApp.io'
     }
     template: {
-      // Using https://github.com/carstenlebek/svelte-email
+      // Using https://github.com/cmjoseph07/svelty-email
       component: AnySvelteComponent
       // to match your own branding
       brandColor: '#E10098'

@@ -102,9 +102,9 @@ importers:
       remult:
         specifier: 0.27.4
         version: 0.27.4
-      svelte-email:
-        specifier: ^0.0.4
-        version: 0.0.4
+      svelty-email:
+        specifier: ^0.0.11
+        version: 0.0.11(@sveltejs/kit@2.5.17(@sveltejs/vite-plugin-svelte@3.1.0(svelte@4.2.18)(vite@5.4.1(@types/node@22.4.2)(terser@5.31.1)))(svelte@4.2.18)(vite@5.4.1(@types/node@22.4.2)(terser@5.31.1)))
       tailwind-merge:
         specifier: ^2.3.0
         version: 2.3.0
@@ -5220,9 +5220,6 @@ packages:
     peerDependencies:
       svelte: ^3.55.0 || ^4.0.0-next.0 || ^4.0.0 || ^5.0.0-next.0
 
-  svelte-email@0.0.4:
-    resolution: {integrity: sha512-v3lMKxz6aaNdFstERH5r7BMTrxw0JWTPcc0Gubjcd8l++uyiol53tCk9INfMgMV4EyZy7WFOs24uurt4pxpMjQ==}
-
   svelte-eslint-parser@0.37.0:
     resolution: {integrity: sha512-AXd5ar7dcOK+H86JomxcSaWevhs2J7o/xOwg+kDQu98uuATpm+tE5Twp7u8UQCdbWKB34Idu/CZyHmTOxfSQMw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -5312,6 +5309,11 @@ packages:
   svelte@4.2.18:
     resolution: {integrity: sha512-d0FdzYIiAePqRJEb90WlJDkjUEx42xhivxN8muUBmfZnP+tzUgz12DJ2hRJi8sIHCME7jeK1PTMgKPSfTd8JrA==}
     engines: {node: '>=16'}
+
+  svelty-email@0.0.11:
+    resolution: {integrity: sha512-4QnR+XZ6QBABwdLyBbYN8p5DfVlCy+31ffDb+FCx2jCG+YQuDuy1HhHDr0KHg1vyuaBBzqjfpDBOKNjt0ACOtA==}
+    peerDependencies:
+      '@sveltejs/kit': ^1.5.0 || ^2.0.0
 
   synckit@0.6.2:
     resolution: {integrity: sha512-Vhf+bUa//YSTYKseDiiEuQmhGCoIF3CVBhunm3r/DQnYiGT4JssmnKQc44BIyOZRK2pKjXXAgbhfmbeoC9CJpA==}
@@ -12274,12 +12276,6 @@ snapshots:
       - stylus
       - sugarss
 
-  svelte-email@0.0.4:
-    dependencies:
-      html-to-text: 9.0.5
-      pretty: 2.0.0
-      svelte: 3.59.2
-
   svelte-eslint-parser@0.37.0(svelte@4.2.0):
     dependencies:
       eslint-scope: 7.2.2
@@ -12440,6 +12436,13 @@ snapshots:
       locate-character: 3.0.0
       magic-string: 0.30.10
       periscopic: 3.1.0
+
+  svelty-email@0.0.11(@sveltejs/kit@2.5.17(@sveltejs/vite-plugin-svelte@3.1.0(svelte@4.2.18)(vite@5.4.1(@types/node@22.4.2)(terser@5.31.1)))(svelte@4.2.18)(vite@5.4.1(@types/node@22.4.2)(terser@5.31.1))):
+    dependencies:
+      '@sveltejs/kit': 2.5.17(@sveltejs/vite-plugin-svelte@3.1.0(svelte@4.2.18)(vite@5.4.1(@types/node@22.4.2)(terser@5.31.1)))(svelte@4.2.18)(vite@5.4.1(@types/node@22.4.2)(terser@5.31.1))
+      html-to-text: 9.0.5
+      pretty: 2.0.0
+      svelte: 3.59.2
 
   synckit@0.6.2:
     dependencies:
