@@ -17,7 +17,7 @@ const getInfo = async (page: Page) => {
 
 const getMsg = async (page: Page, type: 'error' | 'success' = 'success') => {
   const msgInfo = page.getByTestId('msg-' + type)
-  // await sleep(150)
+  await sleep(250)
   const raw = await msgInfo.innerText()
   return raw
 }
