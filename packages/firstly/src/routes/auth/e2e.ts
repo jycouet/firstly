@@ -4,8 +4,9 @@ import { sleep } from '@kitql/helpers'
 
 const getInfo = async (page: Page) => {
   const msgInfo = page.getByTestId('msg-info')
+  await sleep(250)
   const raw = await msgInfo.innerText()
-  await sleep(112)
+
   try {
     const json = JSON.parse(raw.replace('User: ', ''))
     return json as Record<string, any>
@@ -16,14 +17,15 @@ const getInfo = async (page: Page) => {
 
 const getMsg = async (page: Page, type: 'error' | 'success' = 'success') => {
   const msgInfo = page.getByTestId('msg-' + type)
+  // await sleep(150)
   const raw = await msgInfo.innerText()
-  await sleep(112)
   return raw
 }
 
 async function click(page: Page, text: string) {
   await page.getByText(text).click({})
-  await sleep(111)
+  // Let the network do it's things...
+  await sleep(250)
 }
 
 test.beforeEach(async ({ page }) => {
@@ -31,7 +33,6 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('Arriving on the page, no users are logged', async ({ page }) => {
-  await page.goto(`/auth`)
   expect(await getInfo(page)).toBe(undefined)
 })
 

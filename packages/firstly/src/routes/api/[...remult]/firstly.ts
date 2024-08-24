@@ -1,4 +1,4 @@
-import { Entity, Fields } from 'remult'
+import { Entity, Fields, InMemoryDataProvider } from 'remult'
 
 import { firstly } from '$lib/api'
 import { auth, FFAuthUser } from '$lib/auth'
@@ -24,6 +24,7 @@ export class _AppUser extends FFAuthUser {
 // const t: DynamicAuthorizationURLOptions<typeof oAuths> = { github: {} }
 
 export const remultApi = firstly({
+  dataProvider: process.env.CI ? new InMemoryDataProvider() : undefined,
   mail: {
     template: {
       // component: MyCustomThing
