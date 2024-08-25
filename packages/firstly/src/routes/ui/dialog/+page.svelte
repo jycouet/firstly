@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Button } from '$lib'
   import { dialog } from '$lib/ui/dialog/dialog'
-  
-import DemoDialog from './DemoDialog.svelte'
+
+  import DemoDialog from './DemoDialog.svelte'
 </script>
 
 <div class="grid grid-cols-3 gap-4">
