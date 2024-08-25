@@ -122,6 +122,8 @@ type AuthOptions<
 
   invitationSend?: (args: { email: string; url: string }) => Promise<void>
 
+  transformDbUserToClientUser?: (session: any, user: TUserEntity) => DatabaseUserAttributes
+
   providers?: {
     demo?: {
       name: string
@@ -242,6 +244,23 @@ export const getSafeOptions = () => {
     redirectUrl = '/'
   }
 
+  let transformDbUserToClientUserToUse: (session: any, user: FFAuthUser) => DatabaseUserAttributes
+  if (AUTH_OPTIONS.transformDbUserToClientUser) {
+    transformDbUserToClientUserToUse = AUTH_OPTIONS.transformDbUserToClientUser
+  } else {
+    transformDbUserToClientUserToUse = (session: any, user: FFAuthUser) => {
+      return {
+        id: user.id,
+        name: user.identifier,
+        roles: user.roles,
+        session: {
+          id: session.id,
+          expiresAt: session.expiresAt,
+        },
+      }
+    }
+  }
+
   return {
     User: AUTH_OPTIONS.customEntities?.User ?? FFAuthUser,
     Session: AUTH_OPTIONS.customEntities?.Session ?? FFAuthUserSession,
@@ -255,6 +274,7 @@ export const getSafeOptions = () => {
     redirectUrl,
 
     firstlyData,
+    transformDbUserToClientUser: transformDbUserToClientUserToUse,
   }
 }
 
@@ -278,6 +298,22 @@ export const auth: (o: AuthOptions) => Module = (o) => {
   Auth.verifyOtpFn = AuthControllerServer.verifyOtp
   Auth.signInOAuthGetUrlFn = AuthControllerServer.signInOAuthGetUrl
 
+  const defaultExpiresIn = 60 * 60 * 24 * 15 // 15 days
+  lucia = new Lucia<Record<any, any>, UserInfo>(adapter, {
+    sessionExpiresIn: new TimeSpan(AUTH_OPTIONS.sessionExpiresIn ?? defaultExpiresIn, 's'),
+    sessionCookie: {
+      name: AUTH_OPTIONS.sessionCookie?.name ?? 'firstly_auth_session',
+      expires: AUTH_OPTIONS.sessionCookie?.expires,
+      attributes: {
+        // set to `true` when using HTTPS
+        secure: !DEV,
+        ...AUTH_OPTIONS.sessionCookie?.attributes,
+      },
+    },
+    getSessionAttributes: (attributes) => attributes,
+    getUserAttributes: (attributes) => attributes,
+  })
+
   return {
     name: 'auth',
     index: -777,
@@ -300,9 +336,6 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     },
     earlyReturn: async ({ event, resolve }) => {
-      // if (AUTH_OPTIONS.ui === false) {
-      //   return { early: false }
-      // }
       const oSafe = getSafeOptions()
 
       if (event.url.pathname === oSafe.firstlyData.props.ui?.paths?.verify_email) {
@@ -485,42 +518,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
 
 const adapter = new RemultLuciaAdapter()
 
-const defaultExpiresIn = 60 * 60 * 24 * 15 // 15 days
-export const lucia = new Lucia<Record<any, any>, UserInfo>(adapter, {
-  sessionExpiresIn: new TimeSpan(AUTH_OPTIONS.sessionExpiresIn ?? defaultExpiresIn, 's'),
-  sessionCookie: {
-    name: AUTH_OPTIONS.sessionCookie?.name ?? 'remult_auth_session',
-    expires: AUTH_OPTIONS.sessionCookie?.expires,
-    attributes: {
-      // set to `true` when using HTTPS
-      secure: !DEV,
-      ...AUTH_OPTIONS.sessionCookie?.attributes,
-    },
-  },
-  getSessionAttributes: (attributes) => {
-    return {
-      ...attributes,
-    }
-  },
-  getUserAttributes(attributes) {
-    // @ts-expect-error
-    delete attributes['createdAt']
-    // @ts-expect-error
-    delete attributes['updatedAt']
-
-    // to remove relations
-    for (const key in attributes) {
-      if (attributes[key as keyof DatabaseUserAttributes] === undefined) {
-        delete attributes[key as keyof DatabaseUserAttributes]
-      }
-    }
-
-    return attributes
-    // return {
-    // 	...attributes,
-    // }
-  },
-})
+export let lucia: Lucia<Record<any, any>, UserInfo>
 
 declare module 'lucia' {
   interface Register {

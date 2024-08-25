@@ -31,10 +31,12 @@ export class FFAuthUser {
   })
   identifier!: string
 
-  @Fields.object<FFAuthUser, string[]>({
+  @Fields.json<FFAuthUser, string[]>(() => [], {
+    inputType: 'selectEnum',
     valueConverter: {
-      toDb: (x) => (x ? x.join(',') : undefined),
-      fromDb: (x) => (x ? x.split(',') : undefined),
+      toDb: (x) => (x ? x.join(',') : []),
+      fromDb: (x) =>
+        x ? x.split(',').map((c: string) => c.replace('{', '').replace('}', '')) : [],
     },
   })
   roles: string[] = []

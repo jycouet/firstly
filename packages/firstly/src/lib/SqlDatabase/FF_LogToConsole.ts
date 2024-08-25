@@ -104,7 +104,13 @@ export const FF_LogToConsole = (
   }
 
   // Filter out a few things
-  const filterOutTable = ['"auth_user"', '"auth_user_session"']
+  // TODO, make it configurable
+  const filterOutTable = [
+    '"auth_user"',
+    '"auth_user_session"',
+    '"public"."user"',
+    '"ff_auth"."users_sessions"',
+  ]
   const OnoOfFiltered = tables.length === 1 && filterOutTable.includes(tables[0])
 
   if (!OnoOfFiltered) {

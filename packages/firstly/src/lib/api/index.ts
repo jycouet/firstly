@@ -25,7 +25,7 @@ export type Module = {
   earlyReturn?: (
     input: Parameters<Handle>[0],
   ) => MaybePromise<
-    { early: false; resolve?: never } | { early: true; resolve: ReturnType<Handle> }
+    { early: false; resolve?: undefined } | { early: true; resolve: ReturnType<Handle> }
   >
   modules?: Module[]
 }
