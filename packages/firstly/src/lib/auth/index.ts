@@ -248,6 +248,16 @@ export const getSafeOptions = () => {
   if (AUTH_OPTIONS.transformDbUserToClientUser) {
     transformDbUserToClientUserToUse = AUTH_OPTIONS.transformDbUserToClientUser
   } else {
+    // Need in src/app.d.ts this code to be able to have the correct transformDbUserToClientUser returned type.
+    // In the lib, let's force to this default
+    /**
+     * declare module 'remult' {
+     *   export interface UserInfo {
+     *     specificThing: string
+     *   }
+     * }
+     */
+    // @ts-ignore
     transformDbUserToClientUserToUse = (session: any, user: FFAuthUser) => {
       return {
         id: user.id,
@@ -528,10 +538,10 @@ declare module 'lucia' {
   }
   interface DatabaseSessionAttributes {}
 }
-interface DatabaseUserAttributes {
-  id: string
-  name: string
-  roles: string[]
+interface DatabaseUserAttributes extends UserInfo {
+  // id: string
+  // name: string
+  // roles: string[]
   session: {
     id: string
     expiresAt: Date
