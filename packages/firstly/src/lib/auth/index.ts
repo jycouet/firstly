@@ -185,11 +185,6 @@ export const getSafeOptions = () => {
   const base =
     AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/ff/auth'
 
-  // const oAuths =
-  //   AUTH_OPTIONS.providers?.oAuths?.map((o) => {
-  //     return o.name
-  //   }) ?? []
-
   const firstlyData: firstlyData = {
     module: 'auth',
     debug: AUTH_OPTIONS.debug,

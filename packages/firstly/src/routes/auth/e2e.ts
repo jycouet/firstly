@@ -4,7 +4,7 @@ import { sleep } from '@kitql/helpers'
 
 const getInfo = async (page: Page) => {
   const msgInfo = page.getByTestId('msg-info')
-  await sleep(250)
+  await sleep(300)
   const raw = await msgInfo.innerText()
 
   try {
@@ -17,7 +17,7 @@ const getInfo = async (page: Page) => {
 
 const getMsg = async (page: Page, type: 'error' | 'success' = 'success') => {
   const msgInfo = page.getByTestId('msg-' + type)
-  await sleep(250)
+  await sleep(300)
   const raw = await msgInfo.innerText()
   return raw
 }
