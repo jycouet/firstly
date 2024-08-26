@@ -47,6 +47,51 @@ test('where with search', () => {
   `)
 })
 
+test('where with 2 search', () => {
+  const where = buildWhere(undefined, undefined, [], [repo.fields.email, repo.fields.state], {
+    email: 'jyc@test.com',
+    search: 'jyc test',
+  })
+  expect(where).toMatchInlineSnapshot(`
+    {
+      "$and": [
+        {
+          "$or": [
+            {
+              "$and": [
+                {
+                  "email": {
+                    "$contains": "jyc",
+                  },
+                },
+                {
+                  "email": {
+                    "$contains": "test",
+                  },
+                },
+              ],
+            },
+            {
+              "$and": [
+                {
+                  "state": {
+                    "$contains": "jyc",
+                  },
+                },
+                {
+                  "state": {
+                    "$contains": "test",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+  `)
+})
+
 test('where without search, with enum', () => {
   const where = buildWhere(undefined, undefined, [], [repo.fields.email], {
     email: 'jyc@test.com',

@@ -142,6 +142,13 @@ export const containsWords = <Entity>(
   search: string,
 ): EntityFilter<Entity> => {
   const sSplitted = search.split(' ')
+
+  if (fields.length === 1) {
+    return {
+      $and: sSplitted.map((s) => ({ [fields[0].key]: { $contains: s } })),
+    } as EntityFilter<Entity>
+  }
+
   return {
     $or: fields.map((f) => {
       return { $and: sSplitted.map((s) => ({ [f.key]: { $contains: s } })) }
