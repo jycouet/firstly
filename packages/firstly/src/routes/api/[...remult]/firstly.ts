@@ -2,7 +2,8 @@ import { Entity, Fields, InMemoryDataProvider } from 'remult'
 
 import { firstly } from '$lib/api'
 import { auth, FFAuthUser } from '$lib/auth'
-import { github } from '$lib/auth/providers'
+
+// import { github } from '$lib/auth/providers'
 
 const Role = {
   ADMIN: 'admin',
@@ -59,7 +60,12 @@ export const remultApi = firstly({
       // signUp: false,
 
       verifiedMethod: 'email',
-
+      ui: {
+        paths: {
+          sign_in: false,
+        },
+      },
+      debug: true,
       providers: {
         demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.ADMIN] }],
 
@@ -74,10 +80,10 @@ export const remultApi = firstly({
         },
 
         oAuths: [
-          github({
-            authorizationURLOptions: { scopes: ['user:email'] },
-            log: true,
-          }),
+          // github({
+          //   authorizationURLOptions: { scopes: ['user:email'] },
+          //   log: true,
+          // }),
         ],
       },
     }),

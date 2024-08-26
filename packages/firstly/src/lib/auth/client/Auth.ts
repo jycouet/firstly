@@ -32,8 +32,7 @@ export class Auth {
   }
 
   /**
-   * This is for login / password authentication SignUp
-   * _(The first param `name` can be "anything")_
+   * This is for login / password authentication Invite someone
    */
   @BackendMethod({ allowed: true })
   static async invite(email: string) {
@@ -42,7 +41,6 @@ export class Auth {
 
   /**
    * This is for login / password authentication SignUp
-   * _(The first param `email` can be "anything")_
    */
   @BackendMethod({ allowed: true })
   static async signUpPassword(email: string, password: string) {
@@ -51,7 +49,6 @@ export class Auth {
 
   /**
    * This is for login / password authentication SignIn
-   * _(The first param `email` can be "anything")_
    */
   @BackendMethod({ allowed: true })
   static async signInPassword(email: string, password: string) {

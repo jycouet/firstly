@@ -85,8 +85,7 @@ export class AuthControllerServer {
   }
 
   /**
-   * This is for login / password authentication SignUp
-   * _(The first param `name` can be "anything")_
+   * This is for login / password authentication invite
    */
   static async invite(email: string) {
     const oSafe = getSafeOptions()
@@ -102,19 +101,25 @@ export class AuthControllerServer {
     } else {
       const token = generateId(40)
 
+      // TODO: Do we create the user or just the account ?!
+      // TODO 2: Invite is by mail... But the invitee can log with another provider... So what do we do?! maybe not checking the provider... and updating?
+      // const user = await remult.repo(oSafe.User).insert({
+      //   identifier: email,
+      // })
+
       await remult.repo(oSafe.Account).insert({
         provider: FFAuthProvider.PASSWORD.id,
         providerUserId: email,
         // userId: user.id,
         // hashPassword: await passwordHash(password),
-        token: oSafe.verifiedMethod === 'auto' ? undefined : token,
+        token: token,
         expiresAt: createDate(
           new TimeSpan(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60, 's'),
         ),
         lastVerifiedAt: undefined,
       })
 
-      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
+      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
 
       if (AUTH_OPTIONS?.invitationSend) {
         await AUTH_OPTIONS?.invitationSend({ email, url })
@@ -355,6 +360,12 @@ export class AuthControllerServer {
       throw new Error('token expired')
     }
     checkPassword(password)
+    console.log(`account`, account)
+
+    if (account.userId === undefined) {
+      const user = await remult.repo(oSafe.User).insert({ identifier: account.providerUserId })
+      account.userId = user.id
+    }
 
     await lucia.invalidateUserSessions(account.userId)
 

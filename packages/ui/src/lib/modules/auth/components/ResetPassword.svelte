@@ -30,9 +30,9 @@
   <form on:submit|preventDefault={reset}>
     {firstlyDataAuth.ui?.strings.password}
     <input bind:value={password1} type="password" />
-    {firstlyDataAuth.ui?.strings.password}
+    {firstlyDataAuth.ui?.strings.confirm}
     <input bind:value={password2} type="password" />
-    <button>reset</button>
+    <button>{firstlyDataAuth.ui?.strings.reset}</button>
   </form>
 </div>
 

@@ -173,11 +173,18 @@ type AuthOptions<
 
 export let AUTH_OPTIONS: AuthOptions = { ui: {} }
 
-const buildUrlOrDefault = (base: string, userSetting: string | undefined, fallback: string) => {
-  if (userSetting) {
-    return `${base}/${userSetting}`
+const buildUrlOrDefault = (
+  base: string,
+  userSetting: string | false | undefined,
+  fallback: string,
+) => {
+  if (userSetting === false) {
+    return false
   }
-  return `${base}/${fallback}`
+  if (userSetting === undefined) {
+    return `${base}/${fallback}`
+  }
+  return `${base}/${userSetting}`
 }
 
 export const getSafeOptions = () => {
@@ -218,6 +225,8 @@ export const getSafeOptions = () => {
                 email_placeholder:
                   AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',
                 password: AUTH_OPTIONS.ui?.strings?.password ?? 'Password',
+                confirm: AUTH_OPTIONS.ui?.strings?.confirm ?? 'Confirm',
+                reset: AUTH_OPTIONS.ui?.strings?.reset ?? 'Reset',
                 btn_sign_up: AUTH_OPTIONS.ui?.strings?.btn_sign_up ?? 'Sign up',
                 btn_sign_in: AUTH_OPTIONS.ui?.strings?.btn_sign_in ?? 'Sign in',
                 forgot_password:
@@ -377,11 +386,15 @@ export const auth: (o: AuthOptions) => Module = (o) => {
 
       // For lib author (us), it's good to have this local path.
       let staticPath = './src/lib/auth/static/'
+      // For JYC Monorepo testing
+      staticPath =
+        '/home/jycouet/udev/gh/dp/my-minion-mr/packages/firstly/packages/firstly/src/lib/auth/static/'
       // For users, let's serve the static files from the installed package
       const installedFirstlyPath = getRelativePackagePath('firstly')
       if (installedFirstlyPath) {
         staticPath = `${installedFirstlyPath}/esm/auth/static/`
       }
+      // console.log(`staticPath`, staticPath)
 
       if (
         oSafe.firstlyData.props.ui?.paths?.base &&
