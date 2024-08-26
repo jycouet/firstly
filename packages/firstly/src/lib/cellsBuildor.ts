@@ -113,31 +113,40 @@ export const buildSearchWhere = <Entity>(
     {
       $or: fields.map((f) => {
         // REMULT P1: isServerExpression is false when sqlExpression there ?!
-        if (f.isServerExpression || f.options.sqlExpression) {
-          // check if this field has a specific filter function
-          const fnName = f.key + 'Filter'
+        // if (f.isServerExpression || f.options.sqlExpression) {
+        // check if this field has a specific filter function
+        const fnName = f.key + 'Filter'
+        // @ts-ignore
+        if (entity && entity[fnName]) {
           // @ts-ignore
-          if (entity && entity[fnName]) {
-            // @ts-ignore
-            return entity[fnName](search)
-          }
-
-          // let's continue with the default behavior
-          // return {}
+          return entity[fnName](search)
         }
+
+        // let's continue with the default behavior
+        // return {}
+        // }
 
         if (f.inputType === 'number') {
           return { [f.key]: search }
         }
 
-        const sSplitted = search.split(' ')
-        return {
-          $and: sSplitted.map((s) => ({ [f.key]: { $contains: s } })),
-        }
+        return containsWords([f], search)
       }),
     },
   ]
   return f
+}
+
+export const containsWords = <Entity>(
+  fields: FieldMetadata<string, Entity>[],
+  search: string,
+): EntityFilter<Entity> => {
+  const sSplitted = search.split(' ')
+  return {
+    $or: fields.map((f) => {
+      return { $and: sSplitted.map((s) => ({ [f.key]: { $contains: s } })) }
+    }),
+  } as EntityFilter<Entity>
 }
 
 export const buildWhere = <Entity>(

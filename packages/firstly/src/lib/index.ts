@@ -92,6 +92,7 @@ export {
   cellsBuildor,
   cellBuildor,
   fieldsOf,
+  containsWords,
 } from './cellsBuildor.js'
 export { storeItem }
 export { storeList }
