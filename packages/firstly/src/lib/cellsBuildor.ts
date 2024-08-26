@@ -138,7 +138,7 @@ export const buildSearchWhere = <Entity>(
 }
 
 export const containsWords = <Entity>(
-  fields: FieldMetadata<string, Entity>[],
+  fields: FieldMetadata<any, Entity>[],
   search: string,
 ): EntityFilter<Entity> => {
   const sSplitted = search.split(' ')
