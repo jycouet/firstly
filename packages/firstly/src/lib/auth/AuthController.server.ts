@@ -360,7 +360,6 @@ export class AuthControllerServer {
       throw new Error('token expired')
     }
     checkPassword(password)
-    console.log(`account`, account)
 
     if (account.userId === undefined) {
       const user = await remult.repo(oSafe.User).insert({ identifier: account.providerUserId })
