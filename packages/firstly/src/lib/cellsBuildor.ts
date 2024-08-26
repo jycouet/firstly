@@ -112,7 +112,8 @@ export const buildSearchWhere = <Entity>(
   const f: EntityFilter<any>[] = [
     {
       $or: fields.map((f) => {
-        if (f.isServerExpression) {
+        // REMULT P1: isServerExpression is false when sqlExpression there ?!
+        if (f.isServerExpression || f.options.sqlExpression) {
           // check if this field has a specific filter function
           const fnName = f.key + 'Filter'
           // @ts-ignore
@@ -121,7 +122,8 @@ export const buildSearchWhere = <Entity>(
             return entity[fnName](search)
           }
 
-          return {}
+          // let's continue with the default behavior
+          // return {}
         }
 
         if (f.inputType === 'number') {
