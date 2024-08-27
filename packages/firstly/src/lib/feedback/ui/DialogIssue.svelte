@@ -41,7 +41,7 @@
       const result = await FeedbackController.createIssue(milestoneId, title, content, p)
       issueNumber = result.number
     } else {
-      await FeedbackController.addCommentOnIssue(issue.id, content, p)
+      await FeedbackController.addCommentOnIssue(issue.id, content, p, issue.labels)
     }
 
     content = ''
@@ -50,7 +50,7 @@
 
   const close = async () => {
     state = 'loading'
-    await FeedbackController.close(issue!.id)
+    await FeedbackController.close(issue!.id, issue!.labels)
     content = ''
     await update()
   }
@@ -73,7 +73,7 @@
       <div class="chat {item.who ? 'chat-start' : 'chat-end'}">
         <div class="avatar chat-image">
           <div class="w-10 rounded-full">
-            <div class="h-10 w-10 {item.who ? 'bg-secondary' : 'bg-primary'}"></div>
+            <div class="h-10 w-10 {item.who ? 'bg-primary' : 'bg-secondary'}"></div>
           </div>
         </div>
         <div class="chat-header">
@@ -88,7 +88,9 @@
         <!-- <div class="chat-footer opacity-50">Delivered</div> -->
       </div>
     {/each}
-
+    {#if issue?.highlight}
+      <span class="badge badge-warning">En attente de réponse de TA part 😉, oui 🫵!</span>
+    {/if}
     {#if issueNumber}
       <button on:click={update} class="divider"></button>
     {/if}
@@ -101,16 +103,19 @@
       {#if issueNumber === null}
         <Field cell={cellBuildor(repo(FilterEntity), 'title')} bind:value={title} />
       {/if}
-      <Textarea bind:value={content}></Textarea>
+      <Textarea bind:value={content} placeholder="Un peu de détail c'est pas mal... Fais toi Plaiz'"
+      ></Textarea>
       <div class="flex justify-between">
         {#if issueNumber}
-          <Button on:click={close} tabIndex={-1} class="btn-outline btn-error"
-            >Clore le feedback</Button
-          >
+          <Button on:click={close} tabIndex={-1} class="btn-outline btn-error">
+            Clore le feedback
+          </Button>
         {:else}
           <div></div>
         {/if}
-        <Button on:click={send} disabled={content?.length < 3}>Envoyer</Button>
+        <Button on:click={send} disabled={!(content?.length > 2 && title?.length > 2)}>
+          Envoyer
+        </Button>
       </div>
     {/if}
   {/if}

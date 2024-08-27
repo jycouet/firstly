@@ -84,8 +84,13 @@
       }}
       class="btn-neutral"
     >
-      <div class="w-full text-left">
-        {@html issue.titleHTML}
+      <div class="flex w-full justify-center justify-items-center text-left">
+        <div class="flex-grow">
+          {@html issue.titleHTML}
+        </div>
+        {#if issue.highlight}
+          <span class="badge badge-warning">En attente de réponse</span>
+        {/if}
       </div>
     </Button>
   {:else}
