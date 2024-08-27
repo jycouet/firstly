@@ -23,7 +23,10 @@ export const FF_LogToConsole = (
   duration: number,
   query: string,
   args: Record<string, any>,
-  short: boolean = true,
+  options?: {
+    withDetails?: boolean
+    tablesToHide?: string[][]
+  },
 ) => {
   const rawSql = query
     .replace(/(\r\n|\n|\r|\t)/gm, ' ')
@@ -92,26 +95,28 @@ export const FF_LogToConsole = (
   const time = ` ${bgCyan((duration * 1000).toFixed(0).padStart(3) + ' ms ')}`
 
   let toLog = ''
-  if (short) {
+  if (options?.withDetails) {
+    toLog = `${typeQuery.get(first) || '💢'}` + time + ` ${final_s}`
+  } else {
     toLog =
       `${typeQuery.get(first) || '💢'}` +
       `${time}` +
       ` ${cyan(first)} ${green(mainTable?.replaceAll('"', ''))}` +
       `${listArgs.length > 0 ? ` { ${listArgs.join(', ')} }` : ``}` +
       `${subTables.length > 0 ? magenta(` (sub: ${subTables.join(', ')})`) : ``}`
-  } else {
-    toLog = `${typeQuery.get(first) || '💢'}` + time + ` ${final_s}`
   }
 
-  // Filter out a few things
-  // TODO, make it configurable
-  const filterOutTable = [
-    '"auth_user"',
-    '"auth_user_session"',
-    '"public"."user"',
-    '"ff_auth"."users_sessions"',
+  const toFilterOut = options?.tablesToHide ?? [
+    ['__remult_migrations_version'],
+    ['information_Schema.tables'],
+    ['information_schema.columns'],
+    ['ff_auth.accounts'],
+    ['ff_auth.users'],
+    ['ff_auth.users_sessions'],
   ]
-  const OnoOfFiltered = tables.length === 1 && filterOutTable.includes(tables[0])
+  const OnoOfFiltered = toFilterOut.some((item) =>
+    item.every((i) => tables.map((c) => c.replaceAll('"', '')).includes(i)),
+  )
 
   if (!OnoOfFiltered) {
     // console.log(`toLogLong`, toLogLong)
