@@ -1,6 +1,7 @@
 import { Entity, type EntityOptions } from 'remult'
 
 import type { BaseEnum } from './BaseEnum'
+import { recordDeleted, recordSaved } from './changeLog'
 
 const toAllow = (permission: BaseEnum[] | BaseEnum | undefined) => {
   if (permission) {
@@ -26,9 +27,22 @@ export function FF_Entity<entityType>(
     allowApiRead: options.allowApiRead ?? toAllow(options.permissionApiRead),
     allowApiUpdate: options.allowApiUpdate ?? toAllow(options.permissionApiUpdate),
 
-    // saved: async (item, e) => {
-    //   console.log('was saved')
-    //   await options?.saved?.(item, e)
-    // },
+    // changesLogs
+    saved: async (entity, e) => {
+      await options?.saved?.(entity, e)
+      if (options.changeLog === false) {
+        // Don't log changes
+      } else {
+        await recordSaved(entity, e, options.changeLog)
+      }
+    },
+    deleted: async (entity, e) => {
+      await options?.deleted?.(entity, e)
+      if (options.changeLog === false) {
+        // Don't log changes
+      } else {
+        await recordDeleted(entity, e, options.changeLog)
+      }
+    },
   })
 }

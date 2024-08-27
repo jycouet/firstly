@@ -113,6 +113,7 @@ export const FF_LogToConsole = (
     ['ff_auth.accounts'],
     ['ff_auth.users'],
     ['ff_auth.users_sessions'],
+    ['_ff_change_logs'],
   ]
   const OnoOfFiltered = toFilterOut.some((item) =>
     item.every((i) => tables.map((c) => c.replaceAll('"', '')).includes(i)),
