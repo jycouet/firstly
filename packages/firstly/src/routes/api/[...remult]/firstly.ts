@@ -1,5 +1,6 @@
-import { Entity, Fields, InMemoryDataProvider } from 'remult'
+import { Fields, InMemoryDataProvider } from 'remult'
 
+import { FF_Entity } from '$lib'
 import { firstly } from '$lib/api'
 import { auth, FFAuthUser } from '$lib/auth'
 
@@ -9,7 +10,7 @@ const Role = {
   ADMIN: 'admin',
 }
 
-@Entity<_AppUser>('app_users', {
+@FF_Entity<_AppUser>('app_users', {
   dbName: 'app_users',
   // this overrides the default CRUD... So be carefull !
   // allowApiCrud: true,

@@ -1,15 +1,15 @@
-import { Entity, Fields, Relations, Validators, ValueListFieldType } from 'remult'
+import { Fields, Relations, Validators, ValueListFieldType } from 'remult'
 
-import { BaseEnum, FF_Role } from '../'
+import { BaseEnum, FF_Entity, FF_Role } from '../'
 import type { BaseEnumOptions } from '../'
 
 export const FF_Auth_Role = {
   Admin: 'FF_Auth_Role.Admin',
 } as const
 
-@Entity('ff_auth.users', {
+@FF_Entity('ff_auth.users', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  caption: 'Auth - Users',
+  caption: 'FF Auth - Users',
 })
 export class FFAuthUser {
   @Fields.cuid()
@@ -48,10 +48,15 @@ export class FFAuthUser {
   sessions!: FFAuthUserSession[]
 }
 
-@Entity<FFAuthAccount>('ff_auth.accounts', {
+@FF_Entity<FFAuthAccount>('ff_auth.accounts', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  caption: 'Auth - Accounts',
+  caption: 'FF Auth - Accounts',
   // id: { provider: true, userId: true },
+  changeLog: {
+    excludeColumns: (e) => {
+      return [e.hashPassword, e.token]
+    },
+  },
 })
 export class FFAuthAccount {
   @Fields.cuid()
@@ -88,9 +93,10 @@ export class FFAuthAccount {
   lastVerifiedAt?: Date
 }
 
-@Entity('ff_auth.users_sessions', {
+@FF_Entity('ff_auth.users_sessions', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  caption: 'Auth - Users sessions',
+  caption: 'FF Auth - Users sessions',
+  changeLog: false,
 })
 export class FFAuthUserSession {
   @Fields.cuid()

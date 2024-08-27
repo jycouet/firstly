@@ -220,6 +220,12 @@ export const api = firstly({
         log.success('App is ready! 🚀')
       },
     },
+
+    //----------------------------------------
+    // enabling changeLog in general.
+    // To enable it, replace @Entity by @FF_Entity in your entities
+    //----------------------------------------
+    // changeLog(),
   ],
 })
 `,
