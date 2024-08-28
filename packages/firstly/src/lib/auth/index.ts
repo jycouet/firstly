@@ -25,13 +25,12 @@ import {
   FFAuthProvider,
   FFAuthUser,
   FFAuthUserSession,
-} from './Entities'
+} from './client/Entities'
 import { createSession } from './helper'
 import { initRoleFromEnv } from './RoleHelpers'
 import type { firstlyData, firstlyDataAuth } from './types'
 
 export type { firstlyData }
-export { FFAuthUser, FFAuthAccount, FFAuthProvider, FFAuthUserSession }
 
 // It's sure that we can do better than that! ;)
 export type AuthorizationURLOptions = Record<
@@ -52,7 +51,7 @@ export type DynamicAuthorizationURLOptions<T extends FFOAuth2Provider[] = FFOAut
 
 export const logAuth = new Log('firstly | auth')
 
-export { FF_Auth_Role } from './Entities'
+export { FF_Auth_Role } from './client/Entities'
 
 type OAuth2UserInfo = {
   raw?: any

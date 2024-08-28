@@ -1,7 +1,7 @@
 import { Fields, Relations, Validators, ValueListFieldType } from 'remult'
 
-import { BaseEnum, FF_Entity, FF_Role } from '../'
-import type { BaseEnumOptions } from '../'
+import { BaseEnum, FF_Entity, FF_Role } from '../..'
+import type { BaseEnumOptions } from '../..'
 
 export const FF_Auth_Role = {
   Admin: 'FF_Auth_Role.Admin',

@@ -66,8 +66,8 @@ function mergeAndSort(
 }
 
 pkg.devDependencies = mergeAndSort(pkg.devDependencies, {
-  '@kitql/eslint-config': '0.3.6',
-  '@kitql/helpers': '0.8.9',
+  '@kitql/eslint-config': '0.3.7',
+  '@kitql/helpers': '0.8.10',
   pg: '8.12.0',
   remult: versionFirstly,
 })

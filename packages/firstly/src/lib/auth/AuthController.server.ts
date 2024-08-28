@@ -8,7 +8,7 @@ import { green, magenta, yellow } from '@kitql/helpers'
 
 import { AUTH_OPTIONS, getSafeOptions, logAuth, lucia, type AuthorizationURLOptions } from '.'
 import { sendMail } from '../mail'
-import { FFAuthProvider } from './Entities.js'
+import { FFAuthProvider } from './client/Entities.js'
 import { createSession } from './helper'
 import { mergeRoles } from './RoleHelpers'
 

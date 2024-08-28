@@ -2,7 +2,7 @@ import { repo } from 'remult'
 import type { ClassType } from 'remult'
 import { cyan, green, Log, yellow } from '@kitql/helpers'
 
-import { FFAuthUser } from './Entities'
+import { FFAuthUser } from './client/Entities'
 
 /**
  * will merge the roles and remove duplicates
