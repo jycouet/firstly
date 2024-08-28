@@ -5,7 +5,8 @@ import { remult } from 'remult'
 import { env } from '$env/dynamic/private'
 
 import { checkOAuthConfig } from '.'
-import { logAuth, type FFOAuth2Provider } from '../'
+import { type FFOAuth2Provider } from '../'
+import { logAuth } from '../client'
 
 /**
  * ## Strava OAuth2 provider
