@@ -8,7 +8,7 @@ import { Lucia, TimeSpan, type SessionCookieOptions } from 'lucia'
 
 import { remult } from 'remult'
 import type { ClassType, UserInfo } from 'remult'
-import { Log, red } from '@kitql/helpers'
+import { red } from '@kitql/helpers'
 import { getRelativePackagePath, read } from '@kitql/internals'
 
 import { env } from '$env/dynamic/private'
@@ -18,7 +18,7 @@ import type { Module } from '../api'
 import type { RecursivePartial, ResolvedType } from '../utils/types'
 import { RemultLuciaAdapter } from './Adapter'
 import { AuthControllerServer } from './AuthController.server'
-import { Auth } from './client'
+import { Auth, logAuth } from './client'
 import {
   FF_Auth_Role,
   FFAuthAccount,
@@ -48,10 +48,6 @@ export type DynamicAuthorizationURLOptions<T extends FFOAuth2Provider[] = FFOAut
         }
       : never
     : never
-
-export const logAuth = new Log('firstly | auth')
-
-export { FF_Auth_Role } from './client/Entities'
 
 type OAuth2UserInfo = {
   raw?: any
@@ -311,6 +307,8 @@ export const auth: (o: AuthOptions) => Module = (o) => {
   Auth.verifyOtpFn = AuthControllerServer.verifyOtp
   Auth.signInOAuthGetUrlFn = AuthControllerServer.signInOAuthGetUrl
 
+  const adapter = new RemultLuciaAdapter()
+
   const defaultExpiresIn = 60 * 60 * 24 * 15 // 15 days
   lucia = new Lucia<Record<any, any>, UserInfo>(adapter, {
     sessionExpiresIn: new TimeSpan(AUTH_OPTIONS.sessionExpiresIn ?? defaultExpiresIn, 's'),
@@ -533,7 +531,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
   }
 }
 
-const adapter = new RemultLuciaAdapter()
+// Maybe moving this to /auth/server.ts would be better, people will be able to import from firstly all the time
 
 export let lucia: Lucia<Record<any, any>, UserInfo>
 
