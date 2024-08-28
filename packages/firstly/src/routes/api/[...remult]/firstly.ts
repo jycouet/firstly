@@ -2,7 +2,8 @@ import { Fields, InMemoryDataProvider } from 'remult'
 
 import { FF_Entity } from '$lib'
 import { firstly } from '$lib/api'
-import { auth, FFAuthUser } from '$lib/auth'
+import { auth } from '$lib/auth'
+import { FFAuthUser } from '$lib/auth/client'
 
 // import { github } from '$lib/auth/providers'
 

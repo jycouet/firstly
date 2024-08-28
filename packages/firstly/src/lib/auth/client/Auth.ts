@@ -3,15 +3,26 @@ import { BackendMethod } from 'remult'
 import type { AuthorizationURLOptions } from '..'
 
 export class Auth {
+  // Do not show for firstly users ?
+  /** DO NOT USE */
   static signOutFn: any
+  /** DO NOT USE */
   static signInDemoFn: any
+  /** DO NOT USE */
   static inviteFn: any
+  /** DO NOT USE */
   static signUpPasswordFn: any
+  /** DO NOT USE */
   static signInPasswordFn: any
+  /** DO NOT USE */
   static forgotPasswordFn: any
+  /** DO NOT USE */
   static resetPasswordFn: any
+  /** DO NOT USE */
   static signInOTPFn: any
+  /** DO NOT USE */
   static verifyOtpFn: any
+  /** DO NOT USE */
   static signInOAuthGetUrlFn: any
 
   /**
