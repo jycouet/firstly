@@ -262,6 +262,7 @@ export class AuthControllerServer {
         provider: FFAuthProvider.PASSWORD.id,
       },
     })
+
     if (existingAccount) {
       const validPassword = await passwordVerify(
         existingAccount?.hashPassword ?? '',

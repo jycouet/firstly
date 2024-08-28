@@ -24,8 +24,9 @@ export class FFAuthUser {
   @Fields.string<FFAuthUser>({
     validate: [
       Validators.unique(),
+      Validators.required(),
       (e) => {
-        if (e.identifier.length < 2) throw 'Must be at least 2 characters long'
+        if (e.identifier?.length < 2) throw 'Must be at least 2 characters long'
       },
     ],
   })
@@ -35,8 +36,15 @@ export class FFAuthUser {
     inputType: 'selectEnum',
     valueConverter: {
       toDb: (x) => (x ? x.join(',') : []),
-      fromDb: (x) =>
-        x ? x.split(',').map((c: string) => c.replace('{', '').replace('}', '')) : [],
+      //FIXME: refacto this + remove "permissions" & add a disable user!
+      fromDb: (x) => {
+        return x
+          ? x
+              .split(',')
+              .map((c: string) => c.replace('{', '').replace('}', ''))
+              .filter((c: string) => c !== '')
+          : []
+      },
     },
   })
   roles: string[] = []
