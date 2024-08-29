@@ -26,7 +26,7 @@ import {
   FFAuthUser,
   FFAuthUserSession,
 } from './client/Entities'
-import { createSession } from './helper'
+import { createOrExtendSession } from './helper'
 import { initRoleFromEnv } from './RoleHelpers'
 import type { firstlyData, firstlyDataAuth } from './types'
 
@@ -91,7 +91,7 @@ type AuthOptions<
   debug?: boolean
   ui?: false | RecursivePartial<firstlyDataAuth['ui']>
 
-  /** in secondes @default 15 days */
+  /** in secondes @default 30 days */
   sessionExpiresIn?: number
   sessionCookie?: SessionCookieOptions
 
@@ -309,9 +309,10 @@ export const auth: (o: AuthOptions) => Module = (o) => {
 
   const adapter = new RemultLuciaAdapter()
 
-  const defaultExpiresIn = 60 * 60 * 24 * 15 // 15 days
+  const defaultExpiresIn = 60 * 60 * 24 * 30 // 30 days
+  const sessionExpiresIn = new TimeSpan(AUTH_OPTIONS.sessionExpiresIn ?? defaultExpiresIn, 's')
   lucia = new Lucia<Record<any, any>, UserInfo>(adapter, {
-    sessionExpiresIn: new TimeSpan(AUTH_OPTIONS.sessionExpiresIn ?? defaultExpiresIn, 's'),
+    sessionExpiresIn,
     sessionCookie: {
       name: AUTH_OPTIONS.sessionCookie?.name ?? 'firstly_auth_session',
       expires: AUTH_OPTIONS.sessionCookie?.expires,
@@ -337,11 +338,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       if (sessionId) {
         const { session, user } = await lucia.validateSession(sessionId)
         if (session && session.fresh) {
-          const sessionCookie = lucia.createSessionCookie(session.id)
-          event.cookies.set(sessionCookie.name, sessionCookie.value, {
-            path: '/',
-            ...sessionCookie.attributes,
-          })
+          await createOrExtendSession(session.id, session)
         }
         remult.user = user ?? undefined
       }
@@ -376,7 +373,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
 
         await remult.repo(oSafe.Account).save(account)
 
-        await createSession(account.userId)
+        await createOrExtendSession(account.userId)
 
         redirect(302, oSafe.redirectUrl)
       }
@@ -514,7 +511,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
             await remult.repo(oSafe.Account).save(account)
           }
 
-          await createSession(account.userId)
+          await createOrExtendSession(account.userId)
 
           event.cookies.delete(`${keyState}_oauth_state`, { path: '/' })
           event.cookies.delete(`code_verifier`, { path: '/' })

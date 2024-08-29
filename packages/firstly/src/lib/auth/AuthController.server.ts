@@ -10,7 +10,7 @@ import { AUTH_OPTIONS, getSafeOptions, lucia, type AuthorizationURLOptions } fro
 import { sendMail } from '../mail'
 import { logAuth } from './client'
 import { FFAuthProvider } from './client/Entities.js'
-import { createSession } from './helper'
+import { createOrExtendSession } from './helper'
 import { mergeRoles } from './RoleHelpers'
 
 async function getArgon() {
@@ -80,7 +80,7 @@ export class AuthControllerServer {
 
     await remult.repo(oSafe.User).save(user)
 
-    await createSession(user.id)
+    await createOrExtendSession(user.id)
 
     return "You're in with demo account!"
   }
@@ -211,7 +211,7 @@ export class AuthControllerServer {
         identifier: email,
       })
       if (user) {
-        await createSession(user.id)
+        await createOrExtendSession(user.id)
       }
     } else {
       const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
@@ -269,7 +269,7 @@ export class AuthControllerServer {
         password ?? '',
       )
       if (validPassword) {
-        await createSession(existingAccount.userId)
+        await createOrExtendSession(existingAccount.userId)
 
         return 'ok'
       }
@@ -378,7 +378,7 @@ export class AuthControllerServer {
 
     await remult.repo(oSafe.Account).save(account)
 
-    await createSession(account.userId)
+    await createOrExtendSession(account.userId)
 
     return 'reseted'
   }
@@ -477,7 +477,7 @@ export class AuthControllerServer {
 
     await remult.repo(oSafe.Account).save(account)
 
-    await createSession(account.userId)
+    await createOrExtendSession(account.userId)
 
     return 'verified'
   }

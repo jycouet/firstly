@@ -76,6 +76,16 @@ export const firstly = (o: Options) => {
         // usefull for later...
         remult.context.url = kitEvent.url
 
+        remult.context.setHeaders = (headers) => {
+          kitEvent.setHeaders(headers)
+        }
+        remult.context.setCookie = (name, value, opts) => {
+          kitEvent.cookies.set(name, value, opts)
+        }
+        remult.context.deleteCookie = (name, opts) => {
+          kitEvent.cookies.delete(name, opts)
+        }
+
         for (let i = 0; i < modulesSorted.length; i++) {
           const f = modulesSorted[i].initRequest
           if (f) {
@@ -86,16 +96,6 @@ export const firstly = (o: Options) => {
               log.error(error)
             }
           }
-        }
-
-        remult.context.setHeaders = (headers) => {
-          kitEvent.setHeaders(headers)
-        }
-        remult.context.setCookie = (name, value, opts) => {
-          kitEvent.cookies.set(name, value, opts)
-        }
-        remult.context.deleteCookie = (name, opts) => {
-          kitEvent.cookies.delete(name, opts)
         }
       },
       initApi: async (r) => {
