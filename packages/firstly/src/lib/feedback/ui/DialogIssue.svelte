@@ -46,6 +46,7 @@
 
     content = ''
     await update()
+    state = 'done'
   }
 
   const close = async () => {
@@ -53,6 +54,7 @@
     await FeedbackController.close(issue!.id, issue!.labels)
     content = ''
     await update()
+    state = 'done'
   }
 
   const reOpen = async () => {
@@ -60,6 +62,19 @@
     await FeedbackController.reOpen(issue!.id)
     content = ''
     await update()
+    state = 'done'
+  }
+
+  const disableButton = (issueNumber: number | null, title: string, content: string) => {
+    if (issueNumber) {
+      if (content?.length > 2) {
+        return false
+      }
+    }
+    if (title?.length > 2 && content?.length > 2) {
+      return false
+    }
+    return true
   }
 </script>
 
@@ -113,7 +128,7 @@
         {:else}
           <div></div>
         {/if}
-        <Button on:click={send} disabled={!(content?.length > 2 && title?.length > 2)}>
+        <Button on:click={send} disabled={disableButton(issueNumber, title, content)}>
           Envoyer
         </Button>
       </div>

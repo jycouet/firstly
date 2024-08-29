@@ -9,8 +9,6 @@ import { lucia } from '.'
  * If you pass a session, it will extend it.
  */
 export async function createOrExtendSession(userId: string, session?: Session) {
-  console.log(`Let's createSession!!!`)
-
   const sessionToUser = session ? session : await lucia.createSession(userId, {})
   const sessionCookie = lucia.createSessionCookie(sessionToUser.id)
 
