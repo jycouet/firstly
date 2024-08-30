@@ -381,8 +381,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       // For lib author (us), it's good to have this local path.
       let staticPath = './src/lib/auth/static/'
       // For JYC Monorepo testing
-      staticPath =
-        '/home/jycouet/udev/gh/dp/my-minion-mr/packages/firstly/packages/firstly/src/lib/auth/static/'
+      staticPath = '../../packages/firstly/packages/firstly/src/lib/auth/static/'
       // For users, let's serve the static files from the installed package
       const installedFirstlyPath = getRelativePackagePath('firstly')
       if (installedFirstlyPath) {
