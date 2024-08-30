@@ -5,10 +5,6 @@
 ### Patch Changes
 
 - [#27](https://github.com/jycouet/firstly/pull/27)
-  [`760331e`](https://github.com/jycouet/firstly/commit/760331ee048c67daa52e00b252b1e7bd27409330)
-  Thanks [@jycouet](https://github.com/jycouet)! - WIP 0.0.8
-
-- [#27](https://github.com/jycouet/firstly/pull/27)
   [`66711b2`](https://github.com/jycouet/firstly/commit/66711b2373c69006d7ae5f06d8f4a6cb0e43670b)
   Thanks [@jycouet](https://github.com/jycouet)! - fix the session creation on signIn! (+default
   expiration is 30 days)
