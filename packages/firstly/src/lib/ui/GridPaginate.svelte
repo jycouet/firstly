@@ -8,25 +8,26 @@
   import Loading from './Loading.svelte'
 
   export let label = 'Pagination'
-  export let page: number
+  export let pageDisplayed: number
   export let totalCount: number | undefined | null = undefined
   export let pageSize: number = 25
 
   const update = (op: '+' | '-') => {
     if (op === '+') {
       if (canGoNext) {
-        page = page + 1
+        pageDisplayed = pageDisplayed + 1
       }
     } else {
-      if (page > 1) {
-        page = page - 1
+      if (pageDisplayed > 1) {
+        pageDisplayed = pageDisplayed - 1
       }
     }
   }
 
   $: isValidValue = totalCount !== undefined && totalCount !== null
   $: needPaginate = isValidValue && (totalCount ?? 0) > pageSize
-  $: canGoNext = isValidValue && needPaginate && page < Math.ceil((totalCount ?? 0) / pageSize)
+  $: canGoNext =
+    isValidValue && needPaginate && pageDisplayed < Math.ceil((totalCount ?? 0) / pageSize)
 </script>
 
 <FieldContainer {label} forId="paginate" classes={{ label: 'justify-end' }}>
@@ -42,7 +43,7 @@
         <button
           aria-label="left"
           on:click={() => update('-')}
-          class="btn join-item {page === 1 ? 'btn-disabled' : ''}"
+          class="btn join-item {pageDisplayed === 1 ? 'btn-disabled' : ''}"
         >
           <Icon data={LibIcon_ChevronLeft} />
         </button>
@@ -50,7 +51,7 @@
           <button aria-label="current" class="btn join-item px-0">
             <span class="text-primary font-bold">{totalCount}</span>
             <span class="text-[0.55rem] italic"
-              >({page} / {Math.ceil((totalCount ?? 0) / pageSize)})</span
+              >({pageDisplayed} / {Math.ceil((totalCount ?? 0) / pageSize)})</span
             >
           </button>
         {:else}

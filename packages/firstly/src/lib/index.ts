@@ -5,6 +5,7 @@ import { Log } from '@kitql/helpers'
 
 import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
 import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
+import type { ColumnDeciderArgs } from './changeLog/index.js'
 import { default as DefaultMail } from './mail/templates/DefaultMail.svelte'
 import { storeItem } from './storeItem.js'
 import { storeList } from './storeList.js'
@@ -92,6 +93,7 @@ export {
   cellsBuildor,
   cellBuildor,
   fieldsOf,
+  containsWords,
 } from './cellsBuildor.js'
 export { storeItem }
 export { storeList }
@@ -184,6 +186,8 @@ declare module 'remult' {
     permissionApiInsert?: BaseEnum[] | BaseEnum
     permissionApiRead?: BaseEnum[] | BaseEnum
     permissionApiUpdate?: BaseEnum[] | BaseEnum
+
+    changeLog?: false | ColumnDeciderArgs<entityType>
   }
 
   export interface UserInfo {

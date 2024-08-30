@@ -30,47 +30,53 @@
         </Route>
       {/if}
 
-      <Route path={firstlyDataAuth.ui?.paths.sign_in}>
-        <SignIn {firstlyDataAuth} bind:email />
+      {#if firstlyDataAuth.ui?.paths.sign_in}
+        <Route path={firstlyDataAuth.ui?.paths.sign_in}>
+          <SignIn {firstlyDataAuth} bind:email />
 
-        <div class="form-footer">
-          {#if firstlyDataAuth.ui?.paths.forgot_password}
-            <Link href={firstlyDataAuth.ui.paths.forgot_password}>
-              {firstlyDataAuth.ui.strings.forgot_password}
-            </Link>
-          {/if}
-          <hr />
-          {#if firstlyDataAuth.ui?.paths.sign_up}
-            <Link href={firstlyDataAuth.ui.paths.sign_up}>
-              {firstlyDataAuth.ui.strings.btn_sign_up}
-            </Link>
-          {/if}
-        </div>
-      </Route>
+          <div class="form-footer">
+            {#if firstlyDataAuth.ui?.paths.forgot_password}
+              <Link href={firstlyDataAuth.ui.paths.forgot_password}>
+                {firstlyDataAuth.ui.strings.forgot_password}
+              </Link>
+            {/if}
+            <hr />
+            {#if firstlyDataAuth.ui?.paths.sign_up}
+              <Link href={firstlyDataAuth.ui.paths.sign_up}>
+                {firstlyDataAuth.ui.strings.btn_sign_up}
+              </Link>
+            {/if}
+          </div>
+        </Route>
+      {/if}
 
-      <Route path={firstlyDataAuth.ui?.paths.forgot_password}>
-        <ForgotPassword {firstlyDataAuth} bind:email />
+      {#if firstlyDataAuth.ui?.paths.forgot_password}
+        <Route path={firstlyDataAuth.ui?.paths.forgot_password}>
+          <ForgotPassword {firstlyDataAuth} bind:email />
 
-        <div class="form-footer">
-          {#if firstlyDataAuth.ui?.paths.sign_in}
-            <Link href={firstlyDataAuth.ui.paths.sign_in}>
-              {firstlyDataAuth.ui.strings.back_to_sign_in}
-            </Link>
-          {/if}
-        </div>
-      </Route>
+          <div class="form-footer">
+            {#if firstlyDataAuth.ui?.paths.sign_in}
+              <Link href={firstlyDataAuth.ui.paths.sign_in}>
+                {firstlyDataAuth.ui.strings.back_to_sign_in}
+              </Link>
+            {/if}
+          </div>
+        </Route>
+      {/if}
 
-      <Route path={firstlyDataAuth.ui?.paths.reset_password}>
-        <ResetPassword {firstlyDataAuth} />
+      {#if firstlyDataAuth.ui?.paths.reset_password}
+        <Route path={firstlyDataAuth.ui?.paths.reset_password}>
+          <ResetPassword {firstlyDataAuth} />
 
-        <div class="form-footer">
-          {#if firstlyDataAuth.ui?.paths.sign_in}
-            <Link href={firstlyDataAuth.ui.paths.sign_in}>
-              {firstlyDataAuth.ui.strings.back_to_sign_in}
-            </Link>
-          {/if}
-        </div>
-      </Route>
+          <div class="form-footer">
+            {#if firstlyDataAuth.ui?.paths.sign_in}
+              <Link href={firstlyDataAuth.ui.paths.sign_in}>
+                {firstlyDataAuth.ui.strings.back_to_sign_in}
+              </Link>
+            {/if}
+          </div>
+        </Route>
+      {/if}
 
       <Route fallback>
         <div class="fallback">

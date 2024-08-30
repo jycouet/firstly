@@ -1,15 +1,15 @@
-import { Entity, Fields, Relations, Validators, ValueListFieldType } from 'remult'
+import { Fields, Relations, Validators, ValueListFieldType } from 'remult'
 
-import { BaseEnum, FF_Role } from '../'
-import type { BaseEnumOptions } from '../'
+import { BaseEnum, FF_Entity, FF_Role } from '../..'
+import type { BaseEnumOptions } from '../..'
 
 export const FF_Auth_Role = {
   Admin: 'FF_Auth_Role.Admin',
 } as const
 
-@Entity('ff_auth.users', {
+@FF_Entity('ff_auth.users', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  caption: 'Auth - Users',
+  caption: 'FF Auth - Users',
 })
 export class FFAuthUser {
   @Fields.cuid()
@@ -24,17 +24,27 @@ export class FFAuthUser {
   @Fields.string<FFAuthUser>({
     validate: [
       Validators.unique(),
+      Validators.required(),
       (e) => {
-        if (e.identifier.length < 2) throw 'Must be at least 2 characters long'
+        if (e.identifier?.length < 2) throw 'Must be at least 2 characters long'
       },
     ],
   })
   identifier!: string
 
-  @Fields.object<FFAuthUser, string[]>({
+  @Fields.json<FFAuthUser, string[]>(() => [], {
+    inputType: 'selectEnum',
     valueConverter: {
-      toDb: (x) => (x ? x.join(',') : undefined),
-      fromDb: (x) => (x ? x.split(',') : undefined),
+      toDb: (x) => (x ? x.join(',') : []),
+      //FIXME: refacto this + remove "permissions" & add a disable user!
+      fromDb: (x) => {
+        return x
+          ? x
+              .split(',')
+              .map((c: string) => c.replace('{', '').replace('}', ''))
+              .filter((c: string) => c !== '')
+          : []
+      },
     },
   })
   roles: string[] = []
@@ -46,10 +56,15 @@ export class FFAuthUser {
   sessions!: FFAuthUserSession[]
 }
 
-@Entity<FFAuthAccount>('ff_auth.accounts', {
+@FF_Entity<FFAuthAccount>('ff_auth.accounts', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  caption: 'Auth - Accounts',
+  caption: 'FF Auth - Accounts',
   // id: { provider: true, userId: true },
+  changeLog: {
+    excludeColumns: (e) => {
+      return [e.hashPassword, e.token]
+    },
+  },
 })
 export class FFAuthAccount {
   @Fields.cuid()
@@ -86,9 +101,10 @@ export class FFAuthAccount {
   lastVerifiedAt?: Date
 }
 
-@Entity('ff_auth.users_sessions', {
+@FF_Entity('ff_auth.users_sessions', {
   allowApiCrud: [FF_Auth_Role.Admin, FF_Role.Admin],
-  caption: 'Auth - Users sessions',
+  caption: 'FF Auth - Users sessions',
+  changeLog: false,
 })
 export class FFAuthUserSession {
   @Fields.cuid()

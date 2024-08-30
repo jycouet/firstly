@@ -4,6 +4,8 @@ import { stripper } from 'vite-plugin-stripper'
 
 // import { Log } from '@kitql/helpers'
 
+// const toRemove = ['oslo/password', 'oslo', '@node-rs/argon2', '@node-rs/bcrypt']
+// oslo needs to be in the dependencies (not devDependencies) !!
 const toRemove = ['oslo/password', 'oslo']
 
 export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
@@ -11,6 +13,7 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
   kitRoutes?: Options<KIT_ROUTES>
 }): PluginOption {
   // const log = new Log('firstly')
+  // console.log(`toRemove`, toRemove)
 
   return [
     {
@@ -21,7 +24,7 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
         return mergeConfig(a, {
           build: {
             // THE ERROR:
-            // RollupError: Unexpected character '�'
+            // RollupError: Unexpected character '�' or Unexpected character '\u{7f}'
             // This code (A) is to fix in `build` mode
             rollupOptions: {
               external: toRemove,

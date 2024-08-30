@@ -41,27 +41,41 @@ const res = (await p.multiselect({
   options,
 })) as Keys[]
 
-const devDependenciesPrepare: Record<string, string> = {
-  '@kitql/eslint-config': '0.3.6',
-  '@kitql/helpers': '0.8.9',
-  pg: '8.12.0',
-  oslo: '^1.2.0',
-  remult: versionFirstly,
-  ...pkg.devDependencies,
+// devDependencies
+function mergeAndSort(
+  deps: Record<string, string>,
+  depsToAdd: Record<string, string>,
+): Record<string, string> {
+  const prepare: Record<string, string> = {
+    ...depsToAdd,
+    ...deps,
+  }
+
+  // sort by name
+  const sorted = Object.keys(prepare)
+    .sort()
+    .reduce(
+      (acc, key) => {
+        acc[key] = prepare[key]
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+
+  return sorted
 }
 
-// sort by name
-const devDependenciesSorted = Object.keys(devDependenciesPrepare)
-  .sort()
-  .reduce(
-    (acc, key) => {
-      acc[key] = devDependenciesPrepare[key]
-      return acc
-    },
-    {} as Record<string, string>,
-  )
+pkg.devDependencies = mergeAndSort(pkg.devDependencies, {
+  '@kitql/eslint-config': '0.3.7',
+  '@kitql/helpers': '0.8.10',
+  pg: '8.12.0',
+  remult: versionFirstly,
+})
 
-pkg.devDependencies = devDependenciesSorted
+pkg.dependencies = mergeAndSort(pkg.dependencies, {
+  oslo: '^1.2.1',
+})
+
 pkg.scripts = {
   ...pkg.scripts,
   '//// ---- BEST PRACTICES ---- ////': '',
@@ -206,6 +220,12 @@ export const api = firstly({
         log.success('App is ready! 🚀')
       },
     },
+
+    //----------------------------------------
+    // enabling changeLog in general.
+    // To enable it, replace @Entity by @FF_Entity in your entities
+    //----------------------------------------
+    // changeLog(),
   ],
 })
 `,

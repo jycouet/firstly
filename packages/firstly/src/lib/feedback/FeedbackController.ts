@@ -133,6 +133,11 @@ export class FeedbackController {
 								number
 								titleHTML
 								state
+                labels(first:10){
+                  nodes {
+                    name
+                  }
+                }
 							}
 						}
 					}
@@ -151,12 +156,20 @@ export class FeedbackController {
       },
     )
 
-    return data.repository.milestone.issues.nodes as {
-      id: string
-      number: number
-      titleHTML: string
-      state: 'OPEN' | 'CLOSED'
-    }[]
+    return data.repository.milestone.issues.nodes.map((issue: any) => {
+      const hasWaitingForAnswerLabel = FEEDBACK_OPTIONS.highlight_label
+        ? issue.labels.nodes.some((label: any) =>
+            label.name.includes(FEEDBACK_OPTIONS.highlight_label),
+          )
+        : false
+      return {
+        id: issue.id,
+        number: issue.number,
+        titleHTML: issue.titleHTML,
+        state: issue.state,
+        highlight: hasWaitingForAnswerLabel,
+      }
+    }) as { id: string; number: number; titleHTML: string; state: string; highlight: boolean }[]
   }
 
   @BackendMethod({ allowed: Allow.authenticated })
@@ -169,6 +182,12 @@ export class FeedbackController {
 						createdAt
 						bodyHTML
 						state
+            labels(first: 25){
+              nodes{
+                id
+                name
+              }
+            }
 						comments(first: 100) {
 							nodes {
 								id
@@ -241,10 +260,18 @@ export class FeedbackController {
       }
     }
 
+    const hasWaitingForAnswerLabel = FEEDBACK_OPTIONS.highlight_label
+      ? data.repository.issue.labels.nodes.some((label: any) =>
+          label.name.includes(FEEDBACK_OPTIONS.highlight_label),
+        )
+      : false
+
     const toRet = {
       id: data.repository.issue.id,
       state: data.repository.issue.state,
       items: items.filter((c) => c.public),
+      labels: data.repository.issue.labels.nodes,
+      highlight: hasWaitingForAnswerLabel,
     }
     return toRet
   }
@@ -310,25 +337,44 @@ export class FeedbackController {
   }
 
   @BackendMethod({ allowed: Allow.authenticated })
-  static async addCommentOnIssue(issueId: string, body: string, page: string) {
-    const input: { subjectId: string; body: string } = {
+  static async addCommentOnIssue(
+    issueId: string,
+    body: string,
+    page: string,
+    labels: { id: string; name: string }[],
+  ) {
+    const inputComment: { subjectId: string; body: string } = {
       subjectId: issueId,
       body,
     }
 
+    const inputIssue: { id: string; labelIds: string[] } = {
+      id: issueId,
+      labelIds: (FEEDBACK_OPTIONS.highlight_label
+        ? labels.filter((c) => c.name !== FEEDBACK_OPTIONS.highlight_label)
+        : labels
+      ).map((c) => c.id),
+    }
+
     await getGitHub(
-      `mutation AddComment($input: AddCommentInput!) {
-				addComment(input: $input) {
+      `mutation AddComment($inputComment: AddCommentInput!, $inputIssue: UpdateIssueInput!) {
+				addComment(input: $inputComment) {
 					commentEdge {
 						node {
 							id
 						}
 					}
 				}
+        updateIssue(input: $inputIssue) {
+          issue {
+            id
+          }
+        }
 			}
 			`,
       {
-        input,
+        inputComment,
+        inputIssue,
       },
     )
 
@@ -338,14 +384,27 @@ export class FeedbackController {
   }
 
   @BackendMethod({ allowed: Allow.authenticated })
-  static async close(issueId: string) {
-    const input: { issueId: string } = {
+  static async close(issueId: string, labels: { id: string; name: string }[]) {
+    const inputClose: { issueId: string } = {
       issueId,
     }
 
+    const inputIssue: { id: string; labelIds: string[] } = {
+      id: issueId,
+      labelIds: (FEEDBACK_OPTIONS.highlight_label
+        ? labels.filter((c) => c.name !== FEEDBACK_OPTIONS.highlight_label)
+        : labels
+      ).map((c) => c.id),
+    }
+
     await getGitHub(
-      `mutation CloseIssue($input: CloseIssueInput!) {
-				closeIssue(input: $input) {
+      `mutation CloseIssue($inputIssue: UpdateIssueInput!, $inputClose: CloseIssueInput!) {
+        updateIssue(input: $inputIssue) {
+          issue {
+            id
+          }
+        }
+				closeIssue(input: $inputClose) {
 					issue {
 						id
 					}
@@ -353,7 +412,8 @@ export class FeedbackController {
 			}
 			`,
       {
-        input,
+        inputIssue,
+        inputClose,
       },
     )
 

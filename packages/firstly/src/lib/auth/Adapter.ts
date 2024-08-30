@@ -13,19 +13,10 @@ export class RemultLuciaAdapter implements Adapter {
 
     if (session) {
       const user = await remult.repo(oSafe.User).findId(session.userId)
-
       if (user) {
-        const { identifier, ...userInfo } = user
         return [
           { ...session, attributes: {} },
-          {
-            ...userInfo,
-            attributes: {
-              ...userInfo,
-              name: identifier,
-              session: { id: session.id, expiresAt: session.expiresAt },
-            },
-          },
+          { ...user, attributes: oSafe.transformDbUserToClientUser(session, user) },
         ]
       }
     }

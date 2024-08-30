@@ -14,6 +14,7 @@ type FeedbackOptions = {
     title_filter?: string
     labels_filters?: string[]
   }
+  highlight_label?: string
   create_label?: string
 }
 

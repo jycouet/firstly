@@ -22,6 +22,7 @@
   import SelectMelt from './internals/select/SelectMelt.svelte'
   import SelectRadio from './internals/select/SelectRadio.svelte'
   import Textarea from './internals/Textarea.svelte'
+  import LinkPlus from './link/LinkPlus.svelte'
 
   export let cell: Cell<T>
   export let value: HTMLInputAttributes['value'] = undefined
@@ -205,16 +206,7 @@
       {:else if metaType.kind === 'relation'}
         {@const item = getEntityDisplayValue(metaType.repoTarget, value)}
         <div class={tw('flex items-center gap-4', 'h-12', 'pl-2')}>
-          {#if item && item?.icon}
-            <Icon {...item.icon} />
-          {/if}
-          <div class="grid grid-cols-1">
-            <span>{cell?.header ?? item?.caption ?? '-'}</span>
-            <!-- && captionSubStyle === 'inline' -->
-            {#if item?.captionSub}
-              <span class="text-base-content/70 text-xs italic">{item.captionSub}</span>
-            {/if}
-          </div>
+          <LinkPlus {item}></LinkPlus>
         </div>
       {:else if metaType.kind === 'enum'}
         {@const v = displayWithDefaultAndSuffix(cell.field, value)}

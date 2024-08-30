@@ -6,10 +6,11 @@ import { createDate, TimeSpan } from 'oslo'
 import { remult } from 'remult'
 import { green, magenta, yellow } from '@kitql/helpers'
 
-import { AUTH_OPTIONS, getSafeOptions, logAuth, lucia, type AuthorizationURLOptions } from '.'
+import { AUTH_OPTIONS, getSafeOptions, lucia, type AuthorizationURLOptions } from '.'
 import { sendMail } from '../mail'
-import { FFAuthProvider } from './Entities.js'
-import { createSession } from './helper'
+import { logAuth } from './client'
+import { FFAuthProvider } from './client/Entities.js'
+import { createOrExtendSession } from './helper'
 import { mergeRoles } from './RoleHelpers'
 
 async function getArgon() {
@@ -79,14 +80,13 @@ export class AuthControllerServer {
 
     await remult.repo(oSafe.User).save(user)
 
-    await createSession(user.id)
+    await createOrExtendSession(user.id)
 
     return "You're in with demo account!"
   }
 
   /**
-   * This is for login / password authentication SignUp
-   * _(The first param `name` can be "anything")_
+   * This is for login / password authentication invite
    */
   static async invite(email: string) {
     const oSafe = getSafeOptions()
@@ -102,19 +102,25 @@ export class AuthControllerServer {
     } else {
       const token = generateId(40)
 
+      // TODO: Do we create the user or just the account ?!
+      // TODO 2: Invite is by mail... But the invitee can log with another provider... So what do we do?! maybe not checking the provider... and updating?
+      // const user = await remult.repo(oSafe.User).insert({
+      //   identifier: email,
+      // })
+
       await remult.repo(oSafe.Account).insert({
         provider: FFAuthProvider.PASSWORD.id,
         providerUserId: email,
         // userId: user.id,
         // hashPassword: await passwordHash(password),
-        token: oSafe.verifiedMethod === 'auto' ? undefined : token,
+        token: token,
         expiresAt: createDate(
           new TimeSpan(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60, 's'),
         ),
         lastVerifiedAt: undefined,
       })
 
-      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
+      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
 
       if (AUTH_OPTIONS?.invitationSend) {
         await AUTH_OPTIONS?.invitationSend({ email, url })
@@ -205,7 +211,7 @@ export class AuthControllerServer {
         identifier: email,
       })
       if (user) {
-        await createSession(user.id)
+        await createOrExtendSession(user.id)
       }
     } else {
       const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
@@ -256,13 +262,14 @@ export class AuthControllerServer {
         provider: FFAuthProvider.PASSWORD.id,
       },
     })
+
     if (existingAccount) {
       const validPassword = await passwordVerify(
         existingAccount?.hashPassword ?? '',
         password ?? '',
       )
       if (validPassword) {
-        await createSession(existingAccount.userId)
+        await createOrExtendSession(existingAccount.userId)
 
         return 'ok'
       }
@@ -356,6 +363,11 @@ export class AuthControllerServer {
     }
     checkPassword(password)
 
+    if (account.userId === undefined) {
+      const user = await remult.repo(oSafe.User).insert({ identifier: account.providerUserId })
+      account.userId = user.id
+    }
+
     await lucia.invalidateUserSessions(account.userId)
 
     // update elements
@@ -366,7 +378,7 @@ export class AuthControllerServer {
 
     await remult.repo(oSafe.Account).save(account)
 
-    await createSession(account.userId)
+    await createOrExtendSession(account.userId)
 
     return 'reseted'
   }
@@ -465,7 +477,7 @@ export class AuthControllerServer {
 
     await remult.repo(oSafe.Account).save(account)
 
-    await createSession(account.userId)
+    await createOrExtendSession(account.userId)
 
     return 'verified'
   }

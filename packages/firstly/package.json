@@ -33,15 +33,15 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "remult": "0.27.4",
+    "remult": "0.27.7",
     "svelte": ">=4.2.18"
   },
   "devDependencies": {
-    "@kitql/helpers": "0.8.9",
+    "@kitql/helpers": "0.8.10",
     "@sveltejs/adapter-node": "5.2.2",
     "@sveltejs/kit": "2.5.17",
     "@sveltejs/package": "2.3.2",
-    "@sveltejs/vite-plugin-svelte": "3.1.0",
+    "@sveltejs/vite-plugin-svelte": "3.1.2",
     "autoprefixer": "10.4.19",
     "postcss": "8.4.38",
     "svelte": "4.2.18",
@@ -52,9 +52,9 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
-    "@kitql/internals": "0.9.8",
+    "@kitql/internals": "0.9.9",
     "@mdi/js": "^7.4.47",
-    "@melt-ui/svelte": "^0.81.0",
+    "@melt-ui/svelte": "^0.83.0",
     "@types/nodemailer": "^6.4.15",
     "arctic": "^1.8.0",
     "clsx": "^2.1.1",
@@ -63,13 +63,13 @@
     "esm-env": "^1.0.0",
     "lucia": "^3.2.0",
     "nodemailer": "^6.9.13",
-    "oslo": "^1.2.0",
+    "oslo": "1.2.1",
     "svelty-email": "^0.0.11",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.3",
     "vite": "^5.4.1",
-    "vite-plugin-kit-routes": "^0.6.5",
-    "vite-plugin-stripper": "^0.5.0"
+    "vite-plugin-kit-routes": "^0.6.10",
+    "vite-plugin-stripper": "^0.5.4"
   },
   "sideEffects": false,
   "publishConfig": {

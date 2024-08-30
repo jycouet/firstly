@@ -35,6 +35,7 @@
 </main>
 
 {#if firstlyData.debug}
+  {console.info(firstlyData)}
   <div class="debug">
     {#each getKeys() as module}
       <button on:click={() => loadModule(module)}>Load {module}</button>

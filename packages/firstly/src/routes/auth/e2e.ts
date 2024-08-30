@@ -3,8 +3,9 @@ import { expect, test, type Page } from '@playwright/test'
 import { sleep } from '@kitql/helpers'
 
 const getInfo = async (page: Page) => {
+  await sleep(100)
   const msgInfo = page.getByTestId('msg-info')
-  await sleep(250)
+  await sleep(400)
   const raw = await msgInfo.innerText()
 
   try {
@@ -16,8 +17,9 @@ const getInfo = async (page: Page) => {
 }
 
 const getMsg = async (page: Page, type: 'error' | 'success' = 'success') => {
+  await sleep(100)
   const msgInfo = page.getByTestId('msg-' + type)
-  await sleep(250)
+  await sleep(400)
   const raw = await msgInfo.innerText()
   return raw
 }
@@ -25,7 +27,7 @@ const getMsg = async (page: Page, type: 'error' | 'success' = 'success') => {
 async function click(page: Page, text: string) {
   await page.getByText(text).click({})
   // Let the network do it's things...
-  await sleep(250)
+  await sleep(400)
 }
 
 test.beforeEach(async ({ page }) => {

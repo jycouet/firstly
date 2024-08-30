@@ -8,7 +8,7 @@ import { Lucia, TimeSpan, type SessionCookieOptions } from 'lucia'
 
 import { remult } from 'remult'
 import type { ClassType, UserInfo } from 'remult'
-import { Log, red } from '@kitql/helpers'
+import { red } from '@kitql/helpers'
 import { getRelativePackagePath, read } from '@kitql/internals'
 
 import { env } from '$env/dynamic/private'
@@ -18,20 +18,19 @@ import type { Module } from '../api'
 import type { RecursivePartial, ResolvedType } from '../utils/types'
 import { RemultLuciaAdapter } from './Adapter'
 import { AuthControllerServer } from './AuthController.server'
-import { Auth } from './client'
+import { Auth, logAuth } from './client'
 import {
   FF_Auth_Role,
   FFAuthAccount,
   FFAuthProvider,
   FFAuthUser,
   FFAuthUserSession,
-} from './Entities'
-import { createSession } from './helper'
+} from './client/Entities'
+import { createOrExtendSession } from './helper'
 import { initRoleFromEnv } from './RoleHelpers'
 import type { firstlyData, firstlyDataAuth } from './types'
 
 export type { firstlyData }
-export { FFAuthUser, FFAuthAccount, FFAuthProvider, FFAuthUserSession }
 
 // It's sure that we can do better than that! ;)
 export type AuthorizationURLOptions = Record<
@@ -49,10 +48,6 @@ export type DynamicAuthorizationURLOptions<T extends FFOAuth2Provider[] = FFOAut
         }
       : never
     : never
-
-export const logAuth = new Log('firstly | auth')
-
-export { FF_Auth_Role } from './Entities'
 
 type OAuth2UserInfo = {
   raw?: any
@@ -96,7 +91,10 @@ type AuthOptions<
   debug?: boolean
   ui?: false | RecursivePartial<firstlyDataAuth['ui']>
 
-  /** in secondes @default 15 days */
+  /** Usefull to overwrite where the static files are */
+  uiStaticPath?: string
+
+  /** in secondes @default 30 days */
   sessionExpiresIn?: number
   sessionCookie?: SessionCookieOptions
 
@@ -121,6 +119,8 @@ type AuthOptions<
   verifiedMethod?: 'auto' | 'email' | 'manual'
 
   invitationSend?: (args: { email: string; url: string }) => Promise<void>
+
+  transformDbUserToClientUser?: (session: any, user: TUserEntity) => DatabaseUserAttributes
 
   providers?: {
     demo?: {
@@ -171,22 +171,24 @@ type AuthOptions<
 
 export let AUTH_OPTIONS: AuthOptions = { ui: {} }
 
-const buildUrlOrDefault = (base: string, userSetting: string | undefined, fallback: string) => {
-  if (userSetting) {
-    return `${base}/${userSetting}`
+const buildUrlOrDefault = (
+  base: string,
+  userSetting: string | false | undefined,
+  fallback: string,
+) => {
+  if (userSetting === false) {
+    return false
   }
-  return `${base}/${fallback}`
+  if (userSetting === undefined) {
+    return `${base}/${fallback}`
+  }
+  return `${base}/${userSetting}`
 }
 
 export const getSafeOptions = () => {
   const signUp = AUTH_OPTIONS.signUp ?? true
   const base =
     AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/ff/auth'
-
-  // const oAuths =
-  //   AUTH_OPTIONS.providers?.oAuths?.map((o) => {
-  //     return o.name
-  //   }) ?? []
 
   const firstlyData: firstlyData = {
     module: 'auth',
@@ -221,6 +223,8 @@ export const getSafeOptions = () => {
                 email_placeholder:
                   AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',
                 password: AUTH_OPTIONS.ui?.strings?.password ?? 'Password',
+                confirm: AUTH_OPTIONS.ui?.strings?.confirm ?? 'Confirm',
+                reset: AUTH_OPTIONS.ui?.strings?.reset ?? 'Reset',
                 btn_sign_up: AUTH_OPTIONS.ui?.strings?.btn_sign_up ?? 'Sign up',
                 btn_sign_in: AUTH_OPTIONS.ui?.strings?.btn_sign_in ?? 'Sign in',
                 forgot_password:
@@ -234,12 +238,47 @@ export const getSafeOptions = () => {
     },
   }
 
+  let uiStaticPath = AUTH_OPTIONS.uiStaticPath ?? ''
+  if (!AUTH_OPTIONS.uiStaticPath) {
+    const installedFirstlyPath = getRelativePackagePath('firstly')
+    if (installedFirstlyPath) {
+      uiStaticPath = `${installedFirstlyPath}/esm/auth/static/`
+    }
+  }
+
   let redirectUrl = AUTH_OPTIONS.defaultRedirect ?? '/'
   if (!redirectUrl.startsWith('/')) {
     logAuth.error(
       `Invalid redirect url ${red(redirectUrl)} (it should be a local one starting with /)`,
     )
     redirectUrl = '/'
+  }
+
+  let transformDbUserToClientUserToUse: (session: any, user: FFAuthUser) => DatabaseUserAttributes
+  if (AUTH_OPTIONS.transformDbUserToClientUser) {
+    transformDbUserToClientUserToUse = AUTH_OPTIONS.transformDbUserToClientUser
+  } else {
+    // Need in src/app.d.ts this code to be able to have the correct transformDbUserToClientUser returned type.
+    // In the lib, let's force to this default
+    /**
+     * declare module 'remult' {
+     *   export interface UserInfo {
+     *     specificThing: string
+     *   }
+     * }
+     */
+    // @ts-ignore
+    transformDbUserToClientUserToUse = (session: any, user: FFAuthUser) => {
+      return {
+        id: user.id,
+        name: user.identifier,
+        roles: user.roles,
+        session: {
+          id: session.id,
+          expiresAt: session.expiresAt,
+        },
+      }
+    }
   }
 
   return {
@@ -255,6 +294,8 @@ export const getSafeOptions = () => {
     redirectUrl,
 
     firstlyData,
+    transformDbUserToClientUser: transformDbUserToClientUserToUse,
+    uiStaticPath,
   }
 }
 
@@ -278,6 +319,25 @@ export const auth: (o: AuthOptions) => Module = (o) => {
   Auth.verifyOtpFn = AuthControllerServer.verifyOtp
   Auth.signInOAuthGetUrlFn = AuthControllerServer.signInOAuthGetUrl
 
+  const adapter = new RemultLuciaAdapter()
+
+  const defaultExpiresIn = 60 * 60 * 24 * 30 // 30 days
+  const sessionExpiresIn = new TimeSpan(AUTH_OPTIONS.sessionExpiresIn ?? defaultExpiresIn, 's')
+  lucia = new Lucia<Record<any, any>, UserInfo>(adapter, {
+    sessionExpiresIn,
+    sessionCookie: {
+      name: AUTH_OPTIONS.sessionCookie?.name ?? 'firstly_auth_session',
+      expires: AUTH_OPTIONS.sessionCookie?.expires,
+      attributes: {
+        // set to `true` when using HTTPS
+        secure: !DEV,
+        ...AUTH_OPTIONS.sessionCookie?.attributes,
+      },
+    },
+    getSessionAttributes: (attributes) => attributes,
+    getUserAttributes: (attributes) => attributes,
+  })
+
   return {
     name: 'auth',
     index: -777,
@@ -290,19 +350,12 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       if (sessionId) {
         const { session, user } = await lucia.validateSession(sessionId)
         if (session && session.fresh) {
-          const sessionCookie = lucia.createSessionCookie(session.id)
-          event.cookies.set(sessionCookie.name, sessionCookie.value, {
-            path: '/',
-            ...sessionCookie.attributes,
-          })
+          await createOrExtendSession(session.id, session)
         }
         remult.user = user ?? undefined
       }
     },
     earlyReturn: async ({ event, resolve }) => {
-      // if (AUTH_OPTIONS.ui === false) {
-      //   return { early: false }
-      // }
       const oSafe = getSafeOptions()
 
       if (event.url.pathname === oSafe.firstlyData.props.ui?.paths?.verify_email) {
@@ -332,24 +385,16 @@ export const auth: (o: AuthOptions) => Module = (o) => {
 
         await remult.repo(oSafe.Account).save(account)
 
-        await createSession(account.userId)
+        await createOrExtendSession(account.userId)
 
         redirect(302, oSafe.redirectUrl)
-      }
-
-      // For lib author (us), it's good to have this local path.
-      let staticPath = './src/lib/auth/static/'
-      // For users, let's serve the static files from the installed package
-      const installedFirstlyPath = getRelativePackagePath('firstly')
-      if (installedFirstlyPath) {
-        staticPath = `${installedFirstlyPath}/esm/auth/static/`
       }
 
       if (
         oSafe.firstlyData.props.ui?.paths?.base &&
         event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)
       ) {
-        const content = read(`${staticPath}index.html`)
+        const content = read(`${oSafe.uiStaticPath}index.html`)
 
         return {
           early: true,
@@ -363,7 +408,9 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
 
       if (event.url.pathname.startsWith('/api/static')) {
-        const content = read(`${staticPath}${event.url.pathname.replaceAll('/api/static/', '')}`)
+        const content = read(
+          `${oSafe.uiStaticPath}${event.url.pathname.replaceAll('/api/static/', '')}`,
+        )
         if (content) {
           const seg = event.url.pathname.split('.')
           const map: Record<string, string> = {
@@ -466,7 +513,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
             await remult.repo(oSafe.Account).save(account)
           }
 
-          await createSession(account.userId)
+          await createOrExtendSession(account.userId)
 
           event.cookies.delete(`${keyState}_oauth_state`, { path: '/' })
           event.cookies.delete(`code_verifier`, { path: '/' })
@@ -483,44 +530,9 @@ export const auth: (o: AuthOptions) => Module = (o) => {
   }
 }
 
-const adapter = new RemultLuciaAdapter()
+// Maybe moving this to /auth/server.ts would be better, people will be able to import from firstly all the time
 
-const defaultExpiresIn = 60 * 60 * 24 * 15 // 15 days
-export const lucia = new Lucia<Record<any, any>, UserInfo>(adapter, {
-  sessionExpiresIn: new TimeSpan(AUTH_OPTIONS.sessionExpiresIn ?? defaultExpiresIn, 's'),
-  sessionCookie: {
-    name: AUTH_OPTIONS.sessionCookie?.name ?? 'remult_auth_session',
-    expires: AUTH_OPTIONS.sessionCookie?.expires,
-    attributes: {
-      // set to `true` when using HTTPS
-      secure: !DEV,
-      ...AUTH_OPTIONS.sessionCookie?.attributes,
-    },
-  },
-  getSessionAttributes: (attributes) => {
-    return {
-      ...attributes,
-    }
-  },
-  getUserAttributes(attributes) {
-    // @ts-expect-error
-    delete attributes['createdAt']
-    // @ts-expect-error
-    delete attributes['updatedAt']
-
-    // to remove relations
-    for (const key in attributes) {
-      if (attributes[key as keyof DatabaseUserAttributes] === undefined) {
-        delete attributes[key as keyof DatabaseUserAttributes]
-      }
-    }
-
-    return attributes
-    // return {
-    // 	...attributes,
-    // }
-  },
-})
+export let lucia: Lucia<Record<any, any>, UserInfo>
 
 declare module 'lucia' {
   interface Register {
@@ -530,10 +542,10 @@ declare module 'lucia' {
   }
   interface DatabaseSessionAttributes {}
 }
-interface DatabaseUserAttributes {
-  id: string
-  name: string
-  roles: string[]
+interface DatabaseUserAttributes extends UserInfo {
+  // id: string
+  // name: string
+  // roles: string[]
   session: {
     id: string
     expiresAt: Date

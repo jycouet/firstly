@@ -1,7 +1,7 @@
 import { cyan, gray, green, italic, yellow } from '@kitql/helpers'
 
-import { logAuth } from '..'
 import { mask } from '../../formats/strings'
+import { logAuth } from '../client'
 
 export const checkOAuthConfig = (
   name: string,

@@ -18,7 +18,9 @@ const sql = `
 
 describe('LogToConsoleCustom', () => {
   it('should display the full query with colors when short is false', () => {
-    expect(FF_LogToConsole(0.123, sql, { $1: 'A_RENOUVELER' }, false)).toMatchInlineSnapshot(
+    expect(
+      FF_LogToConsole(0.123, sql, { $1: 'A_RENOUVELER' }, { withDetails: true }),
+    ).toMatchInlineSnapshot(
       `"🔵 [46m123 ms [49m [36mSELECT[39m "id", ( [36mSELECT[39m SUM("enregistrementMontantHT") [35mFROM[39m [32mcontrat_periode[39m [35mWHERE[39m (contrat.id = "contratId") ), "createdAt" [35mFROM[39m [32m"contrat"[39m [35mWHERE[39m "status" = [33m'A_RENOUVELER'[39m [35mORDER[39m [35mBY[39m ( [36mSELECT[39m "dateFin" [35mFROM[39m [32mcontrat_periode[39m [35mWHERE[39m (contrat.id = "contratId") [35mORDER[39m [35mBY[39m "dateFin" DESC [35mLIMIT[39m [33m1[39m ), "id" [35mLIMIT[39m [33m25[39m [35mOFFSET[39m [33m0[39m"`,
     )
   })

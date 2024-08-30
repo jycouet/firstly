@@ -1,14 +1,17 @@
-import { Entity, Fields, InMemoryDataProvider } from 'remult'
+import { Fields, InMemoryDataProvider } from 'remult'
 
+import { FF_Entity } from '$lib'
 import { firstly } from '$lib/api'
-import { auth, FFAuthUser } from '$lib/auth'
-import { github } from '$lib/auth/providers'
+import { auth } from '$lib/auth'
+import { FFAuthUser } from '$lib/auth/client'
+
+// import { github } from '$lib/auth/providers'
 
 const Role = {
   ADMIN: 'admin',
 }
 
-@Entity<_AppUser>('app_users', {
+@FF_Entity<_AppUser>('app_users', {
   dbName: 'app_users',
   // this overrides the default CRUD... So be carefull !
   // allowApiCrud: true,
@@ -47,6 +50,7 @@ export const remultApi = firstly({
       },
     },
     auth({
+      uiStaticPath: './src/lib/auth/static/',
       customEntities: {
         User: _AppUser,
       },
@@ -59,7 +63,12 @@ export const remultApi = firstly({
       // signUp: false,
 
       verifiedMethod: 'email',
-
+      ui: {
+        paths: {
+          // sign_in: false,
+        },
+      },
+      debug: true,
       providers: {
         demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.ADMIN] }],
 
@@ -74,10 +83,10 @@ export const remultApi = firstly({
         },
 
         oAuths: [
-          github({
-            authorizationURLOptions: { scopes: ['user:email'] },
-            log: true,
-          }),
+          // github({
+          //   authorizationURLOptions: { scopes: ['user:email'] },
+          //   log: true,
+          // }),
         ],
       },
     }),

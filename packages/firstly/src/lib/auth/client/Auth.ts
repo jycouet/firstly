@@ -3,15 +3,26 @@ import { BackendMethod } from 'remult'
 import type { AuthorizationURLOptions } from '..'
 
 export class Auth {
+  // Do not show for firstly users ?
+  /** DO NOT USE */
   static signOutFn: any
+  /** DO NOT USE */
   static signInDemoFn: any
+  /** DO NOT USE */
   static inviteFn: any
+  /** DO NOT USE */
   static signUpPasswordFn: any
+  /** DO NOT USE */
   static signInPasswordFn: any
+  /** DO NOT USE */
   static forgotPasswordFn: any
+  /** DO NOT USE */
   static resetPasswordFn: any
+  /** DO NOT USE */
   static signInOTPFn: any
+  /** DO NOT USE */
   static verifyOtpFn: any
+  /** DO NOT USE */
   static signInOAuthGetUrlFn: any
 
   /**
@@ -32,8 +43,7 @@ export class Auth {
   }
 
   /**
-   * This is for login / password authentication SignUp
-   * _(The first param `name` can be "anything")_
+   * This is for login / password authentication Invite someone
    */
   @BackendMethod({ allowed: true })
   static async invite(email: string) {
@@ -42,7 +52,6 @@ export class Auth {
 
   /**
    * This is for login / password authentication SignUp
-   * _(The first param `email` can be "anything")_
    */
   @BackendMethod({ allowed: true })
   static async signUpPassword(email: string, password: string) {
@@ -51,7 +60,6 @@ export class Auth {
 
   /**
    * This is for login / password authentication SignIn
-   * _(The first param `email` can be "anything")_
    */
   @BackendMethod({ allowed: true })
   static async signInPassword(email: string, password: string) {
