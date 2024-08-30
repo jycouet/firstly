@@ -50,6 +50,7 @@ export const remultApi = firstly({
       },
     },
     auth({
+      uiStaticPath: './src/lib/auth/static/',
       customEntities: {
         User: _AppUser,
       },
@@ -64,7 +65,7 @@ export const remultApi = firstly({
       verifiedMethod: 'email',
       ui: {
         paths: {
-          sign_in: false,
+          // sign_in: false,
         },
       },
       debug: true,

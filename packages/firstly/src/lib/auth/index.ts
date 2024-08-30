@@ -91,6 +91,9 @@ type AuthOptions<
   debug?: boolean
   ui?: false | RecursivePartial<firstlyDataAuth['ui']>
 
+  /** Usefull to overwrite where the static files are */
+  uiStaticPath?: string
+
   /** in secondes @default 30 days */
   sessionExpiresIn?: number
   sessionCookie?: SessionCookieOptions
@@ -235,6 +238,14 @@ export const getSafeOptions = () => {
     },
   }
 
+  let uiStaticPath = AUTH_OPTIONS.uiStaticPath ?? ''
+  if (!AUTH_OPTIONS.uiStaticPath) {
+    const installedFirstlyPath = getRelativePackagePath('firstly')
+    if (installedFirstlyPath) {
+      uiStaticPath = `${installedFirstlyPath}/esm/auth/static/`
+    }
+  }
+
   let redirectUrl = AUTH_OPTIONS.defaultRedirect ?? '/'
   if (!redirectUrl.startsWith('/')) {
     logAuth.error(
@@ -284,6 +295,7 @@ export const getSafeOptions = () => {
 
     firstlyData,
     transformDbUserToClientUser: transformDbUserToClientUserToUse,
+    uiStaticPath,
   }
 }
 
@@ -378,22 +390,11 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         redirect(302, oSafe.redirectUrl)
       }
 
-      // For lib author (us), it's good to have this local path.
-      let staticPath = './src/lib/auth/static/'
-      // For JYC Monorepo testing
-      staticPath = '../../packages/firstly/packages/firstly/src/lib/auth/static/'
-      // For users, let's serve the static files from the installed package
-      const installedFirstlyPath = getRelativePackagePath('firstly')
-      if (installedFirstlyPath) {
-        staticPath = `${installedFirstlyPath}/esm/auth/static/`
-      }
-      // console.log(`staticPath`, staticPath)
-
       if (
         oSafe.firstlyData.props.ui?.paths?.base &&
         event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)
       ) {
-        const content = read(`${staticPath}index.html`)
+        const content = read(`${oSafe.uiStaticPath}index.html`)
 
         return {
           early: true,
@@ -407,7 +408,9 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
 
       if (event.url.pathname.startsWith('/api/static')) {
-        const content = read(`${staticPath}${event.url.pathname.replaceAll('/api/static/', '')}`)
+        const content = read(
+          `${oSafe.uiStaticPath}${event.url.pathname.replaceAll('/api/static/', '')}`,
+        )
         if (content) {
           const seg = event.url.pathname.split('.')
           const map: Record<string, string> = {
