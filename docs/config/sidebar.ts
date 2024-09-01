@@ -5,6 +5,10 @@ export const sidebar = {
       collapsible: true,
       items: [
         {
+          title: 'Why ?',
+          to: '/guide/why/',
+        },
+        {
           title: 'Getting Started',
           to: '/guide/',
         },
