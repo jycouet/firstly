@@ -45,6 +45,8 @@ export const remultApi = firstly({
   ]
 })
 ```
-**YES, THAT'S IT!!! 🎉** _Read more about it [here](/modules/auth)_.
+**YES, THAT'S IT!!! 🎉** 
 
-- _Firstly_, we provide stores _(one day runes)_ that wrap remult `repo` to make it easy to work with. Check out `storeList`, `storeItem`, `cellBuildor`... and more to come. (Also more to come on the doc!)
+_You can find a lot of options in the [auth module](/modules/auth)_.
+
+- _Firstly_, we provide stores _(one day runes)_ that wrap remult `repo` to make it easy to work with. Check out `storeList`, `storeItem`, `cellBuildor`... and more... (Also more to come on the doc!)
