@@ -5,6 +5,6 @@ import { FFAuthAccount, FFAuthProvider, FFAuthUser, FFAuthUserSession } from './
 
 export const logAuth = new Log('firstly | auth')
 
-export { FF_Auth_Role } from './Entities'
+export { FF_Role_Auth } from './Entities'
 export { Auth }
 export { FFAuthUser, FFAuthAccount, FFAuthProvider, FFAuthUserSession }

@@ -2,6 +2,8 @@ import { repo } from 'remult'
 import type { ClassType } from 'remult'
 import { cyan, green, Log, yellow } from '@kitql/helpers'
 
+import { env } from '$env/dynamic/private'
+
 import { FFAuthUser } from './client/Entities'
 
 /**
@@ -23,9 +25,11 @@ export const mergeRoles = (existing: string[], newOnes: string[] | undefined) =>
 export const initRoleFromEnv = async (
   log: Log,
   userEntity: ClassType<FFAuthUser>,
-  envValue: string | undefined,
+  envKey: string,
   role: string,
 ) => {
+  const envValue = envKey ? env[envKey] : ''
+
   const identifiers = envValue === undefined ? [] : (envValue ?? '').split(',').map((c) => c.trim())
   for (let i = 0; i < identifiers.length; i++) {
     const identifier = identifiers[i].trim()
@@ -44,9 +48,9 @@ export const initRoleFromEnv = async (
   }
   if (identifiers.length > 0) {
     log.info(
-      `${cyan(role)}: ${identifiers.map((c: any) => green(c.trim())).join(', ')} added via ${yellow(`.env`)}.`,
+      `${cyan(envKey)}: ${identifiers.map((c: any) => green(c.trim())).join(', ')} added via ${yellow(`.env`)}.`,
     )
   } else {
-    log.info(`${cyan(role)}: No users added via ${yellow(`.env`)}.`)
+    log.info(`${cyan(envKey)}: No users added via ${yellow(`.env`)}.`)
   }
 }
