@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@iconify-json/fxemoji": "1.1.9",
-    "@iconify-json/heroicons": "1.1.24",
+    "@iconify-json/heroicons": "1.2.0",
     "@sveltejs/adapter-static": "3.0.4",
     "@sveltejs/kit": "2.5.24",
     "@sveltejs/vite-plugin-svelte": "3.1.2",
