@@ -103,7 +103,7 @@
         <!-- <div class="chat-footer opacity-50">Delivered</div> -->
       </div>
     {/each}
-    {#if issue?.highlight}
+    {#if issue?.highlight && issue.state === 'OPEN'}
       <span class="badge badge-warning">En attente de réponse de TA part 😉, oui 🫵!</span>
     {/if}
     {#if issueNumber}

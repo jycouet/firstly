@@ -146,7 +146,8 @@
     let totalCount = arr.length
     // If we are at the limit... there is probably more! How many?
     if (totalCount === limit) {
-      totalCount = await metaTypeObj.repoTarget.count(findToUse.where)
+      const agg = await metaTypeObj.repoTarget.aggregate({ where: findToUse.where })
+      totalCount = agg.$count
     }
 
     if (!cell.field?.options.multiSelect) {

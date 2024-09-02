@@ -11,8 +11,6 @@ import type { ClassType, UserInfo } from 'remult'
 import { red } from '@kitql/helpers'
 import { getRelativePackagePath, read } from '@kitql/internals'
 
-import { env } from '$env/dynamic/private'
-
 import { FF_Role } from '../'
 import type { Module } from '../api'
 import type { RecursivePartial, ResolvedType } from '../utils/types'
@@ -20,7 +18,7 @@ import { RemultLuciaAdapter } from './Adapter'
 import { AuthControllerServer } from './AuthController.server'
 import { Auth, logAuth } from './client'
 import {
-  FF_Auth_Role,
+  FF_Role_Auth,
   FFAuthAccount,
   FFAuthProvider,
   FFAuthUser,
@@ -524,11 +522,13 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       return { early: false }
     },
     initApi: async () => {
-      await initRoleFromEnv(logAuth, oSafe.User, env.FF_ADMIN, FF_Role.Admin)
-      await initRoleFromEnv(logAuth, oSafe.User, env.FF_AUTH_ADMIN, FF_Auth_Role.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, 'FF_ROLE_AUTH_ADMIN', FF_Role_Auth.Admin)
     },
   }
 }
+
+export { initRoleFromEnv }
 
 // Maybe moving this to /auth/server.ts would be better, people will be able to import from firstly all the time
 
