@@ -62,10 +62,10 @@ export const storeList = <T>(
         if (!withItems && !withCount) {
           throw new Error(`xxx.fetch() withItems and withCount can't be both false!`)
         } else if (!withItems && withCount) {
-          const totalCount = await repo.count(options?.where)
-          set({ loading: false, items: [], totalCount })
+          const agg = await repo.aggregate({ where: options?.where })
+          set({ loading: false, items: [], totalCount: agg.$count })
           if (onNewData) {
-            onNewData(undefined, totalCount)
+            onNewData(undefined, agg.$count)
           }
         } else if (withItems && !withCount) {
           const items = await repo.find(options)
@@ -74,13 +74,13 @@ export const storeList = <T>(
             onNewData(items, undefined)
           }
         } else {
-          const [items, totalCount] = await Promise.all([
+          const [items, agg] = await Promise.all([
             repo.find({ ...options }),
-            repo.count(options?.where),
+            repo.aggregate({ where: options?.where }),
           ])
-          set({ loading: false, items, totalCount })
+          set({ loading: false, items, totalCount: agg.$count })
           if (onNewData) {
-            onNewData(items, totalCount)
+            onNewData(items, agg.$count)
           }
         }
       }
@@ -95,7 +95,8 @@ export const storeList = <T>(
 
           let totalCount: number | undefined = undefined
           if (withCount) {
-            totalCount = await repo.count(options?.where)
+            const agg = await repo.aggregate({ where: options?.where })
+            totalCount = agg.$count
           }
           update((c) => {
             return { ...c, items: info.items, loading: false, ...(withCount ? { totalCount } : {}) }
