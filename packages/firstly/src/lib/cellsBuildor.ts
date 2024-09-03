@@ -180,12 +180,19 @@ export const buildWhere = <Entity>(
         // @ts-ignore
         and.push({ [field.key]: obj[field.key] })
       } else if (field.inputType === 'selectEnum') {
+        const fnName = field.key + 'Filter'
         // @ts-ignore
-        const theEnum = getEnum(field, obj[field.key])
-        // Take the where of the enum if it exists, or it's using this selection as a filter
-        const wheretoUse = theEnum?.where ?? new BaseEnum(obj[field.key])
-        // @ts-ignore
-        and.push({ [field.key]: wheretoUse })
+        if (entity && entity[fnName]) {
+          // @ts-ignore
+          and.push(entity[fnName](obj[field.key]))
+        } else {
+          // @ts-ignore
+          const theEnum = getEnum(field, obj[field.key])
+          // Take the where of the enum if it exists, or it's using this selection as a filter
+          const wheretoUse = theEnum?.where ?? new BaseEnum(obj[field.key])
+          // @ts-ignore
+          and.push({ [field.key]: wheretoUse })
+        }
       } else if (rfi?.type === 'toOne') {
         // @ts-ignore (setting the id of the relation)
         and.push({ [field.key]: obj[field.key] })
