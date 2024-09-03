@@ -25,11 +25,11 @@ importers:
   docs:
     devDependencies:
       '@iconify-json/fxemoji':
-        specifier: 1.1.9
-        version: 1.1.9
+        specifier: 1.2.0
+        version: 1.2.0
       '@iconify-json/heroicons':
-        specifier: 1.1.24
-        version: 1.1.24
+        specifier: 1.2.0
+        version: 1.2.0
       '@sveltejs/adapter-static':
         specifier: 3.0.4
         version: 3.0.4(@sveltejs/kit@2.5.24(@sveltejs/vite-plugin-svelte@3.1.2(svelte@4.2.18)(vite@5.4.1(@types/node@22.5.1)(terser@5.31.1)))(svelte@4.2.18)(vite@5.4.1(@types/node@22.5.1)(terser@5.31.1)))
@@ -100,8 +100,8 @@ importers:
         specifier: 1.2.1
         version: 1.2.1
       remult:
-        specifier: 0.27.7
-        version: 0.27.7
+        specifier: 0.27.9
+        version: 0.27.9
       svelty-email:
         specifier: ^0.0.11
         version: 0.0.11(@sveltejs/kit@2.5.17(@sveltejs/vite-plugin-svelte@3.1.2(svelte@4.2.18)(vite@5.4.1(@types/node@22.5.1)(terser@5.31.1)))(svelte@4.2.18)(vite@5.4.1(@types/node@22.5.1)(terser@5.31.1)))
@@ -1334,11 +1334,11 @@ packages:
       '@vue/compiler-sfc':
         optional: true
 
-  '@iconify-json/fxemoji@1.1.9':
-    resolution: {integrity: sha512-0+3gKd4iY7GPr1lqjlFnyyejqAM7B+xlLWLfpVwWmp6kdxorPtlgk4Kkg38NN88yyj+SSTrqdjlL6WLSeor2lg==}
+  '@iconify-json/fxemoji@1.2.0':
+    resolution: {integrity: sha512-MTi31I4DMWH5zT+/CH/dxf+Gd4EXnyILZjT8T22J0kQSPXNUi2No6pc56H/X/TsXqzt8tPOyaI7a1yITPwsH8g==}
 
-  '@iconify-json/heroicons@1.1.24':
-    resolution: {integrity: sha512-Axd6nxsEeQMpuK8ugkAkJ1kS6cbmgXX1s1+Z6NbANvtgtNTBIx9bLQcEL6loKjxpfktDXERElrR5G6xzWOqysg==}
+  '@iconify-json/heroicons@1.2.0':
+    resolution: {integrity: sha512-EmvGN0L9EUJCmQ82rkLGZ4tkz0YGQfZV7ugKT6UvHni/bxNitQrD0gLj6NJj2W9zsSoXyNHyCX236+EJmO4pmA==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -1787,9 +1787,6 @@ packages:
   '@shikijs/core@1.16.1':
     resolution: {integrity: sha512-aI0hBtw+a6KsJp2jcD4YuQqKpeCbURMZbhHVozDknJpm+KJqeMRkEnfBC8BaKE/5XC+uofPgCLsa/TkTk0Ba0w==}
 
-  '@shikijs/core@1.9.1':
-    resolution: {integrity: sha512-EmUful2MQtY8KgCF1OkBtOuMcvaZEvmdubhW0UHCGXi21O9dRLeADVCj+k6ZS+de7Mz9d2qixOXJ+GLhcK3pXg==}
-
   '@shikijs/twoslash@1.16.1':
     resolution: {integrity: sha512-//zj64hG+JmgBizgbwUO7gLQRClHfAhND1taq5K5gcfMk1J2XJ3OGAvWKEuSpKEaIk5qmrM4CVVgo68GBseABg==}
 
@@ -2036,9 +2033,6 @@ packages:
   '@typescript-eslint/visitor-keys@7.7.0':
     resolution: {integrity: sha512-h0WHOj8MhdhY8YWkzIF30R379y0NqyOHExI9N9KCzvmu05EgG4FumeYa3ccfKUSphyWkWQE1ybVrgz/Pbam6YA==}
     engines: {node: ^18.18.0 || >=20.0.0}
-
-  '@typescript/vfs@1.5.0':
-    resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==}
 
   '@typescript/vfs@1.6.0':
     resolution: {integrity: sha512-hvJUjNVeBMp77qPINuUvYXj4FyWeeMMKZkxEATEU3hqBAQ7qdTBCUFT7Sp0Zu0faeEtFf+ldXxMEDr/bk73ISg==}
@@ -4822,8 +4816,8 @@ packages:
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
-  remult@0.27.7:
-    resolution: {integrity: sha512-DoMgYUZTGx/RxZD4pqziDsLn6NP49RFZM1nVXWGSHnbvA4O9dwtbnPr5P/YpoJfeT4HVRk5PuddZnaIB+SknwA==}
+  remult@0.27.9:
+    resolution: {integrity: sha512-Kms4Uc7UZalRxki8RvyIXzF3nWpFM/UfArkovIg25Q7eApbms8IX3+RerTtiq93jBDvgG9B6jvd6WFZeNoixLw==}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -4965,9 +4959,6 @@ packages:
 
   shiki@1.16.1:
     resolution: {integrity: sha512-tCJIMaxDVB1mEIJ5TvfZU7kCPB5eo9fli5+21Olc/bmyv+w8kye3JOp+LZRmGkAyT71hrkefQhTiY+o9mBikRQ==}
-
-  shiki@1.9.1:
-    resolution: {integrity: sha512-8PDkgb5ja3nfujTjvC4VytL6wGOGCtFAClUb2r3QROevYXxcq+/shVJK5s6gy0HZnjaJgFxd6BpPqpRfqne5rA==}
 
   side-channel@1.0.6:
     resolution: {integrity: sha512-fDW/EZ6Q9RiO8eFG8Hj+7u/oW+XrPTIChwCOM2+th2A6OblDtYYIpve9m+KvI9Z4C9qSEXlaGR6bTEYHReuglA==}
@@ -5376,16 +5367,8 @@ packages:
   twoslash-protocol@0.2.10:
     resolution: {integrity: sha512-9sFHqPUexUPKAZM2e0dbAh0Hwkxd5fqSKWWMQ8Ah+O6MeYEUDGuWUUw5aUfS6veAqo+24VfV3xF0Vj0ZbH7x3Q==}
 
-  twoslash-protocol@0.2.9:
-    resolution: {integrity: sha512-uKQl8UboT6JU4VAtYaSI3DbNtgaNhFaTpCSMy/n3tRl5lMlMhrjiuNKdqx15xjcviconuGJ9oObkz1h9zJFrJg==}
-
   twoslash@0.2.10:
     resolution: {integrity: sha512-EBnFbGSD7VtPYCYe8tnx5wDzTfQ2wDS10J89BnTr97Zu2+wRD/CskNLPvvDEZofb37mLSce/YuTP8GgGj+vSOg==}
-    peerDependencies:
-      typescript: '*'
-
-  twoslash@0.2.9:
-    resolution: {integrity: sha512-oj7XY6h8E9nTZBmfRE1gpsSSUqAQo5kcIpFkXyQPp8UCsyCQsUlP2bJ2s32o02c1n5+xl4h9rcCsQ1F97Z6LZg==}
     peerDependencies:
       typescript: '*'
 
@@ -7258,11 +7241,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@iconify-json/fxemoji@1.1.9':
+  '@iconify-json/fxemoji@1.2.0':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/heroicons@1.1.24':
+  '@iconify-json/heroicons@1.2.0':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -7721,8 +7704,6 @@ snapshots:
       '@shikijs/vscode-textmate': 9.2.0
       '@types/hast': 3.0.4
 
-  '@shikijs/core@1.9.1': {}
-
   '@shikijs/twoslash@1.16.1(typescript@5.4.3)':
     dependencies:
       '@shikijs/core': 1.16.1
@@ -7870,8 +7851,8 @@ snapshots:
       shiki: 1.16.1
       source-map-js: 1.2.0
       svelte: 4.2.18
-      twoslash: 0.2.9(typescript@5.4.3)
-      twoslash-protocol: 0.2.9
+      twoslash: 0.2.10(typescript@5.4.3)
+      twoslash-protocol: 0.2.10
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -7893,7 +7874,7 @@ snapshots:
       remark-parse: 11.0.0
       remark-rehype: 11.1.0
       remark-stringify: 11.0.0
-      shiki: 1.9.1
+      shiki: 1.16.1
       svelte: 4.2.18
       svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss-load-config@5.1.0(postcss@8.4.41))(postcss@8.4.41)(svelte@4.2.18)(typescript@5.4.3)
       unified: 11.0.5
@@ -8124,12 +8105,6 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 7.7.0
       eslint-visitor-keys: 3.4.3
-
-  '@typescript/vfs@1.5.0':
-    dependencies:
-      debug: 4.3.6
-    transitivePeerDependencies:
-      - supports-color
 
   '@typescript/vfs@1.6.0(typescript@5.4.3)':
     dependencies:
@@ -11611,7 +11586,7 @@ snapshots:
       mdast-util-to-markdown: 2.1.0
       unified: 11.0.5
 
-  remult@0.27.7:
+  remult@0.27.9:
     dependencies:
       '@paralleldrive/cuid2': 2.2.2
       reflect-metadata: 0.1.14
@@ -11769,10 +11744,6 @@ snapshots:
       '@shikijs/core': 1.16.1
       '@shikijs/vscode-textmate': 9.2.0
       '@types/hast': 3.0.4
-
-  shiki@1.9.1:
-    dependencies:
-      '@shikijs/core': 1.9.1
 
   side-channel@1.0.6:
     dependencies:
@@ -12281,20 +12252,10 @@ snapshots:
 
   twoslash-protocol@0.2.10: {}
 
-  twoslash-protocol@0.2.9: {}
-
   twoslash@0.2.10(typescript@5.4.3):
     dependencies:
       '@typescript/vfs': 1.6.0(typescript@5.4.3)
       twoslash-protocol: 0.2.10
-      typescript: 5.4.3
-    transitivePeerDependencies:
-      - supports-color
-
-  twoslash@0.2.9(typescript@5.4.3):
-    dependencies:
-      '@typescript/vfs': 1.5.0
-      twoslash-protocol: 0.2.9
       typescript: 5.4.3
     transitivePeerDependencies:
       - supports-color

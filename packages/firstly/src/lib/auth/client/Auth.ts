@@ -1,4 +1,4 @@
-import { BackendMethod } from 'remult'
+import { Allow, BackendMethod } from 'remult'
 
 import type { AuthorizationURLOptions } from '..'
 
@@ -45,7 +45,7 @@ export class Auth {
   /**
    * This is for login / password authentication Invite someone
    */
-  @BackendMethod({ allowed: true })
+  @BackendMethod({ allowed: Allow.authenticated })
   static async invite(email: string) {
     return await Auth.inviteFn(email)
   }
