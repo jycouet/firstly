@@ -2,7 +2,7 @@ import { BROWSER } from 'esm-env'
 import { onDestroy } from 'svelte'
 import { writable } from 'svelte/store'
 
-import type { FindOptions, GroupByOptions, Repository } from 'remult'
+import type { FindOptions, GroupByOptions, MembersOnly, Repository } from 'remult'
 
 type TheStoreList<T> = {
   items: T[]
@@ -14,7 +14,7 @@ type TheStoreList<T> = {
 export type FF_FindOptions<T> = FindOptions<T> & {
   withCount?: boolean
   withItems?: boolean
-  aggregate?: GroupByOptions<T, any, any, any, any, any, any>
+  aggregate?: GroupByOptions<T, (keyof MembersOnly<T>)[], any, any, any, any, any>
 }
 
 /**
@@ -71,7 +71,12 @@ export const storeList = <T>(
         if (!withItems && !withCount) {
           throw new Error(`xxx.fetch() withItems and withCount can't be both false!`)
         } else if (!withItems && withCount) {
-          const agg = await repo.aggregate({ ...options?.aggregate, where: options?.where })
+          let optionsToUse = { where: options?.where }
+          if (options?.aggregate) {
+            optionsToUse = { ...options.aggregate, where: options?.where }
+          }
+          // const agg = await repo.aggregate({ ...options?.aggregate, where: options?.where })
+          const agg = await repo.aggregate(optionsToUse)
           set({ loading: false, items: [], totalCount: agg.$count, agg })
           if (onNewData) {
             onNewData(undefined, agg.$count)
@@ -83,9 +88,13 @@ export const storeList = <T>(
             onNewData(items, undefined)
           }
         } else {
+          let optionsToUse = { where: options?.where }
+          if (options?.aggregate) {
+            optionsToUse = { ...options.aggregate, where: options?.where }
+          }
           const [items, agg] = await Promise.all([
             repo.find({ ...options }),
-            repo.aggregate({ ...options?.aggregate, where: options?.where }),
+            repo.aggregate(optionsToUse),
           ])
           set({ loading: false, items, totalCount: agg.$count, agg })
           if (onNewData) {
