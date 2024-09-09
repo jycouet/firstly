@@ -188,8 +188,8 @@
           <tr on:click={() => dispatch('rowclick', row)} class="hover:bg-base-content/20">
             <!-- BECARFULL THIS CODE IS DUPLICATED -->
             {#if settingsLeft && (withEdit || withDelete)}
-              <td class="text-right">
-                <div class="flex justify-end gap-2">
+              <td class="text-left">
+                <div class="flex justify-start gap-2">
                   {#if withEdit}
                     <Button
                       permission={store.getRepo().metadata.options.permissionApiUpdate}
