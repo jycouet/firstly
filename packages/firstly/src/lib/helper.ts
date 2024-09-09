@@ -33,7 +33,8 @@ export const getEntityDisplayValue = <Entity>(repo: Repository<Entity>, row: Ent
 
   const field = getFirstInterestingField(repo)
   // REMULT P3 JYC: If it's an enum, it's not working...
-  return { caption: row ? field.displayValue(row) : '-', id: '' }
+  // @ts-ignore (added for row?.id)
+  return { caption: row ? field.displayValue(row) : '-', id: row?.id ? row.id : '' }
 }
 
 export const getFieldLinkDisplayValue = (

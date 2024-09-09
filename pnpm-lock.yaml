@@ -100,8 +100,8 @@ importers:
         specifier: 1.2.1
         version: 1.2.1
       remult:
-        specifier: 0.27.11
-        version: 0.27.11
+        specifier: 0.27.12
+        version: 0.27.12
       svelty-email:
         specifier: ^0.0.11
         version: 0.0.11(@sveltejs/kit@2.5.17(@sveltejs/vite-plugin-svelte@3.1.2(svelte@4.2.18)(vite@5.4.1(@types/node@22.5.1)(terser@5.31.1)))(svelte@4.2.18)(vite@5.4.1(@types/node@22.5.1)(terser@5.31.1)))
@@ -4856,8 +4856,8 @@ packages:
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
-  remult@0.27.11:
-    resolution: {integrity: sha512-9wYKPpPxHSaC3ulAp/00SWEQ86N35jG8TjzCqDzA/qSSnd9r0GsLZlDHJ7APaq6LjFCo6tMWh5Q19Fv3vXx3fw==}
+  remult@0.27.12:
+    resolution: {integrity: sha512-+MVhoTJWOAcisGuQ1x5bS9eRzCiFWDHLfF5fqEFD8QOcky7kTGSu1xO1wNPVvsoQ9amXHgWeJ7K0O1Zij2IMyQ==}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -11739,7 +11739,7 @@ snapshots:
       mdast-util-to-markdown: 2.1.0
       unified: 11.0.5
 
-  remult@0.27.11:
+  remult@0.27.12:
     dependencies:
       '@paralleldrive/cuid2': 2.2.2
       reflect-metadata: 0.1.14
