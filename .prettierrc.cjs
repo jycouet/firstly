@@ -1,6 +1,10 @@
-const config = require("@kitql/eslint-config/.prettierrc.cjs");
+const {
+  //plugins,
+  ...prettierConfig
+} = require('@kitql/eslint-config/.prettierrc.cjs')
 
 module.exports = {
-  ...config,
-  // Some custom things?
-};
+  ...prettierConfig,
+  // tabWidth: 1,
+  // useTabs: true,
+}

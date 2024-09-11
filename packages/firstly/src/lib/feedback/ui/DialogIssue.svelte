@@ -122,15 +122,15 @@
       ></Textarea>
       <div class="flex justify-between">
         {#if issueNumber}
-          <Button on:click={close} tabIndex={-1} class="btn-outline btn-error">
-            Clore le feedback
-          </Button>
+          <Button on:click={close} tabIndex={-1} class="btn-outline btn-error"
+            >Clore le feedback</Button
+          >
         {:else}
           <div></div>
         {/if}
-        <Button on:click={send} disabled={disableButton(issueNumber, title, content)}>
-          Envoyer
-        </Button>
+        <Button on:click={send} disabled={disableButton(issueNumber, title, content)}
+          >Envoyer</Button
+        >
       </div>
     {/if}
   {/if}
