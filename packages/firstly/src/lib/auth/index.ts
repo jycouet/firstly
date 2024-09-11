@@ -186,7 +186,7 @@ const buildUrlOrDefault = (
 export const getSafeOptions = () => {
   const signUp = AUTH_OPTIONS.signUp ?? true
   const base =
-    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/ff/auth'
+    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : (AUTH_OPTIONS.ui?.paths?.base ?? '/ff/auth')
 
   const firstlyData: firstlyData = {
     module: 'auth',
