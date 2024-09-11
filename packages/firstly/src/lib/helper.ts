@@ -142,7 +142,7 @@ export const displayWithDefaultAndSuffix = (
     toRet.push(field.valueConverter?.displayValue(value) ?? '-')
   } else {
     // toRet.push(value ?? '-')
-    toRet.push(field?.displayValue ? field?.displayValue({ [field.key]: value }) : (value ?? '-'))
+    toRet.push(field?.displayValue ? field?.displayValue({ [field.key]: value }) : value ?? '-')
   }
 
   if (value === undefined || value === null) {

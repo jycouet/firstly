@@ -113,18 +113,18 @@
     const foEdit = cell.field?.options.findOptionsForEdit
     const narrowFindEditWhere =
       typeof foEdit === 'function'
-        ? (foEdit(cellsValues).where ?? {})
+        ? foEdit(cellsValues).where ?? {}
         : typeof foEdit === 'object'
-          ? (foEdit.where ?? {})
+          ? foEdit.where ?? {}
           : {}
 
     // @ts-ignore
     const foCrud = cell.field?.options.findOptions
     const narrowFindCrudWhere =
       typeof foCrud === 'function'
-        ? (foCrud().where ?? {})
+        ? foCrud().where ?? {}
         : typeof foCrud === 'object'
-          ? (foCrud.where ?? {})
+          ? foCrud.where ?? {}
           : {}
 
     findToUse = {
