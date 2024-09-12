@@ -4,7 +4,13 @@ import kitql from '@kitql/eslint-config'
 export default [
   ...kitql,
   {
-    ignores: ['**/build/', '**/.svelte-kit/', '**/dist/', '**/lib/auth/static/assets/'],
+    ignores: [
+      '**/build/',
+      '**/.svelte-kit/',
+      '**/dist/',
+      '**/lib/auth/static/assets/',
+      'src/lib/ui/dialog/FormEditAction.svelte.d.ts',
+    ],
   },
   {
     name: 'firstly rules',
