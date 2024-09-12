@@ -4,10 +4,11 @@ import kitql from '@kitql/eslint-config'
 export default [
   ...kitql,
   {
-    ignores: ['**/build/', '**/.svelte-kit/', '**/dist/', '**/lib/auth/static/assets/'],
+    name: 'firstly:ignores',
+    ignores: ['**/lib/auth/static/assets/'],
   },
   {
-    name: 'firstly rules',
+    name: 'firstly:rules',
     rules: {
       'no-empty': ['error', { allowEmptyCatch: true }],
     },
