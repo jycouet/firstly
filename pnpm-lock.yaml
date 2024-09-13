@@ -15,8 +15,8 @@ importers:
         specifier: 2.27.1
         version: 2.27.1
       '@kitql/eslint-config':
-        specifier: 0.4.0-next.4
-        version: 0.4.0-next.4(@ianvs/prettier-plugin-sort-imports@4.3.1(@vue/compiler-sfc@3.4.7)(prettier@3.3.3))(@typescript-eslint/eslint-plugin@8.5.0(@typescript-eslint/parser@8.5.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier@3.3.3)(svelte@4.2.18)(typescript@5.5.2)
+        specifier: 0.4.0-next.6
+        version: 0.4.0-next.6(@ianvs/prettier-plugin-sort-imports@4.3.1(@vue/compiler-sfc@3.4.7)(prettier@3.3.3))(@typescript-eslint/eslint-plugin@8.5.0(@typescript-eslint/parser@8.5.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier@3.3.3)(svelte@4.2.18)(typescript@5.5.2)
       '@playwright/test':
         specifier: 1.47.0
         version: 1.47.0
@@ -1387,8 +1387,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@kitql/eslint-config@0.4.0-next.4':
-    resolution: {integrity: sha512-78lE6LME4WQo8KyKcsRaV8G1BkjmSxNudgpAAx4PoAm9KQ3sonL7W0vah/X9Kvq1qN9u4CJDYnsxeBH1wSmxOQ==}
+  '@kitql/eslint-config@0.4.0-next.6':
+    resolution: {integrity: sha512-ayFb2jD+0/I66hIcrMQopwrebS7fTcsu7on2A4zBf9p98rzi1C9ekPaOI9eLAgMvH5f5YtYMEzTr5FV0uAErJA==}
     hasBin: true
     peerDependencies:
       prettier: ^3.3.3
@@ -2818,8 +2818,8 @@ packages:
       svelte:
         optional: true
 
-  eslint-plugin-unused-imports@4.1.3:
-    resolution: {integrity: sha512-lqrNZIZjFMUr7P06eoKtQLwyVRibvG7N+LtfKtObYGizAAGrcqLkc3tDx+iAik2z7q0j/XI3ihjupIqxhFabFA==}
+  eslint-plugin-unused-imports@4.1.4:
+    resolution: {integrity: sha512-YptD6IzQjDardkl0POxnnRBhU1OEePMV0nd6siHaRBbd+lyh6NAhFEobiznKU7kTsSsDeSD62Pe7kAM1b7dAZQ==}
     peerDependencies:
       '@typescript-eslint/eslint-plugin': ^8.0.0-0 || ^7.0.0 || ^6.0.0 || ^5.0.0
       eslint: ^9.0.0 || ^8.0.0
@@ -6788,7 +6788,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
 
-  '@kitql/eslint-config@0.4.0-next.4(@ianvs/prettier-plugin-sort-imports@4.3.1(@vue/compiler-sfc@3.4.7)(prettier@3.3.3))(@typescript-eslint/eslint-plugin@8.5.0(@typescript-eslint/parser@8.5.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier@3.3.3)(svelte@4.2.18)(typescript@5.5.2)':
+  '@kitql/eslint-config@0.4.0-next.6(@ianvs/prettier-plugin-sort-imports@4.3.1(@vue/compiler-sfc@3.4.7)(prettier@3.3.3))(@typescript-eslint/eslint-plugin@8.5.0(@typescript-eslint/parser@8.5.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier@3.3.3)(svelte@4.2.18)(typescript@5.5.2)':
     dependencies:
       '@eslint/compat': 1.1.1
       '@eslint/js': 9.10.0
@@ -6799,7 +6799,7 @@ snapshots:
       commander: 12.1.0
       eslint: 9.10.0(jiti@1.21.6)
       eslint-plugin-svelte: 2.43.0(eslint@9.10.0(jiti@1.21.6))(svelte@4.2.18)
-      eslint-plugin-unused-imports: 4.1.3(@typescript-eslint/eslint-plugin@8.5.0(@typescript-eslint/parser@8.5.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6))
+      eslint-plugin-unused-imports: 4.1.4(@typescript-eslint/eslint-plugin@8.5.0(@typescript-eslint/parser@8.5.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6))
       globals: 15.9.0
       ora: 8.1.0
       prettier: 3.3.3
@@ -8548,7 +8548,7 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  eslint-plugin-unused-imports@4.1.3(@typescript-eslint/eslint-plugin@8.5.0(@typescript-eslint/parser@8.5.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6)):
+  eslint-plugin-unused-imports@4.1.4(@typescript-eslint/eslint-plugin@8.5.0(@typescript-eslint/parser@8.5.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6))(typescript@5.5.2))(eslint@9.10.0(jiti@1.21.6)):
     dependencies:
       eslint: 9.10.0(jiti@1.21.6)
     optionalDependencies:

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tw, type BaseItemLight } from '../..'
+  import { type BaseItemLight } from '../..'
   import Icon from '../Icon.svelte'
   import Tooltip from '../Tooltip.svelte'
   import Link from './Link.svelte'
