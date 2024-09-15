@@ -344,7 +344,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
     initRequest: async (event) => {
       // REMULT: storing user in local should probably be done in remult directly
       // @ts-ignore
-      if (event.locals.user) {
+      if (event?.locals?.user) {
         // @ts-ignore
         remult.user = event.locals.user
       } else {
@@ -357,8 +357,10 @@ export const auth: (o: AuthOptions) => Module = (o) => {
             await createOrExtendSession(session.id, session)
           }
           remult.user = user ?? undefined
-          // @ts-ignore
-          event.locals.user = user ?? undefined
+          if (event.locals) {
+            // @ts-ignore
+            event.locals.user = user ?? undefined
+          }
         }
       }
     },
