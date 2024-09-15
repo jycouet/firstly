@@ -342,15 +342,24 @@ export const auth: (o: AuthOptions) => Module = (o) => {
     entities: [oSafe.User, oSafe.Session, oSafe.Account],
     controllers: [Auth],
     initRequest: async (event) => {
-      // std session
-      const sessionId = event.cookies.get(lucia.sessionCookieName)
+      // REMULT: storing user in local should probably be done in remult directly
+      // @ts-ignore
+      if (event.locals.user) {
+        // @ts-ignore
+        remult.user = event.locals.user
+      } else {
+        // std session
+        const sessionId = event.cookies.get(lucia.sessionCookieName)
 
-      if (sessionId) {
-        const { session, user } = await lucia.validateSession(sessionId)
-        if (session && session.fresh) {
-          await createOrExtendSession(session.id, session)
+        if (sessionId) {
+          const { session, user } = await lucia.validateSession(sessionId)
+          if (session && session.fresh) {
+            await createOrExtendSession(session.id, session)
+          }
+          remult.user = user ?? undefined
+          // @ts-ignore
+          event.locals.user = user ?? undefined
         }
-        remult.user = user ?? undefined
       }
     },
     earlyReturn: async ({ event, resolve }) => {
