@@ -345,9 +345,11 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       // REMULT: storing user in local should probably be done in remult directly
       // @ts-ignore
       if (event?.locals?.user) {
+        // console.log('initRequest OK')
         // @ts-ignore
         remult.user = event.locals.user
       } else {
+        // console.log('initRequest WORK...')
         // std session
         const sessionId = event.cookies.get(lucia.sessionCookieName)
 
