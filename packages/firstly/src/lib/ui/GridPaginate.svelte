@@ -31,7 +31,7 @@
 </script>
 
 <FieldContainer {label} forId="paginate" classes={{ label: 'justify-end' }}>
-  <div class="flex w-40 items-center justify-end">
+  <div class="flex w-36 items-center justify-end">
     {#if totalCount === undefined}
       <Loading class="ml-6 mr-2 h-3 w-1/6"></Loading>
       <Loading class="mx-2 h-4 w-1/2"></Loading>
@@ -45,7 +45,7 @@
         <button
           aria-label="left"
           on:click={() => update('-')}
-          class="btn join-item {pageDisplayed === 1 ? 'btn-disabled' : ''}"
+          class="btn join-item p-1 {pageDisplayed === 1 ? 'btn-disabled' : ''}"
         >
           <Icon data={LibIcon_ChevronLeft} />
         </button>
@@ -62,7 +62,7 @@
         <button
           aria-label="right"
           on:click={() => update('+')}
-          class="btn join-item {!canGoNext ? 'btn-disabled' : ''}"
+          class="btn join-item p-1 {!canGoNext ? 'btn-disabled' : ''}"
         >
           <Icon data={LibIcon_ChevronRight} />
         </button>
