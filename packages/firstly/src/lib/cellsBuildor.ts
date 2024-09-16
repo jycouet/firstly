@@ -1,6 +1,6 @@
 import type { SvelteComponent } from 'svelte'
 
-import { type EntityFilter, type FieldMetadata, type Repository } from 'remult'
+import { type ClassType, type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { BaseEnum } from './BaseEnum.js'
@@ -101,7 +101,7 @@ export const getPlaceholder = <Entity>(fields: FieldMetadata<any, Entity>[]) => 
 }
 
 export const buildSearchWhere = <Entity>(
-  entity: Entity | undefined,
+  entity: ClassType<Entity> | undefined,
   fields: FieldMetadata<any, Entity>[],
   search?: string | null,
 ): EntityFilter<Entity>[] => {
@@ -157,7 +157,7 @@ export const containsWords = <Entity>(
 }
 
 export const buildWhere = <Entity>(
-  entity: Entity | undefined,
+  entity: ClassType<Entity> | undefined,
   defaultWhere: EntityFilter<Entity> | undefined,
   fields_filter: FieldMetadata<any, Entity>[],
   fields_search: FieldMetadata<any, Entity>[],

@@ -31,9 +31,11 @@
 </script>
 
 <FieldContainer {label} forId="paginate" classes={{ label: 'justify-end' }}>
-  <div class="flex items-center justify-end">
+  <div class="flex w-40 items-center justify-end">
     {#if totalCount === undefined}
-      <Loading class="mx-2 h-8 w-1/2"></Loading>
+      <Loading class="ml-6 mr-2 h-3 w-1/6"></Loading>
+      <Loading class="mx-2 h-4 w-1/2"></Loading>
+      <Loading class="mx-2 h-3 w-1/6"></Loading>
     {:else if !needPaginate}
       <span class="text-primary justify-end px-2 font-bold">
         {totalCount}

@@ -290,7 +290,12 @@
         type="checkbox"
         {...{ ...common(cell.field), required: undefined }}
         class="checkbox"
-        bind:checked={value}
+        {value}
+        on:input={(e) => {
+          // @ts-ignore
+          value = e.target.checked
+          dispatchSelected(value)
+        }}
       />
     </div>
   {:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'dateOnly' || metaType.subKind === 'number'}
