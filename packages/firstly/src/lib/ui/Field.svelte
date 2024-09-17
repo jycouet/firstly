@@ -290,7 +290,7 @@
         type="checkbox"
         {...{ ...common(cell.field), required: undefined }}
         class="checkbox"
-        {value}
+        checked={value}
         on:input={(e) => {
           // @ts-ignore
           value = e.target.checked

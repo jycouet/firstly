@@ -46,8 +46,4 @@ export class BaseEnum<Entity = any> {
       options.icon.caption = options?.caption
     }
   }
-
-  getWhere = () => {
-    return this.where ? this.where : this
-  }
 }
