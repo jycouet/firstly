@@ -24,7 +24,7 @@ export type BaseItem = BaseEnumOptions & {
 export type BaseEnumOptions<Entity = any> = {
   caption?: string
   icon?: FF_Icon
-  where?: IdFilter<Entity> | FindOptionsBase<Entity>['where']
+  where?: FindOptionsBase<Entity>['where']
   class?: string
 }
 
@@ -32,7 +32,7 @@ export class BaseEnum<Entity = any> {
   public id: string
   public caption?: string
   icon?: FF_Icon
-  public where?: IdFilter<Entity> | FindOptionsBase<Entity>['where']
+  public where?: FindOptionsBase<Entity>['where']
   public class?: string
 
   constructor(_id: string | number, options?: BaseEnumOptions<Entity>) {
