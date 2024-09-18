@@ -114,4 +114,3 @@
     </div>
   {/if}
 {/each}
-{console.log('errors', $store.errors)}
