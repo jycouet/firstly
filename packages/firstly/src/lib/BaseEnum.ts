@@ -1,4 +1,3 @@
-import { type IdFilter } from 'remult'
 import type { FindOptionsBase, Repository } from 'remult'
 
 export type FF_Icon = {
