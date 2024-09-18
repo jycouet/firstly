@@ -249,7 +249,7 @@
         on:issue={(e) => {
           error = e.detail
         }}
-        createOptionWhenNoResult={cell.field?.options.createOptionWhenNoResult}
+        createOptionWhenNoResult={!!cell.field?.options.createOptionWhenNoResult}
         on:createRequest
       />
     {/if}

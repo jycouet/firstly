@@ -11,6 +11,7 @@ import { storeItem } from './storeItem.js'
 import { storeList } from './storeList.js'
 import { default as Button } from './ui/Button.svelte'
 import { default as Clipboardable } from './ui/Clipboardable.svelte'
+import type { dialog } from './ui/dialog/dialog.js'
 import { default as DialogManagement } from './ui/dialog/DialogManagement.svelte'
 import { default as FormEditAction } from './ui/dialog/FormEditAction.svelte'
 import { default as Field } from './ui/Field.svelte'
@@ -170,7 +171,12 @@ declare module 'remult' {
       | FindOptionsBase<valueType>
 
     findOptionsLimit?: number
-    createOptionWhenNoResult?: boolean
+    createOptionWhenNoResult?: {
+      onCreateRequest: (item: entityType, strCreateNew: string) => Parameters<typeof dialog.form>
+      // It's of the other type...
+      onSuccess: (entity: entityType, newItem: any) => Promise<void>
+      onError?: () => void
+    }
 
     multiSelect?: boolean
 

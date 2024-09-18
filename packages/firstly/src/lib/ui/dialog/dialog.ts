@@ -113,7 +113,6 @@ const createDialogManagement = () => {
       }
       return show(detail, 'confirmDelete')
     },
-    // FIXME JYC: refactor this (no need repo? options?)
     form: <entityType>(
       type: 'insert' | 'update' | 'view',
       topic: string,
