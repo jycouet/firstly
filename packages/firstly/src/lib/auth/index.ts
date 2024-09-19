@@ -343,10 +343,8 @@ export const auth: (o: AuthOptions) => Module = (o) => {
     controllers: [Auth],
     initRequest: async (event) => {
       // REMULT: storing user in local should probably be done in remult directly
-      // @ts-ignore
       if (event?.locals?.user) {
         // console.log('initRequest OK')
-        // @ts-ignore
         remult.user = event.locals.user
       } else {
         // console.log('initRequest WORK...')
@@ -360,7 +358,6 @@ export const auth: (o: AuthOptions) => Module = (o) => {
           }
           remult.user = user ?? undefined
           if (event.locals) {
-            // @ts-ignore
             event.locals.user = user ?? undefined
           }
         }
