@@ -18,6 +18,7 @@ type CellInternal<Entity> = {
     | 'slot' // full custom
     | 'header' // just string for display, uses the header. e.g. a title of a group
     | 'component'
+    | 'baseItem'
 
   class?: string // 'col-span-2' for example
   header?: string // always beter to update the caption of the field or of the class...
@@ -141,7 +142,7 @@ export const containsWords = <Entity>(
   fields: FieldMetadata<any, Entity>[],
   search: string,
 ): EntityFilter<Entity> => {
-  const sSplitted = search.split(' ')
+  const sSplitted = search.split(' ').filter((s) => s.length > 0)
 
   if (fields.length === 1) {
     return {

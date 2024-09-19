@@ -244,6 +244,8 @@
                       href: b.field?.options?.href ? b.field?.options.href(row) : item?.href,
                     }}
                   />
+                {:else if b.kind === 'baseItem'}
+                  <LinkPlus item={row[metaType.field.key]} />
                 {:else if b.kind === 'field_link'}
                   {@const item = getFieldLinkDisplayValue(metaType.field, row)}
                   <LinkPlus {item} />
