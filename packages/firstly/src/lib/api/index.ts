@@ -1,4 +1,4 @@
-import { type Handle, type MaybePromise, type RequestEvent } from '@sveltejs/kit'
+import type { Handle, RequestEvent } from '@sveltejs/kit'
 import nodemailer from 'nodemailer'
 
 import { remult, type ClassType } from 'remult'
@@ -24,9 +24,7 @@ export type Module = {
   handlePosRemult?: Handle
   earlyReturn?: (
     input: Parameters<Handle>[0],
-  ) => MaybePromise<
-    { early: false; resolve?: undefined } | { early: true; resolve: ReturnType<Handle> }
-  >
+  ) => Promise<{ early: false; resolve?: undefined } | { early: true; resolve: ReturnType<Handle> }>
   modules?: Module[]
 }
 
