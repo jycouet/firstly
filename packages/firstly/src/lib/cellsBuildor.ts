@@ -1,6 +1,6 @@
 import type { SvelteComponent } from 'svelte'
 
-import { type EntityFilter, type FieldMetadata, type Repository } from 'remult'
+import { type ClassType, type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { BaseEnum } from './BaseEnum.js'
@@ -18,6 +18,7 @@ type CellInternal<Entity> = {
     | 'slot' // full custom
     | 'header' // just string for display, uses the header. e.g. a title of a group
     | 'component'
+    | 'baseItem'
 
   class?: string // 'col-span-2' for example
   header?: string // always beter to update the caption of the field or of the class...
@@ -101,7 +102,7 @@ export const getPlaceholder = <Entity>(fields: FieldMetadata<any, Entity>[]) => 
 }
 
 export const buildSearchWhere = <Entity>(
-  entity: Entity | undefined,
+  entity: ClassType<Entity> | undefined,
   fields: FieldMetadata<any, Entity>[],
   search?: string | null,
 ): EntityFilter<Entity>[] => {
@@ -141,7 +142,7 @@ export const containsWords = <Entity>(
   fields: FieldMetadata<any, Entity>[],
   search: string,
 ): EntityFilter<Entity> => {
-  const sSplitted = search.split(' ')
+  const sSplitted = search.split(' ').filter((s) => s.length > 0)
 
   if (fields.length === 1) {
     return {
@@ -157,7 +158,7 @@ export const containsWords = <Entity>(
 }
 
 export const buildWhere = <Entity>(
-  entity: Entity | undefined,
+  entity: ClassType<Entity> | undefined,
   defaultWhere: EntityFilter<Entity> | undefined,
   fields_filter: FieldMetadata<any, Entity>[],
   fields_search: FieldMetadata<any, Entity>[],
@@ -180,12 +181,23 @@ export const buildWhere = <Entity>(
         // @ts-ignore
         and.push({ [field.key]: obj[field.key] })
       } else if (field.inputType === 'selectEnum') {
+        const fnName = field.key + 'Filter'
         // @ts-ignore
-        const theEnum = getEnum(field, obj[field.key])
-        // Take the where of the enum if it exists, or it's using this selection as a filter
-        const wheretoUse = theEnum?.where ?? new BaseEnum(obj[field.key])
-        // @ts-ignore
-        and.push({ [field.key]: wheretoUse })
+        if (entity && entity[fnName]) {
+          // @ts-ignore
+          and.push(entity[fnName](obj[field.key]))
+        } else {
+          // @ts-ignore
+          const theEnum = getEnum(field, obj[field.key])
+          // Take the where of the enum if it exists, or it's using this selection as a filter
+          if (theEnum?.where) {
+            and.push(theEnum.where)
+          } else {
+            const wheretoUse = theEnum?.where ?? new BaseEnum(obj[field.key])
+            // @ts-ignore
+            and.push({ [field.key]: wheretoUse })
+          }
+        }
       } else if (rfi?.type === 'toOne') {
         // @ts-ignore (setting the id of the relation)
         and.push({ [field.key]: obj[field.key] })

@@ -22,8 +22,3 @@ test-results
 .nx/cache
 dev-dist
 .DS_Store
-
-# Sentry
-.sentryclirc
-sentry.properties
-node_modules

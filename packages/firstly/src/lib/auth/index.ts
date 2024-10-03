@@ -186,7 +186,7 @@ const buildUrlOrDefault = (
 export const getSafeOptions = () => {
   const signUp = AUTH_OPTIONS.signUp ?? true
   const base =
-    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : AUTH_OPTIONS.ui?.paths?.base ?? '/ff/auth'
+    AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : (AUTH_OPTIONS.ui?.paths?.base ?? '/ff/auth')
 
   const firstlyData: firstlyData = {
     module: 'auth',
@@ -342,15 +342,25 @@ export const auth: (o: AuthOptions) => Module = (o) => {
     entities: [oSafe.User, oSafe.Session, oSafe.Account],
     controllers: [Auth],
     initRequest: async (event) => {
-      // std session
-      const sessionId = event.cookies.get(lucia.sessionCookieName)
+      // REMULT: storing user in local should probably be done in remult directly
+      if (event?.locals?.user) {
+        // console.log('initRequest OK')
+        remult.user = event.locals.user
+      } else {
+        // console.log('initRequest WORK...')
+        // std session
+        const sessionId = event.cookies.get(lucia.sessionCookieName)
 
-      if (sessionId) {
-        const { session, user } = await lucia.validateSession(sessionId)
-        if (session && session.fresh) {
-          await createOrExtendSession(session.id, session)
+        if (sessionId) {
+          const { session, user } = await lucia.validateSession(sessionId)
+          if (session && session.fresh) {
+            await createOrExtendSession(session.id, session)
+          }
+          remult.user = user ?? undefined
+          if (event.locals) {
+            event.locals.user = user ?? undefined
+          }
         }
-        remult.user = user ?? undefined
       }
     },
     earlyReturn: async ({ event, resolve }) => {

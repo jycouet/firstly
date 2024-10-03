@@ -28,7 +28,7 @@
   }
   function dispatchInput(value: any) {
     if ($$restProps.type === 'date') {
-      if (value) {
+      if (value || value === null) {
         dispatch('input', { value: transformDate(value) })
       }
     } else {
@@ -53,6 +53,12 @@
         // For now, let's always put a "." as a separator.
         value = target.value.toString().replaceAll(',', '.')
       }
+    } else if ($$restProps.type === 'date') {
+      if (target.value === '') {
+        value = null!
+      } else {
+        value = target.value
+      }
     } else {
       value = target.value
     }
@@ -66,7 +72,10 @@
     }
   }
 
-  const transformDate = (input: string) => {
+  const transformDate = (input: string | null) => {
+    if (input === null) {
+      return null
+    }
     const rawDateSplited = input.split('-')
 
     if (rawDateSplited.length === 3) {

@@ -20,9 +20,11 @@
 
   const getError = (errors: any, field: FieldMetadata<any, any>) => {
     const fo = getRelationFieldInfo(field)
-    const keyToUse = fo?.options?.field ?? field.key
-    if (errors && errors[keyToUse]) {
+    const keyToUse = fo?.options?.field
+    if (errors && keyToUse && errors[keyToUse]) {
       return errors[keyToUse]
+    } else if (errors && errors[field.key]) {
+      return errors[field.key]
     }
     return undefined
   }

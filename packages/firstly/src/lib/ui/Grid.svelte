@@ -40,6 +40,7 @@
   }
   export let orderBy: EntityOrderBy<T> | undefined = undefined
   export let orderByCols: (keyof T)[] | true | undefined = undefined
+  export let settingsLeft = false
 
   export let dicoNoResult = 'Aucun résultat !'
 
@@ -83,19 +84,58 @@
   const cellsToTake = (cells: Cell<T>[]) => {
     return cells.filter((c) => c.modeView !== 'hide')
   }
+
+  const classForRounding = (i: number) => {
+    if (settingsLeft && (withEdit || withDelete || withAdd)) {
+      if (i === 0) {
+        return ''
+      } else if (i === cells.length - 1) {
+        return 'rounded-tr-lg'
+      }
+    }
+
+    if (!settingsLeft && (withEdit || withDelete || withAdd)) {
+      if (i === 0) {
+        return 'rounded-tl-lg'
+      } else if (i === cells.length - 1) {
+        return ''
+      }
+    }
+
+    if (i === 0) {
+      return 'rounded-tl-lg'
+    } else if (i === cells.length - 1) {
+      return 'rounded-tr-lg'
+    }
+  }
 </script>
 
 <div class="overflow-x-auto">
   <table class="table {classes.table}">
     <thead>
       <tr>
+        {#if settingsLeft && (withEdit || withDelete || withAdd)}
+          <th class="rounded-tl-lg">
+            <div class="flex justify-start">
+              {#if !withAdd}
+                <Icon data={LibIcon_Settings}></Icon>
+              {:else}
+                <Button
+                  permission={store.getRepo().metadata.options.permissionApiInsert}
+                  disabled={!store.getRepo().metadata.apiInsertAllowed()}
+                  class="btn btn-square btn-ghost btn-xs"
+                  on:click={() => dispatch('add', {})}
+                >
+                  <Icon data={LibIcon_Add} />
+                </Button>
+              {/if}
+            </div>
+          </th>
+        {/if}
+
         {#each cellsToTake(cells) as b, i}
           {@const al = align(b.field, b.kind === 'slot')}
-          <th
-            class="{al} 
-									{i === 0 ? 'rounded-tl-lg' : ''}
-									{i === cells.length - 1 && !withEdit && !withDelete ? 'rounded-tr-lg' : ''}"
-          >
+          <th class="{al} {classForRounding(i)}">
             {#if b.headerSlot}
               <slot name="header" field={b.field} />
             {:else}
@@ -119,20 +159,22 @@
           </th>
         {/each}
 
-        {#if withEdit || withDelete || withAdd}
-          <th class="flex justify-end rounded-tr-lg">
-            {#if withAdd}
-              <Button
-                permission={store.getRepo().metadata.options.permissionApiInsert}
-                disabled={!store.getRepo().metadata.apiInsertAllowed()}
-                class="btn btn-square btn-ghost btn-xs"
-                on:click={() => dispatch('add', {})}
-              >
-                <Icon data={LibIcon_Add} />
-              </Button>
-            {:else}
-              <Icon data={LibIcon_Settings}></Icon>
-            {/if}
+        {#if !settingsLeft && (withEdit || withDelete || withAdd)}
+          <th class="rounded-tr-lg">
+            <div class="flex justify-end">
+              {#if withAdd}
+                <Button
+                  permission={store.getRepo().metadata.options.permissionApiInsert}
+                  disabled={!store.getRepo().metadata.apiInsertAllowed()}
+                  class="btn btn-square btn-ghost btn-xs"
+                  on:click={() => dispatch('add', {})}
+                >
+                  <Icon data={LibIcon_Add} />
+                </Button>
+              {:else}
+                <Icon data={LibIcon_Settings}></Icon>
+              {/if}
+            </div>
           </th>
         {/if}
       </tr>
@@ -144,6 +186,34 @@
       {:else}
         {#each $store.items as row}
           <tr on:click={() => dispatch('rowclick', row)} class="hover:bg-base-content/20">
+            <!-- BECARFULL THIS CODE IS DUPLICATED -->
+            {#if settingsLeft && (withEdit || withDelete)}
+              <td class="text-left">
+                <div class="flex justify-start gap-2">
+                  {#if withEdit}
+                    <Button
+                      permission={store.getRepo().metadata.options.permissionApiUpdate}
+                      disabled={!store.getRepo().metadata.apiUpdateAllowed()}
+                      class="btn btn-square btn-ghost btn-xs"
+                      on:click={() => dispatch('edit', row)}
+                    >
+                      <Icon data={LibIcon_Edit} />
+                    </Button>
+                  {/if}
+                  {#if withDelete}
+                    <Button
+                      permission={store.getRepo().metadata.options.permissionApiDelete}
+                      disabled={!store.getRepo().metadata.apiDeleteAllowed()}
+                      class="btn btn-square btn-ghost btn-xs"
+                      on:click={() => dispatch('delete', row)}
+                    >
+                      <Icon data={LibIcon_Delete} />
+                    </Button>
+                  {/if}
+                </div>
+              </td>
+            {/if}
+
             {#each cellsToTake(cells) as b}
               {@const metaType = getFieldMetaType(b.field)}
               <td class={align(b.field, b.kind === 'slot')}>
@@ -174,6 +244,8 @@
                       href: b.field?.options?.href ? b.field?.options.href(row) : item?.href,
                     }}
                   />
+                {:else if b.kind === 'baseItem'}
+                  <LinkPlus item={row[metaType.field.key]} />
                 {:else if b.kind === 'field_link'}
                   {@const item = getFieldLinkDisplayValue(metaType.field, row)}
                   <LinkPlus {item} />
@@ -212,7 +284,8 @@
                 {/if}
               </td>
             {/each}
-            {#if withEdit || withDelete}
+
+            {#if !settingsLeft && (withEdit || withDelete)}
               <td class="text-right">
                 <div class="flex justify-end gap-2">
                   {#if withEdit}

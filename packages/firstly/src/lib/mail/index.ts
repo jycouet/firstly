@@ -69,17 +69,21 @@ export const mailInit: (
   } else {
     try {
       nodemailer.createTestAccount(globalOptions?.apiUrl ?? '', (err, account) => {
-        globalOptions = { ...globalOptions, from: account.user }
+        if (account) {
+          globalOptions = { ...globalOptions, from: account.user }
 
-        transporter = nodemailer.createTransport({
-          host: account.smtp.host,
-          port: account.smtp.port,
-          secure: account.smtp.secure,
-          auth: {
-            user: account.user,
-            pass: account.pass,
-          },
-        })
+          transporter = nodemailer.createTransport({
+            host: account.smtp.host,
+            port: account.smtp.port,
+            secure: account.smtp.secure,
+            auth: {
+              user: account.user,
+              pass: account.pass,
+            },
+          })
+        } else {
+          log.error("Error nodemailer.createTestAccount() can't be done.")
+        }
       })
     } catch (error) {
       log.error("Error nodemailer.createTestAccount() can't be done.")

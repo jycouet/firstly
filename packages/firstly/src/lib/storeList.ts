@@ -2,11 +2,20 @@ import { BROWSER } from 'esm-env'
 import { onDestroy } from 'svelte'
 import { writable } from 'svelte/store'
 
-import type { FindOptions, Repository } from 'remult'
+import type { FindOptions, GroupByOptions, MembersOnly, Repository } from 'remult'
 
-type TheStoreList<T> = { items: T[]; loading: boolean; totalCount: number | undefined }
+type TheStoreList<T> = {
+  items: T[]
+  loading: boolean
+  totalCount: number | undefined
+  agg: any | undefined
+}
 
-export type FF_FindOptions<T> = FindOptions<T> & { withCount?: boolean; withItems?: boolean }
+export type FF_FindOptions<T> = FindOptions<T> & {
+  withCount?: boolean
+  withItems?: boolean
+  aggregate?: GroupByOptions<T, (keyof MembersOnly<T>)[], any, any, any, any, any>
+}
 
 /**
  * @param repo remult repository to listen to
@@ -24,7 +33,7 @@ export type FF_FindOptions<T> = FindOptions<T> & { withCount?: boolean; withItem
  */
 export const storeList = <T>(
   repo: Repository<T>,
-  initValues: TheStoreList<T> = { items: [], loading: true, totalCount: undefined },
+  initValues: TheStoreList<T> = { items: [], loading: true, totalCount: undefined, agg: undefined },
 ) => {
   const { subscribe, set, update } = writable<TheStoreList<T>>(initValues)
   let unSub: any = null
@@ -62,23 +71,32 @@ export const storeList = <T>(
         if (!withItems && !withCount) {
           throw new Error(`xxx.fetch() withItems and withCount can't be both false!`)
         } else if (!withItems && withCount) {
-          const agg = await repo.aggregate({ where: options?.where })
-          set({ loading: false, items: [], totalCount: agg.$count })
+          let optionsToUse = { where: options?.where }
+          if (options?.aggregate) {
+            optionsToUse = { ...options.aggregate, where: options?.where }
+          }
+          // const agg = await repo.aggregate({ ...options?.aggregate, where: options?.where })
+          const agg = await repo.aggregate(optionsToUse)
+          set({ loading: false, items: [], totalCount: agg.$count, agg })
           if (onNewData) {
             onNewData(undefined, agg.$count)
           }
         } else if (withItems && !withCount) {
           const items = await repo.find(options)
-          set({ loading: false, items, totalCount: undefined })
+          set({ loading: false, items, totalCount: undefined, agg: undefined })
           if (onNewData) {
             onNewData(items, undefined)
           }
         } else {
+          let optionsToUse = { where: options?.where }
+          if (options?.aggregate) {
+            optionsToUse = { ...options.aggregate, where: options?.where }
+          }
           const [items, agg] = await Promise.all([
             repo.find({ ...options }),
-            repo.aggregate({ where: options?.where }),
+            repo.aggregate(optionsToUse),
           ])
-          set({ loading: false, items, totalCount: agg.$count })
+          set({ loading: false, items, totalCount: agg.$count, agg })
           if (onNewData) {
             onNewData(items, agg.$count)
           }

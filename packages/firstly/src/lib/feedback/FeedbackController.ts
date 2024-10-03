@@ -19,12 +19,10 @@ async function getGitHub(query: string, variables?: Record<string, any>) {
     const response = await fetch(GITHUB_GRAPHQL_ENDPOINT, { method: 'POST', headers, body })
     const result = await response.json()
     if (result.errors) {
-      /* eslint-disable */
       console.error(`result ERRORS`, body, stry(result))
     }
     return result.data
   } catch (error) {
-    /* eslint-disable */
     console.error(`error`, error)
   }
   return null

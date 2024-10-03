@@ -113,18 +113,18 @@
     const foEdit = cell.field?.options.findOptionsForEdit
     const narrowFindEditWhere =
       typeof foEdit === 'function'
-        ? foEdit(cellsValues).where ?? {}
+        ? (foEdit(cellsValues).where ?? {})
         : typeof foEdit === 'object'
-          ? foEdit.where ?? {}
+          ? (foEdit.where ?? {})
           : {}
 
     // @ts-ignore
     const foCrud = cell.field?.options.findOptions
     const narrowFindCrudWhere =
       typeof foCrud === 'function'
-        ? foCrud().where ?? {}
+        ? (foCrud().where ?? {})
         : typeof foCrud === 'object'
-          ? foCrud.where ?? {}
+          ? (foCrud.where ?? {})
           : {}
 
     findToUse = {
@@ -249,7 +249,7 @@
         on:issue={(e) => {
           error = e.detail
         }}
-        createOptionWhenNoResult={cell.field?.options.createOptionWhenNoResult}
+        createOptionWhenNoResult={!!cell.field?.options.createOptionWhenNoResult}
         on:createRequest
       />
     {/if}
@@ -290,7 +290,12 @@
         type="checkbox"
         {...{ ...common(cell.field), required: undefined }}
         class="checkbox"
-        bind:checked={value}
+        checked={value}
+        on:input={(e) => {
+          // @ts-ignore
+          value = e.target.checked
+          dispatchSelected(value)
+        }}
       />
     </div>
   {:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'dateOnly' || metaType.subKind === 'number'}

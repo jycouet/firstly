@@ -1,4 +1,4 @@
-import { type Handle, type MaybePromise, type RequestEvent } from '@sveltejs/kit'
+import type { Handle, RequestEvent } from '@sveltejs/kit'
 import nodemailer from 'nodemailer'
 
 import { remult, type ClassType } from 'remult'
@@ -24,9 +24,7 @@ export type Module = {
   handlePosRemult?: Handle
   earlyReturn?: (
     input: Parameters<Handle>[0],
-  ) => MaybePromise<
-    { early: false; resolve?: undefined } | { early: true; resolve: ReturnType<Handle> }
-  >
+  ) => Promise<{ early: false; resolve?: undefined } | { early: true; resolve: ReturnType<Handle> }>
   modules?: Module[]
 }
 
@@ -61,9 +59,10 @@ export const firstly = (o: Options) => {
       error: o.error
         ? o.error
         : async (e) => {
-            // if 500 we move to 501 to avoid the default retry mechanism
-            if (e.httpStatusCode == 500) {
-              e.sendError(501, e.responseBody)
+            // REMULT P2: validation error should probably be 409
+            // if 400 we move to 409
+            if (e.httpStatusCode == 400) {
+              e.sendError(409, e.responseBody)
             }
           },
       // Add user configuration

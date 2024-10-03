@@ -53,6 +53,15 @@ type ResultClose<entityType = any> = {
 }
 
 export type DialogType = 'custom' | 'confirm' | 'confirmDelete' | 'insert' | 'update' | 'view'
+export type DialogFormType<entityType> = {
+  cells?: CellsInput<entityType>
+  defaults?: Partial<entityType>
+  classes?: DialogClasses
+  noThrow?: boolean
+  wDelete?: boolean
+  topicPrefixText?: string
+  focusKey?: string
+}
 export type DialogMetaDataInternal<entityType = any> = DialogMetaData<entityType> & {
   id: number
   type: DialogType
@@ -104,23 +113,14 @@ const createDialogManagement = () => {
       }
       return show(detail, 'confirmDelete')
     },
-    // FIXME JYC: refactor this (no need repo? options?)
     form: <entityType>(
       type: 'insert' | 'update' | 'view',
       topic: string,
       repo: Repository<entityType>,
-      cells: CellsInput<entityType>,
-      options?: {
-        defaults?: Partial<entityType>
-        classes?: DialogClasses
-        noThrow?: boolean
-        wDelete?: boolean
-        topicPrefixText?: string
-        focusKey?: string
-      },
+      settings: DialogFormType<entityType>,
     ) => {
-      const topicPrefixText = options?.topicPrefixText
-        ? options?.topicPrefixText + ' '
+      const topicPrefixText = settings?.topicPrefixText
+        ? settings?.topicPrefixText + ' '
         : type === 'insert'
           ? `Créer `
           : type === 'update'
@@ -136,12 +136,12 @@ const createDialogManagement = () => {
         },
         repo,
         // store,
-        cells,
-        defaults: options?.defaults,
-        classes: options?.classes,
-        noThrow: options?.noThrow,
-        wDelete: options?.wDelete,
-        focusKey: options?.focusKey,
+        cells: settings.cells ?? [],
+        defaults: settings?.defaults,
+        classes: settings?.classes,
+        noThrow: settings?.noThrow,
+        wDelete: settings?.wDelete,
+        focusKey: settings?.focusKey,
         topicPrefixText,
       }
       return show(detail, type)
