@@ -1,5 +1,14 @@
 # firstly
 
+## 0.0.9
+
+### Patch Changes
+
+- [#43](https://github.com/jycouet/firstly/pull/43)
+  [`46cfc39`](https://github.com/jycouet/firstly/commit/46cfc39090fc448a22c5ca95e45507a31ab8e2e0)
+  Thanks [@jycouet](https://github.com/jycouet)! - better enum filter, grid action left/right, bump
+  deps, opti session check, action after createOptionWhenNoResult
+
 ## 0.0.8
 
 ### Patch Changes
