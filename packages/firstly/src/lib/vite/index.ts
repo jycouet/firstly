@@ -38,6 +38,7 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
       },
     },
 
+    // @ts-ignore
     ...kitRoutes<KIT_ROUTES>({
       ...(options?.kitRoutes ?? {}),
       ...{
@@ -50,6 +51,7 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
       },
     }),
 
+    // @ts-ignore
     ...stripper({
       decorators: ['BackendMethod'],
       hard: true,
