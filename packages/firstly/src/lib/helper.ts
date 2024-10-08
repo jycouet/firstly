@@ -187,6 +187,7 @@ export const upsert = async <Entity>(
   const found = await currentRepo.findId(id)
 
   if (found) {
+    // @ts-ignore
     if (!stryEq(found, entity)) {
       // Opti => Sedn only the diff?
       await currentRepo.update(id, entity)
