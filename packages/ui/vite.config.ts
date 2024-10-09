@@ -1,6 +1,6 @@
 import path from 'path'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { defineConfig } from 'vite'
+import { defineConfig, type PluginOption } from 'vite'
 import { watchAndRun } from 'vite-plugin-watch-and-run'
 
 export default defineConfig({
@@ -16,7 +16,7 @@ export default defineConfig({
         run: 'npm run build',
         delay: 300,
       },
-    ]),
+    ]) as PluginOption,
   ],
   build: {
     outDir: '../firstly/src/lib/auth/static',

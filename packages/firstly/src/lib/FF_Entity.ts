@@ -1,4 +1,4 @@
-import { Entity, type EntityOptions } from 'remult'
+import { Entity, isBackend, type EntityOptions } from 'remult'
 
 import type { BaseEnum } from './BaseEnum'
 import { recordDeleted, recordSaved } from './changeLog'
@@ -33,7 +33,9 @@ export function FF_Entity<entityType>(
       if (options.changeLog === false) {
         // Don't log changes
       } else {
-        await recordSaved(entity, e, options.changeLog)
+        if (isBackend()) {
+          await recordSaved(entity, e, options.changeLog)
+        }
       }
     },
     deleted: async (entity, e) => {
@@ -41,7 +43,9 @@ export function FF_Entity<entityType>(
       if (options.changeLog === false) {
         // Don't log changes
       } else {
-        await recordDeleted(entity, e, options.changeLog)
+        if (isBackend()) {
+          await recordDeleted(entity, e, options.changeLog)
+        }
       }
     },
   })

@@ -16,7 +16,7 @@ export type BaseItem = BaseEnumOptions & {
   sub?: {
     captionPre?: string
     repo?: Repository<any>
-    item?: any
+    items?: any[]
   }
 }
 
