@@ -86,6 +86,8 @@ export {
   getFieldLinkDisplayValue,
   getEnum,
   getEnums,
+  upsert,
+  onDelete,
 } from './helper.js'
 export {
   buildWhere,

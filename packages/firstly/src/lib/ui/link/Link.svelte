@@ -12,7 +12,7 @@
 </script>
 
 <a
-  class={`${daisy[kind]} link no-underline hover:underline ${className ?? ''}`}
+  class={`${daisy[kind]} link inline-block text-left no-underline hover:underline ${className ?? ''}`}
   {href}
   rel="noopener"
   {target}

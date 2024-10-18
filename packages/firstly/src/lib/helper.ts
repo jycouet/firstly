@@ -1,6 +1,7 @@
 import { getEntityRef, getValueList } from 'remult'
-import type { ClassType, ErrorInfo, FieldMetadata, Repository } from 'remult'
+import type { ClassType, ErrorInfo, FieldMetadata, LifecycleEvent, Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
+import { stryEq } from '@kitql/helpers'
 
 import { suffixWithS } from './formats/strings.js'
 import type { BaseEnum, BaseItem } from './index.js'
@@ -176,4 +177,71 @@ export const getEnum = <T extends BaseEnum>(
 // FIXME: to remove ?
 export const getEnums = <T extends BaseEnum>(baseEnum: ClassType<T>) => {
   return getValueList(baseEnum) || []
+}
+
+export const upsert = async <Entity>(
+  currentRepo: Repository<Entity>,
+  id: Parameters<typeof currentRepo.findId>[0],
+  entity: Partial<Entity>,
+) => {
+  const found = await currentRepo.findId(id)
+
+  if (found) {
+    // @ts-ignore
+    if (!stryEq(found, entity)) {
+      // Opti => Sedn only the diff?
+      await currentRepo.update(id, entity)
+    }
+  } else {
+    await currentRepo.insert(entity)
+  }
+}
+
+/**
+ * To be used like:
+ * ```ts
+ * \@Entity('tasks', {
+ *   async deleting(item, e) {
+ *     await onDelete(item, e, 'prevent')
+ *   },
+ * }
+ * ```
+ */
+export const onDelete = async <T>(
+  item: T,
+  e: LifecycleEvent<T>,
+  mode: 'prevent' | 'cascade' = 'prevent',
+) => {
+  const toManies = e.repository.fields
+    .toArray()
+    .map((f) => {
+      return {
+        f: f,
+        fi: getRelationFieldInfo(f),
+      }
+    })
+    .filter((f) => f.fi?.type === 'toMany')
+
+  const checks = await Promise.all(
+    toManies.map(async (f_fi) => {
+      // @ts-ignore
+      const count = await e.repository.relations(item)[f_fi.f.key].count()
+      return { ...f_fi, count }
+    }),
+  )
+
+  const nonEmptyRelations = checks.filter((check) => check.count > 0)
+  if (nonEmptyRelations.length > 0) {
+    if (mode === 'prevent') {
+      const relationNames = nonEmptyRelations.map((r) => r.f.caption).join(', ')
+      throw Error(`Can't with existing: ${relationNames}`)
+    } else if (mode === 'cascade') {
+      nonEmptyRelations.forEach(async (r) => {
+        const where = Object.entries(r.fi?.getFields().fields ?? {}).map(([key, value]) => {
+          return { [key]: item[value as keyof typeof item] }
+        })
+        await r.fi?.toRepo.deleteMany({ where })
+      })
+    }
+  }
 }
