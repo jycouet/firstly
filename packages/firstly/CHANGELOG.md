@@ -1,5 +1,13 @@
 # firstly
 
+## 0.0.10
+
+### Patch Changes
+
+- [#51](https://github.com/jycouet/firstly/pull/51)
+  [`803023a`](https://github.com/jycouet/firstly/commit/803023a6257c0bfb9396bc0a7bd454bd1281e26c)
+  Thanks [@jycouet](https://github.com/jycouet)! - prepare 0.0.10
+
 ## 0.0.9
 
 ### Patch Changes
