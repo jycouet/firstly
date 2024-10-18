@@ -47,7 +47,7 @@
     "svelte": "4.2.18",
     "svelte-check": "4.0.5",
     "tslib": "2.8.0",
-    "typescript": "5.4.3",
+    "typescript": "5.6.3",
     "vitest": "2.1.0"
   },
   "dependencies": {
