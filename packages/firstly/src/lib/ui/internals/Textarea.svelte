@@ -65,5 +65,5 @@
       // @ts-ignore
       dispatchInput(e.target.value)
     }}
-  />
+  ></textarea>
 {/if}

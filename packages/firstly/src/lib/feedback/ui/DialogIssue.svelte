@@ -107,7 +107,7 @@
       <span class="badge badge-warning">En attente de réponse de TA part 😉, oui 🫵!</span>
     {/if}
     {#if issueNumber}
-      <button on:click={update} class="divider"></button>
+      <button on:click={update} aria-label="Actualiser" class="divider"></button>
     {/if}
 
     {#if issue?.state === 'CLOSED'}

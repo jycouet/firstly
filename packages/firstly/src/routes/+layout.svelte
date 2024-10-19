@@ -30,6 +30,8 @@
   ]
 
   export let data: LayoutData
+  // FIXME: Svelte 5 will fix this
+  // eslint-disable-next-line
   $: remult.user = data.user
 </script>
 
