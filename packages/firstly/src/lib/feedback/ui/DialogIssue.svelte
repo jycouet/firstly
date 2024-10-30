@@ -118,7 +118,9 @@
       {#if issueNumber === null}
         <Field cell={cellBuildor(repo(FilterEntity), 'title')} bind:value={title} />
       {/if}
-      <Textarea bind:value={content} placeholder="Un peu de détail c'est pas mal... Fais toi Plaiz'"
+      <Textarea
+        bind:value={content}
+        placeholder="Un peu de détail c'est pas mal... Fais toi Plaiz' (Tu as même le droit d'utiliser le format markdown!)"
       ></Textarea>
       <div class="flex justify-between">
         {#if issueNumber}
