@@ -31,7 +31,7 @@ jobs:
       - name: 🧑‍💻 Setup env
         uses: jycouet/jycouet/shared-config/setup@main
         with:
-          nodeVersion: 22.1.0
+          nodeVersion: 22.11.0
           pnpmVersion: 9.3.0
           withCaching: false
 
