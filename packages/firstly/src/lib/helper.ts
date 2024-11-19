@@ -1,7 +1,6 @@
 import { getEntityRef, getValueList } from 'remult'
 import type { ClassType, ErrorInfo, FieldMetadata, LifecycleEvent, Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
-import { stryEq } from '@kitql/helpers'
 
 import { suffixWithS } from './formats/strings.js'
 import type { BaseEnum, BaseItem } from './index.js'
