@@ -43,7 +43,7 @@
       use:$overlay.action
       class="bg-base-300/80 fixed inset-0 z-40 blur-sm"
       transition:fade={{ duration: 150 }}
-    />
+    ></div>
     <div
       class={tw(
         `border-base-content/60 bg-base-100 relative z-40 max-h-[90vh] overflow-auto rounded-xl border p-6 shadow-lg`,

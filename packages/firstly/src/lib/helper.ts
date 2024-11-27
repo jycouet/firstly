@@ -1,7 +1,6 @@
 import { getEntityRef, getValueList } from 'remult'
 import type { ClassType, ErrorInfo, FieldMetadata, LifecycleEvent, Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
-import { stryEq } from '@kitql/helpers'
 
 import { suffixWithS } from './formats/strings.js'
 import type { BaseEnum, BaseItem } from './index.js'
@@ -177,24 +176,6 @@ export const getEnum = <T extends BaseEnum>(
 // FIXME: to remove ?
 export const getEnums = <T extends BaseEnum>(baseEnum: ClassType<T>) => {
   return getValueList(baseEnum) || []
-}
-
-export const upsert = async <Entity>(
-  currentRepo: Repository<Entity>,
-  id: Parameters<typeof currentRepo.findId>[0],
-  entity: Partial<Entity>,
-) => {
-  const found = await currentRepo.findId(id)
-
-  if (found) {
-    // @ts-ignore
-    if (!stryEq(found, entity)) {
-      // Opti => Sedn only the diff?
-      await currentRepo.update(id, entity)
-    }
-  } else {
-    await currentRepo.insert(entity)
-  }
 }
 
 /**
