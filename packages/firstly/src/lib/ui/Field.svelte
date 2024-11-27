@@ -190,7 +190,7 @@
   label={cell?.header ?? cell.field?.caption ?? cell.field?.key}
   required={!cell.field?.allowNull && mode === 'edit' && metaType.subKind !== 'checkbox'}
   {error}
-  classes={{ slot: metaType.subKind === 'textarea' ? 'h-32 items-start' : '' }}
+  classes={{ slot: metaType.subKind === 'textarea' ? 'h-24 items-start' : '' }}
 >
   {@const clearableComputed =
     cell.clearable || clearable || (mode === 'filtre' && clearable === undefined)}

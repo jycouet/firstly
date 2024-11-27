@@ -5,7 +5,7 @@
 
   export let name: string | null = null
   export let id = ''
-  export let rows = 6
+  export let rows = 4
   export let placeholder = ''
   export let focus = false
   export let value = ''
