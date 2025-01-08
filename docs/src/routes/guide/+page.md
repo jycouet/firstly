@@ -6,9 +6,19 @@ title: Getting Started
 
 **Again... It's early!**
 
-Are you sure?! If yes... then let's go.
+You should probably **NOT** use it!
 
 :::
+
+:::warning
+
+With `npm init remult@latest` you can create a remult project for svelte 5!
+
+[More info here](https://remult.dev/docs/creating-a-project)
+
+:::
+
+You don't care about all warnings? Ok, let's go!
 
 ```bash
 # Create a sveltekit app (skeleton & typescript)

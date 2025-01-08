@@ -45,7 +45,16 @@
     if ($$restProps.type === 'number') {
       // If we see a `.` or a `,` don't continue and wait for the next input !
       if (e.data === '.' || e.data === ',') {
-        e.preventDefault()
+        // e.preventDefault()
+        value = target.value.toString().replaceAll(',', '.')
+      } else if (target.value === '') {
+        // Could be good one day ?
+        // if (target.min) {
+        //   value = target.min
+        // } else {
+        //   value = null
+        // }
+        value = null
       } else {
         // This convert well the input into a valid number... But "12,0" will be converted into "12" so we can't write "12,01" for example!
         // value = +target.value

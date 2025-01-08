@@ -107,7 +107,7 @@
       <span class="badge badge-warning">En attente de réponse de TA part 😉, oui 🫵!</span>
     {/if}
     {#if issueNumber}
-      <button on:click={update} class="divider"></button>
+      <button on:click={update} aria-label="Actualiser" class="divider"></button>
     {/if}
 
     {#if issue?.state === 'CLOSED'}
@@ -118,7 +118,9 @@
       {#if issueNumber === null}
         <Field cell={cellBuildor(repo(FilterEntity), 'title')} bind:value={title} />
       {/if}
-      <Textarea bind:value={content} placeholder="Un peu de détail c'est pas mal... Fais toi Plaiz'"
+      <Textarea
+        bind:value={content}
+        placeholder="Un peu de détail c'est pas mal... Fais toi Plaiz' (Tu as même le droit d'utiliser le format markdown!)"
       ></Textarea>
       <div class="flex justify-between">
         {#if issueNumber}

@@ -143,20 +143,10 @@ module.exports = {
     `import { FF_Role } from 'firstly'
 import { firstly } from 'firstly/api'
 import { auth } from 'firstly/auth'
+import { changeLog } from 'firstly/changeLog'
 import { Log } from '@kitql/helpers'
 
 import { task } from './modules/task'
-
-//----------------------------------------
-// To switch to postgres (1/2)
-//----------------------------------------
-// import { createPostgresConnection } from 'remult/postgres'
-// import { DATABASE_URL } from '$env/static/private'
-
-//----------------------------------------
-// To enable OAuth via Github (1/2)
-//----------------------------------------
-// import { github } from 'firstly/auth/providers'
 
 /**
  * Your roles, use them in your app !
@@ -172,7 +162,10 @@ export const log = new Log('${pkg.name}')
 
 export const api = firstly({
   //----------------------------------------
-  // To switch to postgres (2/2)
+  // To switch to postgres
+  // NEEDS ON TOP OF THE FILE: 
+  //   import { createPostgresConnection } from 'remult/postgres'
+  //   import { DATABASE_URL } from '$env/static/private'
   //----------------------------------------
   // dataProvider: await createPostgresConnection({
   //  connectionString: DATABASE_URL,
@@ -196,8 +189,10 @@ export const api = firstly({
 
         oAuths: [
           //----------------------------------------
-          // To enable OAuth via Github (2/2)
+          // To enable OAuth via Github
           // Instructions by hovering the method \`github\`
+          // NEEDS ON TOP OF THE FILE: 
+          //   import { github } from 'firstly/auth/providers'
           //----------------------------------------
           // github(),
         ],
@@ -222,10 +217,9 @@ export const api = firstly({
     },
 
     //----------------------------------------
-    // enabling changeLog in general.
-    // To enable it, replace @Entity by @FF_Entity in your entities
+    // Replace @Entity by @FF_Entity in your entities to enable changeLog on this entity
     //----------------------------------------
-    // changeLog(),
+    changeLog(),
   ],
 })
 `,
