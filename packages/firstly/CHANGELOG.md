@@ -1,5 +1,13 @@
 # firstly
 
+## 0.0.11
+
+### Patch Changes
+
+- [#56](https://github.com/jycouet/firstly/pull/56)
+  [`a1e8de0`](https://github.com/jycouet/firstly/commit/a1e8de0a8871b8f1aa6cd81ee20d24f6a3da4c3f)
+  Thanks [@jycouet](https://github.com/jycouet)! - export changeLog module and not changeLogs
+
 ## 0.0.10
 
 ### Patch Changes
