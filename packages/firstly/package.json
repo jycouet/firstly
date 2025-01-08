@@ -118,9 +118,9 @@
       "types": "./esm/feedback/index.d.ts",
       "default": "./esm/feedback/index.js"
     },
-    "./changeLogs": {
-      "types": "./esm/changeLogs/index.d.ts",
-      "default": "./esm/changeLogs/index.js"
+    "./changeLog": {
+      "types": "./esm/changeLog/index.d.ts",
+      "default": "./esm/changeLog/index.js"
     },
     "./mail": {
       "types": "./esm/mail/index.d.ts",
