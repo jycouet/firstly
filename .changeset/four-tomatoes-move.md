@@ -2,4 +2,4 @@
 'firstly': patch
 ---
 
-prepare JYC 011
+export changeLog module and not changeLogs
