@@ -143,6 +143,7 @@ module.exports = {
     `import { FF_Role } from 'firstly'
 import { firstly } from 'firstly/api'
 import { auth } from 'firstly/auth'
+import { changeLog } from 'firstly/changeLog'
 import { Log } from '@kitql/helpers'
 
 import { task } from './modules/task'
@@ -216,10 +217,7 @@ export const api = firstly({
     },
 
     //----------------------------------------
-    // enabling changeLog in general.
-    // To enable it, replace @Entity by @FF_Entity in your entities
-    // NEEDS ON TOP OF THE FILE: 
-    //   import { changeLog } from 'firstly/changeLog'
+    // Replace @Entity by @FF_Entity in your entities to enable changeLog on this entity
     //----------------------------------------
     changeLog(),
   ],
