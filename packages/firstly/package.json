@@ -37,7 +37,7 @@
     "svelte": ">=4.2.18"
   },
   "devDependencies": {
-    "@kitql/helpers": "0.8.10",
+    "@kitql/helpers": "0.8.11",
     "@sveltejs/adapter-node": "5.2.2",
     "@sveltejs/kit": "2.7.3",
     "@sveltejs/package": "2.3.2",
