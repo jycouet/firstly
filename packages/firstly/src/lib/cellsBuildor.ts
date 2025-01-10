@@ -155,8 +155,8 @@ export const containsWords = <Entity>(
   }
 
   return {
-    $or: fields.map((f) => {
-      return { $and: sSplitted.map((s) => ({ [f.key]: { $contains: s } })) }
+    $and: fields.map((f) => {
+      return { $or: sSplitted.map((s) => ({ [f.key]: { $contains: s } })) }
     }),
   } as EntityFilter<Entity>
 }
