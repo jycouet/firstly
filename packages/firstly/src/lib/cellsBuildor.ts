@@ -142,6 +142,10 @@ export const containsWords = <Entity>(
   fields: FieldMetadata<any, Entity>[],
   search: string,
 ): EntityFilter<Entity> => {
+  if (!search) {
+    return {}
+  }
+
   const sSplitted = search.split(' ').filter((s) => s.length > 0)
 
   if (fields.length === 1) {
