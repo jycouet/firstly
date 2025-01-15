@@ -4,10 +4,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "compile": "vite build --base=/api/static",
-    "check": "svelte-check --tsconfig ./tsconfig.node.json",
     "dev": "vite",
-    "preview": "vite preview"
+    "check": "svelte-check --tsconfig ./tsconfig.node.json",
+    "preview": "vite preview",
+    "generate_to_static": "vite build --base=/api/static"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "3.1.2",
