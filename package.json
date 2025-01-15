@@ -16,6 +16,9 @@
     "homepage": "https://github.com/jycouet/firstly"
   },
   "scripts": {
+    "//// ---- BEST PRACTICES ---- ////": "",
+		"lint": "kitql-lint",
+		"format": "kitql-lint -f",
     "//// ---- PROD ---- ////": "",
     "release:version": "npm run changeset version",
     "release": "pnpm -F firstly compile && changeset publish",
@@ -26,7 +29,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "0.5.0",
     "@changesets/cli": "2.27.1",
-    "@kitql/eslint-config": "0.4.0",
+    "@kitql/eslint-config": "0.5.1",
     "@playwright/test": "1.49.1",
     "prettier": "3.4.2"
   },

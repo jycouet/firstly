@@ -7,6 +7,7 @@
   import SignIn from './components/SignIn.svelte'
   import SignUp from './components/SignUp.svelte'
 
+  // eslint-disable-next-line
   export let firstlyData: firstlyData
   let firstlyDataAuth = firstlyData.props
 

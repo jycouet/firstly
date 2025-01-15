@@ -5,14 +5,14 @@ dist
 .env
 .env.*
 !.env.example
- 
+
 # Ignore files for PNPM, NPM and YARN
 package.json
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
 package.json
- 
+
 # Ignore files that are project specific
 /db
 
@@ -23,3 +23,5 @@ ROUTES.ts
 *.svelte.d.ts
 packages/firstly/src/lib/auth/static
 packages/firstly/db
+packages/ui
+.changeset

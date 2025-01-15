@@ -3,6 +3,7 @@
   import { Auth } from '../../../../../../firstly/src/lib/auth/client'
   import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 
+  // eslint-disable-next-line
   export let firstlyDataAuth: firstlyDataAuth
   export let password1 = ''
   export let password2 = ''
