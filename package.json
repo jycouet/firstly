@@ -28,7 +28,7 @@
     "@changesets/cli": "2.27.1",
     "@kitql/eslint-config": "0.4.0",
     "@playwright/test": "1.49.1",
-    "prettier": "3.3.3"
+    "prettier": "3.4.2"
   },
   "sideEffects": false,
   "publishConfig": {
