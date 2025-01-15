@@ -17,7 +17,6 @@
   },
   "scripts": {
     "//// ---- PROD ---- ////": "",
-    "build": "pnpm -F firstly compile",
     "release:version": "npm run changeset version",
     "release": "npm run build && changeset publish",
     "//// OTHERS ////": "",
