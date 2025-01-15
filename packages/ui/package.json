@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "vite build --base=/api/static",
+    "compile": "vite build --base=/api/static",
     "check": "svelte-check --tsconfig ./tsconfig.node.json",
     "dev": "vite",
     "preview": "vite preview"

@@ -18,7 +18,7 @@
   "scripts": {
     "//// ---- PROD ---- ////": "",
     "release:version": "npm run changeset version",
-    "release": "npm run build && changeset publish",
+    "release": "pnpm -F firstly compile && changeset publish",
     "//// OTHERS ////": "",
     "reset": "git clean -xdf",
     "up-dep": "pnpm -r up --latest"
