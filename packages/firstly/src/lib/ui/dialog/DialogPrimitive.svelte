@@ -75,7 +75,6 @@
       </div>
 
       <div class="flex h-full min-w-[25rem] flex-col gap-4">
-        <!-- FIXME: ERMIN? overflow?  -->
         <!-- <div class="overflow-y-auto"> -->
         <slot />
 
