@@ -330,7 +330,7 @@ export const load = (async () => {
       invalidateAll()
     } catch (error) {
       if (isError(error)) {
-        // TODO: You will probably not leave this alert in production
+        // You will probably not leave this alert in production
         alert(error.message)
       }
     }
@@ -344,7 +344,7 @@ export const load = (async () => {
       })
     } catch (error) {
       if (isError(error)) {
-        // TODO: You will probably not leave this alert in production
+        // You will probably not leave this alert in production
         alert(error.message)
       }
     }

@@ -59,7 +59,6 @@ export type FFOAuth2Provider<
 > = {
   name: LitName
   getArcticProvider: () => T
-  // TODO: Today you have to set it explicitly... Would be good to have false or undefined working
   isPKCE: T extends ArcticOAuth2Provider
     ? false
     : T extends ArcticOAuth2ProviderWithPKCE
