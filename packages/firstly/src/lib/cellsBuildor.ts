@@ -113,9 +113,6 @@ export const buildSearchWhere = <Entity>(
   const f: EntityFilter<any>[] = [
     {
       $or: fields.map((f) => {
-        // REMULT P1: isServerExpression is false when sqlExpression there ?!
-        // if (f.isServerExpression || f.options.sqlExpression) {
-        // check if this field has a specific filter function
         const fnName = f.key + 'Filter'
         // @ts-ignore
         if (entity && entity[fnName]) {

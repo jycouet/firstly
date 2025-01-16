@@ -82,7 +82,6 @@ export class FF_Fields {
       suffixEdit: '€',
       inputType: 'number',
       displayValue: displayCurrency,
-      // REMULT P2: all default valueConverter are removed if I set one?
       valueConverter: {
         toInput(val, inputType) {
           const valStr = String(val)
