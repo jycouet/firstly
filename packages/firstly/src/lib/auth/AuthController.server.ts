@@ -253,6 +253,7 @@ export class AuthControllerServer {
    * _(The first param `email` can be "anything")_
    */
   static async signInPassword(emailParam: string, password: string) {
+    console.log('signInPassword', emailParam, password)
     const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
