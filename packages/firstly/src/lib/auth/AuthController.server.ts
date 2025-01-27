@@ -88,7 +88,8 @@ export class AuthControllerServer {
   /**
    * This is for login / password authentication invite
    */
-  static async invite(email: string) {
+  static async invite(emailParam: string) {
+    const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
     const existingAccount = await remult.repo(oSafe.Account).findOne({
@@ -162,7 +163,9 @@ export class AuthControllerServer {
    * This is for login / password authentication SignUp
    * _(The first param `email` can be "anything")_
    */
-  static async signUpPassword(email: string, password: string) {
+  static async signUpPassword(emailParam: string, password: string) {
+    const email = emailParam.toLowerCase()
+
     const oSafe = getSafeOptions()
 
     if (!oSafe.signUp) {
@@ -249,7 +252,8 @@ export class AuthControllerServer {
    * This is for login / password authentication SignIn
    * _(The first param `email` can be "anything")_
    */
-  static async signInPassword(email: string, password: string) {
+  static async signInPassword(emailParam: string, password: string) {
+    const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
     if (!oSafe.password_enabled) {
@@ -282,7 +286,8 @@ export class AuthControllerServer {
   /**
    * Forgot your password ? Send a mail to reset it.
    */
-  static async forgotPassword(email: string) {
+  static async forgotPassword(emailParam: string) {
+    const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
     if (!oSafe.password_enabled) {
@@ -384,7 +389,8 @@ export class AuthControllerServer {
   }
 
   /** OTP */
-  static async signInOTP(email: string) {
+  static async signInOTP(emailParam: string) {
+    const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
     if (!oSafe.otp_enabled) {
@@ -441,7 +447,8 @@ export class AuthControllerServer {
   /**
    * Verify the OTP code
    */
-  static async verifyOtp(email: string, otp: string | number) {
+  static async verifyOtp(emailParam: string, otp: string | number) {
+    const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
     const accounts = await remult.repo(oSafe.Account).find({
