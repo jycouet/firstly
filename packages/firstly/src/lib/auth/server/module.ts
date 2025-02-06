@@ -85,7 +85,7 @@ type AuthOptions<
   session?: {
     /** in milliseconds @default 30 days (1000 * 60 * 60 * 24 * 30) */
     expiresIn?: number
-    cookieName?: string
+    COOKIE_NAME?: string
   }
 
   defaultRedirect?: string
@@ -240,7 +240,7 @@ export const getSafeOptions = () => {
 
   let redirectUrl = AUTH_OPTIONS.defaultRedirect ?? '/'
   if (!redirectUrl.startsWith('/')) {
-    authModule.log.error(
+    authModuleRaw.log.error(
       `Invalid redirect url ${red(redirectUrl)} (it should be a local one starting with /)`,
     )
     redirectUrl = '/'
@@ -250,6 +250,8 @@ export const getSafeOptions = () => {
   if (AUTH_OPTIONS.transformDbUserToClientUser) {
     transformDbUserToClientUserToUse = AUTH_OPTIONS.transformDbUserToClientUser
   } else {
+    // We should ignore the type here as we don't know the final shape of UserInfo
+    // @ts-ignore
     transformDbUserToClientUserToUse = (session: any, user: FFAuthUser) => {
       return {
         id: user.id,
@@ -281,14 +283,14 @@ export const getSafeOptions = () => {
 
     session: {
       expiresInMs: AUTH_OPTIONS.session?.expiresIn ?? 1000 * 60 * 60 * 24 * 30, // 30 days,
-      cookieName: AUTH_OPTIONS.session?.cookieName ?? 'firstly_auth_session',
+      cookieName: AUTH_OPTIONS.session?.COOKIE_NAME ?? 'firstly_auth_session',
     },
 
     providers: AUTH_OPTIONS.providers,
   }
 }
 
-export const authModule = new Module({
+export const authModuleRaw = new Module({
   name: 'auth',
   priority: -777,
 })
@@ -313,9 +315,9 @@ export const auth: (o: AuthOptions) => Module = (o) => {
   AuthController.verifyOtpFn = AuthControllerServer.verifyOtp
   AuthController.signInOAuthGetUrlFn = AuthControllerServer.signInOAuthGetUrl
 
-  authModule.entities = [oSafe.User, oSafe.Session, oSafe.Account]
-  authModule.controllers = [AuthController]
-  authModule.initRequest = async (event) => {
+  authModuleRaw.entities = [oSafe.User, oSafe.Session, oSafe.Account]
+  authModuleRaw.controllers = [AuthController]
+  authModuleRaw.initRequest = async (event) => {
     // REMULT: storing user in local should probably be done in remult directly
     if (event?.locals?.user) {
       remult.user = event.locals.user
@@ -333,16 +335,16 @@ export const auth: (o: AuthOptions) => Module = (o) => {
       }
     }
   }
-  authModule.initApi = async () => {
-    await initRoleFromEnv(authModule.log, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.FF_Role_Admin)
+  authModuleRaw.initApi = async () => {
+    await initRoleFromEnv(authModuleRaw.log, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.FF_Role_Admin)
     await initRoleFromEnv(
-      authModule.log,
+      authModuleRaw.log,
       oSafe.User,
       'FF_ROLE_AUTH_ADMIN',
       FF_Role_Auth.FF_Role_Auth_Admin,
     )
   }
-  return authModule
+  return authModuleRaw
 }
 
 export { initRoleFromEnv }

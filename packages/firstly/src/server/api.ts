@@ -43,7 +43,7 @@ export const api = firstly({
     auth({
       session: {
         // expiresIn: 1000 * 30,
-        cookieName: 'my_fancy_cookie_name',
+        COOKIE_NAME: 'my_fancy_cookie_name',
       },
       uiStaticPath: './src/lib/auth/static/',
       customEntities: {

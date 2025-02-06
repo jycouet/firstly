@@ -47,6 +47,7 @@ type Options = RemultServerOptions<RequestEvent<Partial<Record<string, string>>,
   modules?: Module[] | undefined
 }
 
+export let entities: ClassType<any>[] = []
 /**
  * it's basically `remultSveltekit` with the `modules` option
  */
@@ -61,7 +62,7 @@ export const firstly = (o: Options) => {
       initApi: o.initApi,
     }),
   ])
-  const entities = modulesSorted.flatMap((m) => m.entities ?? [])
+  entities = modulesSorted.flatMap((m) => m.entities ?? [])
 
   return remultSveltekit({
     // Changing the default default of remult

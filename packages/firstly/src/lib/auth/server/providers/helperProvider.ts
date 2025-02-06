@@ -2,7 +2,7 @@ import { EntityError } from 'remult'
 import { cyan, gray, green, italic, yellow } from '@kitql/helpers'
 
 import { mask } from '../../../formats/strings'
-import { authModule } from '../module'
+import { authModuleRaw } from '../module'
 
 export const checkOAuthConfig = (
   name: string,
@@ -26,7 +26,7 @@ export const checkOAuthConfig = (
     if (withThrow) {
       throw new EntityError({ message: msg })
     } else {
-      authModule.log.error(msg)
+      authModuleRaw.log.error(msg)
     }
   }
 }

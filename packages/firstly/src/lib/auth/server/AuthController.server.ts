@@ -16,7 +16,12 @@ import {
   setRedirectCookie,
 } from './helperRemultServer.js'
 import { mergeRoles } from './helperRole.js'
-import { AUTH_OPTIONS, authModule, getSafeOptions, type AuthorizationURLOptions } from './module.js'
+import {
+  AUTH_OPTIONS,
+  authModuleRaw,
+  getSafeOptions,
+  type AuthorizationURLOptions,
+} from './module.js'
 
 async function getArgon() {
   const { Argon2id } = await import('oslo/password')
@@ -124,7 +129,7 @@ export class AuthControllerServer {
 
       if (AUTH_OPTIONS?.invitationSend) {
         await AUTH_OPTIONS?.invitationSend({ email, url })
-        authModule.log.success(
+        authModuleRaw.log.success(
           `${green('[custom]')}${magenta('[invitationSend]')} (${yellow(url)})`,
         )
         return 'Mail sent !'
@@ -152,7 +157,7 @@ export class AuthControllerServer {
           },
         })
 
-        authModule.log.success(`${magenta('[invitationSend]')} (${yellow(url)})`)
+        authModuleRaw.log.success(`${magenta('[invitationSend]')} (${yellow(url)})`)
         return 'Demo Mail sent !'
       }
     }
@@ -221,7 +226,7 @@ export class AuthControllerServer {
       const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.verifyMailSend) {
         await AUTH_OPTIONS.providers?.password.verifyMailSend({ email, url })
-        authModule.log.success(
+        authModuleRaw.log.success(
           `${green('[custom]')}${magenta('[verifyMailSend]')} (${yellow(url)})`,
         )
       } else {
@@ -244,7 +249,7 @@ export class AuthControllerServer {
           },
         })
 
-        authModule.log.success(`${magenta('[verifyMailSend]')} (${yellow(url)})`)
+        authModuleRaw.log.success(`${magenta('[verifyMailSend]')} (${yellow(url)})`)
       }
     }
 
@@ -316,7 +321,7 @@ export class AuthControllerServer {
       const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.resetPasswordSend) {
         await AUTH_OPTIONS.providers?.password.resetPasswordSend({ email, url })
-        authModule.log.success(
+        authModuleRaw.log.success(
           `${green('[custom]')}${magenta('[resetPasswordSend]')} (${yellow(url)})`,
         )
         return 'Mail sent !'
@@ -344,7 +349,7 @@ export class AuthControllerServer {
           },
         })
 
-        authModule.log.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
+        authModuleRaw.log.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
         return 'Demo Mail sent !'
       }
     }
@@ -441,10 +446,10 @@ export class AuthControllerServer {
       await repo(oSafe.Account).save(account)
 
       await AUTH_OPTIONS.providers.otp?.send({ name: email, otp, uri })
-      authModule.log.success(`name: ${yellow(email)}, otp: ${yellow(otp)}, uri: ${yellow(uri)}`)
+      authModuleRaw.log.success(`name: ${yellow(email)}, otp: ${yellow(otp)}, uri: ${yellow(uri)}`)
       return 'Mail sent !'
     } else {
-      authModule.log.error(`You need to provide a otp.send hook in the auth options!`)
+      authModuleRaw.log.error(`You need to provide a otp.send hook in the auth options!`)
     }
     return 'Hum, something went wrong !'
   }
@@ -549,7 +554,7 @@ export class AuthControllerServer {
         return url.toString()
       } catch (error) {
         // display error for the server only
-        authModule.log.error(error)
+        authModuleRaw.log.error(error)
         throw new EntityError({ message: `${o.provider} not well configured!` })
       }
     }
