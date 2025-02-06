@@ -1,13 +1,13 @@
-import type { Handle, RequestEvent } from '@sveltejs/kit'
+import type { RequestEvent } from '@sveltejs/kit'
 
-import { remult, type ClassType } from 'remult'
+import { type ClassType } from 'remult'
 import { remultSveltekit } from 'remult/remult-sveltekit'
 import type { RemultServerOptions } from 'remult/server'
 import { Log } from '@kitql/helpers'
 
 import { building } from '$app/environment'
 
-export type ModuleInput = {
+type ModuleInput = {
   /**
    * The name of the module (usefull for logging and debugging purposes)
    */
@@ -43,30 +43,26 @@ export class Module {
   }
 }
 
-type Options = Omit<
-  RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
-    modules?: Module[] | undefined
-    // mail?: MailOptions<any>
-    // log?: boolean | string
-  },
-  'entities' | 'controllers' | 'initRequest' | 'initApi'
->
+type Options = RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
+  modules?: Module[] | undefined
+}
 
 /**
  * it's basically `remultSveltekit` with the `modules` option
  */
 export const firstly = (o: Options) => {
-  const modulesSorted = modulesFlatAndOrdered(o.modules ?? [])
+  const modulesSorted = modulesFlatAndOrdered([
+    ...(o.modules ?? []),
+    new Module({
+      name: 'default',
+      entities: o.entities ?? [],
+      controllers: o.controllers ?? [],
+      initRequest: o.initRequest,
+      initApi: o.initApi,
+    }),
+  ])
   const entities = modulesSorted.flatMap((m) => m.entities ?? [])
 
-  // mailInit(nodemailer, o.mail)
-
-  // return {
-  //   modulesSorted: modulesSorted,
-
-  //   entities,
-
-  // }
   return remultSveltekit({
     // Changing the default default of remult
     logApiEndPoints: false,
