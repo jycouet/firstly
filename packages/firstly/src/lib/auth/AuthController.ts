@@ -1,5 +1,6 @@
-import { Allow, BackendMethod } from 'remult'
+import { BackendMethod } from 'remult'
 
+import { FF_Role_Auth } from './Entities'
 import type { AuthorizationURLOptions } from './server/module'
 
 export class AuthController {
@@ -60,7 +61,7 @@ export class AuthController {
   /**
    * This is for login / password authentication Invite someone
    */
-  @BackendMethod({ allowed: Allow.authenticated })
+  @BackendMethod({ allowed: FF_Role_Auth.FF_Role_Auth_Invite })
   static async invite(email: string) {
     return await AuthController.#inviteFn(email)
   }

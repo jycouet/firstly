@@ -5,6 +5,7 @@ import type { BaseEnumOptions } from '..'
 
 export const FF_Role_Auth = {
   FF_Role_Auth_Admin: 'FF_Role_Auth.Admin',
+  FF_Role_Auth_Invite: 'FF_Role_Auth.Invite',
 } as const
 
 @FF_Entity('ff_auth.users', {
@@ -59,7 +60,6 @@ export class FFAuthUser {
 @FF_Entity<FFAuthAccount>('ff_auth.accounts', {
   allowApiCrud: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
   caption: 'FF Auth - Accounts',
-  // id: { provider: true, userId: true },
   changeLog: {
     excludeColumns: (e) => {
       return [e.hashPassword, e.token]
