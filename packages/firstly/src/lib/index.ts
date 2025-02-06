@@ -1,5 +1,3 @@
-import type { RequestEvent } from '@sveltejs/kit'
-
 import type { FindOptionsBase } from 'remult'
 import { Log } from '@kitql/helpers'
 

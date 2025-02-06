@@ -10,7 +10,7 @@ import type StreamTransport from 'nodemailer/lib/stream-transport'
 import type { ComponentProps, ComponentType, SvelteComponent } from 'svelte'
 import { render } from 'svelty-email'
 
-import { cyan, green, Log, magenta, red, sleep, white } from '@kitql/helpers'
+import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
 import { Module } from '../../api'
 import { default as DefaultMail } from '../templates/DefaultMail.svelte'

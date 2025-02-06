@@ -1,4 +1,3 @@
-import { redirect } from '@sveltejs/kit'
 import type {
   OAuth2Provider as ArcticOAuth2Provider,
   OAuth2ProviderWithPKCE as ArcticOAuth2ProviderWithPKCE,
@@ -7,19 +6,13 @@ import type {
 import { remult } from 'remult'
 import type { ClassType, UserInfo } from 'remult'
 import { red } from '@kitql/helpers'
-import { getRelativePackagePath, read } from '@kitql/internals'
+import { getRelativePackagePath } from '@kitql/internals'
 
 import { AuthController } from '..'
 import { FF_Role } from '../..'
 import { Module } from '../../api'
 import type { RecursivePartial, ResolvedType } from '../../utils/types'
-import {
-  FF_Role_Auth,
-  FFAuthAccount,
-  FFAuthProvider,
-  FFAuthUser,
-  FFAuthUserSession,
-} from '../Entities'
+import { FF_Role_Auth, FFAuthAccount, FFAuthUser, FFAuthUserSession } from '../Entities'
 import type { firstlyData, firstlyDataAuth } from '../types'
 import { AuthControllerServer } from './AuthController.server'
 import { validateSessionToken } from './helperDb'

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { remult, repo } from 'remult'
+import { repo } from 'remult'
 
 import { buildWhere, cellsBuildor, fieldsOf, getPlaceholder } from './cellsBuildor.js'
 import { UIEntity } from './virtual/UIEntity.js'
