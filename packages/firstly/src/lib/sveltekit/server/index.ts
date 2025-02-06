@@ -17,7 +17,7 @@ declare module 'remult' {
 export const sveltekit: () => Module = () => {
   return {
     name: 'sveltekit',
-    index: -779,
+    priority: -779,
     entities: [],
     controllers: [],
     initRequest: async (kitEvent, op) => {

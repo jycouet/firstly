@@ -52,8 +52,8 @@ export {
 export const ff_Log = new Log('firstly')
 
 export const FF_Role = {
-  Admin: 'FF_Role.Admin',
-}
+  FF_Role_Admin: 'FF_Role.Admin',
+} as const
 
 // ******************************
 // Helpers types

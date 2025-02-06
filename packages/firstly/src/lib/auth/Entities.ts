@@ -4,11 +4,11 @@ import { BaseEnum, FF_Entity, FF_Role } from '..'
 import type { BaseEnumOptions } from '..'
 
 export const FF_Role_Auth = {
-  Admin: 'FF_Role_Auth.Admin',
+  FF_Role_Auth_Admin: 'FF_Role_Auth.Admin',
 } as const
 
 @FF_Entity('ff_auth.users', {
-  allowApiCrud: [FF_Role_Auth.Admin, FF_Role.Admin],
+  allowApiCrud: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
   caption: 'FF Auth - Users',
 })
 export class FFAuthUser {
@@ -57,7 +57,7 @@ export class FFAuthUser {
 }
 
 @FF_Entity<FFAuthAccount>('ff_auth.accounts', {
-  allowApiCrud: [FF_Role_Auth.Admin, FF_Role.Admin],
+  allowApiCrud: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
   caption: 'FF Auth - Accounts',
   // id: { provider: true, userId: true },
   changeLog: {
@@ -102,7 +102,7 @@ export class FFAuthAccount {
 }
 
 @FF_Entity('ff_auth.users_sessions', {
-  allowApiCrud: [FF_Role_Auth.Admin, FF_Role.Admin],
+  allowApiCrud: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
   caption: 'FF Auth - Users sessions',
   changeLog: false,
 })

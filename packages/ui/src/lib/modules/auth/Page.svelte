@@ -41,8 +41,8 @@
                 {firstlyDataAuth.ui.strings.forgot_password}
               </Link>
             {/if}
-            <hr />
             {#if firstlyDataAuth.ui?.paths.sign_up}
+              <hr />
               <Link href={firstlyDataAuth.ui.paths.sign_up}>
                 {firstlyDataAuth.ui.strings.btn_sign_up}
               </Link>

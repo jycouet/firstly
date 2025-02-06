@@ -1,8 +1,8 @@
-import { Fields, InMemoryDataProvider } from 'remult'
+import { Fields } from 'remult'
 
-import { FF_Entity } from '$lib'
+import { FF_Entity, FF_Role } from '$lib'
 import { firstly } from '$lib/api'
-import { FFAuthUser } from '$lib/auth'
+import { FF_Role_Auth, FFAuthUser } from '$lib/auth'
 import { auth } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'
 import { sveltekit } from '$lib/sveltekit/server'
@@ -10,8 +10,10 @@ import { sveltekit } from '$lib/sveltekit/server'
 // import { github } from '$lib/auth/providers'
 
 const Role = {
-  ADMIN: 'admin',
-}
+  ...FF_Role,
+  ...FF_Role_Auth,
+  Admin: 'admin',
+} as const
 
 @FF_Entity<_AppUser>('app_users', {
   dbName: 'app_users',
@@ -31,11 +33,13 @@ export class _AppUser extends FFAuthUser {
 export const api = firstly({
   modules: [
     sveltekit(),
+
     mail({
       template: {
         brandColor: '#E10098',
       },
     }),
+
     auth({
       session: {
         expiresInMs: 1000 * 30,
@@ -51,7 +55,7 @@ export const api = firstly({
       //   },
       // },
 
-      // signUp: false,
+      signUp: false,
 
       verifiedMethod: 'email',
 
@@ -62,7 +66,7 @@ export const api = firstly({
       },
       debug: true,
       providers: {
-        demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.ADMIN] }],
+        demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.Admin] }],
 
         password: {
           //   verifyMailSend: async () => {},
@@ -82,6 +86,7 @@ export const api = firstly({
         ],
       },
     }),
+
     {
       name: 'theEnd',
       async initApi() {

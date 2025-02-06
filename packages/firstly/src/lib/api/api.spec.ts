@@ -10,8 +10,8 @@ describe('api', () => {
       { name: 'init', modules: [{ name: 'a' }, { name: 'b' }] },
       { name: 'main' },
       auth({}),
-      { name: 'main last', index: 100 },
-      { name: 'prio', index: -1000 },
+      { name: 'main last', priority: 100 },
+      { name: 'prio', priority: -1000 },
       { name: 'the end', modules: [{ name: 'd' }, { name: 'c' }] },
     ]
 

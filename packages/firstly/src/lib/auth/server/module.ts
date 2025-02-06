@@ -45,7 +45,7 @@ export type DynamicAuthorizationURLOptions<T extends FFOAuth2Provider[] = FFOAut
       : never
     : never
 
-type OAuth2UserInfo = {
+export type OAuth2UserInfo = {
   raw?: any
   providerUserId: string
   /** Will take the first option available */
@@ -197,7 +197,9 @@ export const getSafeOptions = () => {
           : {
               paths: {
                 base,
-                sign_up: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_up, 'sign-up'),
+                sign_up: signUp
+                  ? buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_up, 'sign-up')
+                  : false,
                 sign_in: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_in, 'sign-in'),
                 forgot_password: buildUrlOrDefault(
                   base,
@@ -255,16 +257,6 @@ export const getSafeOptions = () => {
   if (AUTH_OPTIONS.transformDbUserToClientUser) {
     transformDbUserToClientUserToUse = AUTH_OPTIONS.transformDbUserToClientUser
   } else {
-    // Need in src/app.d.ts this code to be able to have the correct transformDbUserToClientUser returned type.
-    // In the lib, let's force to this default
-    /**
-     * declare module 'remult' {
-     *   export interface UserInfo {
-     *     specificThing: string
-     *   }
-     * }
-     */
-    // @ts-ignore
     transformDbUserToClientUserToUse = (session: any, user: FFAuthUser) => {
       return {
         id: user.id,
@@ -298,6 +290,8 @@ export const getSafeOptions = () => {
       expiresInMs: AUTH_OPTIONS.session?.expiresInMs ?? 1000 * 60 * 60 * 24 * 30, // 30 days,
       cookieName: AUTH_OPTIONS.session?.cookieName ?? 'firstly_auth_session',
     },
+
+    providers: AUTH_OPTIONS.providers,
   }
 }
 
@@ -323,7 +317,7 @@ export const auth: (o: AuthOptions) => Module = (o) => {
 
   return {
     name: 'auth',
-    index: -777,
+    priority: -777,
     entities: [oSafe.User, oSafe.Session, oSafe.Account],
     controllers: [AuthController],
     initRequest: async (event) => {
@@ -344,177 +338,14 @@ export const auth: (o: AuthOptions) => Module = (o) => {
         }
       }
     },
-    // earlyReturn: async ({ event, resolve }) => {
-    //   const oSafe = getSafeOptions()
-
-    //   if (event.url.pathname === oSafe.firstlyData.props.ui?.paths?.verify_email) {
-    //     const token = event.url.searchParams.get('token') ?? ''
-
-    //     if (!oSafe.password_enabled) {
-    //       throw Error('Password is not enabled!')
-    //     }
-
-    //     const account = await remult
-    //       .repo(oSafe.Account)
-    //       .findFirst({ token, provider: FFAuthProvider.PASSWORD.id })
-
-    //     if (!account) {
-    //       throw new Error('Invalid token')
-    //     }
-    //     if (account.expiresAt && account.expiresAt < new Date()) {
-    //       throw new Error('token expired')
-    //     }
-
-    //     // await lucia.invalidateUserSessions(account.userId)
-
-    //     // update elements
-    //     account.token = undefined
-    //     account.expiresAt = undefined
-    //     account.lastVerifiedAt = new Date()
-
-    //     await remult.repo(oSafe.Account).save(account)
-
-    //     // await createOrExtendSession(account.userId)
-
-    //     redirect(302, oSafe.redirectUrl)
-    //   }
-
-    //   if (
-    //     oSafe.firstlyData.props.ui?.paths?.base &&
-    //     event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)
-    //   ) {
-    //     const content = read(`${oSafe.uiStaticPath}index.html`)
-
-    //     return {
-    //       early: true,
-    //       resolve: new Response(
-    //         content + `<script>const firstlyData = ${JSON.stringify(oSafe.firstlyData)}</script>`,
-    //         {
-    //           headers: { 'content-type': 'text/html' },
-    //         },
-    //       ),
-    //     }
-    //   }
-
-    //   if (event.url.pathname.startsWith('/api/static')) {
-    //     const content = read(
-    //       `${oSafe.uiStaticPath}${event.url.pathname.replaceAll('/api/static/', '')}`,
-    //     )
-    //     if (content) {
-    //       const seg = event.url.pathname.split('.')
-    //       const map: Record<string, string> = {
-    //         js: 'text/javascript',
-    //         css: 'text/css',
-    //         svg: 'image/svg+xml',
-    //       }
-
-    //       return {
-    //         early: true,
-    //         resolve: new Response(content, {
-    //           headers: { 'content-type': map[seg[seg.length - 1]] ?? 'text/plain' },
-    //         }),
-    //       }
-    //     }
-    //   }
-
-    //   if (event.url.pathname === '/api/auth_callback') {
-    //     const code = event.url.searchParams.get('code')
-    //     const state = event.url.searchParams.get('state')
-
-    //     const keys = AUTH_OPTIONS.providers?.oAuths?.map((c) => c.name) ?? []
-
-    //     let storedState = null
-    //     let keyState: string | null = null
-    //     for (const key of keys) {
-    //       storedState = event.cookies.get(`${key}_oauth_state`) ?? null
-    //       if (storedState) {
-    //         keyState = key
-    //         break
-    //       }
-    //     }
-
-    //     const redirectUrlCookie = event.cookies.get(`remult_redirect`)
-    //     if (redirectUrlCookie) {
-    //       event.cookies.delete(`remult_redirect`, { path: '/' })
-    //     }
-    //     const redirectUrl = redirectUrlCookie ?? oSafe.redirectUrl
-
-    //     if (!code || !state || !storedState || state !== storedState || !keyState) {
-    //       redirect(302, redirectUrl)
-    //     }
-
-    //     const selectedOAuth = AUTH_OPTIONS.providers?.oAuths?.find((c) => c.name === keyState)
-    //     if (selectedOAuth && code) {
-    //       const tokens = await selectedOAuth.getArcticProvider().validateAuthorizationCode(code)
-    //       let info: OAuth2UserInfo
-    //       try {
-    //         info = await selectedOAuth.getUserInfo(tokens)
-    //       } catch (error) {
-    //         redirect(302, redirectUrl)
-    //       }
-
-    //       if (!info.providerUserId) {
-    //         redirect(302, redirectUrl)
-    //       }
-
-    //       let account = await remult
-    //         .repo(oSafe.Account)
-    //         .findFirst({ provider: keyState, providerUserId: info.providerUserId })
-    //       if (!account) {
-    //         if (!oSafe.signUp) {
-    //           // throw Error("You can't signup by yourself! Contact the administrator.")
-    //           redirect(302, redirectUrl)
-    //         }
-
-    //         // for each info.name, we check if it exists take the first option
-    //         // and add the providerUserId to the name if no option available
-
-    //         let nameToUse = ''
-    //         for (let i = 0; i < info.nameOptions.length; i++) {
-    //           const existingUser = await remult
-    //             .repo(oSafe.User)
-    //             .findOne({ where: { identifier: info.nameOptions[i] } })
-    //           if (existingUser) {
-    //             // Don't do anything
-    //           } else {
-    //             nameToUse = info.nameOptions[i]
-    //             break
-    //           }
-    //         }
-    //         if (nameToUse === '') {
-    //           nameToUse = `${info.nameOptions[0]}-${info.providerUserId}`
-    //         }
-
-    //         const user = remult.repo(oSafe.User).create()
-    //         user.identifier = nameToUse
-
-    //         account = remult.repo(oSafe.Account).create()
-    //         account.provider = keyState
-    //         account.providerUserId = info.providerUserId
-    //         account.token = tokens.accessToken
-    //         account.userId = user.id
-    //         account.lastVerifiedAt = new Date()
-
-    //         await remult.repo(oSafe.User).save(user)
-    //         await remult.repo(oSafe.Account).save(account)
-    //       } else {
-    //         account.token = tokens.accessToken
-    //         await remult.repo(oSafe.Account).save(account)
-    //       }
-
-    //       // await createOrExtendSession(account.userId)
-
-    //       event.cookies.delete(`${keyState}_oauth_state`, { path: '/' })
-    //       event.cookies.delete(`code_verifier`, { path: '/' })
-    //     }
-
-    //     redirect(302, redirectUrl)
-    //   }
-    //   return { early: false }
-    // },
     initApi: async () => {
-      await initRoleFromEnv(logAuth, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.Admin)
-      await initRoleFromEnv(logAuth, oSafe.User, 'FF_ROLE_AUTH_ADMIN', FF_Role_Auth.Admin)
+      await initRoleFromEnv(logAuth, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.FF_Role_Admin)
+      await initRoleFromEnv(
+        logAuth,
+        oSafe.User,
+        'FF_ROLE_AUTH_ADMIN',
+        FF_Role_Auth.FF_Role_Auth_Admin,
+      )
     },
   }
 }

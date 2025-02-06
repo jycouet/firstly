@@ -146,7 +146,7 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
 export const mail: (o?: MailOptions<SvelteComponent>) => Module = (o) => {
   return {
     name: 'mail',
-    index: -778,
+    priority: -778,
     entities: [],
     controllers: [],
     initApi: () => {

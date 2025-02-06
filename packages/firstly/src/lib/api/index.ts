@@ -12,7 +12,7 @@ export type Module = {
    * The name of the module (usefull for logging and debugging purposes)
    */
   name: string
-  index?: number
+  priority?: number
   entities?: ClassType<any>[]
   controllers?: ClassType<any>[]
   initApi?: RemultServerOptions<RequestEvent>['initApi']
@@ -116,6 +116,6 @@ export const modulesFlatAndOrdered = (modules: Module[]): Module[] => {
   }
 
   const flatModules = flattenModules(modules)
-  flatModules.sort((a, b) => (a.index || 0) - (b.index || 0))
+  flatModules.sort((a, b) => (a.priority || 0) - (b.priority || 0))
   return flatModules
 }
