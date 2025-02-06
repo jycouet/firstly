@@ -6,7 +6,6 @@ import { Log } from '@kitql/helpers'
 import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
 import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
 import type { ColumnDeciderArgs } from './changeLog/index.js'
-import { default as DefaultMail } from './mail/templates/DefaultMail.svelte'
 import { storeItem } from './storeItem.js'
 import { storeList } from './storeList.js'
 import { default as Button } from './ui/Button.svelte'
@@ -45,7 +44,6 @@ export {
   FieldContainer,
   SelectMelt,
   Clipboardable,
-  DefaultMail,
 }
 
 // ******************************
@@ -142,14 +140,6 @@ export type { FF_Icon }
 // Additions to Remult
 // ******************************
 declare module 'remult' {
-  export interface RemultContext {
-    // TODO REMOVE
-    url: URL
-    setHeaders(headers: Record<string, string>): void
-    setCookie(...args: Parameters<RequestEvent['cookies']['set']>): void
-    deleteCookie(...args: Parameters<RequestEvent['cookies']['delete']>): void
-  }
-
   export interface FieldOptions<entityType, valueType> {
     placeholder?: string
 

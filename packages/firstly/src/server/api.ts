@@ -4,6 +4,8 @@ import { FF_Entity } from '$lib'
 import { firstly } from '$lib/api'
 import { FFAuthUser } from '$lib/auth'
 import { auth } from '$lib/auth/server'
+import { mail } from '$lib/mail/server'
+import { sveltekit } from '$lib/sveltekit/server'
 
 // import { github } from '$lib/auth/providers'
 
@@ -26,31 +28,19 @@ export class _AppUser extends FFAuthUser {
 
 // const t: DynamicAuthorizationURLOptions<typeof oAuths> = { github: {} }
 
-export const remultApi = firstly({
-  dataProvider: process.env.CI ? new InMemoryDataProvider() : undefined,
-  mail: {
-    template: {
-      // component: MyCustomThing
-      brandColor: '#E10098',
-    },
-  },
-
+export const api = firstly({
   modules: [
-    {
-      name: 'init',
-      handlePreRemult: async (h) => {
-        h.event.setHeaders({ 'x-remult': 'hello' })
-        return await h.resolve(h.event)
+    sveltekit(),
+    mail({
+      template: {
+        brandColor: '#E10098',
       },
-      earlyReturn: async () => {
-        return {
-          early: false,
-        }
-        // return h.resolve(h.event)
-      },
-    },
+    }),
     auth({
-      sessionExpiresInMs: 1000 * 30,
+      session: {
+        expiresInMs: 1000 * 30,
+        cookieName: 'my_fancy_cookie_name',
+      },
       uiStaticPath: './src/lib/auth/static/',
       customEntities: {
         User: _AppUser,
@@ -64,6 +54,7 @@ export const remultApi = firstly({
       // signUp: false,
 
       verifiedMethod: 'email',
+
       ui: {
         paths: {
           // sign_in: false,
@@ -113,9 +104,9 @@ export const remultApi = firstly({
         //   },
         // })
       },
-      handlePreRemult: async (h) => {
-        return h.resolve(h.event)
-      },
+      // handlePreRemult: async (h) => {
+      //   return h.resolve(h.event)
+      // },
     },
   ],
 })

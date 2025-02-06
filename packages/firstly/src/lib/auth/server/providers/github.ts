@@ -4,9 +4,9 @@ import { remult } from 'remult'
 
 import { env } from '$env/dynamic/private'
 
-import { checkOAuthConfig } from '.'
-import { logAuth } from '..'
-import { type FFOAuth2Provider } from '../server/module'
+import { logAuth } from '../..'
+import { type FFOAuth2Provider } from '../module'
+import { checkOAuthConfig } from './helperProvider'
 
 //------------------------------
 // For developers (future me ?), To do another OAuth2 provider:
@@ -60,7 +60,7 @@ export function github(options?: {
       const redirectURI =
         options?.GITHUB_REDIRECT_URI ??
         env.GITHUB_REDIRECT_URI ??
-        `${remult.context.url.origin}/api/auth_callback`
+        `${remult.context.request.url.origin}/api/auth_callback`
 
       checkOAuthConfig(name, clientID, secret, urlForKeys, true)
 

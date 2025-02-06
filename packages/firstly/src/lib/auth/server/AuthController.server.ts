@@ -1,10 +1,10 @@
 import { generateCodeVerifier, generateState } from 'arctic'
 import { createDate, TimeSpan } from 'oslo'
 
-import { remult } from 'remult'
+import { EntityError, remult } from 'remult'
 import { green, magenta, yellow } from '@kitql/helpers'
 
-import { sendMail } from '../../mail/index.js'
+import { sendMail } from '../../mail/server/index.js'
 import { FFAuthProvider } from '../Entities.js'
 import { logAuth } from '../index.js'
 import { invalidateSession } from './helperDb.js'
@@ -38,7 +38,7 @@ async function passwordHash(password: string) {
 
 function checkPassword(password: string) {
   if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
-    throw Error('Invalid password')
+    throw new EntityError({ message: 'Invalid password' })
   }
 }
 
@@ -60,12 +60,12 @@ export class AuthControllerServer {
   static async signInDemo(name: string) {
     const accounts = AUTH_OPTIONS.providers?.demo ?? []
     if (accounts.length === 0) {
-      throw new Error(`Demo accounts are not enabled!`)
+      throw new EntityError({ message: `Demo accounts are not enabled!` })
     }
 
     const account = accounts.find((a) => a.name === name)
     if (!account) {
-      throw new Error(`${name} not found as demo account!`)
+      throw new EntityError({ message: `${name} not found as demo account!` })
     }
 
     const oSafe = getSafeOptions()
@@ -99,7 +99,7 @@ export class AuthControllerServer {
       },
     })
     if (existingAccount) {
-      // throw Error("Already invited !")
+      // Already invited, it's all good.
     } else {
       const token = generateAndEncodeToken()
 
@@ -121,7 +121,7 @@ export class AuthControllerServer {
         lastVerifiedAt: undefined,
       })
 
-      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
+      const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
 
       if (AUTH_OPTIONS?.invitationSend) {
         await AUTH_OPTIONS?.invitationSend({ email, url })
@@ -169,11 +169,11 @@ export class AuthControllerServer {
     const oSafe = getSafeOptions()
 
     if (!oSafe.signUp) {
-      throw Error("You can't signup by yourself! Contact the administrator.")
+      throw new EntityError({ message: "You can't signup by yourself! Contact the administrator." })
     }
 
     if (!oSafe.password_enabled) {
-      throw Error('Password is not enabled!')
+      throw new EntityError({ message: 'Password is not enabled!' })
     }
 
     const existingAccount = await remult.repo(oSafe.Account).findOne({
@@ -183,7 +183,7 @@ export class AuthControllerServer {
       },
     })
     if (existingAccount) {
-      throw Error("You can't signup twice !")
+      throw new EntityError({ message: "You can't signup twice !" })
     }
 
     checkPassword(password)
@@ -217,7 +217,7 @@ export class AuthControllerServer {
         await ff_createSession(user.id)
       }
     } else {
-      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
+      const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.verifyMailSend) {
         await AUTH_OPTIONS.providers?.password.verifyMailSend({ email, url })
         logAuth.success(`${green('[custom]')}${magenta('[verifyMailSend]')} (${yellow(url)})`)
@@ -257,7 +257,7 @@ export class AuthControllerServer {
     const oSafe = getSafeOptions()
 
     if (!oSafe.password_enabled) {
-      throw Error('Password is not enabled!')
+      throw new EntityError({ message: 'Password is not enabled!' })
     }
 
     const existingAccount = await remult.repo(oSafe.Account).findOne({
@@ -277,10 +277,10 @@ export class AuthControllerServer {
 
         return 'ok'
       }
-      throw Error('Incorrect username or password')
+      throw new EntityError({ message: 'Incorrect username or password' })
     }
 
-    throw Error('Incorrect username or password.')
+    throw new EntityError({ message: 'Incorrect username or password.' })
   }
 
   /**
@@ -291,7 +291,7 @@ export class AuthControllerServer {
     const oSafe = getSafeOptions()
 
     if (!oSafe.password_enabled) {
-      throw Error('Password is not enabled!')
+      throw new EntityError({ message: 'Password is not enabled!' })
     }
 
     const existingAccount = await remult.repo(oSafe.Account).findOne({
@@ -310,7 +310,7 @@ export class AuthControllerServer {
 
       await remult.repo(oSafe.Account).save(existingAccount)
 
-      const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
+      const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.resetPasswordSend) {
         await AUTH_OPTIONS.providers?.password.resetPasswordSend({ email, url })
         logAuth.success(`${green('[custom]')}${magenta('[resetPasswordSend]')} (${yellow(url)})`)
@@ -343,7 +343,7 @@ export class AuthControllerServer {
         return 'Demo Mail sent !'
       }
     }
-    throw new Error("Une erreur est survenue, contacte l'administrateur!")
+    throw new EntityError({ message: "Une erreur est survenue, contacte l'administrateur!" })
   }
 
   /**
@@ -353,7 +353,7 @@ export class AuthControllerServer {
     const oSafe = getSafeOptions()
 
     if (!oSafe.password_enabled) {
-      throw Error('Password is not enabled!')
+      throw new EntityError({ message: 'Password is not enabled!' })
     }
 
     const account = await remult
@@ -361,10 +361,10 @@ export class AuthControllerServer {
       .findFirst({ token, provider: FFAuthProvider.PASSWORD.id })
 
     if (!account) {
-      throw new Error('Invalid token')
+      throw new EntityError({ message: 'Invalid token' })
     }
     if (account.expiresAt && account.expiresAt < new Date()) {
-      throw new Error('token expired')
+      throw new EntityError({ message: 'token expired' })
     }
     checkPassword(password)
 
@@ -394,7 +394,7 @@ export class AuthControllerServer {
     const oSafe = getSafeOptions()
 
     if (!oSafe.otp_enabled) {
-      throw new Error(`OPT is not enabled!`)
+      throw new EntityError({ message: `OPT is not enabled!` })
     }
 
     if (AUTH_OPTIONS.providers?.otp?.send) {
@@ -456,13 +456,13 @@ export class AuthControllerServer {
     })
 
     if (accounts.length === 0) {
-      throw new Error('Invalid otp')
+      throw new EntityError({ message: 'Invalid otp' })
     }
     const account = accounts[0]
     const user = await remult.repo(oSafe.User).findId(account.userId)
 
     if (user?.identifier !== email) {
-      throw new Error('Invalid otp.')
+      throw new EntityError({ message: 'Invalid otp.' })
     }
 
     const { decodeHex } = await import('oslo/encoding')
@@ -473,7 +473,7 @@ export class AuthControllerServer {
     const validOTP = await new TOTPController().verify(String(otp), secretDecoded)
 
     if (!validOTP) {
-      throw new Error('Invalid otp!')
+      throw new EntityError({ message: 'Invalid otp!' })
     }
     await invalidateSession(account.userId)
 
@@ -532,7 +532,7 @@ export class AuthControllerServer {
         const url = await arcticProvider.createAuthorizationURL(...args)
 
         if (!url) {
-          throw new Error('No url returned')
+          throw new EntityError({ message: 'No url returned' })
         }
 
         setOAuthStateCookie(o.provider, state)
@@ -545,12 +545,12 @@ export class AuthControllerServer {
       } catch (error) {
         // display error for the server only
         logAuth.error(error)
-        throw new Error(`${o.provider} not well configured!`)
+        throw new EntityError({ message: `${o.provider} not well configured!` })
       }
     }
 
-    throw new Error(
-      `${o.provider} is not configured! (Module: auth, section: providers.oAuths: [${o.provider}] missing)`,
-    )
+    throw new EntityError({
+      message: `${o.provider} is not configured! (Module: auth, section: providers.oAuths: [${o.provider}] missing)`,
+    })
   }
 }

@@ -1,5 +1,4 @@
 import type { Handle, RequestEvent } from '@sveltejs/kit'
-import nodemailer from 'nodemailer'
 
 import { remult, type ClassType } from 'remult'
 import { remultSveltekit } from 'remult/remult-sveltekit'
@@ -7,8 +6,6 @@ import type { RemultServerOptions } from 'remult/server'
 import { Log } from '@kitql/helpers'
 
 import { building } from '$app/environment'
-
-import { mailInit, type MailOptions } from '../mail'
 
 export type Module = {
   /**
@@ -20,18 +17,18 @@ export type Module = {
   controllers?: ClassType<any>[]
   initApi?: RemultServerOptions<RequestEvent>['initApi']
   initRequest?: RemultServerOptions<RequestEvent>['initRequest']
-  handlePreRemult?: Handle
-  handlePosRemult?: Handle
-  earlyReturn?: (
-    input: Parameters<Handle>[0],
-  ) => Promise<{ early: false; resolve?: undefined } | { early: true; resolve: ReturnType<Handle> }>
+  // handlePreRemult?: Handle
+  // handlePosRemult?: Handle
+  // earlyReturn?: (
+  //   input: Parameters<Handle>[0],
+  // ) => Promise<{ early: false; resolve?: undefined } | { early: true; resolve: ReturnType<Handle> }>
   modules?: Module[]
 }
 
 type Options = Omit<
   RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
     modules?: Module[] | undefined
-    mail?: MailOptions<any>
+    // mail?: MailOptions<any>
     // log?: boolean | string
   },
   'entities' | 'controllers' | 'initRequest' | 'initApi'
@@ -44,76 +41,63 @@ export const firstly = (o: Options) => {
   const modulesSorted = modulesFlatAndOrdered(o.modules ?? [])
   const entities = modulesSorted.flatMap((m) => m.entities ?? [])
 
-  mailInit(nodemailer, o.mail)
+  // mailInit(nodemailer, o.mail)
 
-  return {
-    modulesSorted: modulesSorted,
+  // return {
+  //   modulesSorted: modulesSorted,
 
+  //   entities,
+
+  // }
+  return remultSveltekit({
+    // Changing the default default of remult
+    logApiEndPoints: false,
+    admin: true,
+    defaultGetLimit: 25,
+    error: o.error
+      ? o.error
+      : async (e) => {
+          // REMULT P2: validation error should probably be 409
+          // if 400 we move to 409
+          if (e.httpStatusCode == 400) {
+            e.sendError(409, e.responseBody)
+          }
+        },
+    // Add user configuration
+    ...o,
+
+    // Module part
     entities,
-
-    server: remultSveltekit({
-      // Changing the default default of remult
-      logApiEndPoints: false,
-      admin: true,
-      defaultGetLimit: 25,
-      error: o.error
-        ? o.error
-        : async (e) => {
-            // REMULT P2: validation error should probably be 409
-            // if 400 we move to 409
-            if (e.httpStatusCode == 400) {
-              e.sendError(409, e.responseBody)
-            }
-          },
-      // Add user configuration
-      ...o,
-
-      // Module part
-      entities,
-      controllers: modulesSorted.flatMap((m) => m.controllers ?? []),
-      initRequest: async (kitEvent, op) => {
-        // usefull for later...
-        remult.context.url = kitEvent.url
-
-        remult.context.setHeaders = (headers) => {
-          kitEvent.setHeaders(headers)
+    controllers: modulesSorted.flatMap((m) => m.controllers ?? []),
+    initRequest: async (kitEvent, op) => {
+      for (let i = 0; i < modulesSorted.length; i++) {
+        const f = modulesSorted[i].initRequest
+        if (f) {
+          try {
+            await f(kitEvent, op)
+          } catch (error) {
+            const log = new Log(`firstly | ${modulesSorted[i].name}`)
+            log.error(error)
+          }
         }
-        remult.context.setCookie = (name, value, opts) => {
-          kitEvent.cookies.set(name, value, opts)
-        }
-        remult.context.deleteCookie = (name, opts) => {
-          kitEvent.cookies.delete(name, opts)
-        }
-
+      }
+    },
+    initApi: async (r) => {
+      if (!building) {
         for (let i = 0; i < modulesSorted.length; i++) {
-          const f = modulesSorted[i].initRequest
+          const f = modulesSorted[i].initApi
           if (f) {
             try {
-              await f(kitEvent, op)
+              await f(r)
             } catch (error) {
               const log = new Log(`firstly | ${modulesSorted[i].name}`)
               log.error(error)
             }
           }
         }
-      },
-      initApi: async (r) => {
-        if (!building) {
-          for (let i = 0; i < modulesSorted.length; i++) {
-            const f = modulesSorted[i].initApi
-            if (f) {
-              try {
-                await f(r)
-              } catch (error) {
-                const log = new Log(`firstly | ${modulesSorted[i].name}`)
-                log.error(error)
-              }
-            }
-          }
-        }
-      },
-    }),
-  }
+      }
+    },
+  })
 }
 
 /**

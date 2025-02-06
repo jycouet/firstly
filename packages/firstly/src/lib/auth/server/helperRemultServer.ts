@@ -6,7 +6,7 @@ import { getSafeOptions } from './module'
 
 export function setSessionTokenCookie(token: string, expiresAt: Date) {
   const oSafe = getSafeOptions()
-  remult.context.setCookie(oSafe.sessionCookieName, token, {
+  remult.context.setCookie(oSafe.session.cookieName, token, {
     expires: expiresAt,
     path: '/',
   })
@@ -14,7 +14,7 @@ export function setSessionTokenCookie(token: string, expiresAt: Date) {
 
 export function deleteSessionTokenCookie() {
   const oSafe = getSafeOptions()
-  remult.context.deleteCookie(oSafe.sessionCookieName, {
+  remult.context.deleteCookie(oSafe.session.cookieName, {
     path: '/',
   })
 }

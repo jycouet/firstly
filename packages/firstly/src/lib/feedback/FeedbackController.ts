@@ -1,13 +1,13 @@
-import { Allow, BackendMethod, remult } from 'remult'
+import { Allow, BackendMethod, EntityError, remult } from 'remult'
 import { stry } from '@kitql/helpers'
 
-import { FEEDBACK_OPTIONS } from '.'
+import { FEEDBACK_OPTIONS } from './server'
 
 const GITHUB_GRAPHQL_ENDPOINT = 'https://api.github.com/graphql'
 
 async function getGitHub(query: string, variables?: Record<string, any>) {
   if (!FEEDBACK_OPTIONS.GITHUB_API_TOKEN) {
-    throw new Error('GITHUB_API_TOKEN not found in .env')
+    throw new EntityError({ message: 'GITHUB_API_TOKEN not found in .env' })
   }
 
   try {

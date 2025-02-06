@@ -1,7 +1,8 @@
+import { EntityError } from 'remult'
 import { cyan, gray, green, italic, yellow } from '@kitql/helpers'
 
-import { logAuth } from '..'
-import { mask } from '../../formats/strings'
+import { logAuth } from '../..'
+import { mask } from '../../../formats/strings'
 
 export const checkOAuthConfig = (
   name: string,
@@ -23,12 +24,9 @@ export const checkOAuthConfig = (
   Check ${cyan(urlForKeys)} to generate your keys.
 `
     if (withThrow) {
-      throw new Error(msg)
+      throw new EntityError({ message: msg })
     } else {
       logAuth.error(msg)
     }
   }
 }
-
-export { github } from './github'
-export { strava } from './strava'

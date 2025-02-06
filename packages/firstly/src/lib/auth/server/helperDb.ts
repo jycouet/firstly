@@ -9,7 +9,7 @@ export async function createSession(token: string, userId: string) {
   const session = await repo(oSafe.Session).insert({
     id: sessionId,
     userId,
-    expiresAt: new Date(Date.now() + oSafe.sessionExpiresInMs),
+    expiresAt: new Date(Date.now() + oSafe.session.expiresInMs),
   })
 
   return session
@@ -51,10 +51,10 @@ export async function validateSessionToken(token: string): Promise<{
   }
 
   // To not renew non stop... Let's wait 10% of the session expires
-  const renewSession = Date.now() >= session.expiresAt.getTime() - oSafe.sessionExpiresInMs * 0.9
+  const renewSession = Date.now() >= session.expiresAt.getTime() - oSafe.session.expiresInMs * 0.9
 
   if (renewSession) {
-    session.expiresAt = new Date(Date.now() + oSafe.sessionExpiresInMs)
+    session.expiresAt = new Date(Date.now() + oSafe.session.expiresInMs)
     await repo(oSafe.Session).update(sessionId, { expiresAt: session.expiresAt })
     return { user, freshSession: { sessionToken: token, expiresAt: session.expiresAt } }
   }

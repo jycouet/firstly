@@ -2,7 +2,7 @@ import { CronJob } from 'cron'
 
 import { green, Log, magenta, red, yellow } from '@kitql/helpers'
 
-import type { Module } from '../api'
+import type { Module } from '../../api'
 
 const log = new Log('firstly | cron')
 

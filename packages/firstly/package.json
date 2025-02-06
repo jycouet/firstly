@@ -111,25 +111,37 @@
       "types": "./esm/auth/server/index.d.ts",
       "default": "./esm/auth/server/index.js"
     },
-    "./auth/providers": {
-      "types": "./esm/auth/providers/index.d.ts",
-      "default": "./esm/auth/providers/index.js"
+    "./changeLog": {
+      "types": "./esm/changeLog/index.d.ts",
+      "default": "./esm/changeLog/index.js"
+    },
+    "./changeLog/server": {
+      "types": "./esm/changeLog/server/index.d.ts",
+      "default": "./esm/changeLog/server/index.js"
+    },
+    "./cron/server": {
+      "types": "./esm/cron/server/index.d.ts",
+      "default": "./esm/cron/server/index.js"
     },
     "./feedback": {
       "types": "./esm/feedback/index.d.ts",
       "default": "./esm/feedback/index.js"
     },
-    "./changeLog": {
-      "types": "./esm/changeLog/index.d.ts",
-      "default": "./esm/changeLog/index.js"
-    },
+    "./feedback/server": {
+      "types": "./esm/feedback/server/index.d.ts",
+      "default": "./esm/feedback/server/index.js"
+    },    
     "./mail": {
       "types": "./esm/mail/index.d.ts",
       "default": "./esm/mail/index.js"
     },
-    "./cron": {
-      "types": "./esm/cron/index.d.ts",
-      "default": "./esm/cron/index.js"
+    "./mail/server": {
+      "types": "./esm/mail/server/index.d.ts",
+      "default": "./esm/mail/server/index.js"
+    },
+    "./sveltekit/server": {
+      "types": "./esm/sveltekit/server/index.d.ts",
+      "default": "./esm/sveltekit/server/index.js"
     }
   },
   "files": [
