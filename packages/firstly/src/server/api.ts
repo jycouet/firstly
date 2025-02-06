@@ -55,7 +55,7 @@ export const api = firstly({
       //   },
       // },
 
-      signUp: false,
+      // signUp: false,
 
       verifiedMethod: 'email',
 
@@ -66,7 +66,11 @@ export const api = firstly({
       },
       debug: true,
       providers: {
-        demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.Admin] }],
+        demo: [
+          { name: 'Noam' },
+          { name: 'Ermin' },
+          { name: 'JYC', roles: [Role.Admin, Role.FF_Role_Admin] },
+        ],
 
         password: {
           //   verifyMailSend: async () => {},

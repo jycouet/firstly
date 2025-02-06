@@ -64,5 +64,8 @@ export async function validateSessionToken(token: string): Promise<{
 
 export async function invalidateSession(sessionId: string) {
   const oSafe = getSafeOptions()
-  await repo(oSafe.Session).delete(sessionId)
+  try {
+    // silent error. If the session is already deleted, it will throw an error
+    await repo(oSafe.Session).delete(sessionId)
+  } catch (error) {}
 }

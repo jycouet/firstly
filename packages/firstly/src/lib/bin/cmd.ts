@@ -237,10 +237,7 @@ export const handle = sequence(firstly(api))
   './src/routes/api/[...remult]/+server.ts': [
     `import { api } from '${libAlias}/firstly'
 
-export const GET = api.server.GET
-export const POST = api.server.POST
-export const PUT = api.server.PUT
-export const DELETE = api.server.DELETE
+export const { GET, POST, PUT, DELETE } = api
 `,
   ],
   './src/routes/+page.svelte': [`Home 👋`, ``],

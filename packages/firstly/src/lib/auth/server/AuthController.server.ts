@@ -94,6 +94,7 @@ export class AuthControllerServer {
    */
   static async invite(emailParam: string) {
     const email = emailParam.toLowerCase()
+
     const oSafe = getSafeOptions()
 
     const existingAccount = await repo(oSafe.Account).findOne({

@@ -303,17 +303,19 @@ export const auth: (o: AuthOptions) => Module = (o) => {
   AUTH_OPTIONS = o
   const oSafe = getSafeOptions()
 
-  // abstract the call
-  AuthController.signOutFn = AuthControllerServer.signOut
-  AuthController.signInDemoFn = AuthControllerServer.signInDemo
-  AuthController.inviteFn = AuthControllerServer.invite
-  AuthController.signUpPasswordFn = AuthControllerServer.signUpPassword
-  AuthController.signInPasswordFn = AuthControllerServer.signInPassword
-  AuthController.forgotPasswordFn = AuthControllerServer.forgotPassword
-  AuthController.resetPasswordFn = AuthControllerServer.resetPassword
-  AuthController.signInOTPFn = AuthControllerServer.signInOTP
-  AuthController.verifyOtpFn = AuthControllerServer.verifyOtp
-  AuthController.signInOAuthGetUrlFn = AuthControllerServer.signInOAuthGetUrl
+  // Replace the direct assignments with the new _setImplementation method
+  AuthController._setAbstraction({
+    signOut: AuthControllerServer.signOut,
+    signInDemo: AuthControllerServer.signInDemo,
+    invite: AuthControllerServer.invite,
+    signUpPassword: AuthControllerServer.signUpPassword,
+    signInPassword: AuthControllerServer.signInPassword,
+    forgotPassword: AuthControllerServer.forgotPassword,
+    resetPassword: AuthControllerServer.resetPassword,
+    signInOTP: AuthControllerServer.signInOTP,
+    verifyOtp: AuthControllerServer.verifyOtp,
+    signInOAuthGetUrl: AuthControllerServer.signInOAuthGetUrl,
+  })
 
   authModuleRaw.entities = [oSafe.User, oSafe.Session, oSafe.Account]
   authModuleRaw.controllers = [AuthController]

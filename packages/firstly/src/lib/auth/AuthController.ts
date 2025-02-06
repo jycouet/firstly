@@ -3,34 +3,49 @@ import { Allow, BackendMethod } from 'remult'
 import type { AuthorizationURLOptions } from './server/module'
 
 export class AuthController {
-  // Do not show for firstly users ?
-  /** DO NOT USE */
-  static signOutFn: any
-  /** DO NOT USE */
-  static signInDemoFn: any
-  /** DO NOT USE */
-  static inviteFn: any
-  /** DO NOT USE */
-  static signUpPasswordFn: any
-  /** DO NOT USE */
-  static signInPasswordFn: any
-  /** DO NOT USE */
-  static forgotPasswordFn: any
-  /** DO NOT USE */
-  static resetPasswordFn: any
-  /** DO NOT USE */
-  static signInOTPFn: any
-  /** DO NOT USE */
-  static verifyOtpFn: any
-  /** DO NOT USE */
-  static signInOAuthGetUrlFn: any
+  // Private static fields
+  static #signOutFn: any
+  static #signInDemoFn: any
+  static #inviteFn: any
+  static #signUpPasswordFn: any
+  static #signInPasswordFn: any
+  static #forgotPasswordFn: any
+  static #resetPasswordFn: any
+  static #signInOTPFn: any
+  static #verifyOtpFn: any
+  static #signInOAuthGetUrlFn: any
+
+  // Internal setter method that can be used by the module
+  static _setAbstraction(impl: {
+    signOut: any
+    signInDemo: any
+    invite: any
+    signUpPassword: any
+    signInPassword: any
+    forgotPassword: any
+    resetPassword: any
+    signInOTP: any
+    verifyOtp: any
+    signInOAuthGetUrl: any
+  }) {
+    this.#signOutFn = impl.signOut
+    this.#signInDemoFn = impl.signInDemo
+    this.#inviteFn = impl.invite
+    this.#signUpPasswordFn = impl.signUpPassword
+    this.#signInPasswordFn = impl.signInPassword
+    this.#forgotPasswordFn = impl.forgotPassword
+    this.#resetPasswordFn = impl.resetPassword
+    this.#signInOTPFn = impl.signInOTP
+    this.#verifyOtpFn = impl.verifyOtp
+    this.#signInOAuthGetUrlFn = impl.signInOAuthGetUrl
+  }
 
   /**
    * Sign out the current user
    */
   @BackendMethod({ allowed: true })
   static async signOut() {
-    return await AuthController.signOutFn()
+    return await AuthController.#signOutFn()
   }
 
   /**
@@ -39,7 +54,7 @@ export class AuthController {
    */
   @BackendMethod({ allowed: true })
   static async signInDemo(name: string) {
-    return await AuthController.signInDemoFn(name)
+    return await AuthController.#signInDemoFn(name)
   }
 
   /**
@@ -47,7 +62,7 @@ export class AuthController {
    */
   @BackendMethod({ allowed: Allow.authenticated })
   static async invite(email: string) {
-    return await AuthController.inviteFn(email)
+    return await AuthController.#inviteFn(email)
   }
 
   /**
@@ -55,7 +70,7 @@ export class AuthController {
    */
   @BackendMethod({ allowed: true })
   static async signUpPassword(email: string, password: string) {
-    return await AuthController.signUpPasswordFn(email, password)
+    return await AuthController.#signUpPasswordFn(email, password)
   }
 
   /**
@@ -63,7 +78,7 @@ export class AuthController {
    */
   @BackendMethod({ allowed: true })
   static async signInPassword(email: string, password: string) {
-    return await AuthController.signInPasswordFn(email, password)
+    return await AuthController.#signInPasswordFn(email, password)
   }
 
   /**
@@ -71,7 +86,7 @@ export class AuthController {
    */
   @BackendMethod({ allowed: true })
   static async forgotPassword(email: string) {
-    return await AuthController.forgotPasswordFn(email)
+    return await AuthController.#forgotPasswordFn(email)
   }
 
   /**
@@ -79,13 +94,13 @@ export class AuthController {
    */
   @BackendMethod({ allowed: true })
   static async resetPassword(token: string, password: string) {
-    return await AuthController.resetPasswordFn(token, password)
+    return await AuthController.#resetPasswordFn(token, password)
   }
 
   /** OTP */
   @BackendMethod({ allowed: true })
   static async signInOTP(email: string) {
-    return await AuthController.signInOTPFn(email)
+    return await AuthController.#signInOTPFn(email)
   }
 
   /**
@@ -93,7 +108,7 @@ export class AuthController {
    */
   @BackendMethod({ allowed: true })
   static async verifyOtp(email: string, otp: string | number) {
-    return await AuthController.verifyOtpFn(email, otp)
+    return await AuthController.#verifyOtpFn(email, otp)
   }
 
   /** OAUTH */
@@ -115,6 +130,6 @@ export class AuthController {
     options?: AuthorizationURLOptions[T]
     redirect?: string
   }) {
-    return await AuthController.signInOAuthGetUrlFn(o)
+    return await AuthController.#signInOAuthGetUrlFn(o)
   }
 }
