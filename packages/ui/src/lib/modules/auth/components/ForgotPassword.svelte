@@ -1,6 +1,6 @@
 <script lang="ts">
   import { isError } from '../../../../../../firstly/src/lib'
-  import { Auth } from '../../../../../../firstly/src/lib/auth/client'
+  import { AuthController } from '../../../../../../firstly/src/lib/auth'
   import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
   import { autofocus } from '../helpers'
 
@@ -15,7 +15,7 @@
     // msgError = ''
     // msgSuccess = ''
     try {
-      await Auth.forgotPassword(email)
+      await AuthController.forgotPassword(email)
       window.location.href = '/ff/auth/sign-in'
     } catch (error) {
       if (isError(error)) {

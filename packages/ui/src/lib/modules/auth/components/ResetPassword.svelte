@@ -1,6 +1,6 @@
 <script lang="ts">
   import { isError } from '../../../../../../firstly/src/lib'
-  import { Auth } from '../../../../../../firstly/src/lib/auth/client'
+  import { AuthController } from '../../../../../../firstly/src/lib/auth'
   import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 
   // eslint-disable-next-line
@@ -16,7 +16,7 @@
     msgSuccess = ''
     const token = new URL(location.href).searchParams.get('token')
     try {
-      await Auth.resetPassword(token ?? '', password1)
+      await AuthController.resetPassword(token ?? '', password1)
       window.location.href = '/'
     } catch (error) {
       if (isError(error)) {
