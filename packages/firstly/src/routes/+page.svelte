@@ -1,7 +1,7 @@
 <script lang="ts">
   import { remult } from 'remult'
 
-  import { Auth } from '$lib/auth/client'
+  import { AuthController } from '$lib/auth'
   import Button from '$lib/ui/Button.svelte'
 </script>
 
@@ -15,7 +15,7 @@
         <Button
           class="btn-outline btn-warning"
           on:click={async () => {
-            await Auth.signOut()
+            await AuthController.signOut()
             window.location.href = '/'
           }}
         >

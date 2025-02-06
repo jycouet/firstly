@@ -2,8 +2,8 @@ import { Fields, InMemoryDataProvider } from 'remult'
 
 import { FF_Entity } from '$lib'
 import { firstly } from '$lib/api'
-import { auth } from '$lib/auth'
-import { FFAuthUser } from '$lib/auth/client'
+import { FFAuthUser } from '$lib/auth'
+import { auth } from '$lib/auth/server'
 
 // import { github } from '$lib/auth/providers'
 
@@ -15,7 +15,7 @@ const Role = {
   dbName: 'app_users',
   // this overrides the default CRUD... So be carefull !
   // allowApiCrud: true,
-  saving(e) {
+  saved(e) {
     console.info(`Yop ${e.identifier} 👋`)
   },
 })
@@ -50,6 +50,7 @@ export const remultApi = firstly({
       },
     },
     auth({
+      sessionExpiresInMs: 1000 * 30,
       uiStaticPath: './src/lib/auth/static/',
       customEntities: {
         User: _AppUser,

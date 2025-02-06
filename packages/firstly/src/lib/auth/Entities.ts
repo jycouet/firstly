@@ -1,7 +1,7 @@
 import { Fields, Relations, Validators, ValueListFieldType } from 'remult'
 
-import { BaseEnum, FF_Entity, FF_Role } from '../..'
-import type { BaseEnumOptions } from '../..'
+import { BaseEnum, FF_Entity, FF_Role } from '..'
+import type { BaseEnumOptions } from '..'
 
 export const FF_Role_Auth = {
   Admin: 'FF_Role_Auth.Admin',
@@ -107,7 +107,7 @@ export class FFAuthAccount {
   changeLog: false,
 })
 export class FFAuthUserSession {
-  @Fields.cuid()
+  @Fields.string()
   id!: string
 
   @Fields.date()

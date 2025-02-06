@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { auth } from '$lib/auth'
+import { auth } from '$lib/auth/server'
 
 import { modulesFlatAndOrdered, type Module } from '.'
 

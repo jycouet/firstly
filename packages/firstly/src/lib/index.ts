@@ -143,6 +143,7 @@ export type { FF_Icon }
 // ******************************
 declare module 'remult' {
   export interface RemultContext {
+    // TODO REMOVE
     url: URL
     setHeaders(headers: Record<string, string>): void
     setCookie(...args: Parameters<RequestEvent['cookies']['set']>): void
@@ -195,12 +196,5 @@ declare module 'remult' {
     permissionApiUpdate?: BaseEnum[] | BaseEnum
 
     changeLog?: false | ColumnDeciderArgs<entityType>
-  }
-
-  export interface UserInfo {
-    session: {
-      id: string
-      expiresAt: Date
-    }
   }
 }

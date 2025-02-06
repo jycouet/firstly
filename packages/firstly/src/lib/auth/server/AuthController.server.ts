@@ -1,17 +1,23 @@
 import { generateCodeVerifier, generateState } from 'arctic'
-import { DEV } from 'esm-env'
-import { generateId } from 'lucia'
 import { createDate, TimeSpan } from 'oslo'
 
 import { remult } from 'remult'
 import { green, magenta, yellow } from '@kitql/helpers'
 
-import { AUTH_OPTIONS, getSafeOptions, lucia, type AuthorizationURLOptions } from '.'
-import { sendMail } from '../mail'
-import { logAuth } from './client'
-import { FFAuthProvider } from './client/Entities.js'
-import { createOrExtendSession } from './helper'
-import { mergeRoles } from './RoleHelpers'
+import { sendMail } from '../../mail/index.js'
+import { FFAuthProvider } from '../Entities.js'
+import { logAuth } from '../index.js'
+import { invalidateSession } from './helperDb.js'
+import { ff_createSession } from './helperFirstly.js'
+import { generateAndEncodeToken } from './helperOslo.js'
+import {
+  deleteSessionTokenCookie,
+  setCodeVerifierCookie,
+  setOAuthStateCookie,
+  setRedirectCookie,
+} from './helperRemultServer.js'
+import { mergeRoles } from './helperRole.js'
+import { AUTH_OPTIONS, getSafeOptions, type AuthorizationURLOptions } from './module.js'
 
 async function getArgon() {
   const { Argon2id } = await import('oslo/password')
@@ -42,15 +48,9 @@ export class AuthControllerServer {
    */
   static async signOut() {
     if (remult.user?.session.id) {
-      await lucia.invalidateSession(remult.user?.session.id)
+      await invalidateSession(remult.user?.session.id)
     }
-    // Lucia is advertising for createBlankSessionCookie (and not delete Cookie)
-    // remult.context.deleteCookie(lucia.sessionCookieName, { path: '/' })
-    const sessionCookie = lucia.createBlankSessionCookie()
-    remult.context.setCookie(sessionCookie.name, sessionCookie.value, {
-      path: '/',
-      ...sessionCookie.attributes,
-    })
+    deleteSessionTokenCookie()
   }
 
   /**
@@ -80,7 +80,7 @@ export class AuthControllerServer {
 
     await remult.repo(oSafe.User).save(user)
 
-    await createOrExtendSession(user.id)
+    await ff_createSession(user.id)
 
     return "You're in with demo account!"
   }
@@ -101,7 +101,7 @@ export class AuthControllerServer {
     if (existingAccount) {
       // throw Error("Already invited !")
     } else {
-      const token = generateId(40)
+      const token = generateAndEncodeToken()
 
       // TODO: Do we create the user or just the account ?!
       // TODO 2: Invite is by mail... But the invitee can log with another provider... So what do we do?! maybe not checking the provider... and updating?
@@ -187,7 +187,7 @@ export class AuthControllerServer {
     }
 
     checkPassword(password)
-    const token = generateId(40)
+    const token = generateAndEncodeToken()
 
     await remult.dataProvider.transaction(async () => {
       const user = await remult.repo(oSafe.User).insert({
@@ -214,7 +214,7 @@ export class AuthControllerServer {
         identifier: email,
       })
       if (user) {
-        await createOrExtendSession(user.id)
+        await ff_createSession(user.id)
       }
     } else {
       const url = `${remult.context.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
@@ -273,7 +273,7 @@ export class AuthControllerServer {
         password ?? '',
       )
       if (validPassword) {
-        await createOrExtendSession(existingAccount.userId)
+        await ff_createSession(existingAccount.userId)
 
         return 'ok'
       }
@@ -302,7 +302,7 @@ export class AuthControllerServer {
     })
 
     if (existingAccount) {
-      const token = generateId(40)
+      const token = generateAndEncodeToken()
       existingAccount.token = token
       existingAccount.expiresAt = createDate(
         new TimeSpan(AUTH_OPTIONS.providers?.password?.resetPasswordExpiresIn ?? 5 * 60, 's'),
@@ -373,7 +373,7 @@ export class AuthControllerServer {
       account.userId = user.id
     }
 
-    await lucia.invalidateUserSessions(account.userId)
+    await invalidateSession(account.userId)
 
     // update elements
     account.hashPassword = await passwordHash(password)
@@ -383,7 +383,7 @@ export class AuthControllerServer {
 
     await remult.repo(oSafe.Account).save(account)
 
-    await createOrExtendSession(account.userId)
+    await ff_createSession(account.userId)
 
     return 'reseted'
   }
@@ -475,7 +475,7 @@ export class AuthControllerServer {
     if (!validOTP) {
       throw new Error('Invalid otp!')
     }
-    await lucia.invalidateUserSessions(account.userId)
+    await invalidateSession(account.userId)
 
     // update elements
     account.hashPassword = undefined
@@ -484,7 +484,7 @@ export class AuthControllerServer {
 
     await remult.repo(oSafe.Account).save(account)
 
-    await createOrExtendSession(account.userId)
+    await ff_createSession(account.userId)
 
     return 'verified'
   }
@@ -518,13 +518,7 @@ export class AuthControllerServer {
           const codeVerifier = generateCodeVerifier()
           args.push(codeVerifier)
 
-          // store code verifier as cookie
-          remult.context.setCookie('code_verifier', codeVerifier, {
-            secure: true, // set to false in localhost
-            path: '/',
-            httpOnly: true,
-            maxAge: 60 * 10, // 10 min
-          })
+          setCodeVerifierCookie(codeVerifier)
         }
 
         if (o.options) {
@@ -541,22 +535,10 @@ export class AuthControllerServer {
           throw new Error('No url returned')
         }
 
-        remult.context.setCookie(`${o.provider}_oauth_state`, state, {
-          path: '/',
-          secure: !DEV,
-          httpOnly: true,
-          maxAge: 60 * 10,
-          sameSite: 'lax',
-        })
+        setOAuthStateCookie(o.provider, state)
 
         if (o.redirect) {
-          remult.context.setCookie(`remult_redirect`, o.redirect, {
-            path: '/',
-            secure: !DEV,
-            httpOnly: true,
-            maxAge: 60 * 10,
-            sameSite: 'lax',
-          })
+          setRedirectCookie(o.redirect)
         }
 
         return url.toString()

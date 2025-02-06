@@ -5,8 +5,8 @@ import { remult } from 'remult'
 import { env } from '$env/dynamic/private'
 
 import { checkOAuthConfig } from '.'
-import { type FFOAuth2Provider } from '../'
-import { logAuth } from '../client'
+import { logAuth } from '..'
+import { type FFOAuth2Provider } from '../server/module'
 
 //------------------------------
 // For developers (future me ?), To do another OAuth2 provider:

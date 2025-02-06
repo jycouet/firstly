@@ -1,8 +1,8 @@
 import { Allow, BackendMethod } from 'remult'
 
-import type { AuthorizationURLOptions } from '..'
+import type { AuthorizationURLOptions } from './server/module'
 
-export class Auth {
+export class AuthController {
   // Do not show for firstly users ?
   /** DO NOT USE */
   static signOutFn: any
@@ -30,7 +30,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async signOut() {
-    return await Auth.signOutFn()
+    return await AuthController.signOutFn()
   }
 
   /**
@@ -39,7 +39,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async signInDemo(name: string) {
-    return await Auth.signInDemoFn(name)
+    return await AuthController.signInDemoFn(name)
   }
 
   /**
@@ -47,7 +47,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: Allow.authenticated })
   static async invite(email: string) {
-    return await Auth.inviteFn(email)
+    return await AuthController.inviteFn(email)
   }
 
   /**
@@ -55,7 +55,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async signUpPassword(email: string, password: string) {
-    return await Auth.signUpPasswordFn(email, password)
+    return await AuthController.signUpPasswordFn(email, password)
   }
 
   /**
@@ -63,7 +63,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async signInPassword(email: string, password: string) {
-    return await Auth.signInPasswordFn(email, password)
+    return await AuthController.signInPasswordFn(email, password)
   }
 
   /**
@@ -71,7 +71,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async forgotPassword(email: string) {
-    return await Auth.forgotPasswordFn(email)
+    return await AuthController.forgotPasswordFn(email)
   }
 
   /**
@@ -79,13 +79,13 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async resetPassword(token: string, password: string) {
-    return await Auth.resetPasswordFn(token, password)
+    return await AuthController.resetPasswordFn(token, password)
   }
 
   /** OTP */
   @BackendMethod({ allowed: true })
   static async signInOTP(email: string) {
-    return await Auth.signInOTPFn(email)
+    return await AuthController.signInOTPFn(email)
   }
 
   /**
@@ -93,7 +93,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async verifyOtp(email: string, otp: string | number) {
-    return await Auth.verifyOtpFn(email, otp)
+    return await AuthController.verifyOtpFn(email, otp)
   }
 
   /** OAUTH */
@@ -115,6 +115,6 @@ export class Auth {
     options?: AuthorizationURLOptions[T]
     redirect?: string
   }) {
-    return await Auth.signInOAuthGetUrlFn(o)
+    return await AuthController.signInOAuthGetUrlFn(o)
   }
 }

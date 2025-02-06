@@ -55,13 +55,14 @@
     "@kitql/internals": "0.9.9",
     "@mdi/js": "^7.4.47",
     "@melt-ui/svelte": "^0.86.2",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
     "@types/nodemailer": "^6.4.15",
     "arctic": "^1.8.0",
     "clsx": "^2.1.1",
     "cron": "^3.1.7",
     "daisyui": "^4.12.14",
     "esm-env": "^1.0.0",
-    "lucia": "^3.2.0",
     "nodemailer": "^6.9.13",
     "oslo": "1.2.1",
     "svelty-email": "^0.0.11",
@@ -106,9 +107,9 @@
       "types": "./esm/auth/index.d.ts",
       "default": "./esm/auth/index.js"
     },
-    "./auth/client": {
-      "types": "./esm/auth/client/index.d.ts",
-      "default": "./esm/auth/client/index.js"
+    "./auth/server": {
+      "types": "./esm/auth/server/index.d.ts",
+      "default": "./esm/auth/server/index.js"
     },
     "./auth/providers": {
       "types": "./esm/auth/providers/index.d.ts",
