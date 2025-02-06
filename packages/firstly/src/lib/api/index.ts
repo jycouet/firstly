@@ -7,7 +7,7 @@ import { Log } from '@kitql/helpers'
 
 import { building } from '$app/environment'
 
-export type Module = {
+export type ModuleInput = {
   /**
    * The name of the module (usefull for logging and debugging purposes)
    */
@@ -17,12 +17,30 @@ export type Module = {
   controllers?: ClassType<any>[]
   initApi?: RemultServerOptions<RequestEvent>['initApi']
   initRequest?: RemultServerOptions<RequestEvent>['initRequest']
-  // handlePreRemult?: Handle
-  // handlePosRemult?: Handle
-  // earlyReturn?: (
-  //   input: Parameters<Handle>[0],
-  // ) => Promise<{ early: false; resolve?: undefined } | { early: true; resolve: ReturnType<Handle> }>
   modules?: Module[]
+}
+
+export class Module {
+  name: string
+  log: Log
+
+  priority?: number
+  entities?: ClassType<any>[]
+  controllers?: ClassType<any>[]
+  initApi?: RemultServerOptions<RequestEvent>['initApi']
+  initRequest?: RemultServerOptions<RequestEvent>['initRequest']
+  modules?: Module[]
+
+  constructor(input: ModuleInput) {
+    this.name = input.name
+    this.log = new Log(`firstly | ${this.name}`)
+    this.priority = input.priority
+    this.entities = input.entities
+    this.controllers = input.controllers
+    this.initApi = input.initApi
+    this.initRequest = input.initRequest
+    this.modules = input.modules
+  }
 }
 
 type Options = Omit<
@@ -76,8 +94,7 @@ export const firstly = (o: Options) => {
           try {
             await f(kitEvent, op)
           } catch (error) {
-            const log = new Log(`firstly | ${modulesSorted[i].name}`)
-            log.error(error)
+            modulesSorted[i].log.error(error)
           }
         }
       }
@@ -90,8 +107,7 @@ export const firstly = (o: Options) => {
             try {
               await f(r)
             } catch (error) {
-              const log = new Log(`firstly | ${modulesSorted[i].name}`)
-              log.error(error)
+              modulesSorted[i].log.error(error)
             }
           }
         }

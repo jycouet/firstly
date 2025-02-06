@@ -12,7 +12,7 @@ import { render } from 'svelty-email'
 
 import { cyan, green, Log, magenta, red, sleep, white } from '@kitql/helpers'
 
-import type { Module } from '../../api'
+import { Module } from '../../api'
 import { default as DefaultMail } from '../templates/DefaultMail.svelte'
 
 export type TransportTypes =
@@ -52,8 +52,6 @@ export type MailOptions<ComponentTemplateDefault extends SvelteComponent> = {
   apiUrl?: Parameters<typeof typeNodemailer.createTestAccount>[0]
 }
 
-const log = new Log('firstly | mail')
-
 let transporter: ReturnType<typeof typeNodemailer.createTransport>
 
 let globalOptions: MailOptions<SvelteComponent> | undefined
@@ -79,11 +77,11 @@ const initMail: (o?: MailOptions<SvelteComponent>) => void = async (o) => {
             },
           })
         } else {
-          log.error("Error nodemailer.createTestAccount() can't be done.")
+          mailModule.log.error("Error nodemailer.createTestAccount() can't be done.")
         }
       })
     } catch (error) {
-      log.error("Error nodemailer.createTestAccount() can't be done.")
+      mailModule.log.error("Error nodemailer.createTestAccount() can't be done.")
     }
   }
 }
@@ -119,7 +117,7 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
       ...{ from: mailOptions.from ?? globalOptions?.from },
     })
     if (!globalOptions?.transport) {
-      log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
+      mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
                  We are still nice and generated you an email preview link: 
                  👉 ${cyan(
                    String(
@@ -133,24 +131,24 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
                  To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
       `)
     } else {
-      log.success(
+      mailModule.log.success(
         `${magenta(`[${topic}]`)} - Sent to ${typeof mailOptions.to === 'string' ? green(mailOptions.to) : mailOptions.to}`,
       )
     }
     return info
   } catch (error) {
-    log.error(`${magenta(`[${topic}]`)} - Error`, error)
+    mailModule.log.error(`${magenta(`[${topic}]`)} - Error`, error)
   }
 }
 
+const mailModule = new Module({
+  name: 'mail',
+  priority: -778,
+})
+
 export const mail: (o?: MailOptions<SvelteComponent>) => Module = (o) => {
-  return {
-    name: 'mail',
-    priority: -778,
-    entities: [],
-    controllers: [],
-    initApi: () => {
-      initMail(o)
-    },
+  mailModule.initApi = () => {
+    initMail(o)
   }
+  return mailModule
 }

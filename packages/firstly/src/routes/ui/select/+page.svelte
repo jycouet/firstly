@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { remult } from 'remult'
+  import { repo } from 'remult'
 
   import { storeItem } from '$lib'
   import { cellsBuildor } from '$lib/cellsBuildor'
   import FieldGroup from '$lib/ui/FieldGroup.svelte'
   import { UIEntity } from '$lib/virtual/UIEntity'
 
-  const repo = remult.repo(UIEntity)
+  const repoUi = repo(UIEntity)
 
-  const cells = cellsBuildor(repo, ['state'])
+  const cells = cellsBuildor(repoUi, ['state'])
 
-  const store = storeItem(repo)
+  const store = storeItem(repoUi)
   store.fetch(-1)
 </script>
 

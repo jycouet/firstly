@@ -19,6 +19,8 @@ const typeQuery = new Map<string, string>([
 const keys = ['FROM', 'WHERE', 'LIMIT', 'OFFSET']
 const typeQueryKey = Array.from(typeQuery.keys())
 
+const log = new Log('')
+
 export const FF_LogToConsole = (
   duration: number,
   query: string,
@@ -126,5 +128,3 @@ export const FF_LogToConsole = (
     return toLog
   }
 }
-
-const log = new Log('')

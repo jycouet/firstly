@@ -4,8 +4,7 @@ import { remult } from 'remult'
 
 import { env } from '$env/dynamic/private'
 
-import { logAuth } from '../..'
-import { type FFOAuth2Provider } from '../module'
+import { authModule, type FFOAuth2Provider } from '../module'
 import { checkOAuthConfig } from './helperProvider'
 
 /**
@@ -68,7 +67,7 @@ export function strava(options?: {
       })
       const user = await res.json()
       if (options?.log) {
-        logAuth.info(`user`, user)
+        authModule.log.info(`user`, user)
       }
       return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
     },

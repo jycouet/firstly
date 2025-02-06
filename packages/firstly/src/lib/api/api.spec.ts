@@ -2,17 +2,20 @@ import { describe, expect, it } from 'vitest'
 
 import { auth } from '$lib/auth/server'
 
-import { modulesFlatAndOrdered, type Module } from '.'
+import { Module, modulesFlatAndOrdered } from '.'
 
 describe('api', () => {
   it('flatten modules', () => {
     const modules: Module[] = [
-      { name: 'init', modules: [{ name: 'a' }, { name: 'b' }] },
-      { name: 'main' },
+      new Module({ name: 'init', modules: [new Module({ name: 'a' }), new Module({ name: 'b' })] }),
+      new Module({ name: 'main' }),
       auth({}),
-      { name: 'main last', priority: 100 },
-      { name: 'prio', priority: -1000 },
-      { name: 'the end', modules: [{ name: 'd' }, { name: 'c' }] },
+      new Module({ name: 'main last', priority: 100 }),
+      new Module({ name: 'prio', priority: -1000 }),
+      new Module({
+        name: 'the end',
+        modules: [new Module({ name: 'd' }), new Module({ name: 'c' })],
+      }),
     ]
 
     console.time('flatten')

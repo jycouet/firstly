@@ -1,4 +1,4 @@
-import type { Module } from '../../api'
+import { Module } from '../../api'
 import { FeedbackController } from '../FeedbackController'
 
 type FeedbackOptions = {
@@ -23,8 +23,8 @@ export let FEEDBACK_OPTIONS: FeedbackOptions = {
 export const feedback: (o: FeedbackOptions) => Module = (o) => {
   FEEDBACK_OPTIONS = o
 
-  return {
+  return new Module({
     name: 'feedback',
     controllers: [FeedbackController],
-  }
+  })
 }

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { InMemoryDataProvider } from 'remult'
 
 import { isError } from '$lib'
-import { firstly } from '$lib/api'
+import { firstly, Module } from '$lib/api'
 
 import { AuthControllerServer } from './server/AuthController.server'
 import { auth } from './server/module'
@@ -22,7 +22,7 @@ describe('test auth controller', () => {
         auth({
           providers: { demo: [{ name: 'Noam' }] },
         }),
-        {
+        new Module({
           name: 'test',
           initApi: async () => {
             try {
@@ -36,7 +36,7 @@ describe('test auth controller', () => {
               }
             }
           },
-        },
+        }),
       ],
     })
   })

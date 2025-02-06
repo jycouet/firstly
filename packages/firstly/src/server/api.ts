@@ -1,7 +1,7 @@
 import { Fields } from 'remult'
 
 import { FF_Entity, FF_Role } from '$lib'
-import { firstly } from '$lib/api'
+import { firstly, Module } from '$lib/api'
 import { FF_Role_Auth, FFAuthUser } from '$lib/auth'
 import { auth } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'
@@ -42,7 +42,7 @@ export const api = firstly({
 
     auth({
       session: {
-        expiresInMs: 1000 * 30,
+        // expiresIn: 1000 * 30,
         cookieName: 'my_fancy_cookie_name',
       },
       uiStaticPath: './src/lib/auth/static/',
@@ -87,7 +87,7 @@ export const api = firstly({
       },
     }),
 
-    {
+    new Module({
       name: 'theEnd',
       async initApi() {
         // await sendMail('my_first_mail', {
@@ -112,6 +112,6 @@ export const api = firstly({
       // handlePreRemult: async (h) => {
       //   return h.resolve(h.event)
       // },
-    },
+    }),
   ],
 })

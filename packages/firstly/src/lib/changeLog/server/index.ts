@@ -1,4 +1,4 @@
-import type { Module } from '../../api'
+import { Module } from '../../api'
 import { ChangeLog } from '../index'
 
 /**
@@ -36,8 +36,8 @@ import { ChangeLog } from '../index'
  * ```
  */
 export const changeLog: () => Module = () => {
-  return {
+  return new Module({
     name: 'changeLog',
     entities: [ChangeLog],
-  }
+  })
 }

@@ -1,12 +1,11 @@
 import { generateCodeVerifier, generateState } from 'arctic'
 import { createDate, TimeSpan } from 'oslo'
 
-import { EntityError, remult } from 'remult'
+import { EntityError, remult, repo } from 'remult'
 import { green, magenta, yellow } from '@kitql/helpers'
 
 import { sendMail } from '../../mail/server/index.js'
 import { FFAuthProvider } from '../Entities.js'
-import { logAuth } from '../index.js'
 import { invalidateSession } from './helperDb.js'
 import { ff_createSession } from './helperFirstly.js'
 import { generateAndEncodeToken } from './helperOslo.js'
@@ -17,7 +16,7 @@ import {
   setRedirectCookie,
 } from './helperRemultServer.js'
 import { mergeRoles } from './helperRole.js'
-import { AUTH_OPTIONS, getSafeOptions, type AuthorizationURLOptions } from './module.js'
+import { AUTH_OPTIONS, authModule, getSafeOptions, type AuthorizationURLOptions } from './module.js'
 
 async function getArgon() {
   const { Argon2id } = await import('oslo/password')
@@ -69,16 +68,16 @@ export class AuthControllerServer {
     }
 
     const oSafe = getSafeOptions()
-    let user = await remult.repo(oSafe.User).findFirst({ identifier: name })
+    let user = await repo(oSafe.User).findFirst({ identifier: name })
 
     if (!user) {
-      user = remult.repo(oSafe.User).create()
+      user = repo(oSafe.User).create()
     }
     user.identifier = name
     const r = mergeRoles(user.roles, account.roles)
     user.roles = r.roles
 
-    await remult.repo(oSafe.User).save(user)
+    await repo(oSafe.User).save(user)
 
     await ff_createSession(user.id)
 
@@ -92,7 +91,7 @@ export class AuthControllerServer {
     const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
-    const existingAccount = await remult.repo(oSafe.Account).findOne({
+    const existingAccount = await repo(oSafe.Account).findOne({
       where: {
         providerUserId: email,
         provider: FFAuthProvider.PASSWORD.id,
@@ -105,11 +104,11 @@ export class AuthControllerServer {
 
       // TODO: Do we create the user or just the account ?!
       // TODO 2: Invite is by mail... But the invitee can log with another provider... So what do we do?! maybe not checking the provider... and updating?
-      // const user = await remult.repo(oSafe.User).insert({
+      // const user = await repo(oSafe.User).insert({
       //   identifier: email,
       // })
 
-      await remult.repo(oSafe.Account).insert({
+      await repo(oSafe.Account).insert({
         provider: FFAuthProvider.PASSWORD.id,
         providerUserId: email,
         // userId: user.id,
@@ -125,7 +124,9 @@ export class AuthControllerServer {
 
       if (AUTH_OPTIONS?.invitationSend) {
         await AUTH_OPTIONS?.invitationSend({ email, url })
-        logAuth.success(`${green('[custom]')}${magenta('[invitationSend]')} (${yellow(url)})`)
+        authModule.log.success(
+          `${green('[custom]')}${magenta('[invitationSend]')} (${yellow(url)})`,
+        )
         return 'Mail sent !'
       } else {
         await sendMail('invitationSend', {
@@ -151,7 +152,7 @@ export class AuthControllerServer {
           },
         })
 
-        logAuth.success(`${magenta('[invitationSend]')} (${yellow(url)})`)
+        authModule.log.success(`${magenta('[invitationSend]')} (${yellow(url)})`)
         return 'Demo Mail sent !'
       }
     }
@@ -176,7 +177,7 @@ export class AuthControllerServer {
       throw new EntityError({ message: 'Password is not enabled!' })
     }
 
-    const existingAccount = await remult.repo(oSafe.Account).findOne({
+    const existingAccount = await repo(oSafe.Account).findOne({
       where: {
         providerUserId: email,
         provider: FFAuthProvider.PASSWORD.id,
@@ -190,10 +191,10 @@ export class AuthControllerServer {
     const token = generateAndEncodeToken()
 
     await remult.dataProvider.transaction(async () => {
-      const user = await remult.repo(oSafe.User).insert({
+      const user = await repo(oSafe.User).insert({
         identifier: email,
       })
-      await remult.repo(oSafe.Account).insert({
+      await repo(oSafe.Account).insert({
         provider: FFAuthProvider.PASSWORD.id,
         providerUserId: email,
         userId: user.id,
@@ -210,7 +211,7 @@ export class AuthControllerServer {
     })
 
     if (oSafe.verifiedMethod === 'auto') {
-      const user = await remult.repo(oSafe.User).findFirst({
+      const user = await repo(oSafe.User).findFirst({
         identifier: email,
       })
       if (user) {
@@ -220,7 +221,9 @@ export class AuthControllerServer {
       const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.verifyMailSend) {
         await AUTH_OPTIONS.providers?.password.verifyMailSend({ email, url })
-        logAuth.success(`${green('[custom]')}${magenta('[verifyMailSend]')} (${yellow(url)})`)
+        authModule.log.success(
+          `${green('[custom]')}${magenta('[verifyMailSend]')} (${yellow(url)})`,
+        )
       } else {
         await sendMail('verifyMailSend', {
           to: email,
@@ -241,7 +244,7 @@ export class AuthControllerServer {
           },
         })
 
-        logAuth.success(`${magenta('[verifyMailSend]')} (${yellow(url)})`)
+        authModule.log.success(`${magenta('[verifyMailSend]')} (${yellow(url)})`)
       }
     }
 
@@ -260,7 +263,7 @@ export class AuthControllerServer {
       throw new EntityError({ message: 'Password is not enabled!' })
     }
 
-    const existingAccount = await remult.repo(oSafe.Account).findOne({
+    const existingAccount = await repo(oSafe.Account).findOne({
       where: {
         providerUserId: email,
         provider: FFAuthProvider.PASSWORD.id,
@@ -294,7 +297,7 @@ export class AuthControllerServer {
       throw new EntityError({ message: 'Password is not enabled!' })
     }
 
-    const existingAccount = await remult.repo(oSafe.Account).findOne({
+    const existingAccount = await repo(oSafe.Account).findOne({
       where: {
         providerUserId: email,
         provider: FFAuthProvider.PASSWORD.id,
@@ -308,12 +311,14 @@ export class AuthControllerServer {
         new TimeSpan(AUTH_OPTIONS.providers?.password?.resetPasswordExpiresIn ?? 5 * 60, 's'),
       )
 
-      await remult.repo(oSafe.Account).save(existingAccount)
+      await repo(oSafe.Account).save(existingAccount)
 
       const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
       if (AUTH_OPTIONS.providers?.password?.resetPasswordSend) {
         await AUTH_OPTIONS.providers?.password.resetPasswordSend({ email, url })
-        logAuth.success(`${green('[custom]')}${magenta('[resetPasswordSend]')} (${yellow(url)})`)
+        authModule.log.success(
+          `${green('[custom]')}${magenta('[resetPasswordSend]')} (${yellow(url)})`,
+        )
         return 'Mail sent !'
       } else {
         await sendMail('resetPasswordSend', {
@@ -339,7 +344,7 @@ export class AuthControllerServer {
           },
         })
 
-        logAuth.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
+        authModule.log.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
         return 'Demo Mail sent !'
       }
     }
@@ -369,7 +374,7 @@ export class AuthControllerServer {
     checkPassword(password)
 
     if (account.userId === undefined) {
-      const user = await remult.repo(oSafe.User).insert({ identifier: account.providerUserId })
+      const user = await repo(oSafe.User).insert({ identifier: account.providerUserId })
       account.userId = user.id
     }
 
@@ -381,7 +386,7 @@ export class AuthControllerServer {
     account.expiresAt = undefined
     account.lastVerifiedAt = new Date()
 
-    await remult.repo(oSafe.Account).save(account)
+    await repo(oSafe.Account).save(account)
 
     await ff_createSession(account.userId)
 
@@ -414,32 +419,32 @@ export class AuthControllerServer {
 
       const uri = createTOTPKeyURI(issuer, email, secret)
       const oSafe = getSafeOptions()
-      let user = await remult.repo(oSafe.User).findFirst({ identifier: email })
+      let user = await repo(oSafe.User).findFirst({ identifier: email })
       if (!user) {
-        user = remult.repo(oSafe.User).create()
+        user = repo(oSafe.User).create()
       }
       user.identifier = email
 
-      user = await remult.repo(oSafe.User).save(user)
+      user = await repo(oSafe.User).save(user)
 
       let account = await remult
         .repo(oSafe.Account)
         .findFirst({ userId: user.id, provider: FFAuthProvider.OTP.id })
       if (!account) {
-        account = remult.repo(oSafe.Account).create()
+        account = repo(oSafe.Account).create()
       }
       account.userId = user.id
       account.provider = FFAuthProvider.OTP.id
       account.token = otp
       account.hashPassword = secretEncoded
 
-      await remult.repo(oSafe.Account).save(account)
+      await repo(oSafe.Account).save(account)
 
       await AUTH_OPTIONS.providers.otp?.send({ name: email, otp, uri })
-      logAuth.success(`name: ${yellow(email)}, otp: ${yellow(otp)}, uri: ${yellow(uri)}`)
+      authModule.log.success(`name: ${yellow(email)}, otp: ${yellow(otp)}, uri: ${yellow(uri)}`)
       return 'Mail sent !'
     } else {
-      logAuth.error(`You need to provide a otp.send hook in the auth options!`)
+      authModule.log.error(`You need to provide a otp.send hook in the auth options!`)
     }
     return 'Hum, something went wrong !'
   }
@@ -451,7 +456,7 @@ export class AuthControllerServer {
     const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
-    const accounts = await remult.repo(oSafe.Account).find({
+    const accounts = await repo(oSafe.Account).find({
       where: { token: String(otp), provider: FFAuthProvider.OTP.id },
     })
 
@@ -459,7 +464,7 @@ export class AuthControllerServer {
       throw new EntityError({ message: 'Invalid otp' })
     }
     const account = accounts[0]
-    const user = await remult.repo(oSafe.User).findId(account.userId)
+    const user = await repo(oSafe.User).findId(account.userId)
 
     if (user?.identifier !== email) {
       throw new EntityError({ message: 'Invalid otp.' })
@@ -482,7 +487,7 @@ export class AuthControllerServer {
     account.token = undefined
     account.expiresAt = undefined
 
-    await remult.repo(oSafe.Account).save(account)
+    await repo(oSafe.Account).save(account)
 
     await ff_createSession(account.userId)
 
@@ -544,7 +549,7 @@ export class AuthControllerServer {
         return url.toString()
       } catch (error) {
         // display error for the server only
-        logAuth.error(error)
+        authModule.log.error(error)
         throw new EntityError({ message: `${o.provider} not well configured!` })
       }
     }

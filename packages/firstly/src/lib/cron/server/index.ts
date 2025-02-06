@@ -1,10 +1,8 @@
 import { CronJob } from 'cron'
 
-import { green, Log, magenta, red, yellow } from '@kitql/helpers'
+import { green, magenta, red, yellow } from '@kitql/helpers'
 
-import type { Module } from '../../api'
-
-const log = new Log('firstly | cron')
+import { Module } from '../../api'
 
 export const jobs: Record<
   string,
@@ -69,73 +67,76 @@ export const cron: (
     logs?: { starting?: boolean; ended?: boolean }
   })[],
 ) => Module = (jobsInfos) => {
-  return {
+  const m = new Module({
     name: 'cron',
-    initApi: async () => {
-      jobsInfos.forEach((infos) => {
-        const { topic, runOnInit, logs, concurrent, ...params } = infos
+  })
 
-        const concurrentToUse = concurrent ?? 1
+  const logJobs = (
+    topic: string,
+    job: CronJob<null, unknown>,
+    message: string,
+    with_metadata = true,
+    isSuccess = true,
+  ) => {
+    const l = []
+    l.push(magenta(`[${topic}]`))
+    l.push(message)
+    if (with_metadata) {
+      // If the job is "stopped", there will still be a next date, but it will not fire it. The job has to start.
+      l.push(
+        `(${job.running ? green('running') : red('stopped')}, next at ${yellow(job.nextDate().toISO()!)})`,
+      )
+    }
 
-        const onTickSaved = params.onTick
-        const fullOnTick = async () => {
-          if (jobs[topic].concurrentInProgress < concurrentToUse) {
-            jobs[topic].concurrentInProgress = jobs[topic].concurrentInProgress + 1
-            if (logs?.starting === undefined || logs?.starting === true) {
-              logJobs(topic, job, 'starting...', false, false)
-            }
-            // @ts-ignore
-            await onTickSaved()
-            if (logs?.ended === undefined || logs?.ended === true) {
-              logJobs(topic, job, 'done')
-            }
-            jobs[topic].concurrentInProgress = jobs[topic].concurrentInProgress - 1
-          } else {
-            logJobs(
-              topic,
-              job,
-              `skipped because of concurrent limit (${yellow(concurrentToUse.toString())})`,
-              false,
-              false,
-            )
+    if (isSuccess) {
+      m.log.success(l.join(' '))
+    } else {
+      m.log.info(l.join(' '))
+    }
+  }
+
+  m.initApi = async () => {
+    jobsInfos.forEach((infos) => {
+      const { topic, runOnInit, logs, concurrent, ...params } = infos
+
+      const concurrentToUse = concurrent ?? 1
+
+      const onTickSaved = params.onTick
+      const fullOnTick = async () => {
+        if (jobs[topic].concurrentInProgress < concurrentToUse) {
+          jobs[topic].concurrentInProgress = jobs[topic].concurrentInProgress + 1
+          if (logs?.starting === undefined || logs?.starting === true) {
+            logJobs(topic, job, 'starting...', false, false)
           }
+          // @ts-ignore
+          await onTickSaved()
+          if (logs?.ended === undefined || logs?.ended === true) {
+            logJobs(topic, job, 'done')
+          }
+          jobs[topic].concurrentInProgress = jobs[topic].concurrentInProgress - 1
+        } else {
+          logJobs(
+            topic,
+            job,
+            `skipped because of concurrent limit (${yellow(concurrentToUse.toString())})`,
+            false,
+            false,
+          )
         }
-        params.onTick = fullOnTick
+      }
+      params.onTick = fullOnTick
 
-        const job = CronJob.from(params)
-        jobs[topic] = { job, concurrentInProgress: 0 }
+      const job = CronJob.from(params)
+      jobs[topic] = { job, concurrentInProgress: 0 }
 
-        logJobs(topic, job, 'setup done')
+      logJobs(topic, job, 'setup done')
 
-        // If not it will be done too early
-        if (runOnInit) {
-          job.fireOnTick()
-        }
-      })
-    },
-  }
-}
-
-const logJobs = (
-  topic: string,
-  job: CronJob<null, unknown>,
-  message: string,
-  with_metadata = true,
-  isSuccess = true,
-) => {
-  const l = []
-  l.push(magenta(`[${topic}]`))
-  l.push(message)
-  if (with_metadata) {
-    // If the job is "stopped", there will still be a next date, but it will not fire it. The job has to start.
-    l.push(
-      `(${job.running ? green('running') : red('stopped')}, next at ${yellow(job.nextDate().toISO()!)})`,
-    )
+      // If not it will be done too early
+      if (runOnInit) {
+        job.fireOnTick()
+      }
+    })
   }
 
-  if (isSuccess) {
-    log.success(l.join(' '))
-  } else {
-    log.info(l.join(' '))
-  }
+  return m
 }

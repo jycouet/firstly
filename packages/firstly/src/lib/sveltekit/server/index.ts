@@ -2,7 +2,7 @@ import type { RequestEvent } from '@sveltejs/kit'
 
 import { remult } from 'remult'
 
-import type { Module } from '../../api'
+import { Module } from '../../api'
 
 declare module 'remult' {
   export interface RemultContext {
@@ -15,7 +15,7 @@ declare module 'remult' {
 }
 
 export const sveltekit: () => Module = () => {
-  return {
+  return new Module({
     name: 'sveltekit',
     priority: -779,
     entities: [],
@@ -31,5 +31,5 @@ export const sveltekit: () => Module = () => {
         kitEvent.cookies.delete(name, opts)
       }
     },
-  }
+  })
 }

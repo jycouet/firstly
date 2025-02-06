@@ -5,6 +5,7 @@ import {
   IdEntity,
   isBackend,
   remult,
+  repo,
   type FieldRef,
   type FieldsRef,
   type LifecycleEvent,
@@ -91,7 +92,7 @@ export async function recordSaved<entityType>(
     }
 
     if (changes.length > 0) {
-      await remult.repo(ChangeLog).insert({
+      await repo(ChangeLog).insert({
         changeDate,
         changes,
         entity: e.metadata.key,
@@ -130,7 +131,7 @@ export async function recordDeleted<entityType>(
     }
   }
 
-  await remult.repo(ChangeLog).insert({
+  await repo(ChangeLog).insert({
     changeDate,
     changes,
     entity: e.metadata.key,

@@ -1,8 +1,8 @@
 import { EntityError } from 'remult'
 import { cyan, gray, green, italic, yellow } from '@kitql/helpers'
 
-import { logAuth } from '../..'
 import { mask } from '../../../formats/strings'
+import { authModule } from '../module'
 
 export const checkOAuthConfig = (
   name: string,
@@ -26,7 +26,7 @@ export const checkOAuthConfig = (
     if (withThrow) {
       throw new EntityError({ message: msg })
     } else {
-      logAuth.error(msg)
+      authModule.log.error(msg)
     }
   }
 }

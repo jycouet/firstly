@@ -9,9 +9,9 @@ import type { ClassType, UserInfo } from 'remult'
 import { red } from '@kitql/helpers'
 import { getRelativePackagePath, read } from '@kitql/internals'
 
-import { AuthController, logAuth } from '..'
+import { AuthController } from '..'
 import { FF_Role } from '../..'
-import type { Module } from '../../api'
+import { Module } from '../../api'
 import type { RecursivePartial, ResolvedType } from '../../utils/types'
 import {
   FF_Role_Auth,
@@ -90,8 +90,8 @@ type AuthOptions<
   uiStaticPath?: string
 
   session?: {
-    /** in secondes @default 1000 * 60 * 60 * 24 * 30, // 30 days, */
-    expiresInMs?: number
+    /** in milliseconds @default 30 days (1000 * 60 * 60 * 24 * 30) */
+    expiresIn?: number
     cookieName?: string
   }
 
@@ -247,7 +247,7 @@ export const getSafeOptions = () => {
 
   let redirectUrl = AUTH_OPTIONS.defaultRedirect ?? '/'
   if (!redirectUrl.startsWith('/')) {
-    logAuth.error(
+    authModule.log.error(
       `Invalid redirect url ${red(redirectUrl)} (it should be a local one starting with /)`,
     )
     redirectUrl = '/'
@@ -287,13 +287,18 @@ export const getSafeOptions = () => {
     uiStaticPath,
 
     session: {
-      expiresInMs: AUTH_OPTIONS.session?.expiresInMs ?? 1000 * 60 * 60 * 24 * 30, // 30 days,
+      expiresInMs: AUTH_OPTIONS.session?.expiresIn ?? 1000 * 60 * 60 * 24 * 30, // 30 days,
       cookieName: AUTH_OPTIONS.session?.cookieName ?? 'firstly_auth_session',
     },
 
     providers: AUTH_OPTIONS.providers,
   }
 }
+
+export const authModule = new Module({
+  name: 'auth',
+  priority: -777,
+})
 
 /**
  * To enable authentication in your app in a few lines of code.
@@ -315,39 +320,36 @@ export const auth: (o: AuthOptions) => Module = (o) => {
   AuthController.verifyOtpFn = AuthControllerServer.verifyOtp
   AuthController.signInOAuthGetUrlFn = AuthControllerServer.signInOAuthGetUrl
 
-  return {
-    name: 'auth',
-    priority: -777,
-    entities: [oSafe.User, oSafe.Session, oSafe.Account],
-    controllers: [AuthController],
-    initRequest: async (event) => {
-      // REMULT: storing user in local should probably be done in remult directly
-      if (event?.locals?.user) {
-        remult.user = event.locals.user
-      } else {
-        const sessionId = event.cookies.get(oSafe.session.cookieName)
-        if (sessionId) {
-          const { user, freshSession } = await validateSessionToken(sessionId)
-          if (freshSession) {
-            setSessionTokenCookie(freshSession.sessionToken, freshSession.expiresAt)
-          }
-          remult.user = user
-          if (event.locals) {
-            event.locals.user = user
-          }
+  authModule.entities = [oSafe.User, oSafe.Session, oSafe.Account]
+  authModule.controllers = [AuthController]
+  authModule.initRequest = async (event) => {
+    // REMULT: storing user in local should probably be done in remult directly
+    if (event?.locals?.user) {
+      remult.user = event.locals.user
+    } else {
+      const sessionId = event.cookies.get(oSafe.session.cookieName)
+      if (sessionId) {
+        const { user, freshSession } = await validateSessionToken(sessionId)
+        if (freshSession) {
+          setSessionTokenCookie(freshSession.sessionToken, freshSession.expiresAt)
+        }
+        remult.user = user
+        if (event.locals) {
+          event.locals.user = user
         }
       }
-    },
-    initApi: async () => {
-      await initRoleFromEnv(logAuth, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.FF_Role_Admin)
-      await initRoleFromEnv(
-        logAuth,
-        oSafe.User,
-        'FF_ROLE_AUTH_ADMIN',
-        FF_Role_Auth.FF_Role_Auth_Admin,
-      )
-    },
+    }
   }
+  authModule.initApi = async () => {
+    await initRoleFromEnv(authModule.log, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.FF_Role_Admin)
+    await initRoleFromEnv(
+      authModule.log,
+      oSafe.User,
+      'FF_ROLE_AUTH_ADMIN',
+      FF_Role_Auth.FF_Role_Auth_Admin,
+    )
+  }
+  return authModule
 }
 
 export { initRoleFromEnv }

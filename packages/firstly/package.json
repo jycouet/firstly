@@ -88,10 +88,6 @@
       "types": "./esm/api/index.d.ts",
       "default": "./esm/api/index.js"
     },
-    "./handle": {
-      "types": "./esm/handle/index.d.ts",
-      "default": "./esm/handle/index.js"
-    },
     "./vite": {
       "types": "./esm/vite/index.d.ts",
       "default": "./esm/vite/index.js"

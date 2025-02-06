@@ -1,4 +1,4 @@
-export { auth } from './module'
+export { auth, authModule } from './module'
 
 export { checkOAuthConfig } from './providers/helperProvider'
 export { github } from './providers/github'
