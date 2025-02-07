@@ -48,7 +48,11 @@
     </label>
     <label>
       {firstlyDataAuth.ui?.strings.password}
-      <input bind:value={password} type="password" />
+      <input
+        bind:value={password}
+        type="password"
+        placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
+      />
     </label>
     <button>{firstlyDataAuth.ui?.strings.btn_sign_up}</button>
   </form>

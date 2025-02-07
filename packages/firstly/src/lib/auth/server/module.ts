@@ -219,6 +219,8 @@ export const getSafeOptions = <
                 email_placeholder:
                   AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',
                 password: AUTH_OPTIONS.ui?.strings?.password ?? 'Password',
+                password_placeholder:
+                  AUTH_OPTIONS.ui?.strings?.password_placeholder ?? 'Your password',
                 confirm: AUTH_OPTIONS.ui?.strings?.confirm ?? 'Confirm',
                 reset: AUTH_OPTIONS.ui?.strings?.reset ?? 'Reset',
                 btn_sign_up: AUTH_OPTIONS.ui?.strings?.btn_sign_up ?? 'Sign up',
