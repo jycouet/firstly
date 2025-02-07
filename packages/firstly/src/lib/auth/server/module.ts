@@ -110,7 +110,7 @@ type AuthOptions<
 
   invitationSend?: (args: { email: string; url: string }) => Promise<void>
 
-  transformDbUserToClientUser?: (session: any, user: TUserEntity) => UserInfo
+  transformDbUserToClientUser?: (session: TSessionEntity, user: TUserEntity) => UserInfo
 
   providers?: {
     demo?: {
@@ -175,7 +175,11 @@ const buildUrlOrDefault = (
   return `${base}/${userSetting}`
 }
 
-export const getSafeOptions = () => {
+export const getSafeOptions = <
+  TUserEntity extends FFAuthUser = FFAuthUser,
+  TSessionEntity extends FFAuthUserSession = FFAuthUserSession,
+  TAccountEntity extends FFAuthAccount = FFAuthAccount,
+>() => {
   const signUp = AUTH_OPTIONS.signUp ?? true
   const base =
     AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : (AUTH_OPTIONS.ui?.paths?.base ?? '/ff/auth')
@@ -246,13 +250,15 @@ export const getSafeOptions = () => {
     redirectUrl = '/'
   }
 
-  let transformDbUserToClientUserToUse: (session: FFAuthUserSession, user: FFAuthUser) => UserInfo
+  let transformDbUserToClientUserToUse: (session: TSessionEntity, user: TUserEntity) => UserInfo
+
   if (AUTH_OPTIONS.transformDbUserToClientUser) {
-    transformDbUserToClientUserToUse = AUTH_OPTIONS.transformDbUserToClientUser
+    transformDbUserToClientUserToUse = AUTH_OPTIONS.transformDbUserToClientUser as (
+      session: TSessionEntity,
+      user: TUserEntity,
+    ) => UserInfo
   } else {
-    // We should ignore the type here as we don't know the final shape of UserInfo
-    // @ts-ignore
-    transformDbUserToClientUserToUse = (session: any, user: FFAuthUser) => {
+    transformDbUserToClientUserToUse = (session, user) => {
       return {
         id: user.id,
         name: user.identifier,
@@ -266,9 +272,10 @@ export const getSafeOptions = () => {
   }
 
   return {
-    User: AUTH_OPTIONS.customEntities?.User ?? FFAuthUser,
-    Session: AUTH_OPTIONS.customEntities?.Session ?? FFAuthUserSession,
-    Account: AUTH_OPTIONS.customEntities?.Account ?? FFAuthAccount,
+    User: (AUTH_OPTIONS.customEntities?.User ?? FFAuthUser) as ClassType<TUserEntity>,
+    Session: (AUTH_OPTIONS.customEntities?.Session ??
+      FFAuthUserSession) as ClassType<TSessionEntity>,
+    Account: (AUTH_OPTIONS.customEntities?.Account ?? FFAuthAccount) as ClassType<TAccountEntity>,
 
     signUp,
     password_enabled: AUTH_OPTIONS.providers?.password ? true : false,
@@ -299,9 +306,17 @@ export const authModuleRaw = new Module({
  * To enable authentication in your app in a few lines of code.
  * _Info: index: -777_
  */
-export const auth: (o: AuthOptions) => Module = (o) => {
+export const auth = <
+  TUserEntity extends FFAuthUser = FFAuthUser,
+  TSessionEntity extends FFAuthUserSession = FFAuthUserSession,
+  TAccountEntity extends FFAuthAccount = FFAuthAccount,
+>(
+  o: AuthOptions<TUserEntity, TSessionEntity, TAccountEntity>,
+) => {
+  // TODO should work ?
+  // @ts-ignore
   AUTH_OPTIONS = o
-  const oSafe = getSafeOptions()
+  const oSafe = getSafeOptions<TUserEntity, TSessionEntity, TAccountEntity>()
 
   // Replace the direct assignments with the new _setImplementation method
   AuthController._setAbstraction({
