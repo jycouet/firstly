@@ -17,8 +17,8 @@
   },
   "scripts": {
     "//// ---- BEST PRACTICES ---- ////": "",
-		"lint": "kitql-lint",
-		"format": "kitql-lint -f",
+    "lint": "kitql-lint",
+    "format": "kitql-lint -f",
     "//// ---- PROD ---- ////": "",
     "release:version": "npm run changeset version",
     "release": "pnpm -F firstly compile && changeset publish",
@@ -43,8 +43,15 @@
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*"
   ],
-  "exports": {},
+  "exports": {
+    
+  },
   "engines": {
     "node": ">=18"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
