@@ -5,7 +5,7 @@
 <div class="hero bg-base-100 min-h-screen">
   <div class="hero-content w-full max-w-4xl flex-col gap-8 lg:flex-row-reverse">
     <div class="w-full max-w-md flex-1">
-      <Auth mode="sign-in" />
+      <Auth mode="sign-up" />
 
       <div class="divider my-8">OR</div>
 

@@ -41,27 +41,31 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
     redirect(302, oSafe.redirectUrl)
   }
 
-  if (
-    oSafe.firstlyData.props.ui?.paths?.base &&
-    event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)
-  ) {
-    const content = read(`${oSafe.uiStaticPath}index.html`)
+  // if (
+  //   oSafe.firstlyData.props.ui?.paths?.base &&
+  //   event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)
+  // ) {
+  //   const content = read(`${oSafe.uiStaticPath}index.html`)
 
-    return new Response(
-      content + `<script>const firstlyData = ${JSON.stringify(oSafe.firstlyData)}</script>`,
-      {
-        headers: { 'content-type': 'text/html' },
-      },
-    )
-  }
+  //   return new Response(
+  //     content + `<script>const firstlyData = ${JSON.stringify(oSafe.firstlyData)}</script>`,
+  //     {
+  //       headers: { 'content-type': 'text/html' },
+  //     },
+  //   )
+  // }
 
-  if (event.url.pathname.startsWith('/api/static')) {
-    const content = read(
-      `${oSafe.uiStaticPath}${event.url.pathname.replaceAll('/api/static/', '')}`,
-    )
+  if (event.url.pathname.startsWith('/ff/')) {
+    let toRead = `${oSafe.uiStaticPath}${event.url.pathname.replaceAll('/ff/', '')}`
+    let content = read(toRead)
+    if (!content) {
+      toRead = `${toRead}.html`
+      content = read(toRead)
+    }
     if (content) {
-      const seg = event.url.pathname.split('.')
+      const seg = toRead.split('.')
       const map: Record<string, string> = {
+        html: 'text/html',
         js: 'text/javascript',
         css: 'text/css',
         svg: 'image/svg+xml',
