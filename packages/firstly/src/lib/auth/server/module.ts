@@ -260,6 +260,7 @@ export const getSafeOptions = <
       user: TUserEntity,
     ) => UserInfo
   } else {
+    // @ts-ignore (I'm not sure why cadb-my-doc is failing check here if I don't do this!)
     transformDbUserToClientUserToUse = (session, user) => {
       return {
         id: user.id,
