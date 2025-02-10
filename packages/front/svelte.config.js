@@ -18,6 +18,7 @@ const config = {
     paths: {
       base: '/ff',
     },
+    // prerender: { handleHttpError: 'ignore' },
   },
 }
 

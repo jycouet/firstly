@@ -197,7 +197,7 @@ export const getSafeOptions = <
                 sign_up: signUp
                   ? buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_up, 'sign-up')
                   : false,
-                sign_in: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_in, 'sign-in'),
+                sign_in: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_in, ''),
                 forgot_password: buildUrlOrDefault(
                   base,
                   AUTH_OPTIONS.ui?.paths?.forgot_password,

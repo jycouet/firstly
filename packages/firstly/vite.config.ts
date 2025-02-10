@@ -23,7 +23,7 @@ const config = defineConfig(({ mode }) => {
         kitRoutes: {
           LINKS: {
             // ...authRoutes()?.routes,
-            firstly_sign_in: '/ff/auth/sign-in',
+            firstly_sign_in: '/ff/auth',
             //
             remult_admin: '/api/admin',
             github: {

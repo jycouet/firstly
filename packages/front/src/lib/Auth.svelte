@@ -1,16 +1,17 @@
 <script lang="ts">
+  import { base } from '$app/paths'
   import { page } from '$app/state'
 
   import { AuthController } from '../../../firstly/src/lib/auth'
   import Field from './Field.svelte'
-  import { route } from './ROUTES'
 
   interface Props {
     mode: 'sign-in' | 'sign-up' | 'forgot-password'
     email?: string
   }
 
-  let { email = page.url.searchParams.get('email') ?? '', mode = 'sign-in' }: Props = $props()
+  // let { email = page.url.searchParams.get('email') ?? '', mode = 'sign-in' }: Props = $props()
+  let { email = '', mode = 'sign-in' }: Props = $props()
 
   let password = $state('')
   let globalError = $state('')
@@ -21,6 +22,14 @@
   let buttonText = $derived(
     mode === 'sign-in' ? 'Sign In' : mode === 'sign-up' ? 'Sign Up' : 'Send by mail',
   )
+
+  const route = (path: string, params: Record<string, string>) => {
+    const url = new URL(`${base}${path}`, page.url)
+    // Object.entries(params).forEach(([key, value]) => {
+    //   url.searchParams.set(key, value)
+    // })
+    return url.toString()
+  }
 
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault()
