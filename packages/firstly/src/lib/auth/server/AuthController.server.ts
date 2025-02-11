@@ -286,9 +286,12 @@ export class AuthControllerServer {
 
         return 'ok'
       }
+
+      authModuleRaw.log.error({ email, passwordLength: password.length })
       throw new EntityError({ message: 'Incorrect username or password' })
     }
 
+    authModuleRaw.log.error({ email, passwordLength: password.length })
     throw new EntityError({ message: 'Incorrect username or password.' })
   }
 
