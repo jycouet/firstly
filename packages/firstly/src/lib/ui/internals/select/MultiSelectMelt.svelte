@@ -153,7 +153,6 @@
       debounce(async () => {
         const normalizedInput = str.toLowerCase()
 
-        // TODO one day
         // In a Multi select we can't filter to the server.
         // If we do I don't knwo what to set to $inputValue. and and list gets shorter... So what do we do about items that are selected but not in the list anymore (because of the filter) ?
         // if (loadOptions) {

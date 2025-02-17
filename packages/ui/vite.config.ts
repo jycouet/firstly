@@ -13,7 +13,7 @@ export default defineConfig({
       {
         name: 'update',
         watch: path.resolve('src/**/*'),
-        run: 'npm run build',
+        run: 'npm run generate_to_static',
         delay: 300,
       },
     ]) as PluginOption,

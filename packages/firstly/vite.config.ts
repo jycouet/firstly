@@ -6,6 +6,7 @@ import type { KIT_ROUTES } from '$lib/ROUTES'
 // import { authRoutes } from './src/lib/auth/index'
 import { firstly } from './src/lib/vite'
 
+// @ts-ignore
 const config = defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {

@@ -1,21 +1,25 @@
-import { Fields, InMemoryDataProvider } from 'remult'
+import { Fields } from 'remult'
 
-import { FF_Entity } from '$lib'
-import { firstly } from '$lib/api'
-import { auth } from '$lib/auth'
-import { FFAuthUser } from '$lib/auth/client'
+import { FF_Entity, FF_Role } from '$lib'
+import { firstly, Module } from '$lib/api'
+import { FF_Role_Auth, FFAuthUser } from '$lib/auth'
+import { auth } from '$lib/auth/server'
+import { mail } from '$lib/mail/server'
+import { sveltekit } from '$lib/sveltekit/server'
 
 // import { github } from '$lib/auth/providers'
 
 const Role = {
-  ADMIN: 'admin',
-}
+  ...FF_Role,
+  ...FF_Role_Auth,
+  Admin: 'admin',
+} as const
 
 @FF_Entity<_AppUser>('app_users', {
   dbName: 'app_users',
   // this overrides the default CRUD... So be carefull !
   // allowApiCrud: true,
-  saving(e) {
+  saved(e) {
     console.info(`Yop ${e.identifier} 👋`)
   },
 })
@@ -26,30 +30,21 @@ export class _AppUser extends FFAuthUser {
 
 // const t: DynamicAuthorizationURLOptions<typeof oAuths> = { github: {} }
 
-export const remultApi = firstly({
-  dataProvider: process.env.CI ? new InMemoryDataProvider() : undefined,
-  mail: {
-    template: {
-      // component: MyCustomThing
-      brandColor: '#E10098',
-    },
-  },
-
+export const api = firstly({
   modules: [
-    {
-      name: 'init',
-      handlePreRemult: async (h) => {
-        h.event.setHeaders({ 'x-remult': 'hello' })
-        return await h.resolve(h.event)
+    sveltekit(),
+
+    mail({
+      template: {
+        brandColor: '#E10098',
       },
-      earlyReturn: async () => {
-        return {
-          early: false,
-        }
-        // return h.resolve(h.event)
-      },
-    },
+    }),
+
     auth({
+      session: {
+        // expiresIn: 1000 * 30,
+        COOKIE_NAME: 'my_fancy_cookie_name',
+      },
       uiStaticPath: './src/lib/auth/static/',
       customEntities: {
         User: _AppUser,
@@ -63,6 +58,7 @@ export const remultApi = firstly({
       // signUp: false,
 
       verifiedMethod: 'email',
+
       ui: {
         paths: {
           // sign_in: false,
@@ -70,7 +66,11 @@ export const remultApi = firstly({
       },
       debug: true,
       providers: {
-        demo: [{ name: 'Noam' }, { name: 'Ermin' }, { name: 'JYC', roles: [Role.ADMIN] }],
+        demo: [
+          { name: 'Noam' },
+          { name: 'Ermin' },
+          { name: 'JYC', roles: [Role.Admin, Role.FF_Role_Admin] },
+        ],
 
         password: {
           //   verifyMailSend: async () => {},
@@ -90,7 +90,8 @@ export const remultApi = firstly({
         ],
       },
     }),
-    {
+
+    new Module({
       name: 'theEnd',
       async initApi() {
         // await sendMail('my_first_mail', {
@@ -112,9 +113,9 @@ export const remultApi = firstly({
         //   },
         // })
       },
-      handlePreRemult: async (h) => {
-        return h.resolve(h.event)
-      },
-    },
+      // handlePreRemult: async (h) => {
+      //   return h.resolve(h.event)
+      // },
+    }),
   ],
 })

@@ -113,9 +113,6 @@ export const buildSearchWhere = <Entity>(
   const f: EntityFilter<any>[] = [
     {
       $or: fields.map((f) => {
-        // REMULT P1: isServerExpression is false when sqlExpression there ?!
-        // if (f.isServerExpression || f.options.sqlExpression) {
-        // check if this field has a specific filter function
         const fnName = f.key + 'Filter'
         // @ts-ignore
         if (entity && entity[fnName]) {
@@ -142,6 +139,10 @@ export const containsWords = <Entity>(
   fields: FieldMetadata<any, Entity>[],
   search: string,
 ): EntityFilter<Entity> => {
+  if (!search) {
+    return {}
+  }
+
   const sSplitted = search.split(' ').filter((s) => s.length > 0)
 
   if (fields.length === 1) {
@@ -152,7 +153,7 @@ export const containsWords = <Entity>(
 
   return {
     $or: fields.map((f) => {
-      return { $and: sSplitted.map((s) => ({ [f.key]: { $contains: s } })) }
+      return { $or: sSplitted.map((s) => ({ [f.key]: { $contains: s } })) }
     }),
   } as EntityFilter<Entity>
 }

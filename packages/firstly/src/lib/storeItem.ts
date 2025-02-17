@@ -2,8 +2,8 @@ import { BROWSER } from 'esm-env'
 import { derived, get, writable } from 'svelte/store'
 
 import type { ErrorInfo, FindOptions, Repository } from 'remult'
-import { Log } from '@kitql/helpers'
 
+import { ff_Log } from './'
 import { isError } from './helper'
 
 type TheStoreItem<T> = {
@@ -156,7 +156,7 @@ export const storeItem = <T>(
     delete: async () => {
       const s = get(internalStore)
       if (!s.item) {
-        new Log('firstly').error(`To delete an item, you need set it first.`)
+        ff_Log.error(`To delete an item, you need set it first.`)
         return
       }
       try {

@@ -14,7 +14,6 @@ vite.config.ts.timestamp*
 coverage
 playwright-report
 DEPLOY_AUTHOR
-DEPLOY_DATETIME
 $kitql
 $houdini
 test-results

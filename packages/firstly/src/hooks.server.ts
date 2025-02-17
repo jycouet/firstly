@@ -1,6 +1,6 @@
 import { sequence } from '@sveltejs/kit/hooks'
 
-import { firstly } from './lib/handle/index.js'
-import { remultApi } from './routes/api/[...remult]/firstly.js'
+import { handleAuth } from './lib/auth/server/handleAuth'
+import { api as handleRemult } from './server/api'
 
-export const handle = sequence(firstly(remultApi))
+export const handle = sequence(handleRemult, handleAuth)

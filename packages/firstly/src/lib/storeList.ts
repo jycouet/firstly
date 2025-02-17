@@ -25,7 +25,7 @@ export type FF_FindOptions<T> = FindOptions<T> & {
  * Example
  * ```ts
  * // get the repo
- * const taskRepo = remult.repo(Task)
+ * const taskRepo = repo(Task)
  *
  * const tasks = kitStore(taskRepo, data.tasks)
  * $: browser && tasks.listen(data.options)

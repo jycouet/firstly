@@ -18,6 +18,7 @@ export type firstlyDataAuth = {
       email: string
       email_placeholder: string
       password: string
+      password_placeholder: string
       confirm: string
       reset: string
       btn_sign_in: string

@@ -38,7 +38,7 @@
       {#if $$slots.tooltip}
         <slot name="tooltip" />
       {:else}
-        {text}
+        {@html text}
       {/if}
     </div>
   </div>

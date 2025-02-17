@@ -1,36 +1,52 @@
-import { Allow, BackendMethod } from 'remult'
+import { BackendMethod } from 'remult'
 
-import type { AuthorizationURLOptions } from '..'
+import { FF_Role_Auth } from './Entities'
+import type { AuthorizationURLOptions } from './server/module'
 
-export class Auth {
-  // Do not show for firstly users ?
-  /** DO NOT USE */
-  static signOutFn: any
-  /** DO NOT USE */
-  static signInDemoFn: any
-  /** DO NOT USE */
-  static inviteFn: any
-  /** DO NOT USE */
-  static signUpPasswordFn: any
-  /** DO NOT USE */
-  static signInPasswordFn: any
-  /** DO NOT USE */
-  static forgotPasswordFn: any
-  /** DO NOT USE */
-  static resetPasswordFn: any
-  /** DO NOT USE */
-  static signInOTPFn: any
-  /** DO NOT USE */
-  static verifyOtpFn: any
-  /** DO NOT USE */
-  static signInOAuthGetUrlFn: any
+export class AuthController {
+  // Private static fields
+  static #signOutFn: any
+  static #signInDemoFn: any
+  static #inviteFn: any
+  static #signUpPasswordFn: any
+  static #signInPasswordFn: any
+  static #forgotPasswordFn: any
+  static #resetPasswordFn: any
+  static #signInOTPFn: any
+  static #verifyOtpFn: any
+  static #signInOAuthGetUrlFn: any
+
+  // Internal setter method that can be used by the module
+  static _setAbstraction(impl: {
+    signOut: any
+    signInDemo: any
+    invite: any
+    signUpPassword: any
+    signInPassword: any
+    forgotPassword: any
+    resetPassword: any
+    signInOTP: any
+    verifyOtp: any
+    signInOAuthGetUrl: any
+  }) {
+    this.#signOutFn = impl.signOut
+    this.#signInDemoFn = impl.signInDemo
+    this.#inviteFn = impl.invite
+    this.#signUpPasswordFn = impl.signUpPassword
+    this.#signInPasswordFn = impl.signInPassword
+    this.#forgotPasswordFn = impl.forgotPassword
+    this.#resetPasswordFn = impl.resetPassword
+    this.#signInOTPFn = impl.signInOTP
+    this.#verifyOtpFn = impl.verifyOtp
+    this.#signInOAuthGetUrlFn = impl.signInOAuthGetUrl
+  }
 
   /**
    * Sign out the current user
    */
   @BackendMethod({ allowed: true })
   static async signOut() {
-    return await Auth.signOutFn()
+    return await AuthController.#signOutFn()
   }
 
   /**
@@ -39,15 +55,15 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async signInDemo(name: string) {
-    return await Auth.signInDemoFn(name)
+    return await AuthController.#signInDemoFn(name)
   }
 
   /**
    * This is for login / password authentication Invite someone
    */
-  @BackendMethod({ allowed: Allow.authenticated })
+  @BackendMethod({ allowed: FF_Role_Auth.FF_Role_Auth_Invite })
   static async invite(email: string) {
-    return await Auth.inviteFn(email)
+    return await AuthController.#inviteFn(email)
   }
 
   /**
@@ -55,7 +71,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async signUpPassword(email: string, password: string) {
-    return await Auth.signUpPasswordFn(email, password)
+    return await AuthController.#signUpPasswordFn(email, password)
   }
 
   /**
@@ -63,7 +79,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async signInPassword(email: string, password: string) {
-    return await Auth.signInPasswordFn(email, password)
+    return await AuthController.#signInPasswordFn(email, password)
   }
 
   /**
@@ -71,7 +87,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async forgotPassword(email: string) {
-    return await Auth.forgotPasswordFn(email)
+    return await AuthController.#forgotPasswordFn(email)
   }
 
   /**
@@ -79,13 +95,13 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async resetPassword(token: string, password: string) {
-    return await Auth.resetPasswordFn(token, password)
+    return await AuthController.#resetPasswordFn(token, password)
   }
 
   /** OTP */
   @BackendMethod({ allowed: true })
   static async signInOTP(email: string) {
-    return await Auth.signInOTPFn(email)
+    return await AuthController.#signInOTPFn(email)
   }
 
   /**
@@ -93,7 +109,7 @@ export class Auth {
    */
   @BackendMethod({ allowed: true })
   static async verifyOtp(email: string, otp: string | number) {
-    return await Auth.verifyOtpFn(email, otp)
+    return await AuthController.#verifyOtpFn(email, otp)
   }
 
   /** OAUTH */
@@ -115,6 +131,6 @@ export class Auth {
     options?: AuthorizationURLOptions[T]
     redirect?: string
   }) {
-    return await Auth.signInOAuthGetUrlFn(o)
+    return await AuthController.#signInOAuthGetUrlFn(o)
   }
 }

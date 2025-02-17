@@ -4,7 +4,7 @@ import { cyan, green, Log, yellow } from '@kitql/helpers'
 
 import { env } from '$env/dynamic/private'
 
-import { FFAuthUser } from './client/Entities'
+import { FFAuthUser } from '../Entities'
 
 /**
  * will merge the roles and remove duplicates

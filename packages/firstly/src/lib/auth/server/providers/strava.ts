@@ -4,9 +4,8 @@ import { remult } from 'remult'
 
 import { env } from '$env/dynamic/private'
 
-import { checkOAuthConfig } from '.'
-import { type FFOAuth2Provider } from '../'
-import { logAuth } from '../client'
+import { authModuleRaw, type FFOAuth2Provider } from '../module'
+import { checkOAuthConfig } from './helperProvider'
 
 /**
  * ## Strava OAuth2 provider
@@ -53,7 +52,7 @@ export function strava(options?: {
       const redirectURI =
         options?.STRAVA_REDIRECT_URI ??
         env.STRAVA_REDIRECT_URI ??
-        `${remult.context.url.origin}/api/auth_callback`
+        `${remult.context.request.url.origin}/api/auth_callback`
       checkOAuthConfig(name, clientID, secret, urlForKeys, true)
       return new Strava(clientID, secret, redirectURI)
     },
@@ -68,7 +67,7 @@ export function strava(options?: {
       })
       const user = await res.json()
       if (options?.log) {
-        logAuth.info(`user`, user)
+        authModuleRaw.log.info(`user`, user)
       }
       return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
     },

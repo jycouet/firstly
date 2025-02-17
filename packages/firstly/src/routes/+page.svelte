@@ -1,8 +1,13 @@
 <script lang="ts">
-  import { remult } from 'remult'
+  import { remult, repo } from 'remult'
 
-  import { Auth } from '$lib/auth/client'
+  import { storeList } from '$lib'
+  import { AuthController, FFAuthAccount } from '$lib/auth'
   import Button from '$lib/ui/Button.svelte'
+
+  const store = storeList(repo(FFAuthAccount))
+
+  $: store.fetch()
 </script>
 
 <div class="flex flex-col gap-4">
@@ -15,7 +20,7 @@
         <Button
           class="btn-outline btn-warning"
           on:click={async () => {
-            await Auth.signOut()
+            await AuthController.signOut()
             window.location.href = '/'
           }}
         >
@@ -29,3 +34,5 @@
     </div>
   {/if}
 </div>
+
+<pre>{JSON.stringify($store, null, 2)}</pre>
