@@ -39,13 +39,13 @@
   "devDependencies": {
     "@kitql/helpers": "0.8.11",
     "@sveltejs/adapter-node": "5.2.2",
-    "@sveltejs/kit": "2.7.3",
+    "@sveltejs/kit": "2.17.1",
     "@sveltejs/package": "2.3.2",
-    "@sveltejs/vite-plugin-svelte": "3.1.2",
+		"@sveltejs/vite-plugin-svelte": "5.0.3",
     "autoprefixer": "10.4.19",
     "postcss": "8.4.38",
-    "svelte": "4.2.18",
-    "svelte-check": "4.0.5",
+		"svelte": "5.20.1",
+    "svelte-check": "4.1.4",
     "tslib": "2.8.0",
     "typescript": "5.5.4",
     "vitest": "3.0.1"
@@ -68,7 +68,7 @@
     "svelty-email": "^0.0.11",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.3",
-    "vite": "^5.4.1",
+		"vite": "^6.1.0",
     "vite-plugin-kit-routes": "^0.6.10",
     "vite-plugin-stripper": "^0.5.4"
   },
@@ -81,8 +81,8 @@
   "exports": {
     ".": {
       "types": "./esm/index.d.ts",
-      "default": "./esm/index.js",
-      "svelte": "./esm/index.js"
+      "svelte": "./esm/index.js",
+      "default": "./esm/index.js"
     },
     "./api": {
       "types": "./esm/api/index.d.ts",

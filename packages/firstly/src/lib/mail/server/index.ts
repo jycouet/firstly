@@ -108,7 +108,10 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
         ...mailOptions.templateProps,
       }
 
+      // FIXME
+      // @ts-ignore
       mailOptions.text = render({ template, props, options: { plainText: true, pretty: true } })
+      // @ts-ignore
       mailOptions.html = render({ template, props, options: { plainText: false, pretty: true } })
     }
 
