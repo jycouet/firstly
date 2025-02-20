@@ -75,7 +75,6 @@ export const storeItem = <T>(
     ) => {
       if (BROWSER) {
         internalStore.update((s) => ({ ...s, loading: true }))
-
         try {
           const item = await repo.findId(id, options)
           // lastOptions = options
@@ -114,6 +113,7 @@ export const storeItem = <T>(
         if (!s.item) {
           return
         }
+        internalStore.update((s) => ({ ...s, loading: true }))
         const item = await repo.save(s.item!)
         internalStore.update((s) => ({
           ...s,
@@ -160,7 +160,12 @@ export const storeItem = <T>(
         return
       }
       try {
+        internalStore.update((s) => ({ ...s, loading: true }))
         await repo.delete(s.item)
+        internalStore.update((s) => ({
+          ...s,
+          loading: false,
+        }))
       } catch (error: any) {
         if (isError<T>(error)) {
           if (!error.modelState) {
