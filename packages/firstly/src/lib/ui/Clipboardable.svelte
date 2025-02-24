@@ -9,9 +9,11 @@
 
   let extraClass = ''
 
-  function clip(_value: string | null) {
+  async function clip(_value: string | null) {
     if (_value) {
-      navigator.clipboard.writeText(_value)
+      try {
+        await navigator.clipboard.writeText(_value)
+      } catch (error) {}
     }
   }
 </script>
