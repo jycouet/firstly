@@ -102,7 +102,7 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
   }
   try {
     if (!mailOptions.html) {
-      const template = globalOptions?.template?.component ?? DefaultMail
+      const template = globalOptions?.template?.component ?? (DefaultMail as any)
       const props = {
         brandColor: globalOptions?.template?.brandColor ?? '#5B68DF',
         ...mailOptions.templateProps,
@@ -120,13 +120,13 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
       mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
                  We are still nice and generated you an email preview link: 
                  👉 ${cyan(
-                   String(
-                     nodemailer.getTestMessageUrl(
-                       // @ts-ignore
-                       info,
-                     ),
-                   ),
-                 )}
+        String(
+          nodemailer.getTestMessageUrl(
+            // @ts-ignore
+            info,
+          ),
+        ),
+      )}
 
                  To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
       `)
