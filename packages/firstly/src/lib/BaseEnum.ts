@@ -25,6 +25,7 @@ export type BaseEnumOptions<Entity = any> = {
   icon?: FF_Icon
   where?: FindOptionsBase<Entity>['where']
   class?: string
+  hide?: boolean
 }
 
 export class BaseEnum<Entity = any> {
@@ -33,13 +34,14 @@ export class BaseEnum<Entity = any> {
   icon?: FF_Icon
   public where?: FindOptionsBase<Entity>['where']
   public class?: string
-
+  public hide?: boolean
   constructor(_id: string | number, options?: BaseEnumOptions<Entity>) {
     this.id = _id.toString()
     this.caption = options?.caption ?? this.id
     this.icon = options?.icon
     this.where = options?.where
     this.class = options?.class
+    this.hide = options?.hide
 
     if (options?.icon && options.icon.caption === undefined) {
       options.icon.caption = options?.caption

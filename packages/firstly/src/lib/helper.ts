@@ -124,7 +124,9 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
       kind: 'enum',
       subKind: 'single',
       // @ts-ignore
-      values: field.options.valueConverter.values as BaseItem[],
+      values: (field.options.valueConverter.values as BaseItem[]).filter(
+        (v) => !v.hide,
+      ),
       field,
     }
   }
