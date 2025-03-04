@@ -80,6 +80,10 @@
 
   const fromInput = (_metadata: FieldMetadata<any, any>, _value: HTMLInputAttributes['value']) => {
     try {
+      // REMULT default for numbers ?
+      if (_metadata.allowNull && _value === null) {
+        return null
+      }
       return _metadata?.valueConverter.fromInput(_value, metaType.subKind)
     } catch (error) {
       console.error(`error fromInput w field '${_metadata.key}'`, error)
