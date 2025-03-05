@@ -103,10 +103,7 @@ type AuthOptions<
         }
       }
 
-
       algo?: {
-
-
         /**
          * Validate the password or throw an error.
          *
@@ -119,7 +116,7 @@ type AuthOptions<
          * }
          * ```
          */
-        validateInput?: ({ identifier, password }: { identifier: string, password: string }) => void
+        validateInput?: ({ identifier, password }: { identifier: string; password: string }) => void
         /**
          * If you want to NOT use the default bcrypt, you can pass your own thing!
          */
@@ -177,54 +174,52 @@ export const getSafeOptions = <
   const base =
     AUTH_OPTIONS.ui === false ? 'NO_BASE_PATH' : (AUTH_OPTIONS.ui?.paths?.base ?? '/ff/auth')
 
-  const ui = AUTH_OPTIONS.ui === false
-    ? undefined
-    : {
-      paths: {
-        base,
-        sign_up: signUp
-          ? buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_up, 'sign-up')
-          : false,
-        sign_in: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_in, 'sign-in'),
-        forgot_password: buildUrlOrDefault(
-          base,
-          AUTH_OPTIONS.ui?.paths?.forgot_password,
-          'forgot-password',
-        ),
-        reset_password: buildUrlOrDefault(
-          base,
-          AUTH_OPTIONS.ui?.paths?.reset_password,
-          'reset-password',
-        ),
-        verify_email: buildUrlOrDefault(
-          base,
-          AUTH_OPTIONS.ui?.paths?.verify_email,
-          'verify-email',
-        ),
-      },
-      strings: {
-        app_name: AUTH_OPTIONS.ui?.strings?.app_name ?? '',
-        email: AUTH_OPTIONS.ui?.strings?.email ?? 'Email',
-        email_placeholder:
-          AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',
-        password: AUTH_OPTIONS.ui?.strings?.password ?? 'Password',
-        password_placeholder:
-          AUTH_OPTIONS.ui?.strings?.password_placeholder ?? 'Your password',
-        confirm: AUTH_OPTIONS.ui?.strings?.confirm ?? 'Confirm',
-        reset: AUTH_OPTIONS.ui?.strings?.reset ?? 'Reset',
-        btn_sign_up: AUTH_OPTIONS.ui?.strings?.btn_sign_up ?? 'Sign up',
-        btn_sign_in: AUTH_OPTIONS.ui?.strings?.btn_sign_in ?? 'Sign in',
-        forgot_password:
-          AUTH_OPTIONS.ui?.strings?.forgot_password ?? 'Forgot your password?',
-        send_password_reset_instructions:
-          AUTH_OPTIONS.ui?.strings?.send_password_reset_instructions ??
-          'Send password reset instructions',
-        back_to_sign_in: AUTH_OPTIONS.ui?.strings?.back_to_sign_in ?? 'Back to sign in',
-      },
-      images: {
-        main: AUTH_OPTIONS.ui?.images?.main ?? '',
-      },
-    } as const
+  const ui =
+    AUTH_OPTIONS.ui === false
+      ? undefined
+      : ({
+          paths: {
+            base,
+            sign_up: signUp
+              ? buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_up, 'sign-up')
+              : false,
+            sign_in: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_in, 'sign-in'),
+            forgot_password: buildUrlOrDefault(
+              base,
+              AUTH_OPTIONS.ui?.paths?.forgot_password,
+              'forgot-password',
+            ),
+            reset_password: buildUrlOrDefault(
+              base,
+              AUTH_OPTIONS.ui?.paths?.reset_password,
+              'reset-password',
+            ),
+            verify_email: buildUrlOrDefault(
+              base,
+              AUTH_OPTIONS.ui?.paths?.verify_email,
+              'verify-email',
+            ),
+          },
+          strings: {
+            app_name: AUTH_OPTIONS.ui?.strings?.app_name ?? '',
+            email: AUTH_OPTIONS.ui?.strings?.email ?? 'Email',
+            email_placeholder: AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',
+            password: AUTH_OPTIONS.ui?.strings?.password ?? 'Password',
+            password_placeholder: AUTH_OPTIONS.ui?.strings?.password_placeholder ?? 'Your password',
+            confirm: AUTH_OPTIONS.ui?.strings?.confirm ?? 'Confirm',
+            reset: AUTH_OPTIONS.ui?.strings?.reset ?? 'Reset',
+            btn_sign_up: AUTH_OPTIONS.ui?.strings?.btn_sign_up ?? 'Sign up',
+            btn_sign_in: AUTH_OPTIONS.ui?.strings?.btn_sign_in ?? 'Sign in',
+            forgot_password: AUTH_OPTIONS.ui?.strings?.forgot_password ?? 'Forgot your password?',
+            send_password_reset_instructions:
+              AUTH_OPTIONS.ui?.strings?.send_password_reset_instructions ??
+              'Send password reset instructions',
+            back_to_sign_in: AUTH_OPTIONS.ui?.strings?.back_to_sign_in ?? 'Back to sign in',
+          },
+          images: {
+            main: AUTH_OPTIONS.ui?.images?.main ?? '',
+          },
+        } as const)
 
   if (AUTH_OPTIONS.debug) {
     authModuleRaw.log.info('ui', ui)
@@ -276,7 +271,7 @@ export const getSafeOptions = <
     }
   }
 
-  function validateInput({ identifier, password }: { identifier: string, password: string }) {
+  function validateInput({ identifier, password }: { identifier: string; password: string }) {
     if (typeof identifier !== 'string' || identifier.length === 0) {
       throw new EntityError({ message: 'Invalid identifier' })
     }
@@ -308,12 +303,9 @@ export const getSafeOptions = <
     signUp,
     password: {
       enabled: AUTH_OPTIONS.providers?.password ? true : false,
-      validateInput:
-        AUTH_OPTIONS.providers?.password?.algo?.validateInput ?? validateInput,
-      hash:
-        AUTH_OPTIONS.providers?.password?.algo?.hash ?? passwordHash,
-      verify:
-        AUTH_OPTIONS.providers?.password?.algo?.verify ?? passwordVerify,
+      validateInput: AUTH_OPTIONS.providers?.password?.algo?.validateInput ?? validateInput,
+      hash: AUTH_OPTIONS.providers?.password?.algo?.hash ?? passwordHash,
+      verify: AUTH_OPTIONS.providers?.password?.algo?.verify ?? passwordVerify,
     },
     otp: { enabled: AUTH_OPTIONS.providers?.otp ? true : false },
 
