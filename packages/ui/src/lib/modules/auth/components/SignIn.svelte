@@ -24,7 +24,7 @@
     loading = true
     try {
       await AuthController.signInPassword(email, password)
-      window.location.href = '/'
+      window.location.href = new URL(window.location.href).searchParams.get('redirect') ?? '/'
     } catch (error) {
       if (isError(error)) {
         msgError = error.message ?? ''
