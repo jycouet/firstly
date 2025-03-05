@@ -1,6 +1,6 @@
 import {
   //mergeConfig
-  type PluginOption
+  type PluginOption,
 } from 'vite'
 import { kitRoutes, type Options, type RouteMappings } from 'vite-plugin-kit-routes'
 import { stripper } from 'vite-plugin-stripper'

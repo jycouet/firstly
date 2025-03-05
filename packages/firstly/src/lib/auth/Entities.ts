@@ -41,9 +41,9 @@ export class FFAuthUser {
       fromDb: (x) => {
         return x
           ? x
-            .split(',')
-            .map((c: string) => c.replace('{', '').replace('}', ''))
-            .filter((c: string) => c !== '')
+              .split(',')
+              .map((c: string) => c.replace('{', '').replace('}', ''))
+              .filter((c: string) => c !== '')
           : []
       },
     },

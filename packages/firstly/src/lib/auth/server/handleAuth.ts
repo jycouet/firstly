@@ -1,12 +1,12 @@
 import { redirect, type Handle } from '@sveltejs/kit'
+import type { OAuth2Tokens } from 'arctic'
 
 import { repo } from 'remult'
 import { read } from '@kitql/internals'
 
 import { FFAuthProvider } from '../Entities'
-import { getSafeOptions, type OAuth2UserInfo } from './module'
-import type { OAuth2Tokens } from 'arctic'
 import { ff_createSession } from './helperFirstly'
+import { getSafeOptions, type OAuth2UserInfo } from './module'
 
 export const handleAuth: Handle = async ({ event, resolve }) => {
   const oSafe = getSafeOptions()
@@ -102,7 +102,9 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 
     const selectedOAuth = oSafe.providers?.oAuths?.find((c) => c.name === keyState)
     if (selectedOAuth && code) {
-      const tokens = await selectedOAuth.getArcticProvider().validateAuthorizationCode(code) as OAuth2Tokens
+      const tokens = (await selectedOAuth
+        .getArcticProvider()
+        .validateAuthorizationCode(code)) as OAuth2Tokens
       let info: OAuth2UserInfo
       try {
         info = await selectedOAuth.getUserInfo(tokens)
@@ -121,7 +123,7 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
       })
       if (!account) {
         if (!oSafe.signUp) {
-          console.error('You can\'t signup by yourself! Contact the administrator.')
+          console.error("You can't signup by yourself! Contact the administrator.")
           // throw Error("You can't signup by yourself! Contact the administrator.")
           redirect(302, redirectUrl)
         }

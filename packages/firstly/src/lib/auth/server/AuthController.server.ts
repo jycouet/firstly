@@ -1,31 +1,22 @@
+import { decodeHex, encodeHexLowerCase } from '@oslojs/encoding'
+import { createTOTPKeyURI, generateTOTP, verifyTOTPWithGracePeriod } from '@oslojs/otp'
 import { generateState } from 'arctic'
 
 import { EntityError, remult, repo } from 'remult'
 import { green, magenta, yellow } from '@kitql/helpers'
-
 
 import { sendMail } from '../../mail/server/index.js'
 import { FFAuthProvider } from '../Entities.js'
 import { invalidateSession } from './helperDb.js'
 import { ff_createSession } from './helperFirstly.js'
 import { createDate, generateAndEncodeToken } from './helperOslo.js'
-import { createTOTPKeyURI, generateTOTP, verifyTOTPWithGracePeriod } from "@oslojs/otp";
 import {
   deleteSessionTokenCookie,
   setOAuthStateCookie,
   setRedirectCookie,
 } from './helperRemultServer.js'
 import { mergeRoles } from './helperRole.js'
-import {
-  AUTH_OPTIONS,
-  authModuleRaw,
-  getSafeOptions,
-  type ProviderConfigured,
-} from './module.js'
-import { decodeHex, encodeHexLowerCase } from '@oslojs/encoding'
-
-
-
+import { AUTH_OPTIONS, authModuleRaw, getSafeOptions, type ProviderConfigured } from './module.js'
 
 export class AuthControllerServer {
   /**
@@ -461,7 +452,7 @@ export class AuthControllerServer {
     const digits = oSafe.providers?.otp?.digits ?? 6
     const keyDecoded = decodeHex(account.hashPassword ?? '')
 
-    const validOTP = verifyTOTPWithGracePeriod(keyDecoded, intervalInSeconds, digits, otp, 30);
+    const validOTP = verifyTOTPWithGracePeriod(keyDecoded, intervalInSeconds, digits, otp, 30)
 
     if (!validOTP) {
       throw new EntityError({ message: 'Invalid otp!' })
