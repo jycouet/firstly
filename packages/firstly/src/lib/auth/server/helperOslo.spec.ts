@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { encodeToken, generateId, generateToken } from './helperOslo'
+import { createDate, encodeToken, generateId, generateToken } from './helperOslo'
 
 describe('generateId', () => {
   it('should generate a valid id', () => {
@@ -24,5 +24,17 @@ describe('encodeToken', () => {
     const sessionId = encodeToken(token)
     expect(sessionId).toBeDefined()
     expect(sessionId.length).toBe(64)
+  })
+})
+
+describe('createDate', () => {
+  it('should generate a valid date', () => {
+    const date = createDate(0)
+    expect(date).toBeDefined()
+  })
+
+  it('should generate a valid date 1 munite after', () => {
+    const date = createDate(1, { from: new Date('2021-01-01') })
+    expect(date).toMatchInlineSnapshot(`2021-01-01T00:00:01.000Z`)
   })
 })

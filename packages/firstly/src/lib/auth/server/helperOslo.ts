@@ -22,3 +22,8 @@ export function encodeToken(token: string) {
 export function generateAndEncodeToken() {
   return encodeToken(generateToken())
 }
+
+export function createDate(timeSpan_seconds: number, options?: { from?: Date }) {
+  const from = options?.from ?? new Date()
+  return new Date(from.getTime() + timeSpan_seconds * 1000)
+}

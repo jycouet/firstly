@@ -2,8 +2,8 @@ import type {
   OAuth2Provider as ArcticOAuth2Provider,
   OAuth2ProviderWithPKCE as ArcticOAuth2ProviderWithPKCE,
 } from 'arctic'
-
-import { remult } from 'remult'
+import bcrypt from 'bcrypt'
+import { EntityError, remult } from 'remult'
 import type { ClassType, UserInfo } from 'remult'
 import { red } from '@kitql/helpers'
 import { getRelativePackagePath } from '@kitql/internals'
@@ -31,12 +31,12 @@ export type AuthorizationURLOptions = Record<
 
 export type DynamicAuthorizationURLOptions<T extends FFOAuth2Provider[] = FFOAuth2Provider[]> =
   T extends Array<infer O>
-    ? O extends FFOAuth2Provider
-      ? {
-          [P in O['name']]: ReturnType<O['authorizationURLOptions']>
-        }
-      : never
-    : never
+  ? O extends FFOAuth2Provider
+  ? {
+    [P in O['name']]: ReturnType<O['authorizationURLOptions']>
+  }
+  : never
+  : never
 
 export type OAuth2UserInfo = {
   raw?: any
@@ -51,15 +51,15 @@ export type FFOAuth2Provider<
   name: LitName
   getArcticProvider: () => T
   isPKCE: T extends ArcticOAuth2Provider
-    ? false
-    : T extends ArcticOAuth2ProviderWithPKCE
-      ? true
-      : never
+  ? false
+  : T extends ArcticOAuth2ProviderWithPKCE
+  ? true
+  : never
   authorizationURLOptions: () => T extends ArcticOAuth2Provider
     ? Parameters<T['createAuthorizationURL']>[1]
     : T extends ArcticOAuth2ProviderWithPKCE
-      ? Parameters<T['createAuthorizationURL']>[2]
-      : never
+    ? Parameters<T['createAuthorizationURL']>[2]
+    : never
   getUserInfo(
     tokens: ResolvedType<ReturnType<T['validateAuthorizationCode']>>,
   ): Promise<OAuth2UserInfo>
@@ -133,16 +133,37 @@ type AuthOptions<
       /** in secondes @default 5 minutes */
       verifyMailExpiresIn?: number
 
-      /**
-       * Some settings for the password hashing algorithm _(using argon2 under the hood)_
-       */
-      argon2Settings?: {
-        memorySize?: number | undefined
-        iterations?: number | undefined
-        tagLength?: number | undefined
-        parallelism?: number | undefined
-        secret?: ArrayBuffer | undefined
-        // secret?: ArrayBuffer | TypedArray | undefined;
+      settings?: {
+        bcrypt?: {
+          /**
+           * Validate the password or throw an error.
+           *
+           * Here is an example (and it's the default implementation):
+           * ```
+           * function validatePassword(password: string) {
+           *   if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
+           *     throw new EntityError({ message: 'Invalid password' })
+           *   }
+           * }
+           * ```
+           */
+          validatePassword?: (password: string) => void
+
+          /**
+           * If you want to NOT use the default bcrypt, you can pass your own thing!
+           */
+          passwordHash?: (password: string) => string
+          /**
+           * The number of rounds to use for the bcrypt hash.
+           * @default 10
+           */
+          saltRounds?: number
+
+          /**
+           * If you want to NOT use the default bcrypt, you can pass your own thing!
+           */
+          passwordVerify?: (password: string, hash: string) => boolean
+        }
       }
     }
 
@@ -192,47 +213,47 @@ export const getSafeOptions = <
         AUTH_OPTIONS.ui === false
           ? undefined
           : {
-              paths: {
+            paths: {
+              base,
+              sign_up: signUp
+                ? buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_up, 'sign-up')
+                : false,
+              sign_in: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_in, 'sign-in'),
+              forgot_password: buildUrlOrDefault(
                 base,
-                sign_up: signUp
-                  ? buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_up, 'sign-up')
-                  : false,
-                sign_in: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_in, 'sign-in'),
-                forgot_password: buildUrlOrDefault(
-                  base,
-                  AUTH_OPTIONS.ui?.paths?.forgot_password,
-                  'forgot-password',
-                ),
-                reset_password: buildUrlOrDefault(
-                  base,
-                  AUTH_OPTIONS.ui?.paths?.reset_password,
-                  'reset-password',
-                ),
-                verify_email: buildUrlOrDefault(
-                  base,
-                  AUTH_OPTIONS.ui?.paths?.verify_email,
-                  'verify-email',
-                ),
-              },
-              strings: {
-                email: AUTH_OPTIONS.ui?.strings?.email ?? 'Email',
-                email_placeholder:
-                  AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',
-                password: AUTH_OPTIONS.ui?.strings?.password ?? 'Password',
-                password_placeholder:
-                  AUTH_OPTIONS.ui?.strings?.password_placeholder ?? 'Your password',
-                confirm: AUTH_OPTIONS.ui?.strings?.confirm ?? 'Confirm',
-                reset: AUTH_OPTIONS.ui?.strings?.reset ?? 'Reset',
-                btn_sign_up: AUTH_OPTIONS.ui?.strings?.btn_sign_up ?? 'Sign up',
-                btn_sign_in: AUTH_OPTIONS.ui?.strings?.btn_sign_in ?? 'Sign in',
-                forgot_password:
-                  AUTH_OPTIONS.ui?.strings?.forgot_password ?? 'Forgot your password?',
-                send_password_reset_instructions:
-                  AUTH_OPTIONS.ui?.strings?.send_password_reset_instructions ??
-                  'Send password reset instructions',
-                back_to_sign_in: AUTH_OPTIONS.ui?.strings?.back_to_sign_in ?? 'Back to sign in',
-              },
+                AUTH_OPTIONS.ui?.paths?.forgot_password,
+                'forgot-password',
+              ),
+              reset_password: buildUrlOrDefault(
+                base,
+                AUTH_OPTIONS.ui?.paths?.reset_password,
+                'reset-password',
+              ),
+              verify_email: buildUrlOrDefault(
+                base,
+                AUTH_OPTIONS.ui?.paths?.verify_email,
+                'verify-email',
+              ),
             },
+            strings: {
+              email: AUTH_OPTIONS.ui?.strings?.email ?? 'Email',
+              email_placeholder:
+                AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',
+              password: AUTH_OPTIONS.ui?.strings?.password ?? 'Password',
+              password_placeholder:
+                AUTH_OPTIONS.ui?.strings?.password_placeholder ?? 'Your password',
+              confirm: AUTH_OPTIONS.ui?.strings?.confirm ?? 'Confirm',
+              reset: AUTH_OPTIONS.ui?.strings?.reset ?? 'Reset',
+              btn_sign_up: AUTH_OPTIONS.ui?.strings?.btn_sign_up ?? 'Sign up',
+              btn_sign_in: AUTH_OPTIONS.ui?.strings?.btn_sign_in ?? 'Sign in',
+              forgot_password:
+                AUTH_OPTIONS.ui?.strings?.forgot_password ?? 'Forgot your password?',
+              send_password_reset_instructions:
+                AUTH_OPTIONS.ui?.strings?.send_password_reset_instructions ??
+                'Send password reset instructions',
+              back_to_sign_in: AUTH_OPTIONS.ui?.strings?.back_to_sign_in ?? 'Back to sign in',
+            },
+          },
     },
   }
 
@@ -274,6 +295,24 @@ export const getSafeOptions = <
     }
   }
 
+  function validatePassword(password: string) {
+    if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
+      throw new EntityError({ message: 'Invalid password' })
+    }
+  }
+
+  function passwordHash(password: string) {
+    validatePassword(password)
+    return bcrypt.hashSync(
+      password,
+      AUTH_OPTIONS.providers?.password?.settings?.bcrypt?.saltRounds ?? 10,
+    )
+  }
+
+  function passwordVerify(password: string, hash: string) {
+    return bcrypt.compareSync(password, hash)
+  }
+
   return {
     User: (AUTH_OPTIONS.customEntities?.User ?? FFAuthUser) as ClassType<TUserEntity>,
     Session: (AUTH_OPTIONS.customEntities?.Session ??
@@ -281,8 +320,13 @@ export const getSafeOptions = <
     Account: (AUTH_OPTIONS.customEntities?.Account ?? FFAuthAccount) as ClassType<TAccountEntity>,
 
     signUp,
-    password_enabled: AUTH_OPTIONS.providers?.password ? true : false,
-    otp_enabled: AUTH_OPTIONS.providers?.otp ? true : false,
+    password: {
+      enabled: AUTH_OPTIONS.providers?.password ? true : false,
+      validatePassword: AUTH_OPTIONS.providers?.password?.settings?.bcrypt?.validatePassword ?? validatePassword,
+      passwordHash: AUTH_OPTIONS.providers?.password?.settings?.bcrypt?.passwordHash ?? passwordHash,
+      passwordVerify: AUTH_OPTIONS.providers?.password?.settings?.bcrypt?.passwordVerify ?? passwordVerify,
+    },
+    otp: { enabled: AUTH_OPTIONS.providers?.otp ? true : false },
 
     verifiedMethod: AUTH_OPTIONS.verifiedMethod ?? 'auto',
     redirectUrl,

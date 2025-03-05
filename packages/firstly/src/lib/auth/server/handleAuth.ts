@@ -6,7 +6,6 @@ import { read } from '@kitql/internals'
 import { FFAuthProvider } from '../Entities'
 import { getSafeOptions, type OAuth2UserInfo } from './module'
 
-// TODO: How to know if this is missing ?!
 export const handleAuth: Handle = async ({ event, resolve }) => {
   const oSafe = getSafeOptions()
 

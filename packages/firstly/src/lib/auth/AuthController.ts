@@ -108,7 +108,7 @@ export class AuthController {
    * Verify the OTP code
    */
   @BackendMethod({ allowed: true })
-  static async verifyOtp(email: string, otp: string | number) {
+  static async verifyOtp(email: string, otp: string) {
     return await AuthController.#verifyOtpFn(email, otp)
   }
 

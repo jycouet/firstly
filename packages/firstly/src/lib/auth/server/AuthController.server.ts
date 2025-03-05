@@ -1,14 +1,15 @@
 import { generateCodeVerifier, generateState } from 'arctic'
-import { createDate, TimeSpan } from 'oslo'
 
 import { EntityError, remult, repo } from 'remult'
 import { green, magenta, yellow } from '@kitql/helpers'
+
 
 import { sendMail } from '../../mail/server/index.js'
 import { FFAuthProvider } from '../Entities.js'
 import { invalidateSession } from './helperDb.js'
 import { ff_createSession } from './helperFirstly.js'
-import { generateAndEncodeToken } from './helperOslo.js'
+import { createDate, generateAndEncodeToken } from './helperOslo.js'
+import { createTOTPKeyURI, generateTOTP, verifyTOTPWithGracePeriod } from "@oslojs/otp";
 import {
   deleteSessionTokenCookie,
   setCodeVerifierCookie,
@@ -22,29 +23,10 @@ import {
   getSafeOptions,
   type AuthorizationURLOptions,
 } from './module.js'
+import { decodeHex, encodeHexLowerCase } from '@oslojs/encoding'
 
-async function getArgon() {
-  const { Argon2id } = await import('oslo/password')
-  return new Argon2id({
-    ...AUTH_OPTIONS.providers?.password?.argon2Settings,
-  })
-}
 
-async function passwordVerify(hash: string, password: string) {
-  const argon = await getArgon()
-  return await argon.verify(hash, password)
-}
 
-async function passwordHash(password: string) {
-  const argon = await getArgon()
-  return await argon.hash(password)
-}
-
-function checkPassword(password: string) {
-  if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
-    throw new EntityError({ message: 'Invalid password' })
-  }
-}
 
 export class AuthControllerServer {
   /**
@@ -114,15 +96,15 @@ export class AuthControllerServer {
       //   identifier: email,
       // })
 
+      oSafe.providers?.password?.verifyMailExpiresIn
+
       await repo(oSafe.Account).insert({
         provider: FFAuthProvider.PASSWORD.id,
         providerUserId: email,
         // userId: user.id,
         // hashPassword: await passwordHash(password),
         token: token,
-        expiresAt: createDate(
-          new TimeSpan(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60, 's'),
-        ),
+        expiresAt: createDate(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60),
         lastVerifiedAt: undefined,
       })
 
@@ -179,7 +161,7 @@ export class AuthControllerServer {
       throw new EntityError({ message: "You can't signup by yourself! Contact the administrator." })
     }
 
-    if (!oSafe.password_enabled) {
+    if (!oSafe.password.enabled) {
       throw new EntityError({ message: 'Password is not enabled!' })
     }
 
@@ -193,7 +175,7 @@ export class AuthControllerServer {
       throw new EntityError({ message: "You can't signup twice !" })
     }
 
-    checkPassword(password)
+    oSafe.password.validatePassword(password)
     const token = generateAndEncodeToken()
 
     await remult.dataProvider.transaction(async () => {
@@ -204,14 +186,12 @@ export class AuthControllerServer {
         provider: FFAuthProvider.PASSWORD.id,
         providerUserId: email,
         userId: user.id,
-        hashPassword: await passwordHash(password),
+        hashPassword: oSafe.password.passwordHash(password),
         token: oSafe.verifiedMethod === 'auto' ? undefined : token,
         expiresAt:
           oSafe.verifiedMethod === 'auto'
             ? undefined
-            : createDate(
-                new TimeSpan(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60, 's'),
-              ),
+            : createDate(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60),
         lastVerifiedAt: oSafe.verifiedMethod === 'auto' ? new Date() : undefined,
       })
     })
@@ -265,7 +245,7 @@ export class AuthControllerServer {
     const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
-    if (!oSafe.password_enabled) {
+    if (!oSafe.password.enabled) {
       throw new EntityError({ message: 'Password is not enabled!' })
     }
 
@@ -277,9 +257,9 @@ export class AuthControllerServer {
     })
 
     if (existingAccount) {
-      const validPassword = await passwordVerify(
-        existingAccount?.hashPassword ?? '',
+      const validPassword = oSafe.password.passwordVerify(
         password ?? '',
+        existingAccount?.hashPassword ?? '',
       )
       if (validPassword) {
         await ff_createSession(existingAccount.userId)
@@ -302,7 +282,7 @@ export class AuthControllerServer {
     const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
-    if (!oSafe.password_enabled) {
+    if (!oSafe.password.enabled) {
       throw new EntityError({ message: 'Password is not enabled!' })
     }
 
@@ -317,7 +297,7 @@ export class AuthControllerServer {
       const token = generateAndEncodeToken()
       existingAccount.token = token
       existingAccount.expiresAt = createDate(
-        new TimeSpan(AUTH_OPTIONS.providers?.password?.resetPasswordExpiresIn ?? 5 * 60, 's'),
+        AUTH_OPTIONS.providers?.password?.resetPasswordExpiresIn ?? 5 * 60,
       )
 
       await repo(oSafe.Account).save(existingAccount)
@@ -366,7 +346,7 @@ export class AuthControllerServer {
   static async resetPassword(token: string, password: string) {
     const oSafe = getSafeOptions()
 
-    if (!oSafe.password_enabled) {
+    if (!oSafe.password.enabled) {
       throw new EntityError({ message: 'Password is not enabled!' })
     }
 
@@ -380,7 +360,7 @@ export class AuthControllerServer {
     if (account.expiresAt && account.expiresAt < new Date()) {
       throw new EntityError({ message: 'token expired' })
     }
-    checkPassword(password)
+    oSafe.password.validatePassword(password)
 
     if (account.userId === undefined) {
       const user = await repo(oSafe.User).insert({ identifier: account.providerUserId })
@@ -390,7 +370,7 @@ export class AuthControllerServer {
     await invalidateSession(account.userId)
 
     // update elements
-    account.hashPassword = await passwordHash(password)
+    account.hashPassword = oSafe.password.passwordHash(password)
     account.token = undefined
     account.expiresAt = undefined
     account.lastVerifiedAt = new Date()
@@ -407,26 +387,21 @@ export class AuthControllerServer {
     const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
 
-    if (!oSafe.otp_enabled) {
+    if (!oSafe.otp.enabled) {
       throw new EntityError({ message: `OPT is not enabled!` })
     }
 
     if (AUTH_OPTIONS.providers?.otp?.send) {
-      const { createTOTPKeyURI } = await import('oslo/otp')
-      const { encodeHex } = await import('oslo/encoding')
-      const { TOTPController } = await import('oslo/otp')
+      const key = crypto.getRandomValues(new Uint8Array(20))
+      const intervalInSeconds = AUTH_OPTIONS.providers?.otp?.expiresIn ?? 30
+      const digits = AUTH_OPTIONS.providers?.otp.digits ?? 6
+      const otp = generateTOTP(key, intervalInSeconds, digits)
 
-      const secret = crypto.getRandomValues(new Uint8Array(20))
-      const otp = await new TOTPController({
-        period: new TimeSpan(AUTH_OPTIONS.providers?.otp.expiresIn ?? 30, 's'),
-        digits: AUTH_OPTIONS.providers?.otp.digits ?? 6,
-      }).generate(secret)
-
-      const secretEncoded = encodeHex(secret)
+      const keyEncoded = encodeHexLowerCase(key)
 
       const issuer = AUTH_OPTIONS.providers.otp.issuer ?? 'firstly'
 
-      const uri = createTOTPKeyURI(issuer, email, secret)
+      const uri = createTOTPKeyURI(issuer, email, key, intervalInSeconds, digits)
       const oSafe = getSafeOptions()
       let user = await repo(oSafe.User).findFirst({ identifier: email })
       if (!user) {
@@ -445,7 +420,7 @@ export class AuthControllerServer {
       account.userId = user.id
       account.provider = FFAuthProvider.OTP.id
       account.token = otp
-      account.hashPassword = secretEncoded
+      account.hashPassword = keyEncoded
 
       await repo(oSafe.Account).save(account)
 
@@ -461,9 +436,13 @@ export class AuthControllerServer {
   /**
    * Verify the OTP code
    */
-  static async verifyOtp(emailParam: string, otp: string | number) {
+  static async verifyOtp(emailParam: string, otp: string) {
     const email = emailParam.toLowerCase()
     const oSafe = getSafeOptions()
+
+    if (!oSafe.otp.enabled) {
+      throw new EntityError({ message: `OPT is not enabled!` })
+    }
 
     const accounts = await repo(oSafe.Account).find({
       where: { token: String(otp), provider: FFAuthProvider.OTP.id },
@@ -479,12 +458,11 @@ export class AuthControllerServer {
       throw new EntityError({ message: 'Invalid otp.' })
     }
 
-    const { decodeHex } = await import('oslo/encoding')
-    const { TOTPController } = await import('oslo/otp')
+    const intervalInSeconds = oSafe.providers?.otp?.expiresIn ?? 30
+    const digits = oSafe.providers?.otp?.digits ?? 6
+    const keyDecoded = decodeHex(account.hashPassword ?? '')
 
-    const secretDecoded = decodeHex(account.hashPassword ?? '')
-
-    const validOTP = await new TOTPController().verify(String(otp), secretDecoded)
+    const validOTP = verifyTOTPWithGracePeriod(keyDecoded, intervalInSeconds, digits, otp, 30);
 
     if (!validOTP) {
       throw new EntityError({ message: 'Invalid otp!' })

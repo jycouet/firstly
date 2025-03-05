@@ -3,6 +3,8 @@
   "version": "0.0.11",
   "type": "module",
   "description": "Firstly, an opinionated Remult setup!",
+  "funding": "https://github.com/sponsors/jycouet",
+  "homepage": "https://firstly.fun/",
   "repository": {
     "type": "git",
     "url": "https://github.com/jycouet/firstly",
@@ -28,7 +30,6 @@
     "//// ---- PROD ---- ////": "",
     "compile": "vite build && npm run package && node ./scripts/package.js",
     "package": "svelte-package",
-    "push": "cd dist && npm publish --tag exp",
     "//// ---- THE END ---- ////": ""
   },
   "peerDependencies": {
@@ -42,6 +43,7 @@
     "@sveltejs/kit": "2.7.3",
     "@sveltejs/package": "2.3.2",
     "@sveltejs/vite-plugin-svelte": "3.1.2",
+    "@types/bcrypt": "^5.0.2",
     "autoprefixer": "10.4.19",
     "postcss": "8.4.38",
     "svelte": "4.2.18",
@@ -51,26 +53,27 @@
     "vitest": "3.0.1"
   },
   "dependencies": {
-    "@clack/prompts": "^0.7.0",
+    "@clack/prompts": "0.7.0",
     "@kitql/internals": "0.9.9",
-    "@mdi/js": "^7.4.47",
-    "@melt-ui/svelte": "^0.86.2",
-    "@oslojs/crypto": "^1.0.1",
-    "@oslojs/encoding": "^1.1.0",
-    "@types/nodemailer": "^6.4.15",
-    "arctic": "^1.8.0",
-    "clsx": "^2.1.1",
-    "cron": "^3.1.7",
-    "daisyui": "^4.12.14",
-    "esm-env": "^1.0.0",
-    "nodemailer": "^6.9.13",
-    "oslo": "1.2.1",
-    "svelty-email": "^0.0.11",
-    "tailwind-merge": "^2.3.0",
-    "tailwindcss": "^3.4.3",
-    "vite": "^5.4.1",
-    "vite-plugin-kit-routes": "^0.6.10",
-    "vite-plugin-stripper": "^0.5.4"
+    "@mdi/js": "7.4.47",
+    "@melt-ui/svelte": "0.86.2",
+    "@oslojs/crypto": "1.0.1",
+    "@oslojs/encoding": "1.1.0",
+    "@oslojs/otp": "1.1.0",
+    "@types/nodemailer": "6.4.14",
+    "arctic": "3.5.0",
+    "bcrypt": "5.1.1",
+    "clsx": "2.1.1",
+    "cron": "3.1.7",
+    "daisyui": "4.12.14",
+    "esm-env": "1.0.0",
+    "nodemailer": "6.9.14",
+    "svelty-email": "0.0.11",
+    "tailwind-merge": "2.3.0",
+    "tailwindcss": "3.4.4",
+    "vite": "5.4.1",
+    "vite-plugin-kit-routes": "0.8.3",
+    "vite-plugin-stripper": "0.5.4"
   },
   "sideEffects": false,
   "publishConfig": {
@@ -126,7 +129,7 @@
     "./feedback/server": {
       "types": "./esm/feedback/server/index.d.ts",
       "default": "./esm/feedback/server/index.js"
-    },    
+    },
     "./mail": {
       "types": "./esm/mail/index.d.ts",
       "default": "./esm/mail/index.js"
