@@ -1,0 +1,26 @@
+diff --git a/package.json b/package.json
+index c1b0fc4f80ade03d8a2bc6480d8518bc71657a0b..62a0080d56b493c6b7584e6bb69f24b156a52750 100644
+--- a/package.json
++++ b/package.json
+@@ -7,15 +7,18 @@
+   "exports": {
+     ".": {
+       "types": "./dist/index.d.ts",
+-      "svelte": "./dist/index.js"
++      "svelte": "./dist/index.js",
++      "default": "./dist/index.js"
+     },
+     "./internal/*": {
+       "types": "./dist/internal/*/index.d.ts",
+-      "svelte": "./dist/internal/*/index.js"
++      "svelte": "./dist/internal/*/index.js",
++      "default": "./dist/internal/*/index.js"
+     },
+     "./internal/types": {
+       "types": "./dist/internal/types.d.ts",
+-      "svelte": "./dist/internal/types.js"
++      "svelte": "./dist/internal/types.js",
++      "default": "./dist/internal/types.js"
+     }
+   },
+   "typesVersions": {
