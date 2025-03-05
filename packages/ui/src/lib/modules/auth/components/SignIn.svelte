@@ -16,9 +16,12 @@
   let password: string
   // let pincode: number
 
+  let loading = false
+
   async function signIn() {
     msgError = ''
     msgSuccess = ''
+    loading = true
     try {
       await AuthController.signInPassword(email, password)
       window.location.href = '/'
@@ -26,6 +29,8 @@
       if (isError(error)) {
         msgError = error.message ?? ''
       }
+    } finally {
+      loading = false
     }
   }
 
@@ -40,6 +45,7 @@
     <label>
       {firstlyDataAuth.ui?.strings.email}
       <input
+        required
         bind:value={email}
         use:autofocus
         type="text"
@@ -48,9 +54,16 @@
     </label>
     <label>
       {firstlyDataAuth.ui?.strings.password}
-      <input bind:value={password} type="password" />
+      <input
+        required
+        bind:value={password}
+        type="password"
+        placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
+      />
     </label>
-    <button>{firstlyDataAuth.ui?.strings.btn_sign_in}</button>
+    <button disabled={!email || !password || loading}
+      >{firstlyDataAuth.ui?.strings.btn_sign_in}</button
+    >
   </form>
 {/if}
 

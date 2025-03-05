@@ -86,15 +86,13 @@ export class AuthControllerServer {
       //   identifier: email,
       // })
 
-      oSafe.providers?.password?.verifyMailExpiresIn
-
       await repo(oSafe.Account).insert({
         provider: FFAuthProvider.PASSWORD.id,
         providerUserId: email,
         // userId: user.id,
         // hashPassword: await passwordHash(password),
         token: token,
-        expiresAt: createDate(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60),
+        expiresAt: createDate(AUTH_OPTIONS.providers?.password?.mail?.verify?.expiresIn ?? 5 * 60),
         lastVerifiedAt: undefined,
       })
 
@@ -143,10 +141,7 @@ export class AuthControllerServer {
    * _(The first param `email` can be "anything")_
    */
   static async signUpPassword(emailParam: string, password: string) {
-    const email = emailParam.toLowerCase()
-
     const oSafe = getSafeOptions()
-
     if (!oSafe.signUp) {
       throw new EntityError({ message: "You can't signup by yourself! Contact the administrator." })
     }
@@ -154,6 +149,9 @@ export class AuthControllerServer {
     if (!oSafe.password.enabled) {
       throw new EntityError({ message: 'Password is not enabled!' })
     }
+
+    const email = emailParam.toLowerCase()
+    oSafe.password.validateInput({ identifier: email, password })
 
     const existingAccount = await repo(oSafe.Account).findOne({
       where: {
@@ -165,7 +163,6 @@ export class AuthControllerServer {
       throw new EntityError({ message: "You can't signup twice !" })
     }
 
-    oSafe.password.validatePassword(password)
     const token = generateAndEncodeToken()
 
     await remult.dataProvider.transaction(async () => {
@@ -176,12 +173,12 @@ export class AuthControllerServer {
         provider: FFAuthProvider.PASSWORD.id,
         providerUserId: email,
         userId: user.id,
-        hashPassword: oSafe.password.passwordHash(password),
+        hashPassword: await oSafe.password.hash(password),
         token: oSafe.verifiedMethod === 'auto' ? undefined : token,
         expiresAt:
           oSafe.verifiedMethod === 'auto'
             ? undefined
-            : createDate(AUTH_OPTIONS.providers?.password?.verifyMailExpiresIn ?? 5 * 60),
+            : createDate(AUTH_OPTIONS.providers?.password?.mail?.verify?.expiresIn ?? 5 * 60),
         lastVerifiedAt: oSafe.verifiedMethod === 'auto' ? new Date() : undefined,
       })
     })
@@ -195,8 +192,8 @@ export class AuthControllerServer {
       }
     } else {
       const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
-      if (AUTH_OPTIONS.providers?.password?.verifyMailSend) {
-        await AUTH_OPTIONS.providers?.password.verifyMailSend({ email, url })
+      if (AUTH_OPTIONS.providers?.password?.mail?.verify?.send) {
+        await AUTH_OPTIONS.providers?.password.mail.verify.send({ email, url })
         authModuleRaw.log.success(
           `${green('[custom]')}${magenta('[verifyMailSend]')} (${yellow(url)})`,
         )
@@ -233,7 +230,9 @@ export class AuthControllerServer {
    */
   static async signInPassword(emailParam: string, password: string) {
     const email = emailParam.toLowerCase()
+
     const oSafe = getSafeOptions()
+    oSafe.password.validateInput({ identifier: email, password })
 
     if (!oSafe.password.enabled) {
       throw new EntityError({ message: 'Password is not enabled!' })
@@ -247,7 +246,7 @@ export class AuthControllerServer {
     })
 
     if (existingAccount) {
-      const validPassword = oSafe.password.passwordVerify(
+      const validPassword = oSafe.password.verify(
         password ?? '',
         existingAccount?.hashPassword ?? '',
       )
@@ -287,14 +286,14 @@ export class AuthControllerServer {
       const token = generateAndEncodeToken()
       existingAccount.token = token
       existingAccount.expiresAt = createDate(
-        AUTH_OPTIONS.providers?.password?.resetPasswordExpiresIn ?? 5 * 60,
+        AUTH_OPTIONS.providers?.password?.mail?.reset?.expiresIn ?? 5 * 60,
       )
 
       await repo(oSafe.Account).save(existingAccount)
 
       const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
-      if (AUTH_OPTIONS.providers?.password?.resetPasswordSend) {
-        await AUTH_OPTIONS.providers?.password.resetPasswordSend({ email, url })
+      if (AUTH_OPTIONS.providers?.password?.mail?.reset?.send) {
+        await AUTH_OPTIONS.providers?.password.mail.reset.send({ email, url })
         authModuleRaw.log.success(
           `${green('[custom]')}${magenta('[resetPasswordSend]')} (${yellow(url)})`,
         )
@@ -339,6 +338,7 @@ export class AuthControllerServer {
     if (!oSafe.password.enabled) {
       throw new EntityError({ message: 'Password is not enabled!' })
     }
+    oSafe.password.validateInput({ identifier: 'resetPassword', password })
 
     const account = await remult
       .repo(oSafe.Account)
@@ -350,7 +350,6 @@ export class AuthControllerServer {
     if (account.expiresAt && account.expiresAt < new Date()) {
       throw new EntityError({ message: 'token expired' })
     }
-    oSafe.password.validatePassword(password)
 
     if (account.userId === undefined) {
       const user = await repo(oSafe.User).insert({ identifier: account.providerUserId })
@@ -360,7 +359,7 @@ export class AuthControllerServer {
     await invalidateSession(account.userId)
 
     // update elements
-    account.hashPassword = oSafe.password.passwordHash(password)
+    account.hashPassword = await oSafe.password.hash(password)
     account.token = undefined
     account.expiresAt = undefined
     account.lastVerifiedAt = new Date()

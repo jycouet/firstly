@@ -10,10 +10,12 @@
 
   let msgError = ''
   let msgSuccess = ''
+  let loading = false
 
   async function forgot() {
     // msgError = ''
     // msgSuccess = ''
+    loading = true
     try {
       await AuthController.forgotPassword(email)
       window.location.href = '/ff/auth/sign-in'
@@ -21,6 +23,8 @@
       if (isError(error)) {
         msgError = error.message ?? ''
       }
+    } finally {
+      loading = false
     }
   }
 </script>
@@ -29,12 +33,15 @@
   <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
   <form on:submit|preventDefault={forgot}>
     <input
+      required
       use:autofocus
       bind:value={email}
       type="text"
       placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
     />
-    <button>{firstlyDataAuth.ui?.strings.send_password_reset_instructions}</button>
+    <button disabled={!email || loading}
+      >{firstlyDataAuth.ui?.strings.send_password_reset_instructions}</button
+    >
   </form>
 </div>
 

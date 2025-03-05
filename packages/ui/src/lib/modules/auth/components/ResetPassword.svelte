@@ -10,10 +10,12 @@
 
   let msgError = ''
   let msgSuccess = ''
+  let loading = false
 
   async function reset() {
     msgError = ''
     msgSuccess = ''
+    loading = true
     const token = new URL(location.href).searchParams.get('token')
     try {
       await AuthController.resetPassword(token ?? '', password1)
@@ -22,6 +24,8 @@
       if (isError(error)) {
         msgError = error.message ?? ''
       }
+    } finally {
+      loading = false
     }
   }
 </script>
@@ -30,10 +34,22 @@
   <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
   <form on:submit|preventDefault={reset}>
     {firstlyDataAuth.ui?.strings.password}
-    <input bind:value={password1} type="password" />
+    <input
+      bind:value={password1}
+      type="password"
+      required
+      placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
+    />
     {firstlyDataAuth.ui?.strings.confirm}
-    <input bind:value={password2} type="password" />
-    <button>{firstlyDataAuth.ui?.strings.reset}</button>
+    <input
+      bind:value={password2}
+      type="password"
+      required
+      placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
+    />
+    <button disabled={!password1 || !password2 || loading}
+      >{firstlyDataAuth.ui?.strings.reset}</button
+    >
   </form>
 </div>
 
