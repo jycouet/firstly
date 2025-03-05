@@ -171,7 +171,7 @@ export const buildWhere = <Entity>(
     and.push(defaultWhere)
   }
 
-  if (obj.search) {
+  if (obj && obj.search) {
     and.push(...buildSearchWhere(entity, fields_search, obj.search))
   }
   for (const field of fields_filter) {
