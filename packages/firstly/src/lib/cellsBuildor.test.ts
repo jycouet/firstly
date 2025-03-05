@@ -1,23 +1,23 @@
 import { expect, test } from 'vitest'
 
-import { remult } from 'remult'
+import { repo } from 'remult'
 
 import { buildWhere, cellsBuildor, fieldsOf, getPlaceholder } from './cellsBuildor.js'
 import { UIEntity } from './virtual/UIEntity.js'
 
-const repo = remult.repo(UIEntity)
+const repoUi = repo(UIEntity)
 test('getPlaceholder', () => {
   expect(
     getPlaceholder([
       //
-      repo.fields.email,
-      repo.fields.password,
+      repoUi.fields.email,
+      repoUi.fields.password,
     ]),
   ).toMatchInlineSnapshot('"E Mail, Mot de passe"')
 })
 
 test('where with search', () => {
-  const where = buildWhere(undefined, undefined, [], [repo.fields.email], {
+  const where = buildWhere(undefined, undefined, [], [repoUi.fields.email], {
     email: 'jyc@test.com',
     search: 'jyc test',
   })
@@ -48,7 +48,7 @@ test('where with search', () => {
 })
 
 test('where with 2 search', () => {
-  const where = buildWhere(undefined, undefined, [], [repo.fields.email, repo.fields.state], {
+  const where = buildWhere(undefined, undefined, [], [repoUi.fields.email, repoUi.fields.state], {
     email: 'jyc@test.com',
     search: 'jyc test',
   })
@@ -93,7 +93,7 @@ test('where with 2 search', () => {
 })
 
 test('where without search, with enum', () => {
-  const where = buildWhere(undefined, undefined, [], [repo.fields.email], {
+  const where = buildWhere(undefined, undefined, [], [repoUi.fields.email], {
     email: 'jyc@test.com',
     civilite: 'MADAME',
   })
@@ -105,7 +105,7 @@ test('where without search, with enum', () => {
 })
 
 test('with default where', () => {
-  const where = buildWhere(undefined, { isSubContractor: true }, [], [repo.fields.email], {
+  const where = buildWhere(undefined, { isSubContractor: true }, [], [repoUi.fields.email], {
     email: 'jyc@test.com',
     civilite: 'MADAME',
   })
@@ -121,7 +121,7 @@ test('with default where', () => {
 })
 
 test('cellsBuildor', () => {
-  const cells = cellsBuildor(repo, ['email', 'password'])
+  const cells = cellsBuildor(repoUi, ['email', 'password'])
   // Let's get the selection done
   expect(fieldsOf(cells).map((c) => c.key)).toMatchInlineSnapshot(`
 		[

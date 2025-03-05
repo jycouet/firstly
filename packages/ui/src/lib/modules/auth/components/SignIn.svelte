@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { Auth } from '../../../../../../firstly/src/lib/auth/client'
+  import { AuthController } from '../../../../../../firstly/src/lib/auth'
   import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
   import { isError } from '../../../../../../firstly/src/lib/helper'
   import { autofocus } from '../helpers'
 
+  // eslint-disable-next-line
   export let firstlyDataAuth: firstlyDataAuth
 
   export let view = 'login'
@@ -19,7 +20,7 @@
     msgError = ''
     msgSuccess = ''
     try {
-      await Auth.signInPassword(email, password)
+      await AuthController.signInPassword(email, password)
       window.location.href = '/'
     } catch (error) {
       if (isError(error)) {

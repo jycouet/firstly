@@ -2,8 +2,8 @@ import { BROWSER } from 'esm-env'
 import { derived, get, writable } from 'svelte/store'
 
 import type { ErrorInfo, FindOptions, Repository } from 'remult'
-import { Log } from '@kitql/helpers'
 
+import { ff_Log } from './'
 import { isError } from './helper'
 
 type TheStoreItem<T> = {
@@ -75,7 +75,6 @@ export const storeItem = <T>(
     ) => {
       if (BROWSER) {
         internalStore.update((s) => ({ ...s, loading: true }))
-
         try {
           const item = await repo.findId(id, options)
           // lastOptions = options
@@ -114,6 +113,7 @@ export const storeItem = <T>(
         if (!s.item) {
           return
         }
+        internalStore.update((s) => ({ ...s, loading: true }))
         const item = await repo.save(s.item!)
         internalStore.update((s) => ({
           ...s,
@@ -156,11 +156,16 @@ export const storeItem = <T>(
     delete: async () => {
       const s = get(internalStore)
       if (!s.item) {
-        new Log('firstly').error(`To delete an item, you need set it first.`)
+        ff_Log.error(`To delete an item, you need set it first.`)
         return
       }
       try {
+        internalStore.update((s) => ({ ...s, loading: true }))
         await repo.delete(s.item)
+        internalStore.update((s) => ({
+          ...s,
+          loading: false,
+        }))
       } catch (error: any) {
         if (isError<T>(error)) {
           if (!error.modelState) {

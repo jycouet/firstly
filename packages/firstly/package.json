@@ -3,6 +3,8 @@
   "version": "0.0.11",
   "type": "module",
   "description": "Firstly, an opinionated Remult setup!",
+  "funding": "https://github.com/sponsors/jycouet",
+  "homepage": "https://firstly.fun/",
   "repository": {
     "type": "git",
     "url": "https://github.com/jycouet/firstly",
@@ -28,48 +30,50 @@
     "//// ---- PROD ---- ////": "",
     "compile": "vite build && npm run package && node ./scripts/package.js",
     "package": "svelte-package",
-    "push": "cd dist && npm publish --tag exp",
     "//// ---- THE END ---- ////": ""
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "remult": "2.7.27",
+    "remult": "2.7.29",
     "svelte": ">=4.2.18"
   },
   "devDependencies": {
-    "@kitql/helpers": "0.8.10",
+    "@kitql/helpers": "0.8.11",
     "@sveltejs/adapter-node": "5.2.2",
     "@sveltejs/kit": "2.7.3",
     "@sveltejs/package": "2.3.2",
     "@sveltejs/vite-plugin-svelte": "3.1.2",
+    "@types/bcrypt": "^5.0.2",
     "autoprefixer": "10.4.19",
     "postcss": "8.4.38",
     "svelte": "4.2.18",
     "svelte-check": "4.0.5",
     "tslib": "2.8.0",
     "typescript": "5.5.4",
-    "vitest": "2.1.0"
+    "vitest": "3.0.1"
   },
   "dependencies": {
-    "@clack/prompts": "^0.7.0",
+    "@clack/prompts": "0.7.0",
     "@kitql/internals": "0.9.9",
-    "@mdi/js": "^7.4.47",
-    "@melt-ui/svelte": "^0.84.0",
-    "@types/nodemailer": "^6.4.15",
-    "arctic": "^1.8.0",
-    "clsx": "^2.1.1",
-    "cron": "^3.1.7",
-    "daisyui": "^4.12.14",
-    "esm-env": "^1.0.0",
-    "lucia": "^3.2.0",
-    "nodemailer": "^6.9.13",
-    "oslo": "1.2.1",
-    "svelty-email": "^0.0.11",
-    "tailwind-merge": "^2.3.0",
-    "tailwindcss": "^3.4.3",
-    "vite": "^5.4.1",
-    "vite-plugin-kit-routes": "^0.6.10",
-    "vite-plugin-stripper": "^0.5.4"
+    "@mdi/js": "7.4.47",
+    "@melt-ui/svelte": "0.86.3",
+    "@oslojs/crypto": "1.0.1",
+    "@oslojs/encoding": "1.1.0",
+    "@oslojs/otp": "1.1.0",
+    "@types/nodemailer": "6.4.14",
+    "arctic": "3.5.0",
+    "bcrypt": "5.1.1",
+    "clsx": "2.1.1",
+    "cron": "3.1.7",
+    "daisyui": "4.12.14",
+    "esm-env": "1.0.0",
+    "nodemailer": "6.9.14",
+    "svelty-email": "0.0.11",
+    "tailwind-merge": "2.3.0",
+    "tailwindcss": "3.4.4",
+    "vite": "5.4.1",
+    "vite-plugin-kit-routes": "0.8.3",
+    "vite-plugin-stripper": "0.5.4"
   },
   "sideEffects": false,
   "publishConfig": {
@@ -80,16 +84,12 @@
   "exports": {
     ".": {
       "types": "./esm/index.d.ts",
-      "default": "./esm/index.js",
-      "svelte": "./esm/index.js"
+      "svelte": "./esm/index.js",
+      "default": "./esm/index.js"
     },
     "./api": {
       "types": "./esm/api/index.d.ts",
       "default": "./esm/api/index.js"
-    },
-    "./handle": {
-      "types": "./esm/handle/index.d.ts",
-      "default": "./esm/handle/index.js"
     },
     "./vite": {
       "types": "./esm/vite/index.d.ts",
@@ -106,29 +106,41 @@
       "types": "./esm/auth/index.d.ts",
       "default": "./esm/auth/index.js"
     },
-    "./auth/client": {
-      "types": "./esm/auth/client/index.d.ts",
-      "default": "./esm/auth/client/index.js"
-    },
-    "./auth/providers": {
-      "types": "./esm/auth/providers/index.d.ts",
-      "default": "./esm/auth/providers/index.js"
-    },
-    "./feedback": {
-      "types": "./esm/feedback/index.d.ts",
-      "default": "./esm/feedback/index.js"
+    "./auth/server": {
+      "types": "./esm/auth/server/index.d.ts",
+      "default": "./esm/auth/server/index.js"
     },
     "./changeLog": {
       "types": "./esm/changeLog/index.d.ts",
       "default": "./esm/changeLog/index.js"
     },
+    "./changeLog/server": {
+      "types": "./esm/changeLog/server/index.d.ts",
+      "default": "./esm/changeLog/server/index.js"
+    },
+    "./cron/server": {
+      "types": "./esm/cron/server/index.d.ts",
+      "default": "./esm/cron/server/index.js"
+    },
+    "./feedback": {
+      "types": "./esm/feedback/index.d.ts",
+      "default": "./esm/feedback/index.js"
+    },
+    "./feedback/server": {
+      "types": "./esm/feedback/server/index.d.ts",
+      "default": "./esm/feedback/server/index.js"
+    },
     "./mail": {
       "types": "./esm/mail/index.d.ts",
       "default": "./esm/mail/index.js"
     },
-    "./cron": {
-      "types": "./esm/cron/index.d.ts",
-      "default": "./esm/cron/index.js"
+    "./mail/server": {
+      "types": "./esm/mail/server/index.d.ts",
+      "default": "./esm/mail/server/index.js"
+    },
+    "./sveltekit/server": {
+      "types": "./esm/sveltekit/server/index.d.ts",
+      "default": "./esm/sveltekit/server/index.js"
     }
   },
   "files": [

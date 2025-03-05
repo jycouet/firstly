@@ -4,14 +4,15 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "vite build --base=/api/static",
-    "check": "svelte-check --tsconfig ./tsconfig.node.json",
     "dev": "vite",
-    "preview": "vite preview"
+    "check": "svelte-check --tsconfig ./tsconfig.node.json",
+    "preview": "vite preview",
+    "generate_to_static": "vite build --base=/api/static"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "3.1.2",
     "@tsconfig/svelte": "5.0.2",
+    "mermaid": "^11.4.1",
     "svelte": "4.2.18",
     "svelte-check": "4.0.5",
     "svelte-micro": "2.5.7",

@@ -1,3 +1,4 @@
+import { SqlDatabase } from 'remult'
 import { bgCyan, cyan, green, Log, magenta, yellow } from '@kitql/helpers'
 
 const typeQuery = new Map<string, string>([
@@ -19,6 +20,8 @@ const typeQuery = new Map<string, string>([
 const keys = ['FROM', 'WHERE', 'LIMIT', 'OFFSET']
 const typeQueryKey = Array.from(typeQuery.keys())
 
+const log = new Log('')
+
 export const FF_LogToConsole = (
   duration: number,
   query: string,
@@ -26,8 +29,11 @@ export const FF_LogToConsole = (
   options?: {
     withDetails?: boolean
     tablesToHide?: string[][]
+    ending?: (duration: number, query: string, args: Record<string, any>, tables: string[]) => void
   },
 ) => {
+  if (duration < SqlDatabase.durationThreshold) return
+
   const rawSql = query
     .replace(/(\r\n|\n|\r|\t)/gm, ' ')
     .replace(/  +/g, ' ')
@@ -80,6 +86,21 @@ export const FF_LogToConsole = (
     }
   }
 
+  const toFilterOut = options?.tablesToHide ?? [
+    ['information_Schema.tables'],
+    ['information_schema.columns'],
+    // ['__remult_migrations_version'],
+    ['ff_auth.accounts'],
+    ['ff_auth.users'],
+    ['ff_auth.users_sessions'],
+    ['_ff_change_logs'],
+  ]
+  const toHide = toFilterOut.some((item) =>
+    item.every((i) => tables.map((c) => c.replaceAll('"', '')).includes(i)),
+  )
+
+  if (toHide) return
+
   const final_s = s.join(' ').replace(/  +/g, ' ')
   // args replace
   // const listArgs = []
@@ -95,7 +116,8 @@ export const FF_LogToConsole = (
   const time = ` ${bgCyan((duration * 1000).toFixed(0).padStart(3) + ' ms ')}`
 
   let toLog = ''
-  if (options?.withDetails) {
+  const withDetails = options?.withDetails === undefined ? true : options?.withDetails
+  if (withDetails) {
     toLog = `${typeQuery.get(first) || '💢'}` + time + ` ${final_s}`
   } else {
     toLog =
@@ -106,25 +128,10 @@ export const FF_LogToConsole = (
       `${subTables.length > 0 ? magenta(` (sub: ${subTables.join(', ')})`) : ``}`
   }
 
-  const toFilterOut = options?.tablesToHide ?? [
-    ['__remult_migrations_version'],
-    ['information_Schema.tables'],
-    ['information_schema.columns'],
-    ['ff_auth.accounts'],
-    ['ff_auth.users'],
-    ['ff_auth.users_sessions'],
-    ['_ff_change_logs'],
-  ]
-  const OnoOfFiltered = toFilterOut.some((item) =>
-    item.every((i) => tables.map((c) => c.replaceAll('"', '')).includes(i)),
-  )
+  log.info(toLog)
 
-  if (!OnoOfFiltered) {
-    // console.log(`toLogLong`, toLogLong)
-
-    log.info(toLog)
-    return toLog
+  if (options?.ending) {
+    options.ending(duration, query, args, tables)
   }
+  return toLog
 }
-
-const log = new Log('')

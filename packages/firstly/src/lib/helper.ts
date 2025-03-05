@@ -1,4 +1,4 @@
-import { getEntityRef, getValueList } from 'remult'
+import { EntityError, getEntityRef, getValueList } from 'remult'
 import type { ClassType, ErrorInfo, FieldMetadata, LifecycleEvent, Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
@@ -124,7 +124,7 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
       kind: 'enum',
       subKind: 'single',
       // @ts-ignore
-      values: field.options.valueConverter.values as BaseItem[],
+      values: (field.options.valueConverter.values as BaseItem[]).filter((v) => !v.hide),
       field,
     }
   }
@@ -215,7 +215,7 @@ export const onDelete = async <T>(
   if (nonEmptyRelations.length > 0) {
     if (mode === 'prevent') {
       const relationNames = nonEmptyRelations.map((r) => r.f.caption).join(', ')
-      throw Error(`Can't with existing: ${relationNames}`)
+      throw new EntityError({ message: `Can't with existing: ${relationNames}` })
     } else if (mode === 'cascade') {
       nonEmptyRelations.forEach(async (r) => {
         const where = Object.entries(r.fi?.getFields().fields ?? {}).map(([key, value]) => {

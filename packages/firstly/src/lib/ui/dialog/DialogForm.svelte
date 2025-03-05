@@ -31,10 +31,7 @@
         dialog.close(toShow.id, { success: true, item: result })
       }
     } catch (e) {
-      // in some cases we don't want to throw.
-      // Example: linking ppl to contrat - it is a relation and when adding
-      // the same relation it errors on duplicate key. We can ignore it
-      if (!toShow.noThrow) {
+      if (toShow.reThrow) {
         throw e
       }
     } finally {

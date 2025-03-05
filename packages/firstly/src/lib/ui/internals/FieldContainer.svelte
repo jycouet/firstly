@@ -19,7 +19,6 @@
       {label}{required ? ' *' : ''}
     </span>
     {#if error}
-      <!-- TODO Ermin? hover popup if too long? -->
       <span class="label-text-alt text-error truncate">{error}</span>
     {/if}
   </label>

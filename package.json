@@ -16,10 +16,12 @@
     "homepage": "https://github.com/jycouet/firstly"
   },
   "scripts": {
+    "//// ---- BEST PRACTICES ---- ////": "",
+    "lint": "kitql-lint",
+    "format": "kitql-lint -f",
     "//// ---- PROD ---- ////": "",
-    "build": "pnpm -F firstly compile",
     "release:version": "npm run changeset version",
-    "release": "npm run build && changeset publish",
+    "release": "pnpm -F firstly compile && changeset publish",
     "//// OTHERS ////": "",
     "reset": "git clean -xdf",
     "up-dep": "pnpm -r up --latest"
@@ -27,9 +29,9 @@
   "devDependencies": {
     "@changesets/changelog-github": "0.5.0",
     "@changesets/cli": "2.27.1",
-    "@kitql/eslint-config": "0.4.0",
-    "@playwright/test": "1.48.1",
-    "prettier": "3.3.3"
+    "@kitql/eslint-config": "0.5.1",
+    "@playwright/test": "1.50.0",
+    "prettier": "3.4.2"
   },
   "sideEffects": false,
   "publishConfig": {
@@ -41,8 +43,13 @@
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*"
   ],
-  "exports": {},
   "engines": {
     "node": ">=18"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@melt-ui/svelte@0.86.3": "patches/@melt-ui__svelte@0.86.3.patch",
+      "svelty-email@0.0.11": "patches/svelty-email@0.0.11.patch"
+    }
   }
 }

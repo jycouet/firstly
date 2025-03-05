@@ -1,119 +1,116 @@
-import type { Handle, RequestEvent } from '@sveltejs/kit'
-import nodemailer from 'nodemailer'
+import type { RequestEvent } from '@sveltejs/kit'
 
-import { remult, type ClassType } from 'remult'
+import { type ClassType } from 'remult'
 import { remultSveltekit } from 'remult/remult-sveltekit'
 import type { RemultServerOptions } from 'remult/server'
 import { Log } from '@kitql/helpers'
 
 import { building } from '$app/environment'
 
-import { mailInit, type MailOptions } from '../mail'
-
-export type Module = {
+type ModuleInput = {
   /**
    * The name of the module (usefull for logging and debugging purposes)
    */
   name: string
-  index?: number
+  priority?: number
   entities?: ClassType<any>[]
   controllers?: ClassType<any>[]
   initApi?: RemultServerOptions<RequestEvent>['initApi']
   initRequest?: RemultServerOptions<RequestEvent>['initRequest']
-  handlePreRemult?: Handle
-  handlePosRemult?: Handle
-  earlyReturn?: (
-    input: Parameters<Handle>[0],
-  ) => Promise<{ early: false; resolve?: undefined } | { early: true; resolve: ReturnType<Handle> }>
   modules?: Module[]
 }
 
-type Options = Omit<
-  RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
-    modules?: Module[] | undefined
-    mail?: MailOptions<any>
-    // log?: boolean | string
-  },
-  'entities' | 'controllers' | 'initRequest' | 'initApi'
->
+export class Module {
+  name: string
+  log: Log
 
+  priority?: number
+  entities?: ClassType<any>[]
+  controllers?: ClassType<any>[]
+  initApi?: RemultServerOptions<RequestEvent>['initApi']
+  initRequest?: RemultServerOptions<RequestEvent>['initRequest']
+  modules?: Module[]
+
+  constructor(input: ModuleInput) {
+    this.name = input.name
+    this.log = new Log(`firstly | ${this.name}`)
+    this.priority = input.priority
+    this.entities = input.entities
+    this.controllers = input.controllers
+    this.initApi = input.initApi
+    this.initRequest = input.initRequest
+    this.modules = input.modules
+  }
+}
+
+type Options = RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
+  modules?: Module[] | undefined
+}
+
+export let entities: ClassType<any>[] = []
 /**
  * it's basically `remultSveltekit` with the `modules` option
  */
 export const firstly = (o: Options) => {
-  const modulesSorted = modulesFlatAndOrdered(o.modules ?? [])
-  const entities = modulesSorted.flatMap((m) => m.entities ?? [])
+  const modulesSorted = modulesFlatAndOrdered([
+    ...(o.modules ?? []),
+    new Module({
+      name: 'default',
+      entities: o.entities ?? [],
+      controllers: o.controllers ?? [],
+      initRequest: o.initRequest,
+      initApi: o.initApi,
+    }),
+  ])
+  entities = modulesSorted.flatMap((m) => m.entities ?? [])
 
-  mailInit(nodemailer, o.mail)
+  return remultSveltekit({
+    // Changing the default default of remult
+    logApiEndPoints: false,
+    admin: true,
+    defaultGetLimit: 25,
+    error: o.error
+      ? o.error
+      : async (e) => {
+          // REMULT P2: validation error should probably be 409
+          // if 400 we move to 409
+          if (e.httpStatusCode == 400) {
+            e.sendError(409, e.responseBody)
+          }
+        },
+    // Add user configuration
+    ...o,
 
-  return {
-    modulesSorted: modulesSorted,
-
+    // Module part
     entities,
-
-    server: remultSveltekit({
-      // Changing the default default of remult
-      logApiEndPoints: false,
-      admin: true,
-      defaultGetLimit: 25,
-      error: o.error
-        ? o.error
-        : async (e) => {
-            // REMULT P2: validation error should probably be 409
-            // if 400 we move to 409
-            if (e.httpStatusCode == 400) {
-              e.sendError(409, e.responseBody)
-            }
-          },
-      // Add user configuration
-      ...o,
-
-      // Module part
-      entities,
-      controllers: modulesSorted.flatMap((m) => m.controllers ?? []),
-      initRequest: async (kitEvent, op) => {
-        // usefull for later...
-        remult.context.url = kitEvent.url
-
-        remult.context.setHeaders = (headers) => {
-          kitEvent.setHeaders(headers)
+    controllers: modulesSorted.flatMap((m) => m.controllers ?? []),
+    initRequest: async (kitEvent, op) => {
+      for (let i = 0; i < modulesSorted.length; i++) {
+        const f = modulesSorted[i].initRequest
+        if (f) {
+          try {
+            await f(kitEvent, op)
+          } catch (error) {
+            modulesSorted[i].log.error(error)
+          }
         }
-        remult.context.setCookie = (name, value, opts) => {
-          kitEvent.cookies.set(name, value, opts)
-        }
-        remult.context.deleteCookie = (name, opts) => {
-          kitEvent.cookies.delete(name, opts)
-        }
-
+      }
+    },
+    initApi: async (r) => {
+      if (!building) {
         for (let i = 0; i < modulesSorted.length; i++) {
-          const f = modulesSorted[i].initRequest
+          const f = modulesSorted[i].initApi
           if (f) {
             try {
-              await f(kitEvent, op)
+              await f(r)
             } catch (error) {
-              const log = new Log(`firstly | ${modulesSorted[i].name}`)
-              log.error(error)
+              modulesSorted[i].log.error(error)
             }
           }
         }
-      },
-      initApi: async (r) => {
-        if (!building) {
-          for (let i = 0; i < modulesSorted.length; i++) {
-            const f = modulesSorted[i].initApi
-            if (f) {
-              try {
-                await f(r)
-              } catch (error) {
-                const log = new Log(`firstly | ${modulesSorted[i].name}`)
-                log.error(error)
-              }
-            }
-          }
-        }
-      },
-    }),
-  }
+      }
+    },
+  })
 }
 
 /**
@@ -132,6 +129,6 @@ export const modulesFlatAndOrdered = (modules: Module[]): Module[] => {
   }
 
   const flatModules = flattenModules(modules)
-  flatModules.sort((a, b) => (a.index || 0) - (b.index || 0))
+  flatModules.sort((a, b) => (a.priority || 0) - (b.priority || 0))
   return flatModules
 }

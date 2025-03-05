@@ -1,42 +1,43 @@
-import { mergeConfig, type PluginOption } from 'vite'
+import {
+  //mergeConfig
+  type PluginOption,
+} from 'vite'
 import { kitRoutes, type Options, type RouteMappings } from 'vite-plugin-kit-routes'
 import { stripper } from 'vite-plugin-stripper'
 
 // import { Log } from '@kitql/helpers'
 
-// const toRemove = ['oslo/password', 'oslo', '@node-rs/argon2', '@node-rs/bcrypt']
+// const toRemove = ['@node-rs/argon2', '@node-rs/bcrypt']
 // oslo needs to be in the dependencies (not devDependencies) !!
-const toRemove = ['oslo/password', 'oslo']
+// const toRemove = ['oslo/password', 'oslo']
 
 export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
   stripper?: { debug?: boolean }
   kitRoutes?: Options<KIT_ROUTES>
 }): PluginOption {
-  // const log = new Log('firstly')
-  // console.log(`toRemove`, toRemove)
-
+  // @ts-ignore
   return [
-    {
-      name: 'vite-plugin-firstly',
-      enforce: 'pre',
+    // {
+    //   name: 'vite-plugin-firstly',
+    //   enforce: 'pre',
 
-      config: async (a) => {
-        return mergeConfig(a, {
-          build: {
-            // THE ERROR:
-            // RollupError: Unexpected character '�' or Unexpected character '\u{7f}'
-            // This code (A) is to fix in `build` mode
-            rollupOptions: {
-              external: toRemove,
-            },
-          },
-          // This code (B) is to fix in `dev` mode
-          optimizeDeps: {
-            exclude: toRemove,
-          },
-        })
-      },
-    },
+    //   config: async (a) => {
+    //     return mergeConfig(a, {
+    //       build: {
+    //         // THE ERROR:
+    //         // RollupError: Unexpected character '�' or Unexpected character '\u{7f}'
+    //         // This code (A) is to fix in `build` mode
+    //         rollupOptions: {
+    //           external: toRemove,
+    //         },
+    //       },
+    //       // This code (B) is to fix in `dev` mode
+    //       optimizeDeps: {
+    //         exclude: toRemove,
+    //       },
+    //     })
+    //   },
+    // },
 
     // @ts-ignore
     ...kitRoutes<KIT_ROUTES>({

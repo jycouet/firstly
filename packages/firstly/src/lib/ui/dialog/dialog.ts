@@ -39,7 +39,7 @@ export type DialogMetaData<entityType = any> = {
   component?: new (...args: any[]) => SvelteComponent
   props?: any
   children?: any
-  noThrow?: boolean
+  reThrow?: boolean
   wDelete?: boolean
   focusKey?: string
 
@@ -57,7 +57,7 @@ export type DialogFormType<entityType> = {
   cells?: CellsInput<entityType>
   defaults?: Partial<entityType>
   classes?: DialogClasses
-  noThrow?: boolean
+  reThrow?: boolean
   wDelete?: boolean
   topicPrefixText?: string
   focusKey?: string
@@ -139,7 +139,7 @@ const createDialogManagement = () => {
         cells: settings.cells ?? [],
         defaults: settings?.defaults,
         classes: settings?.classes,
-        noThrow: settings?.noThrow,
+        reThrow: settings?.reThrow,
         wDelete: settings?.wDelete,
         focusKey: settings?.focusKey,
         topicPrefixText,

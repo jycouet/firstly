@@ -15,9 +15,11 @@ export type firstlyDataAuth = {
       verify_email: string | false
     }
     strings: {
+      app_name: string
       email: string
       email_placeholder: string
       password: string
+      password_placeholder: string
       confirm: string
       reset: string
       btn_sign_in: string
@@ -25,6 +27,9 @@ export type firstlyDataAuth = {
       forgot_password: string
       send_password_reset_instructions: string
       back_to_sign_in: string
+    }
+    images: {
+      main: string
     }
   }
 }
