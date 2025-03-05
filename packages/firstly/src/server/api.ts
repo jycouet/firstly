@@ -62,6 +62,10 @@ export const api = firstly({
         strings: {
           app_name: 'Hello you',
         },
+        images: {
+          // main: 'https://placehold.co/600x400',
+          main: "https://images.unsplash.com/photo-1588421357937-c6dadca810cf?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        },
       },
       debug: true,
       providers: {

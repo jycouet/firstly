@@ -28,5 +28,8 @@ export type firstlyDataAuth = {
       send_password_reset_instructions: string
       back_to_sign_in: string
     }
+    images: {
+      main: string
+    }
   }
 }

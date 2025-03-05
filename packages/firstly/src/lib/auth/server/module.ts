@@ -224,6 +224,9 @@ export const getSafeOptions = <
                 'Send password reset instructions',
               back_to_sign_in: AUTH_OPTIONS.ui?.strings?.back_to_sign_in ?? 'Back to sign in',
             },
+            images: {
+              main: AUTH_OPTIONS.ui?.images?.main ?? '',
+            },
           },
     },
   }
