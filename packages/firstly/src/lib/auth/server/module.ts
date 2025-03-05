@@ -206,6 +206,7 @@ export const getSafeOptions = <
               ),
             },
             strings: {
+              app_name: AUTH_OPTIONS.ui?.strings?.app_name ?? '',
               email: AUTH_OPTIONS.ui?.strings?.email ?? 'Email',
               email_placeholder:
                 AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',

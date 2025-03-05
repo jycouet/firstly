@@ -16,8 +16,12 @@
 </script>
 
 <div class="wrapper">
-  <div class="form">
-    <Route>
+  <Route>
+    <div class="form">
+      {#if firstlyDataAuth.ui?.strings.app_name}
+        <h1>{firstlyDataAuth.ui.strings.app_name}</h1>
+      {/if}
+
       {#if firstlyDataAuth.ui?.paths.sign_up}
         <Route path={firstlyDataAuth.ui?.paths.sign_up}>
           <SignUp {firstlyDataAuth} bind:email />
@@ -87,20 +91,24 @@
 
         <Link href={'/ff/auth/flows'}>Flows</Link>
       {/if} -->
-
-      <Route fallback>
-        <div class="fallback">
-          <small>- 404 -</small>
-        </div>
-        <div class="fallback">
-          <small>Nothing to see here</small>
-        </div>
-      </Route>
+    </div>
+    <Route fallback>
+      <div class="fallback">
+        <small>- 404 -</small>
+      </div>
+      <div class="fallback">
+        <small>Nothing to see here</small>
+      </div>
     </Route>
-  </div>
+  </Route>
 </div>
 
 <style>
+  h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
   .wrapper {
     min-height: 100vh;
     display: flex;

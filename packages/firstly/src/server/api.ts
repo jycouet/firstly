@@ -59,6 +59,9 @@ export const api = firstly({
         paths: {
           // sign_in: false,
         },
+        strings: {
+          app_name: 'Hello you',
+        },
       },
       debug: true,
       providers: {

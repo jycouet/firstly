@@ -15,6 +15,7 @@ export type firstlyDataAuth = {
       verify_email: string | false
     }
     strings: {
+      app_name: string
       email: string
       email_placeholder: string
       password: string
