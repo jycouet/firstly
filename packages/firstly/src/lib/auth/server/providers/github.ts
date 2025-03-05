@@ -1,10 +1,10 @@
-import { GitHub } from 'arctic'
+import { GitHub, OAuth2Tokens } from 'arctic'
 
 import { remult } from 'remult'
 
 import { env } from '$env/dynamic/private'
 
-import { authModuleRaw, type FFOAuth2Provider } from '../module'
+import { authModuleRaw, type FFOAuth2Provider, type OAuth2UserInfo, type ProviderAuthorizationURLOptions } from '../module'
 import { checkOAuthConfig } from './helperProvider'
 
 //------------------------------
@@ -19,7 +19,7 @@ import { checkOAuthConfig } from './helperProvider'
  *
  * 1. Get your **id** & **secret** from [GitHub (direct link)](https://github.com/settings/developers).
  * 2. In GitHub, set your callback url to
- * - [ ] dev: `http://localhost:5173/api/auth_callback`
+ * - [ ] dev: `http://_YOUR_LOCAL_URL:PORT_/api/auth_callback`
  * - [ ] prod: `https://MY_SUPER_SITE/api/auth_callback`
  * 3. In your project add a `.env` file with the following:
  * ```bash
@@ -39,11 +39,10 @@ export function github(options?: {
   GITHUB_CLIENT_ID?: string
   GITHUB_CLIENT_SECRET?: string
   GITHUB_REDIRECT_URI?: string
-  authorizationURLOptions?: ReturnType<
-    FFOAuth2Provider<'github', GitHub>['authorizationURLOptions']
-  >
+  authorizationURLOptions?: ProviderAuthorizationURLOptions
+  getUserInfo?: (tokens: OAuth2Tokens) => Promise<OAuth2UserInfo>
   log?: boolean
-}): FFOAuth2Provider<'github', GitHub> {
+}): FFOAuth2Provider<GitHub, 'github'> {
   const name = 'github'
 
   const clientID = options?.GITHUB_CLIENT_ID ?? env.GITHUB_CLIENT_ID ?? ''
@@ -54,7 +53,6 @@ export function github(options?: {
 
   return {
     name,
-    isPKCE: false,
     getArcticProvider: () => {
       const redirectURI =
         options?.GITHUB_REDIRECT_URI ??
@@ -63,22 +61,36 @@ export function github(options?: {
 
       checkOAuthConfig(name, clientID, secret, urlForKeys, true)
 
-      return new GitHub(clientID, secret, { redirectURI })
+      const o = new GitHub(clientID, secret, redirectURI)
+      return o
     },
     authorizationURLOptions: () => {
-      return options?.authorizationURLOptions ?? { scopes: [] }
+      return options?.authorizationURLOptions ?? []
     },
-    getUserInfo: async (tokens) => {
-      const res = await fetch('https://api.github.com/user', {
-        headers: {
-          Authorization: `Bearer ${tokens.accessToken}`,
-        },
-      })
-      const user = await res.json()
-      if (options?.log) {
-        authModuleRaw.log.info(`user`, user)
-      }
-      return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
-    },
+    getUserInfo: options?.getUserInfo
+      ? options.getUserInfo
+      : async (tokens) => {
+        const res = await fetch('https://api.github.com/user', {
+          headers: {
+            Authorization: `Bearer ${tokens.accessToken()}`,
+          },
+        })
+        const user = await res.json()
+
+        if ((options?.authorizationURLOptions ?? []).includes('user:email')) {
+          const res = await fetch('https://api.github.com/user/emails', {
+            headers: {
+              Authorization: `Bearer ${tokens.accessToken()}`,
+            },
+          })
+          user.emails = await res.json()
+        }
+
+        if (options?.log) {
+          authModuleRaw.log.info(`user`, user)
+        }
+
+        return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
+      },
   }
 }

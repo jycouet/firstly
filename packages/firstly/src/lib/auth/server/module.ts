@@ -1,7 +1,3 @@
-import type {
-  OAuth2Provider as ArcticOAuth2Provider,
-  OAuth2ProviderWithPKCE as ArcticOAuth2ProviderWithPKCE,
-} from 'arctic'
 import bcrypt from 'bcrypt'
 import { EntityError, remult } from 'remult'
 import type { ClassType, UserInfo } from 'remult'
@@ -11,58 +7,32 @@ import { getRelativePackagePath } from '@kitql/internals'
 import { AuthController } from '..'
 import { FF_Role } from '../..'
 import { Module } from '../../api'
-import type { RecursivePartial, ResolvedType } from '../../utils/types'
+import type { RecursivePartial } from '../../utils/types'
 import { FF_Role_Auth, FFAuthAccount, FFAuthUser, FFAuthUserSession } from '../Entities'
 import type { firstlyData, firstlyDataAuth } from '../types'
 import { AuthControllerServer } from './AuthController.server'
 import { validateSessionToken } from './helperDb'
 import { setSessionTokenCookie } from './helperRemultServer'
 import { initRoleFromEnv } from './helperRole'
+import type { OAuth2Tokens } from 'arctic'
 
 export type { firstlyData }
 
-// It's sure that we can do better than that! ;)
-export type AuthorizationURLOptions = Record<
-  string,
-  {
-    scopes?: string[]
-  }
->
-
-export type DynamicAuthorizationURLOptions<T extends FFOAuth2Provider[] = FFOAuth2Provider[]> =
-  T extends Array<infer O>
-  ? O extends FFOAuth2Provider
-  ? {
-    [P in O['name']]: ReturnType<O['authorizationURLOptions']>
-  }
-  : never
-  : never
-
+export type ProviderConfigured = Record<string, ProviderAuthorizationURLOptions>
+export type ProviderAuthorizationURLOptions = string[]
 export type OAuth2UserInfo = {
   raw?: any
   providerUserId: string
   /** Will take the first option available */
   nameOptions: string[]
 }
-export type FFOAuth2Provider<
-  LitName extends string = string,
-  T extends ArcticOAuth2Provider | ArcticOAuth2ProviderWithPKCE = ArcticOAuth2Provider,
-> = {
+
+// TODO revalidate token?
+export type FFOAuth2Provider<T = any, LitName extends string = string> = {
   name: LitName
   getArcticProvider: () => T
-  isPKCE: T extends ArcticOAuth2Provider
-  ? false
-  : T extends ArcticOAuth2ProviderWithPKCE
-  ? true
-  : never
-  authorizationURLOptions: () => T extends ArcticOAuth2Provider
-    ? Parameters<T['createAuthorizationURL']>[1]
-    : T extends ArcticOAuth2ProviderWithPKCE
-    ? Parameters<T['createAuthorizationURL']>[2]
-    : never
-  getUserInfo(
-    tokens: ResolvedType<ReturnType<T['validateAuthorizationCode']>>,
-  ): Promise<OAuth2UserInfo>
+  authorizationURLOptions: () => ProviderAuthorizationURLOptions
+  getUserInfo(tokens: OAuth2Tokens): Promise<OAuth2UserInfo>
 }
 
 type AuthOptions<
@@ -322,9 +292,12 @@ export const getSafeOptions = <
     signUp,
     password: {
       enabled: AUTH_OPTIONS.providers?.password ? true : false,
-      validatePassword: AUTH_OPTIONS.providers?.password?.settings?.bcrypt?.validatePassword ?? validatePassword,
-      passwordHash: AUTH_OPTIONS.providers?.password?.settings?.bcrypt?.passwordHash ?? passwordHash,
-      passwordVerify: AUTH_OPTIONS.providers?.password?.settings?.bcrypt?.passwordVerify ?? passwordVerify,
+      validatePassword:
+        AUTH_OPTIONS.providers?.password?.settings?.bcrypt?.validatePassword ?? validatePassword,
+      passwordHash:
+        AUTH_OPTIONS.providers?.password?.settings?.bcrypt?.passwordHash ?? passwordHash,
+      passwordVerify:
+        AUTH_OPTIONS.providers?.password?.settings?.bcrypt?.passwordVerify ?? passwordVerify,
     },
     otp: { enabled: AUTH_OPTIONS.providers?.otp ? true : false },
 

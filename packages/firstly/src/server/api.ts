@@ -7,8 +7,6 @@ import { auth } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'
 import { sveltekit } from '$lib/sveltekit/server'
 
-// import { github } from '$lib/auth/providers'
-
 const Role = {
   ...FF_Role,
   ...FF_Role_Auth,
@@ -27,8 +25,6 @@ export class _AppUser extends FFAuthUser {
   @Fields.string()
   jobTitle: string = 'CEO'
 }
-
-// const t: DynamicAuthorizationURLOptions<typeof oAuths> = { github: {} }
 
 export const api = firstly({
   modules: [
@@ -84,7 +80,7 @@ export const api = firstly({
 
         oAuths: [
           // github({
-          //   authorizationURLOptions: { scopes: ['user:email'] },
+          //   authorizationURLOptions: ['user:email'],
           //   log: true,
           // }),
         ],

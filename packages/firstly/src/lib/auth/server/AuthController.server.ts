@@ -1,4 +1,4 @@
-import { generateCodeVerifier, generateState } from 'arctic'
+import { generateState } from 'arctic'
 
 import { EntityError, remult, repo } from 'remult'
 import { green, magenta, yellow } from '@kitql/helpers'
@@ -12,7 +12,6 @@ import { createDate, generateAndEncodeToken } from './helperOslo.js'
 import { createTOTPKeyURI, generateTOTP, verifyTOTPWithGracePeriod } from "@oslojs/otp";
 import {
   deleteSessionTokenCookie,
-  setCodeVerifierCookie,
   setOAuthStateCookie,
   setRedirectCookie,
 } from './helperRemultServer.js'
@@ -21,7 +20,7 @@ import {
   AUTH_OPTIONS,
   authModuleRaw,
   getSafeOptions,
-  type AuthorizationURLOptions,
+  type ProviderConfigured,
 } from './module.js'
 import { decodeHex, encodeHexLowerCase } from '@oslojs/encoding'
 
@@ -494,9 +493,9 @@ export class AuthControllerServer {
    *
    * _(popup example should work too, and a nice example/componant would be appreciated)_
    */
-  static async signInOAuthGetUrl<T extends keyof AuthorizationURLOptions>(o: {
+  static async signInOAuthGetUrl<T extends keyof ProviderConfigured>(o: {
     provider: T
-    options?: AuthorizationURLOptions[T]
+    options?: ProviderConfigured[T]
     redirect?: string
   }) {
     const selectedOAuth = AUTH_OPTIONS.providers?.oAuths?.find((c) => c.name === o.provider)
@@ -506,13 +505,6 @@ export class AuthControllerServer {
         const arcticProvider = selectedOAuth.getArcticProvider()
         const args: any = [state]
 
-        if (selectedOAuth.isPKCE) {
-          const codeVerifier = generateCodeVerifier()
-          args.push(codeVerifier)
-
-          setCodeVerifierCookie(codeVerifier)
-        }
-
         if (o.options) {
           args.push(o.options)
         } else {
@@ -520,14 +512,14 @@ export class AuthControllerServer {
             args.push(selectedOAuth.authorizationURLOptions())
           }
         }
-        // @ts-ignore
+
         const url = await arcticProvider.createAuthorizationURL(...args)
 
         if (!url) {
           throw new EntityError({ message: 'No url returned' })
         }
 
-        setOAuthStateCookie(o.provider, state)
+        setOAuthStateCookie(selectedOAuth.name, state)
 
         if (o.redirect) {
           setRedirectCookie(o.redirect)
@@ -537,7 +529,7 @@ export class AuthControllerServer {
       } catch (error) {
         // display error for the server only
         authModuleRaw.log.error(error)
-        throw new EntityError({ message: `${o.provider} not well configured!` })
+        throw new EntityError({ message: `${selectedOAuth.name} not well configured!` })
       }
     }
 

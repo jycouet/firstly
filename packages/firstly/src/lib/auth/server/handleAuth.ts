@@ -5,6 +5,8 @@ import { read } from '@kitql/internals'
 
 import { FFAuthProvider } from '../Entities'
 import { getSafeOptions, type OAuth2UserInfo } from './module'
+import type { OAuth2Tokens } from 'arctic'
+import { ff_createSession } from './helperFirstly'
 
 export const handleAuth: Handle = async ({ event, resolve }) => {
   const oSafe = getSafeOptions()
@@ -12,7 +14,7 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
   if (event.url.pathname === oSafe.firstlyData.props.ui?.paths?.verify_email) {
     const token = event.url.searchParams.get('token') ?? ''
 
-    if (!oSafe.password_enabled) {
+    if (!oSafe.password.enabled) {
       throw Error('Password is not enabled!')
     }
 
@@ -35,7 +37,7 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 
     await repo(oSafe.Account).save(account)
 
-    // await createOrExtendSession(account.userId)
+    await ff_createSession(account.userId)
 
     redirect(302, oSafe.redirectUrl)
   }
@@ -100,11 +102,12 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 
     const selectedOAuth = oSafe.providers?.oAuths?.find((c) => c.name === keyState)
     if (selectedOAuth && code) {
-      const tokens = await selectedOAuth.getArcticProvider().validateAuthorizationCode(code)
+      const tokens = await selectedOAuth.getArcticProvider().validateAuthorizationCode(code) as OAuth2Tokens
       let info: OAuth2UserInfo
       try {
         info = await selectedOAuth.getUserInfo(tokens)
       } catch (error) {
+        console.error(error)
         redirect(302, redirectUrl)
       }
 
@@ -118,6 +121,7 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
       })
       if (!account) {
         if (!oSafe.signUp) {
+          console.error('You can\'t signup by yourself! Contact the administrator.')
           // throw Error("You can't signup by yourself! Contact the administrator.")
           redirect(302, redirectUrl)
         }
@@ -147,18 +151,18 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
         account = repo(oSafe.Account).create()
         account.provider = keyState
         account.providerUserId = info.providerUserId
-        account.token = tokens.accessToken
+        account.token = tokens.accessToken()
         account.userId = user.id
         account.lastVerifiedAt = new Date()
 
         await repo(oSafe.User).save(user)
         await repo(oSafe.Account).save(account)
       } else {
-        account.token = tokens.accessToken
+        account.token = tokens.accessToken()
         await repo(oSafe.Account).save(account)
       }
 
-      // await createOrExtendSession(account.userId)
+      await ff_createSession(account.userId)
 
       event.cookies.delete(`${keyState}_oauth_state`, { path: '/' })
       event.cookies.delete(`code_verifier`, { path: '/' })

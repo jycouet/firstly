@@ -1,7 +1,7 @@
 import { BackendMethod } from 'remult'
 
 import { FF_Role_Auth } from './Entities'
-import type { AuthorizationURLOptions } from './server/module'
+import type { ProviderConfigured } from './server/module'
 
 export class AuthController {
   // Private static fields
@@ -126,9 +126,9 @@ export class AuthController {
    * _(popup example should work too, and a nice example/componant would be appreciated)_
    */
   @BackendMethod({ allowed: true })
-  static async signInOAuthGetUrl<T extends keyof AuthorizationURLOptions>(o: {
+  static async signInOAuthGetUrl<T extends keyof ProviderConfigured>(o: {
     provider: T
-    options?: AuthorizationURLOptions[T]
+    options?: ProviderConfigured[T]
     redirect?: string
   }) {
     return await AuthController.#signInOAuthGetUrlFn(o)
