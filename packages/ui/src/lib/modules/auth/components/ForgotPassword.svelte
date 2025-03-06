@@ -13,33 +13,31 @@
   let loading = false
 
   async function forgot() {
-    // msgError = ''
-    // msgSuccess = ''
+    msgError = ''
+    msgSuccess = ''
     loading = true
     try {
-      await AuthController.forgotPassword(email)
-      window.location.href = '/ff/auth/sign-in'
+      msgSuccess = await AuthController.forgotPassword(email)
     } catch (error) {
       if (isError(error)) {
         msgError = error.message ?? ''
       }
-    } finally {
       loading = false
-    }
+    } 
   }
 </script>
 
 <div class="login">
-  <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
+  <p class="message" class:error={msgError} class:success={msgSuccess}>{msgError}{msgSuccess}</p>
   <form on:submit|preventDefault={forgot}>
     <input
       required
       use:autofocus
       bind:value={email}
-      type="text"
+      type="email"
       placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
     />
-    <button disabled={!email || loading}
+    <button disabled={!email || !email.includes('@') || !email.includes('.') || loading}
       >{firstlyDataAuth.ui?.strings.send_password_reset_instructions}</button
     >
   </form>

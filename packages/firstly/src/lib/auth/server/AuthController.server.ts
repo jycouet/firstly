@@ -143,7 +143,7 @@ export class AuthControllerServer {
   static async signUpPassword(emailParam: string, password: string) {
     const oSafe = getSafeOptions()
     if (!oSafe.signUp) {
-      throw new EntityError({ message: "You can't signup by yourself! Contact the administrator." })
+      throw new EntityError({ message: oSafe.strings.cannotSignUp })
     }
 
     if (!oSafe.password.enabled) {
@@ -297,7 +297,7 @@ export class AuthControllerServer {
         authModuleRaw.log.success(
           `${green('[custom]')}${magenta('[resetPasswordSend]')} (${yellow(url)})`,
         )
-        return 'Mail sent !'
+        return oSafe.strings.resetPasswordSend
       } else {
         await sendMail('resetPasswordSend', {
           to: email,
@@ -323,10 +323,10 @@ export class AuthControllerServer {
         })
 
         authModuleRaw.log.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
-        return 'Demo Mail sent !'
+        return `Demo | ${oSafe.strings.resetPasswordSend}`
       }
     }
-    throw new EntityError({ message: "Une erreur est survenue, contacte l'administrateur!" })
+    throw new EntityError({ message: oSafe.strings.anErrorOccurred })
   }
 
   /**

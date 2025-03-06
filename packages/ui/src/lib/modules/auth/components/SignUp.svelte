@@ -22,15 +22,14 @@
     msgSuccess = ''
     loading = true
     try {
-      await AuthController.signUpPassword(email, password)
+      msgSuccess = await AuthController.signUpPassword(email, password)
       window.location.href = '/'
     } catch (error) {
       if (isError(error)) {
         msgError = error.message ?? ''
       }
-    } finally {
       loading = false
-    }
+    } 
   }
 
   const handlePin = () => {
@@ -47,7 +46,7 @@
         required
         bind:value={email}
         use:autofocus
-        type="text"
+        type="email"
         placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
       />
     </label>
@@ -81,21 +80,5 @@
   form {
     display: flex;
     flex-direction: column;
-  }
-
-  .message:empty {
-    display: none;
-  }
-
-  .message {
-    background: var(--pico-muted-border-color);
-    padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
-    border-radius: var(--pico-border-radius);
-    margin-bottom: calc(var(--pico-typography-spacing-vertical) * 2);
-  }
-
-  .message.error {
-    background: var(--pico-del-color);
-    color: #4c1513;
   }
 </style>
