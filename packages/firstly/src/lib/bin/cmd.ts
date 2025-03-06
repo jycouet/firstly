@@ -66,8 +66,8 @@ function mergeAndSort(
 }
 
 pkg.devDependencies = mergeAndSort(pkg.devDependencies, {
-  '@kitql/eslint-config': '0.3.7',
-  '@kitql/helpers': '0.8.10',
+  '@kitql/eslint-config': '0.5.4',
+  '@kitql/helpers': '0.8.12',
   pg: '8.12.0',
   remult: versionFirstly,
 })
@@ -545,8 +545,8 @@ new Log('').info(
   gray(
     italic(
       `${bold('❔ More help')} ` +
-        `at ${cyan('https://github.com/jycouet/firstly')} ` +
-        `(📄 Docs, ⭐ Github, 📣 Discord, ...)\n`,
+      `at ${cyan('https://github.com/jycouet/firstly')} ` +
+      `(📄 Docs, ⭐ Github, 📣 Discord, ...)\n`,
     ),
   ),
 )

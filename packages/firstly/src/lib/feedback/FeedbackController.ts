@@ -157,8 +157,8 @@ export class FeedbackController {
     return data.repository.milestone.issues.nodes.map((issue: any) => {
       const hasWaitingForAnswerLabel = FEEDBACK_OPTIONS.highlight_label
         ? issue.labels.nodes.some((label: any) =>
-            label.name.includes(FEEDBACK_OPTIONS.highlight_label),
-          )
+          label.name.includes(FEEDBACK_OPTIONS.highlight_label),
+        )
         : false
       return {
         id: issue.id,
@@ -260,8 +260,8 @@ export class FeedbackController {
 
     const hasWaitingForAnswerLabel = FEEDBACK_OPTIONS.highlight_label
       ? data.repository.issue.labels.nodes.some((label: any) =>
-          label.name.includes(FEEDBACK_OPTIONS.highlight_label),
-        )
+        label.name.includes(FEEDBACK_OPTIONS.highlight_label),
+      )
       : false
 
     const toRet = {
