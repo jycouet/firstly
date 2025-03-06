@@ -63,6 +63,8 @@
     }
     return props ?? ''
   }
+
+  const role = 'img'
 </script>
 
 {#if BROWSER || ssr}
@@ -72,7 +74,7 @@
       style={getInfoProps(style)}
       style:width
       style:height
-      role={'img'}
+      {role}
       on:click
     >
       <slot>
@@ -86,7 +88,7 @@
       {viewBox}
       class={getInfoProps(className)}
       style={getInfoProps(style)}
-      role={'img'}
+      {role}
       on:click
     >
       {#each Array.isArray(path) ? path : [path] as d, i}
@@ -106,7 +108,7 @@
     {viewBox}
     class={getInfoProps(className)}
     style={getInfoProps(style)}
-    role={'img'}
+    {role}
     on:click
   >
     <path

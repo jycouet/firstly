@@ -11,6 +11,10 @@ export default [
     name: 'firstly:rules',
     rules: {
       'no-empty': ['error', { allowEmptyCatch: true }],
+
+      'svelte/no-reactive-reassign': 'off',
+      'svelte/no-immutable-reactive-statements': 'off',
+      'svelte/require-each-key': 'off',
     },
   },
 ]

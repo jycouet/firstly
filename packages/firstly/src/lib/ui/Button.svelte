@@ -21,6 +21,7 @@
   $: isLoading &&
     setTimeout(() => {
       if (isLoading) {
+        // eslint-disable-next-line
         triggerAnnimation = true
       }
     }, 200)
