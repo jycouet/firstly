@@ -16,9 +16,6 @@
     "homepage": "https://github.com/jycouet/firstly"
   },
   "scripts": {
-    "//// ---- BEST PRACTICES ---- ////": "",
-    "lint": "kitql-lint",
-    "format": "kitql-lint -f",
     "//// ---- PROD ---- ////": "",
     "release:version": "npm run changeset version",
     "release": "pnpm -F firstly compile && changeset publish",
