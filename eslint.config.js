@@ -1,8 +1,8 @@
-import kitql from '@kitql/eslint-config'
+import { kitql } from '@kitql/eslint-config'
 
 /** @type { import("eslint").Linter.Config } */
 export default [
-	...kitql,
+	...kitql(),
 	{
 		name: 'firstly:ignores',
 		ignores: ['**/lib/auth/static/assets/'],

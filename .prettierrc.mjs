@@ -1,5 +1,5 @@
-import config from '@kitql/eslint-config/.prettierrc.mjs'
+import { kitql } from '@kitql/eslint-config/.prettierrc.mjs'
 
 export default {
-	...config,
+	...kitql(),
 }
