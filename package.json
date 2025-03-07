@@ -20,6 +20,7 @@
     "release:version": "npm run changeset version",
     "release": "pnpm -F firstly compile && changeset publish",
     "//// OTHERS ////": "",
+    "root-format": "kitql-lint -f",
     "reset": "git clean -xdf",
     "up-dep": "pnpm -r up --latest"
   },
