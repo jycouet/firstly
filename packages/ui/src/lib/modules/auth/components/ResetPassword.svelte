@@ -30,31 +30,30 @@
 </script>
 
 <div class="login">
-  <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
-  <form on:submit|preventDefault={reset}>
-    {firstlyDataAuth.ui?.strings.password}
-    <input
-      bind:value={password1}
-      type="password"
-      required
-      placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
-    />
-    {firstlyDataAuth.ui?.strings.confirm}
-    <input
-      bind:value={password2}
-      type="password"
-      required
-      placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
-    />
-    <button disabled={!password1 || !password2 || loading}
-      >{firstlyDataAuth.ui?.strings.reset}</button
-    >
-  </form>
+	<p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
+	<form on:submit|preventDefault={reset}>
+		{firstlyDataAuth.ui?.strings.password}
+		<input
+			bind:value={password1}
+			type="password"
+			required
+			placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
+		/>
+		{firstlyDataAuth.ui?.strings.confirm}
+		<input
+			bind:value={password2}
+			type="password"
+			required
+			placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
+		/>
+		<button disabled={!password1 || !password2 || loading}>{firstlyDataAuth.ui?.strings.reset}</button
+		>
+	</form>
 </div>
 
 <style>
-  form {
-    display: flex;
-    flex-direction: column;
-  }
+	form {
+		display: flex;
+		flex-direction: column;
+	}
 </style>

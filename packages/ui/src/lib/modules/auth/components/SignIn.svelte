@@ -39,31 +39,31 @@
 </script>
 
 {#if view == 'login'}
-  <form on:submit|preventDefault={signIn}>
-    <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
-    <label>
-      {firstlyDataAuth.ui?.strings.email}
-      <input
-        required
-        bind:value={email}
-        use:autofocus
-        type="email"
-        placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
-      />
-    </label>
-    <label>
-      {firstlyDataAuth.ui?.strings.password}
-      <input
-        required
-        bind:value={password}
-        type="password"
-        placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
-      />
-    </label>
-    <button disabled={!email || !password || loading}
-      >{firstlyDataAuth.ui?.strings.btn_sign_in}</button
-    >
-  </form>
+	<form on:submit|preventDefault={signIn}>
+		<p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
+		<label>
+			{firstlyDataAuth.ui?.strings.email}
+			<input
+				required
+				bind:value={email}
+				use:autofocus
+				type="email"
+				placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
+			/>
+		</label>
+		<label>
+			{firstlyDataAuth.ui?.strings.password}
+			<input
+				required
+				bind:value={password}
+				type="password"
+				placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
+			/>
+		</label>
+		<button disabled={!email || !password || loading}
+			>{firstlyDataAuth.ui?.strings.btn_sign_in}</button
+		>
+	</form>
 {/if}
 
 <!-- {#if view == 'pin'}
@@ -78,8 +78,8 @@
 {/if} -->
 
 <style>
-  form {
-    display: flex;
-    flex-direction: column;
-  }
+	form {
+		display: flex;
+		flex-direction: column;
+	}
 </style>
