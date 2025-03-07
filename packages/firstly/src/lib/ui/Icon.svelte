@@ -1,121 +1,121 @@
 <script lang="ts">
-  import { BROWSER } from 'esm-env'
+	import { BROWSER } from 'esm-env'
 
-  import './LibIcon'
+	import './LibIcon'
 
-  import { LibIcon_Empty } from './LibIcon'
+	import { LibIcon_Empty } from './LibIcon'
 
-  /**
-   * directly <svg ... /> or d of <path ... />
-   *
-   * with \@mdi/js
-   * ```js
-   * import { mdiAccountTieWoman } from "@mdi/js";
-   * <Icon data={mdiAccountTieWoman} style="background-color: blue;" size={"4rem"}></Icon>
-   * ```
-   *
-   * with \@iconify-json/mdi && unplugin-icons with Icons({ compiler: "raw" })
-   * ```js
-   * import Woman from "virtual:icons/mdi/account-tie-woman";
-   * <Icon data={mdiAccountTieWoman} style="background-color: blue;" size={"4rem"}></Icon>
-   * ```
-   */
-  export let data: string | string[] = ''
+	/**
+	 * directly <svg ... /> or d of <path ... />
+	 *
+	 * with \@mdi/js
+	 * ```js
+	 * import { mdiAccountTieWoman } from "@mdi/js";
+	 * <Icon data={mdiAccountTieWoman} style="background-color: blue;" size={"4rem"}></Icon>
+	 * ```
+	 *
+	 * with \@iconify-json/mdi && unplugin-icons with Icons({ compiler: "raw" })
+	 * ```js
+	 * import Woman from "virtual:icons/mdi/account-tie-woman";
+	 * <Icon data={mdiAccountTieWoman} style="background-color: blue;" size={"4rem"}></Icon>
+	 * ```
+	 */
+	export let data: string | string[] = ''
 
-  export let size: string | number = '1.5rem'
+	export let size: string | number = '1.5rem'
 
-  export let caption: string | undefined = undefined
-  const rmvWarning = caption
+	export let caption: string | undefined = undefined
+	const rmvWarning = caption
 
-  /**
-   * By default, svg are not rendered on the server side.
-   * But the size will be respected to not have glitch on the client side when the icon is coming.
-   * @default false
-   */
-  export let ssr = false
+	/**
+	 * By default, svg are not rendered on the server side.
+	 * But the size will be respected to not have glitch on the client side when the icon is coming.
+	 * @default false
+	 */
+	export let ssr = false
 
-  let className: string | string[] | undefined = ''
-  export { className as class }
-  export let style: string | string[] | undefined = ''
+	let className: string | string[] | undefined = ''
+	export { className as class }
+	export let style: string | string[] | undefined = ''
 
-  let width = size
-  let height = size
-  let viewBox = '0 0 24 24'
+	let width = size
+	let height = size
+	let viewBox = '0 0 24 24'
 
-  let svg = ''
-  let path: string | string[] = ''
+	let svg = ''
+	let path: string | string[] = ''
 
-  $: if (typeof data === 'string') {
-    if (data.toLowerCase().includes('<svg')) {
-      svg = data
-        .replace(/width="[^"]*"/, `width="${width}"`)
-        .replace(/height="[^"]*"/, `height="${height}"`)
-    } else {
-      path = data
-    }
-  } else {
-    path = data
-  }
+	$: if (typeof data === 'string') {
+		if (data.toLowerCase().includes('<svg')) {
+			svg = data
+				.replace(/width="[^"]*"/, `width="${width}"`)
+				.replace(/height="[^"]*"/, `height="${height}"`)
+		} else {
+			path = data
+		}
+	} else {
+		path = data
+	}
 
-  const getInfoProps = (props: string | string[] | undefined, i: number = 0) => {
-    if (Array.isArray(props)) {
-      return props[i] ?? ''
-    }
-    return props ?? ''
-  }
+	const getInfoProps = (props: string | string[] | undefined, i: number = 0) => {
+		if (Array.isArray(props)) {
+			return props[i] ?? ''
+		}
+		return props ?? ''
+	}
 
-  const role = 'img'
+	const role = 'img'
 </script>
 
 {#if BROWSER || ssr}
-  {#if svg || $$slots.default}
-    <span
-      class={getInfoProps(className)}
-      style={getInfoProps(style)}
-      style:width
-      style:height
-      {role}
-      on:click
-    >
-      <slot>
-        {@html svg ?? ''}
-      </slot>
-    </span>
-  {:else}
-    <svg
-      {width}
-      {height}
-      {viewBox}
-      class={getInfoProps(className)}
-      style={getInfoProps(style)}
-      {role}
-      on:click
-    >
-      {#each Array.isArray(path) ? path : [path] as d, i}
-        <path
-          {d}
-          fill="currentColor"
-          class={getInfoProps(className, i)}
-          style={getInfoProps(style, i)}
-        />
-      {/each}
-    </svg>
-  {/if}
+	{#if svg || $$slots.default}
+		<span
+			class={getInfoProps(className)}
+			style={getInfoProps(style)}
+			style:width
+			style:height
+			{role}
+			on:click
+		>
+			<slot>
+				{@html svg ?? ''}
+			</slot>
+		</span>
+	{:else}
+		<svg
+			{width}
+			{height}
+			{viewBox}
+			class={getInfoProps(className)}
+			style={getInfoProps(style)}
+			{role}
+			on:click
+		>
+			{#each Array.isArray(path) ? path : [path] as d, i}
+				<path
+					{d}
+					fill="currentColor"
+					class={getInfoProps(className, i)}
+					style={getInfoProps(style, i)}
+				/>
+			{/each}
+		</svg>
+	{/if}
 {:else}
-  <svg
-    {width}
-    {height}
-    {viewBox}
-    class={getInfoProps(className)}
-    style={getInfoProps(style)}
-    {role}
-    on:click
-  >
-    <path
-      d={LibIcon_Empty}
-      fill="currentColor"
-      class={getInfoProps(className)}
-      style={getInfoProps(style)}
-    />
-  </svg>
+	<svg
+		{width}
+		{height}
+		{viewBox}
+		class={getInfoProps(className)}
+		style={getInfoProps(style)}
+		{role}
+		on:click
+	>
+		<path
+			d={LibIcon_Empty}
+			fill="currentColor"
+			class={getInfoProps(className)}
+			style={getInfoProps(style)}
+		/>
+	</svg>
 {/if}

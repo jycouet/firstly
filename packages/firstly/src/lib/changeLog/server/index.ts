@@ -36,8 +36,8 @@ import { ChangeLog } from '../index'
  * ```
  */
 export const changeLog: () => Module = () => {
-  return new Module({
-    name: 'changeLog',
-    entities: [ChangeLog],
-  })
+	return new Module({
+		name: 'changeLog',
+		entities: [ChangeLog],
+	})
 }
