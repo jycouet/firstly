@@ -12,13 +12,13 @@ export type VisibilityMode = 'view' | 'edit' | 'hide'
 type CellInternal<Entity> = {
 	col?: keyof Entity
 	kind?:
-		| 'field' // using the std displayValue of the field
-		| 'field_link' // using the href of the field (if href is set, let's put this mode by default for the field)
-		| 'entity_link' // using the displayValue of an entity (if it's a primitive, this entity, if it's a relation, the relation entity)
-		| 'slot' // full custom
-		| 'header' // just string for display, uses the header. e.g. a title of a group
-		| 'component'
-		| 'baseItem'
+	| 'field' // using the std displayValue of the field
+	| 'field_link' // using the href of the field (if href is set, let's put this mode by default for the field)
+	| 'entity_link' // using the displayValue of an entity (if it's a primitive, this entity, if it's a relation, the relation entity)
+	| 'slot' // full custom
+	| 'header' // just string for display, uses the header. e.g. a title of a group
+	| 'component'
+	| 'baseItem'
 
 	class?: string // 'col-span-2' for example
 	header?: string // always beter to update the caption of the field or of the class...
@@ -174,9 +174,10 @@ export const buildWhere = <Entity>(
 	if (obj && obj.search) {
 		and.push(...buildSearchWhere(entity, fields_search, obj.search))
 	}
+
 	for (const field of fields_filter) {
 		// if there is a value
-		if (obj[field.key]) {
+		if (obj && obj[field.key]) {
 			const rfi = getRelationFieldInfo(field)
 			if (field.inputType === 'checkbox') {
 				// @ts-ignore
