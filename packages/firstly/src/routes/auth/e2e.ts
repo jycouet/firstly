@@ -48,7 +48,7 @@ test('Log to demo, info ok', async ({ page }) => {
 test('Log to demo, msg success', async ({ page }) => {
 	await click(page, 'Ermin')
 	const msg = await getMsg(page)
-	expect(msg).toStrictEqual(`You're in with demo account!`)
+	expect(msg).toStrictEqual(`You're in with Ermin demo account!`)
 })
 
 test('Log to demo, msg error', async ({ page }) => {

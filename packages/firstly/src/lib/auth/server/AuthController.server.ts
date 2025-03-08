@@ -58,7 +58,7 @@ export class AuthControllerServer {
 
 		await ff_createSession(user.id)
 
-		return "You're in with demo account!"
+		return `You're in with ${name} demo account!`
 	}
 
 	/**

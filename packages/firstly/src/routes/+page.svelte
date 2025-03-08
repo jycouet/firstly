@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { remult, repo } from 'remult'
 
-	import { storeList } from '$lib'
-	import { AuthController, FFAuthAccount } from '$lib/auth'
+	// import { storeList } from '$lib'
+	import { AuthController } from '$lib/auth'
 	import Button from '$lib/ui/Button.svelte'
 
-	const store = storeList(repo(FFAuthAccount))
+	// const store = storeList(repo(FFAuthAccount))
 
-	$: store.fetch()
+	// $: store.fetch()
 </script>
 
 <div class="flex flex-col gap-4">
@@ -35,4 +35,4 @@
 	{/if}
 </div>
 
-<pre>{JSON.stringify($store, null, 2)}</pre>
+<!-- <pre>{JSON.stringify($store, null, 2)}</pre> -->
