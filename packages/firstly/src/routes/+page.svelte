@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { remult, repo } from 'remult'
+	import { remult } from 'remult'
 
 	// import { storeList } from '$lib'
 	import { AuthController } from '$lib/auth'

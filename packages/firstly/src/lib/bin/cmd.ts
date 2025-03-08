@@ -19,85 +19,83 @@ const keys = ['all', 'module-demo', 'dependencies'] as const
 
 type Keys = (typeof keys)[number]
 const options: { value: Keys; label: string; hint?: string | undefined }[] = [
-  {
-    value: 'all',
-    label: 'All',
-    hint: 'If you are starting a new project, this is for you!',
-  },
-  {
-    value: 'module-demo',
-    label: 'module task',
-    hint:
-      'A default module with a task entity and a controller (you can rename the folder and make it yours)',
-  },
-  {
-    value: 'dependencies',
-    label: 'dependencies',
-    hint: 'Add all dependencies that make sense to use with firstly',
-  },
+	{
+		value: 'all',
+		label: 'All',
+		hint: 'If you are starting a new project, this is for you!',
+	},
+	{
+		value: 'module-demo',
+		label: 'module task',
+		hint:
+			'A default module with a task entity and a controller (you can rename the folder and make it yours)',
+	},
+	{
+		value: 'dependencies',
+		label: 'dependencies',
+		hint: 'Add all dependencies that make sense to use with firstly',
+	},
 ]
 
 const res = (await p.multiselect({
-  message: 'You can generate different things here',
-  options,
+	message: 'You can generate different things here',
+	options,
 })) as Keys[]
 
 // devDependencies
 function mergeAndSort(
-  deps: Record<string, string>,
-  depsToAdd: Record<string, string>,
+	deps: Record<string, string>,
+	depsToAdd: Record<string, string>,
 ): Record<string, string> {
-  const prepare: Record<string, string> = {
-    ...depsToAdd,
-    ...deps,
-  }
+	const prepare: Record<string, string> = {
+		...depsToAdd,
+		...deps,
+	}
 
-  // sort by name
-  const sorted = Object.keys(prepare)
-    .sort()
-    .reduce(
-      (acc, key) => {
-        acc[key] = prepare[key]
-        return acc
-      },
-      {} as Record<string, string>,
-    )
+	// sort by name
+	const sorted = Object.keys(prepare)
+		.sort()
+		.reduce(
+			(acc, key) => {
+				acc[key] = prepare[key]
+				return acc
+			},
+			{} as Record<string, string>,
+		)
 
-  return sorted
+	return sorted
 }
 
 pkg.devDependencies = mergeAndSort(pkg.devDependencies, {
-  '@kitql/eslint-config': '0.5.8',
-  '@kitql/helpers': '0.8.12',
-  pg: '8.12.0',
-  remult: versionFirstly,
+	'@kitql/eslint-config': '0.5.8',
+	'@kitql/helpers': '0.8.12',
+	pg: '8.12.0',
+	remult: versionFirstly,
 })
 
-pkg.dependencies = mergeAndSort(pkg.dependencies, {
-
-})
+pkg.dependencies = mergeAndSort(pkg.dependencies, {})
 
 pkg.scripts = {
-  ...pkg.scripts,
-  '//// ---- BEST PRACTICES ---- ////': '',
-  lint: 'kitql-lint',
-  format: 'kitql-lint -f',
+	...pkg.scripts,
+	'//// ---- BEST PRACTICES ---- ////': '',
+	lint: 'kitql-lint',
+	format: 'kitql-lint -f',
 }
 if (res.includes('all') || res.includes('dependencies')) {
-  write('./package.json', [JSON.stringify(pkg, null, 2)])
+	write('./package.json', [JSON.stringify(pkg, null, 2)])
 }
 
 const obj = {
-  './.npmrc': [
-    `engine-strict=true
+	'./.npmrc': [
+		`engine-strict=true
 
 public-hoist-pattern[]=*eslint*
 public-hoist-pattern[]=*prettier*
 public-hoist-pattern[]=*globals*
 `,
-  ],
-  './.eslintrc.cjs': [
-    `import { kitql } from '@kitql/eslint-config'
+	],
+	'./.eslintrc.cjs': [
+		`import { kitql } from '@kitql/eslint-config'
 
 /** @type { import("eslint").Linter.Config[] } */
 export default [
@@ -108,9 +106,9 @@ export default [
 	},
 ]
 `,
-  ],
-  './.prettierignore': [
-    `node_modules/
+	],
+	'./.prettierignore': [
+		`node_modules/
 dist/
 build
 .vs
@@ -130,18 +128,18 @@ README.md
 db/
 src/lib/ROUTES.ts
   `,
-  ],
-  './.prettierrc.cjs': [
-    `import { kitql } from '@kitql/eslint-config/.prettierrc.mjs'
+	],
+	'./.prettierrc.cjs': [
+		`import { kitql } from '@kitql/eslint-config/.prettierrc.mjs'
 
 export default {
 	...kitql(),
   // Your overrides here
 }
 `,
-  ],
-  '.env.example': [
-    `# Enable some roles
+	],
+	'.env.example': [
+		`# Enable some roles
 # FF_ADMIN = 'JYC'
 # FF_AUTH_ADMIN = ''
 
@@ -149,9 +147,9 @@ export default {
 # GITHUB_CLIENT_ID = ''
 # GITHUB_CLIENT_SECRET = ''
 `,
-  ],
-  './src/lib/firstly/index.ts': [
-    `import { FF_Role } from 'firstly'
+	],
+	'./src/lib/firstly/index.ts': [
+		`import { FF_Role } from 'firstly'
 import { firstly, Module } from 'firstly/api'
 import { auth } from 'firstly/auth/server'
 import { changeLog } from 'firstly/changeLog/server'
@@ -234,9 +232,9 @@ export const api = firstly({
   ],
 })
 `,
-  ],
-  './src/hooks.server.ts': [
-    `import { sequence } from '@sveltejs/kit/hooks'
+	],
+	'./src/hooks.server.ts': [
+		`import { sequence } from '@sveltejs/kit/hooks'
 import { redirect } from '@sveltejs/kit'
 
 import { handleAuth, handleGuard } from 'firstly/auth/server'
@@ -254,16 +252,16 @@ export const handle = sequence(
 	// })
 )
 `,
-  ],
-  './src/routes/api/[...remult]/+server.ts': [
-    `import { api } from '${libAlias}/firstly'
+	],
+	'./src/routes/api/[...remult]/+server.ts': [
+		`import { api } from '${libAlias}/firstly'
 
 export const { GET, POST, PUT, DELETE } = api
 `,
-  ],
-  './src/routes/+page.svelte': [`Home 👋`, ``],
-  './src/routes/+layout.server.ts': [
-    `import { remult } from 'remult'
+	],
+	'./src/routes/+page.svelte': [`Home 👋`, ``],
+	'./src/routes/+layout.server.ts': [
+		`import { remult } from 'remult'
 
 import type { LayoutServerLoad } from './$types'
 
@@ -271,9 +269,9 @@ export const load = (async () => {
   return { user: remult.user }
 }) satisfies LayoutServerLoad	
 `,
-  ],
-  './src/routes/+layout.svelte': [
-    `<script lang="ts">
+	],
+	'./src/routes/+layout.svelte': [
+		`<script lang="ts">
   import { remult } from 'remult'
 
   import { route } from '${libAlias}/ROUTES'
@@ -327,9 +325,9 @@ export const load = (async () => {
 |
 <a href={route('github', { owner: 'remult', repo: 'remult' })} target="_blank">⭐️ remult</a>
 `,
-  ],
-  './src/lib/ui/SignIn.svelte': [
-    `<script lang="ts">
+	],
+	'./src/lib/ui/SignIn.svelte': [
+		`<script lang="ts">
   import { isError } from 'firstly'
   import { AuthController } from 'firstly/auth'
 
@@ -377,9 +375,9 @@ export const load = (async () => {
   <button on:click={() => signinOAuth(oauth)}>Login With {oauth}</button>
 {/if}
 `,
-  ],
-  './src/lib/ui/SignOut.svelte': [
-    `<script lang="ts">
+	],
+	'./src/lib/ui/SignOut.svelte': [
+		`<script lang="ts">
   import { isError } from 'firstly'
   import { AuthController } from 'firstly/auth'
 
@@ -399,9 +397,9 @@ export const load = (async () => {
 
 <button on:click={logout}>Logout</button>
 `,
-  ],
-  './tsconfig.json': [
-    `{
+	],
+	'./tsconfig.json': [
+		`{
   "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
     "experimentalDecorators": true,
@@ -421,9 +419,9 @@ export const load = (async () => {
   // from the referenced tsconfig.json - TypeScript does not merge them in
 }
 `,
-  ],
-  './vite.config.ts': [
-    `import { sveltekit } from '@sveltejs/kit/vite'
+	],
+	'./vite.config.ts': [
+		`import { sveltekit } from '@sveltejs/kit/vite'
 import { defineConfig } from 'vite'
 
 import { firstly } from 'firstly/vite'
@@ -446,9 +444,9 @@ export default defineConfig({
   ],
 })
 `,
-  ],
-  './.gitignore': [
-    `node_modules
+	],
+	'./.gitignore': [
+		`node_modules
 
 # Output
 /.svelte-kit
@@ -467,9 +465,9 @@ vite.config.ts.timestamp-*
 # Firstly / Remult
 /db
 `,
-  ],
-  './src/lib/firstly/modules/task/index.ts': [
-    `import { Module } from 'firstly/api'
+	],
+	'./src/lib/firstly/modules/task/index.ts': [
+		`import { Module } from 'firstly/api'
 
 import type { Module } from 'firstly/api'
 
@@ -488,9 +486,9 @@ export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) =>
     },
   })
 }`,
-  ],
-  './src/lib/firstly/modules/task/Task.ts': [
-    `import { Entity, Field, Fields, ValueListFieldType } from 'remult'
+	],
+	'./src/lib/firstly/modules/task/Task.ts': [
+		`import { Entity, Field, Fields, ValueListFieldType } from 'remult'
 import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'firstly'
 
 @Entity('task', {
@@ -532,9 +530,9 @@ export class TypeOfTaskEnum extends BaseEnum {
   }
 }    
 `,
-  ],
-  './src/lib/firstly/modules/task/TaskController.ts': [
-    `import { BackendMethod } from 'remult'
+	],
+	'./src/lib/firstly/modules/task/TaskController.ts': [
+		`import { BackendMethod } from 'remult'
 
 import { log } from '${libAlias}/firstly'
 
@@ -548,29 +546,29 @@ export class TaskController {
   }
 }
 `,
-  ],
+	],
 }
 
 for (const [path, content] of Object.entries(obj)) {
-  if (res.includes('all')) {
-    write(path, content)
-  } else {
-    if (res.includes('module-demo')) {
-      if (path.startsWith('./src/lib/firstly/modules/task')) {
-        write(path, content)
-      }
-    }
-  }
+	if (res.includes('all')) {
+		write(path, content)
+	} else {
+		if (res.includes('module-demo')) {
+			if (path.startsWith('./src/lib/firstly/modules/task')) {
+				write(path, content)
+			}
+		}
+	}
 }
 
 p.outro(`🎉 Everything is ok, happy coding!`)
 
 new Log('').info(
-  gray(
-    italic(
-      `${bold('❔ More help')} ` +
-      `at ${cyan('https://github.com/jycouet/firstly')} ` +
-      `(📄 Docs, ⭐ Github, 📣 Discord, ...)\n`,
-    ),
-  ),
+	gray(
+		italic(
+			`${bold('❔ More help')} ` +
+				`at ${cyan('https://github.com/jycouet/firstly')} ` +
+				`(📄 Docs, ⭐ Github, 📣 Discord, ...)\n`,
+		),
+	),
 )
