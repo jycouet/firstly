@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@clack/prompts": "0.7.0",
-    "@kitql/internals": "0.9.9",
+    "@kitql/internals": "0.10.3",
     "@mdi/js": "7.4.47",
     "@melt-ui/svelte": "0.86.3",
     "@oslojs/crypto": "1.0.1",
