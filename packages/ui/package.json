@@ -10,15 +10,15 @@
     "generate_to_static": "vite build --base=/api/static"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "3.1.2",
-    "@tsconfig/svelte": "5.0.2",
-    "mermaid": "^11.4.1",
-    "svelte": "4.2.18",
-    "svelte-check": "4.0.5",
-    "svelte-micro": "2.5.7",
-    "tslib": "2.8.0",
-    "typescript": "5.5.4",
-    "vite": "5.4.1",
-    "vite-plugin-watch-and-run": "1.7.1"
+    "@sveltejs/vite-plugin-svelte": "catalog:old-sveltekit",
+    "@tsconfig/svelte": "catalog:tooling",
+    "mermaid": "catalog:ui",
+    "svelte": "catalog:old-svelte",
+    "svelte-check": "catalog:svelte",
+    "svelte-micro": "catalog:svelte",
+    "tslib": "catalog:tooling",
+    "typescript": "catalog:tooling",
+    "vite": "catalog:old-vite",
+    "vite-plugin-watch-and-run": "catalog:tooling"
   }
 }
