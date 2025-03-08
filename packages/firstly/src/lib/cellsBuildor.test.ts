@@ -7,21 +7,21 @@ import { UIEntity } from './virtual/UIEntity.js'
 
 const repoUi = repo(UIEntity)
 test('getPlaceholder', () => {
-  expect(
-    getPlaceholder([
-      //
-      repoUi.fields.email,
-      repoUi.fields.password,
-    ]),
-  ).toMatchInlineSnapshot('"E Mail, Mot de passe"')
+	expect(
+		getPlaceholder([
+			//
+			repoUi.fields.email,
+			repoUi.fields.password,
+		]),
+	).toMatchInlineSnapshot('"E Mail, Mot de passe"')
 })
 
 test('where with search', () => {
-  const where = buildWhere(undefined, undefined, [], [repoUi.fields.email], {
-    email: 'jyc@test.com',
-    search: 'jyc test',
-  })
-  expect(where).toMatchInlineSnapshot(`
+	const where = buildWhere(undefined, undefined, [], [repoUi.fields.email], {
+		email: 'jyc@test.com',
+		search: 'jyc test',
+	})
+	expect(where).toMatchInlineSnapshot(`
     {
       "$and": [
         {
@@ -48,11 +48,11 @@ test('where with search', () => {
 })
 
 test('where with 2 search', () => {
-  const where = buildWhere(undefined, undefined, [], [repoUi.fields.email, repoUi.fields.state], {
-    email: 'jyc@test.com',
-    search: 'jyc test',
-  })
-  expect(where).toMatchInlineSnapshot(`
+	const where = buildWhere(undefined, undefined, [], [repoUi.fields.email, repoUi.fields.state], {
+		email: 'jyc@test.com',
+		search: 'jyc test',
+	})
+	expect(where).toMatchInlineSnapshot(`
     {
       "$and": [
         {
@@ -93,11 +93,11 @@ test('where with 2 search', () => {
 })
 
 test('where without search, with enum', () => {
-  const where = buildWhere(undefined, undefined, [], [repoUi.fields.email], {
-    email: 'jyc@test.com',
-    civilite: 'MADAME',
-  })
-  expect(where).toMatchInlineSnapshot(`
+	const where = buildWhere(undefined, undefined, [], [repoUi.fields.email], {
+		email: 'jyc@test.com',
+		civilite: 'MADAME',
+	})
+	expect(where).toMatchInlineSnapshot(`
 		{
 		  "$and": [],
 		}
@@ -105,11 +105,11 @@ test('where without search, with enum', () => {
 })
 
 test('with default where', () => {
-  const where = buildWhere(undefined, { isSubContractor: true }, [], [repoUi.fields.email], {
-    email: 'jyc@test.com',
-    civilite: 'MADAME',
-  })
-  expect(where).toMatchInlineSnapshot(`
+	const where = buildWhere(undefined, { isSubContractor: true }, [], [repoUi.fields.email], {
+		email: 'jyc@test.com',
+		civilite: 'MADAME',
+	})
+	expect(where).toMatchInlineSnapshot(`
     {
       "$and": [
         {
@@ -121,14 +121,14 @@ test('with default where', () => {
 })
 
 test('cellsBuildor', () => {
-  const cells = cellsBuildor(repoUi, ['email', 'password'])
-  // Let's get the selection done
-  expect(fieldsOf(cells).map((c) => c.key)).toMatchInlineSnapshot(`
+	const cells = cellsBuildor(repoUi, ['email', 'password'])
+	// Let's get the selection done
+	expect(fieldsOf(cells).map((c) => c.key)).toMatchInlineSnapshot(`
 		[
 		  "email",
 		  "password",
 		]
 	`)
-  // Let's look at the 3 captions for now
-  expect(getPlaceholder(fieldsOf(cells))).toMatchInlineSnapshot(`"E Mail, Mot de passe"`)
+	// Let's look at the 3 captions for now
+	expect(getPlaceholder(fieldsOf(cells))).toMatchInlineSnapshot(`"E Mail, Mot de passe"`)
 })

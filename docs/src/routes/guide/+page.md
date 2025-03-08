@@ -21,9 +21,9 @@ With `npm init remult@latest` you can create a remult project for svelte 5!
 You don't care about all warnings? Ok, let's go!
 
 ```bash
-# Create a sveltekit app (skeleton & typescript)
+# Create a sveltekit app (minimal & typescript)
 # Pro tip: replace 'firstly-demo' by your project name!
-npm create svelte@latest firstly-demo
+npx sv@latest create firstly-demo
 
 # Go to the project // or your project name...
 cd firstly-demo

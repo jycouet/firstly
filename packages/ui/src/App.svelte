@@ -3,6 +3,7 @@
 
   import type { firstlyData } from '../../firstly/src/lib/auth/types'
 
+  // eslint-disable-next-line
   export let firstlyData: firstlyData
 
   const modules = {
@@ -27,32 +28,32 @@
 </script>
 
 <main>
-  {#if activeModuleRef}
-    {#await activeModuleRef then { default: ModuleComponent }}
-      <ModuleComponent {firstlyData} />
-    {/await}
-  {/if}
+	{#if activeModuleRef}
+		{#await activeModuleRef then { default: ModuleComponent }}
+			<ModuleComponent {firstlyData} />
+		{/await}
+	{/if}
 </main>
 
 {#if firstlyData.debug}
-  {console.info(firstlyData)}
-  <div class="debug">
-    {#each getKeys() as module}
-      <button on:click={() => loadModule(module)}>Load {module}</button>
-    {/each}
-  </div>
+	{console.info(firstlyData)}
+	<div class="debug">
+		{#each getKeys() as module}
+			<button on:click={() => loadModule(module)}>Load {module}</button>
+		{/each}
+	</div>
 {/if}
 
 <style>
-  .debug {
-    display: flex;
-    position: fixed;
-    gap: 5px;
-    bottom: 5px;
-    right: 5px;
-  }
+	.debug {
+		display: flex;
+		position: fixed;
+		gap: 5px;
+		bottom: 5px;
+		right: 5px;
+	}
 
-  button {
-    font-size: 11px;
-  }
+	button {
+		font-size: 11px;
+	}
 </style>

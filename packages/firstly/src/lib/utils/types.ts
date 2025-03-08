@@ -5,5 +5,5 @@ export type ResolvedType<T> = T extends Promise<infer R> ? R : T
 export type UnArray<T extends any[]> = T extends (infer U)[] ? U : never
 
 export type RecursivePartial<T> = {
-  [P in keyof T]?: RecursivePartial<T[P]>
+	[P in keyof T]?: RecursivePartial<T[P]>
 }

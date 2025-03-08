@@ -5,23 +5,23 @@ import { auth } from '$lib/auth/server'
 import { Module, modulesFlatAndOrdered } from '.'
 
 describe('api', () => {
-  it('flatten modules', () => {
-    const modules: Module[] = [
-      new Module({ name: 'init', modules: [new Module({ name: 'a' }), new Module({ name: 'b' })] }),
-      new Module({ name: 'main' }),
-      auth({}),
-      new Module({ name: 'main last', priority: 100 }),
-      new Module({ name: 'prio', priority: -1000 }),
-      new Module({
-        name: 'the end',
-        modules: [new Module({ name: 'd' }), new Module({ name: 'c' })],
-      }),
-    ]
+	it('flatten modules', () => {
+		const modules: Module[] = [
+			new Module({ name: 'init', modules: [new Module({ name: 'a' }), new Module({ name: 'b' })] }),
+			new Module({ name: 'main' }),
+			auth({}),
+			new Module({ name: 'main last', priority: 100 }),
+			new Module({ name: 'prio', priority: -1000 }),
+			new Module({
+				name: 'the end',
+				modules: [new Module({ name: 'd' }), new Module({ name: 'c' })],
+			}),
+		]
 
-    console.time('flatten')
-    const res = modulesFlatAndOrdered(modules)
-    console.timeEnd('flatten')
-    expect(res).toMatchInlineSnapshot(`
+		console.time('flatten')
+		const res = modulesFlatAndOrdered(modules)
+		console.timeEnd('flatten')
+		expect(res).toMatchInlineSnapshot(`
       [
         {
           "controllers": undefined,
@@ -171,10 +171,10 @@ describe('api', () => {
         },
       ]
     `)
-  })
+	})
 
-  it('flatten modules', () => {
-    const res = modulesFlatAndOrdered([])
-    expect(res).toMatchInlineSnapshot(`[]`)
-  })
+	it('flatten modules', () => {
+		const res = modulesFlatAndOrdered([])
+		expect(res).toMatchInlineSnapshot(`[]`)
+	})
 })

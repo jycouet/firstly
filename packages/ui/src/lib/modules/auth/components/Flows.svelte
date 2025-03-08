@@ -1,13 +1,13 @@
 <script lang="ts">
-  import mermaid from 'mermaid'
+	import mermaid from 'mermaid'
 
 	import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 
-  // eslint-disable-next-line
-  export let firstlyDataAuth: firstlyDataAuth
+	// eslint-disable-next-line
+	export let firstlyDataAuth: firstlyDataAuth
 
-  // The default diagram
-  let diagram = `\
+	// The default diagram
+	let diagram = `\
 sequenceDiagram
 actor User
 participant Frontend
@@ -27,14 +27,15 @@ User ->> Backend: User Validated
 end
 `
 
-  let container: any
+	let container: any
 
-  async function renderDiagram() {
-    const { svg } = await mermaid.render('mermaid', diagram)
-    container.innerHTML = svg
-  }
+	async function renderDiagram() {
+		const { svg } = await mermaid.render('mermaid', diagram)
+		// eslint-disable-next-line
+		container.innerHTML = svg
+	}
 
-  $: diagram && renderDiagram()
+	$: diagram && renderDiagram()
 </script>
 
 <textarea bind:value={diagram}></textarea>

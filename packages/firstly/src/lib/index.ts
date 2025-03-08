@@ -27,21 +27,21 @@ import { default as Tooltip } from './ui/Tooltip.svelte'
 // Svelte Components
 // ******************************
 export {
-  Field,
-  FormEditAction,
-  Grid,
-  GridPaginate,
-  FieldGroup,
-  Icon,
-  Link,
-  LinkPlus,
-  Loading,
-  Button,
-  Tooltip,
-  DialogManagement,
-  FieldContainer,
-  SelectMelt,
-  Clipboardable,
+	Field,
+	FormEditAction,
+	Grid,
+	GridPaginate,
+	FieldGroup,
+	Icon,
+	Link,
+	LinkPlus,
+	Loading,
+	Button,
+	Tooltip,
+	DialogManagement,
+	FieldContainer,
+	SelectMelt,
+	Clipboardable,
 }
 
 // ******************************
@@ -50,7 +50,7 @@ export {
 export const ff_Log = new Log('firstly')
 
 export const FF_Role = {
-  FF_Role_Admin: 'FF_Role.Admin',
+	FF_Role_Admin: 'FF_Role.Admin',
 } as const
 
 // ******************************
@@ -77,21 +77,21 @@ export { FF_LogToConsole } from './SqlDatabase/FF_LogToConsole.js'
 export { BaseEnum } from './BaseEnum.js'
 export { dialog } from './ui/dialog/dialog.js'
 export {
-  getEntityDisplayValue,
-  isError,
-  getFieldLinkDisplayValue,
-  getEnum,
-  getEnums,
-  onDelete,
+	getEntityDisplayValue,
+	isError,
+	getFieldLinkDisplayValue,
+	getEnum,
+	getEnums,
+	onDelete,
 } from './helper.js'
 export {
-  buildWhere,
-  getPlaceholder,
-  buildSearchWhere,
-  cellsBuildor,
-  cellBuildor,
-  fieldsOf,
-  containsWords,
+	buildWhere,
+	getPlaceholder,
+	buildSearchWhere,
+	cellsBuildor,
+	cellBuildor,
+	fieldsOf,
+	containsWords,
 } from './cellsBuildor.js'
 export { storeItem }
 export { storeList }
@@ -107,29 +107,29 @@ export { UIEntity } from './virtual/UIEntity.js'
 // Icons
 // ******************************
 export {
-  LibIcon_Empty,
-  LibIcon_Forbidden,
-  LibIcon_ChevronDown,
-  LibIcon_ChevronUp,
-  LibIcon_ChevronLeft,
-  LibIcon_ChevronRight,
-  LibIcon_Search,
-  LibIcon_Check,
-  LibIcon_MultiCheck,
-  LibIcon_Add,
-  LibIcon_MultiAdd,
-  LibIcon_Edit,
-  LibIcon_Delete,
-  LibIcon_Cross,
-  LibIcon_Save,
-  LibIcon_Man,
-  LibIcon_Woman,
-  LibIcon_Send,
-  LibIcon_Load,
-  LibIcon_Settings,
-  LibIcon_Sort,
-  LibIcon_SortAsc,
-  LibIcon_SortDesc,
+	LibIcon_Empty,
+	LibIcon_Forbidden,
+	LibIcon_ChevronDown,
+	LibIcon_ChevronUp,
+	LibIcon_ChevronLeft,
+	LibIcon_ChevronRight,
+	LibIcon_Search,
+	LibIcon_Check,
+	LibIcon_MultiCheck,
+	LibIcon_Add,
+	LibIcon_MultiAdd,
+	LibIcon_Edit,
+	LibIcon_Delete,
+	LibIcon_Cross,
+	LibIcon_Save,
+	LibIcon_Man,
+	LibIcon_Woman,
+	LibIcon_Send,
+	LibIcon_Load,
+	LibIcon_Settings,
+	LibIcon_Sort,
+	LibIcon_SortAsc,
+	LibIcon_SortDesc,
 } from './ui/LibIcon.js'
 
 export type { FF_Icon }
@@ -138,51 +138,51 @@ export type { FF_Icon }
 // Additions to Remult
 // ******************************
 declare module 'remult' {
-  export interface FieldOptions<entityType, valueType> {
-    placeholder?: string
+	export interface FieldOptions<entityType, valueType> {
+		placeholder?: string
 
-    suffix?: string
-    suffixWithS?: boolean
-    suffixEdit?: string
-    suffixEditWithS?: boolean
+		suffix?: string
+		suffixWithS?: boolean
+		suffixEdit?: string
+		suffixEditWithS?: boolean
 
-    styleRadioUntil?: number
+		styleRadioUntil?: number
 
-    step?: '1' | '0.1' | '0.01'
+		step?: '1' | '0.1' | '0.01'
 
-    href?: (item: entityType) => string
+		href?: (item: entityType) => string
 
-    // REMULT P3 Noam/Yoni convo
-    // difference with `findOptions` of remult ?
-    // `findOptionsForEdit` is only for insert & update.
-    // 1-n impact with `findOptions`
-    findOptionsForEdit?:
-      | ((entity: entityType) => FindOptionsBase<valueType>)
-      | FindOptionsBase<valueType>
+		// REMULT P3 Noam/Yoni convo
+		// difference with `findOptions` of remult ?
+		// `findOptionsForEdit` is only for insert & update.
+		// 1-n impact with `findOptions`
+		findOptionsForEdit?:
+			| ((entity: entityType) => FindOptionsBase<valueType>)
+			| FindOptionsBase<valueType>
 
-    findOptionsLimit?: number
-    createOptionWhenNoResult?: {
-      onCreateRequest: (item: entityType, strCreateNew: string) => Parameters<typeof dialog.form>
-      // It's of the other type...
-      onSuccess: (entity: entityType, newItem: any) => Promise<void>
-      onError?: () => void
-    }
+		findOptionsLimit?: number
+		createOptionWhenNoResult?: {
+			onCreateRequest: (item: entityType, strCreateNew: string) => Parameters<typeof dialog.form>
+			// It's of the other type...
+			onSuccess: (entity: entityType, newItem: any) => Promise<void>
+			onError?: () => void
+		}
 
-    multiSelect?: boolean
+		multiSelect?: boolean
 
-    skipForDefaultField?: boolean
-  }
+		skipForDefaultField?: boolean
+	}
 
-  export interface EntityOptions<entityType> {
-    searchableFind?: (str: string) => FindOptionsBase<entityType>
-    displayValue?: (item: entityType) => BaseItem
+	export interface EntityOptions<entityType> {
+		searchableFind?: (str: string) => FindOptionsBase<entityType>
+		displayValue?: (item: entityType) => BaseItem
 
-    permissionApiCrud?: BaseEnum[] | BaseEnum
-    permissionApiDelete?: BaseEnum[] | BaseEnum
-    permissionApiInsert?: BaseEnum[] | BaseEnum
-    permissionApiRead?: BaseEnum[] | BaseEnum
-    permissionApiUpdate?: BaseEnum[] | BaseEnum
+		permissionApiCrud?: BaseEnum[] | BaseEnum
+		permissionApiDelete?: BaseEnum[] | BaseEnum
+		permissionApiInsert?: BaseEnum[] | BaseEnum
+		permissionApiRead?: BaseEnum[] | BaseEnum
+		permissionApiUpdate?: BaseEnum[] | BaseEnum
 
-    changeLog?: false | ColumnDeciderArgs<entityType>
-  }
+		changeLog?: false | ColumnDeciderArgs<entityType>
+	}
 }

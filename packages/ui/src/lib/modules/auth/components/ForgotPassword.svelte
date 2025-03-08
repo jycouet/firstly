@@ -10,37 +10,42 @@
 
   let msgError = ''
   let msgSuccess = ''
+  let loading = false
 
   async function forgot() {
-    // msgError = ''
-    // msgSuccess = ''
+    msgError = ''
+    msgSuccess = ''
+    loading = true
     try {
-      await AuthController.forgotPassword(email)
-      window.location.href = '/ff/auth/sign-in'
+      msgSuccess = await AuthController.forgotPassword(email)
     } catch (error) {
       if (isError(error)) {
         msgError = error.message ?? ''
       }
-    }
+      loading = false
+    } 
   }
 </script>
 
 <div class="login">
-  <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
-  <form on:submit|preventDefault={forgot}>
-    <input
-      use:autofocus
-      bind:value={email}
-      type="text"
-      placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
-    />
-    <button>{firstlyDataAuth.ui?.strings.send_password_reset_instructions}</button>
-  </form>
+	<p class="message" class:error={msgError} class:success={msgSuccess}>{msgError}{msgSuccess}</p>
+	<form on:submit|preventDefault={forgot}>
+		<input
+			required
+			use:autofocus
+			bind:value={email}
+			type="email"
+			placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
+		/>
+		<button disabled={!email || !email.includes('@') || !email.includes('.') || loading}
+			>{firstlyDataAuth.ui?.strings.send_password_reset_instructions}</button
+		>
+	</form>
 </div>
 
 <style>
-  form {
-    display: flex;
-    flex-direction: column;
-  }
+	form {
+		display: flex;
+		flex-direction: column;
+	}
 </style>
