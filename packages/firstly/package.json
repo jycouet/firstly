@@ -66,7 +66,7 @@
     "clsx": "2.1.1",
     "cron": "3.1.7",
     "daisyui": "4.12.14",
-    "esm-env": "1.0.0",
+    "esm-env": "1.2.2",
     "nodemailer": "6.9.14",
     "svelty-email": "0.0.11",
     "tailwind-merge": "2.3.0",
