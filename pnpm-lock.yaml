@@ -114,8 +114,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       nodemailer:
-        specifier: 6.9.14
-        version: 6.9.14
+        specifier: 6.10.0
+        version: 6.10.0
       remult:
         specifier: 2.7.29
         version: 2.7.29
@@ -4574,8 +4574,8 @@ packages:
   node-releases@2.0.14:
     resolution: {integrity: sha512-y10wOWt8yZpqXmOgRo77WaHEmhYQYGNA6y421PKsKYWEK8aW+cqAphborZDhqfyKrbZEN92CN1X2KbafY2s7Yw==}
 
-  nodemailer@6.9.14:
-    resolution: {integrity: sha512-Dobp/ebDKBvz91sbtRKhcznLThrKxKt97GI2FAlAyy+fk19j73Uz3sBXolVtmcXjaorivqsbbbjDY+Jkt4/bQA==}
+  nodemailer@6.10.0:
+    resolution: {integrity: sha512-SQ3wZCExjeSatLE/HBaXS5vqUOQk6GtBdIIKxiFdmm01mOQZX/POJkO3SUX1wDiYcwUOJwT23scFSC9fY2H8IA==}
     engines: {node: '>=6.0.0'}
 
   nopt@5.0.0:
@@ -11347,7 +11347,7 @@ snapshots:
 
   node-releases@2.0.14: {}
 
-  nodemailer@6.9.14: {}
+  nodemailer@6.10.0: {}
 
   nopt@5.0.0:
     dependencies:
