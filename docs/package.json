@@ -22,10 +22,5 @@
   "devDependencies": {
     "esbuild": "catalog:tooling",
     "prettier-plugin-astro": "catalog:docs"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
   }
 }

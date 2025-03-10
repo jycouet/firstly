@@ -42,7 +42,8 @@
   ],
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "sharp"
     ],
     "patchedDependencies": {
       "@melt-ui/svelte@0.86.3": "patches/@melt-ui__svelte@0.86.3.patch",
