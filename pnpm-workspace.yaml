@@ -78,6 +78,3 @@ catalogs:
 
   old-vite:
     vite: 5.4.1
-
-onlyBuiltDependencies:
-  - esbuild
