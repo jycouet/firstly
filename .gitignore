@@ -21,3 +21,4 @@ test-results
 .nx/cache
 dev-dist
 .DS_Store
+.astro
