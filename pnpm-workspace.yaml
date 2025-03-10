@@ -10,15 +10,15 @@ catalogs:
     tslib: 2.8.0
     vite-plugin-watch-and-run: 1.7.1
     vite-plugin-kit-routes: 0.8.3
-    vite-plugin-stripper: 0.5.4
-    esm-env: 1.0.0
-    '@clack/prompts': 0.7.0
+    vite-plugin-stripper: 0.6.4
+    esm-env: 1.2.2
+    '@clack/prompts': 0.10.0
 
   kitql:
     '@kitql/helpers': 0.8.11
     '@kitql/eslint-config': 0.5.8
     '@kitql/handles': 0.2.3
-    '@kitql/internals': 0.9.9
+    '@kitql/internals': 0.10.3
 
   testing:
     '@playwright/test': 1.51.0
@@ -53,7 +53,7 @@ catalogs:
     autoprefixer: 10.4.19
     postcss: 8.4.38
     tailwindcss: 3.4.4
-    tailwind-merge: 2.3.0
+    tailwind-merge: 2.6.0
     clsx: 2.1.1
     daisyui: 4.12.14
 
@@ -62,7 +62,7 @@ catalogs:
     '@oslojs/encoding': 1.1.0
     '@oslojs/otp': 1.1.0
     '@types/nodemailer': 6.4.14
-    nodemailer: 6.9.14
+    nodemailer: 6.10.0
     arctic: 3.5.0
     bcryptjs: 3.0.2
     cron: 4.1.0
