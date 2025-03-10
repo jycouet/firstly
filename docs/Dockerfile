@@ -1,5 +1,5 @@
-# Base stage for shared dependencies
-FROM ubuntu:24.04
+# Build stage
+FROM ubuntu:24.04 AS build
 
 # To bring the env inside.
 # ARG TZ
@@ -10,6 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install Stuff
 RUN apt-get update && apt-get install -y \
   curl \
+  wget \
   gnupg \
   git \
   && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
@@ -29,3 +30,12 @@ RUN pnpm install --production=false
 
 # Build the application
 RUN pnpm -F docs build
+
+# Production stage
+FROM nginx:alpine
+
+# Set working directory for nginx
+WORKDIR /usr/share/nginx/html/
+
+# Copy built files from build stage
+COPY --from=build /app/docs/dist .
