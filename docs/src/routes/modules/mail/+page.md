@@ -13,9 +13,9 @@ Anywhere in your code you can then:
 import { sendMail } from 'firstly/mail'
 
 await sendMail('my_first_mail', {
-  to: '...@...',
-  subject: 'Hello from firstly',
-  html: 'hello <b>hello</b> 👋'
+	to: '...@...',
+	subject: 'Hello from firstly',
+	html: 'hello <b>hello</b> 👋',
 })
 ```
 
@@ -30,26 +30,26 @@ template.
 
 ```ts
 await sendMail('my_second_mail', {
-  to: '...@...',
-  subject: 'Hello from firstly (a second time)',
+	to: '...@...',
+	subject: 'Hello from firstly (a second time)',
 
-  templateProps: {
-    title: 'firstly 👋',
-    previewText: 'This is the mail you were waiting for',
-    sections: [
-      {
-        text: 'Then, How are you today ?',
-        highlighted: true
-      },
-      {
-        text: 'Did you star the repo ?',
-        cta: {
-          text: 'Check it out',
-          link: 'https://github.com/jycouet/firstly'
-        }
-      }
-    ]
-  }
+	templateProps: {
+		title: 'firstly 👋',
+		previewText: 'This is the mail you were waiting for',
+		sections: [
+			{
+				text: 'Then, How are you today ?',
+				highlighted: true,
+			},
+			{
+				text: 'Did you star the repo ?',
+				cta: {
+					text: 'Check it out',
+					link: 'https://github.com/jycouet/firstly',
+				},
+			},
+		],
+	},
 })
 ```
 
@@ -59,17 +59,17 @@ await sendMail('my_second_mail', {
 
 ```ts
 export const api = firstly({
-  mail: {
-    transport: {
-      host: '...',
-      port: 587,
-      secure: false, // Use `true` for port 465, `false` for all other ports
-      auth: {
-        user: '...',
-        pass: '...'
-      }
-    }
-  }
+	mail: {
+		transport: {
+			host: '...',
+			port: 587,
+			secure: false, // Use `true` for port 465, `false` for all other ports
+			auth: {
+				user: '...',
+				pass: '...',
+			},
+		},
+	},
 })
 ```
 
@@ -84,11 +84,11 @@ import nodemailerSendgrid from 'nodemailer-sendgrid'
 import { SENDGRID_API_KEY } from '$env/static/private'
 
 export const api = firstly({
-  mail: {
-    transport: nodemailerSendgrid({
-      apiKey: SENDGRID_API_KEY
-    })
-  }
+	mail: {
+		transport: nodemailerSendgrid({
+			apiKey: SENDGRID_API_KEY,
+		}),
+	},
 })
 ```
 

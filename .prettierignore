@@ -25,3 +25,6 @@ packages/firstly/src/lib/auth/static
 packages/firstly/db
 packages/ui
 .changeset
+
+packages/firstly/src/app.html
+packages/firstly/static/favicon.svg

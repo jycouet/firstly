@@ -15,18 +15,21 @@
 
   let password: string
   // let pincode: number
+  let loading = false
 
   async function signIn() {
     msgError = ''
     msgSuccess = ''
+    loading = true
     try {
-      await AuthController.signUpPassword(email, password)
+      msgSuccess = await AuthController.signUpPassword(email, password)
       window.location.href = '/'
     } catch (error) {
       if (isError(error)) {
         msgError = error.message ?? ''
       }
-    }
+      loading = false
+    } 
   }
 
   const handlePin = () => {
@@ -35,27 +38,31 @@
 </script>
 
 {#if view == 'login'}
-  <form on:submit|preventDefault={signIn}>
-    <p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
-    <label>
-      {firstlyDataAuth.ui?.strings.email}
-      <input
-        bind:value={email}
-        use:autofocus
-        type="text"
-        placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
-      />
-    </label>
-    <label>
-      {firstlyDataAuth.ui?.strings.password}
-      <input
-        bind:value={password}
-        type="password"
-        placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
-      />
-    </label>
-    <button>{firstlyDataAuth.ui?.strings.btn_sign_up}</button>
-  </form>
+	<form on:submit|preventDefault={signIn}>
+		<p class="message" class:error={msgError}>{msgError}{msgSuccess}</p>
+		<label>
+			{firstlyDataAuth.ui?.strings.email}
+			<input
+				required
+				bind:value={email}
+				use:autofocus
+				type="email"
+				placeholder={firstlyDataAuth.ui?.strings.email_placeholder}
+			/>
+		</label>
+		<label>
+			{firstlyDataAuth.ui?.strings.password}
+			<input
+				required
+				bind:value={password}
+				type="password"
+				placeholder={firstlyDataAuth.ui?.strings.password_placeholder}
+			/>
+		</label>
+		<button disabled={!email || !password || loading}
+			>{firstlyDataAuth.ui?.strings.btn_sign_up}</button
+		>
+	</form>
 {/if}
 
 <!-- {#if view == 'pin'}
@@ -70,24 +77,8 @@
 {/if} -->
 
 <style>
-  form {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .message:empty {
-    display: none;
-  }
-
-  .message {
-    background: var(--pico-muted-border-color);
-    padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
-    border-radius: var(--pico-border-radius);
-    margin-bottom: calc(var(--pico-typography-spacing-vertical) * 2);
-  }
-
-  .message.error {
-    background: var(--pico-del-color);
-    color: #4c1513;
-  }
+	form {
+		display: flex;
+		flex-direction: column;
+	}
 </style>

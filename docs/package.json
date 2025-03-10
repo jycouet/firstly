@@ -10,16 +10,15 @@
     "format": "kitql-lint -f"
   },
   "devDependencies": {
-    "@iconify-json/fxemoji": "1.2.0",
-    "@iconify-json/heroicons": "1.2.0",
-    "@sveltejs/adapter-static": "3.0.4",
-    "@sveltejs/kit": "2.15.2",
-    "@sveltejs/vite-plugin-svelte": "5.0.3",
-    "@sveltepress/theme-default": "5.0.6",
-    "@sveltepress/vite": "1.1.3",
-    "prettier": "3.4.2",
-    "svelte": "5.17.0",
-    "typescript": "5.5.4",
-    "vite": "6.0.7"
+    "@iconify-json/fxemoji": "catalog:docs",
+    "@iconify-json/heroicons": "catalog:docs",
+    "@sveltejs/adapter-static": "catalog:sveltekit",
+    "@sveltejs/kit": "catalog:sveltekit",
+    "@sveltejs/vite-plugin-svelte": "catalog:sveltekit",
+    "@sveltepress/theme-default": "catalog:docs",
+    "@sveltepress/vite": "catalog:docs",
+    "svelte": "catalog:svelte",
+    "typescript": "catalog:tooling",
+    "vite": "catalog:tooling"
   }
 }

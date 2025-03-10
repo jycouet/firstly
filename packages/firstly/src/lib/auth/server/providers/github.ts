@@ -5,10 +5,10 @@ import { remult } from 'remult'
 import { env } from '$env/dynamic/private'
 
 import {
-  authModuleRaw,
-  type FFOAuth2Provider,
-  type OAuth2UserInfo,
-  type ProviderAuthorizationURLOptions,
+	authModuleRaw,
+	type FFOAuth2Provider,
+	type OAuth2UserInfo,
+	type ProviderAuthorizationURLOptions,
 } from '../module'
 import { checkOAuthConfig } from './helperProvider'
 
@@ -41,61 +41,61 @@ import { checkOAuthConfig } from './helperProvider'
  * 5. Enjoy 🥳
  */
 export function github(options?: {
-  GITHUB_CLIENT_ID?: string
-  GITHUB_CLIENT_SECRET?: string
-  GITHUB_REDIRECT_URI?: string
-  authorizationURLOptions?: ProviderAuthorizationURLOptions
-  getUserInfo?: (tokens: OAuth2Tokens) => Promise<OAuth2UserInfo>
-  log?: boolean
+	GITHUB_CLIENT_ID?: string
+	GITHUB_CLIENT_SECRET?: string
+	GITHUB_REDIRECT_URI?: string
+	authorizationURLOptions?: ProviderAuthorizationURLOptions
+	getUserInfo?: (tokens: OAuth2Tokens) => Promise<OAuth2UserInfo>
+	log?: boolean
 }): FFOAuth2Provider<GitHub, 'github'> {
-  const name = 'github'
+	const name = 'github'
 
-  const clientID = options?.GITHUB_CLIENT_ID ?? env.GITHUB_CLIENT_ID ?? ''
-  const secret = options?.GITHUB_CLIENT_SECRET ?? env.GITHUB_CLIENT_SECRET ?? ''
+	const clientID = options?.GITHUB_CLIENT_ID ?? env.GITHUB_CLIENT_ID ?? ''
+	const secret = options?.GITHUB_CLIENT_SECRET ?? env.GITHUB_CLIENT_SECRET ?? ''
 
-  const urlForKeys = 'https://github.com/settings/developers'
-  checkOAuthConfig(name, clientID, secret, urlForKeys, false)
+	const urlForKeys = 'https://github.com/settings/developers'
+	checkOAuthConfig(name, clientID, secret, urlForKeys, false)
 
-  return {
-    name,
-    getArcticProvider: () => {
-      const redirectURI =
-        options?.GITHUB_REDIRECT_URI ??
-        env.GITHUB_REDIRECT_URI ??
-        `${remult.context.request.url.origin}/api/auth_callback`
+	return {
+		name,
+		getArcticProvider: () => {
+			const redirectURI =
+				options?.GITHUB_REDIRECT_URI ??
+				env.GITHUB_REDIRECT_URI ??
+				`${remult.context.request.url.origin}/api/auth_callback`
 
-      checkOAuthConfig(name, clientID, secret, urlForKeys, true)
+			checkOAuthConfig(name, clientID, secret, urlForKeys, true)
 
-      const o = new GitHub(clientID, secret, redirectURI)
-      return o
-    },
-    authorizationURLOptions: () => {
-      return options?.authorizationURLOptions ?? []
-    },
-    getUserInfo: options?.getUserInfo
-      ? options.getUserInfo
-      : async (tokens) => {
-          const res = await fetch('https://api.github.com/user', {
-            headers: {
-              Authorization: `Bearer ${tokens.accessToken()}`,
-            },
-          })
-          const user = await res.json()
+			const o = new GitHub(clientID, secret, redirectURI)
+			return o
+		},
+		authorizationURLOptions: () => {
+			return options?.authorizationURLOptions ?? []
+		},
+		getUserInfo: options?.getUserInfo
+			? options.getUserInfo
+			: async (tokens) => {
+					const res = await fetch('https://api.github.com/user', {
+						headers: {
+							Authorization: `Bearer ${tokens.accessToken()}`,
+						},
+					})
+					const user = await res.json()
 
-          if ((options?.authorizationURLOptions ?? []).includes('user:email')) {
-            const res = await fetch('https://api.github.com/user/emails', {
-              headers: {
-                Authorization: `Bearer ${tokens.accessToken()}`,
-              },
-            })
-            user.emails = await res.json()
-          }
+					if ((options?.authorizationURLOptions ?? []).includes('user:email')) {
+						const res = await fetch('https://api.github.com/user/emails', {
+							headers: {
+								Authorization: `Bearer ${tokens.accessToken()}`,
+							},
+						})
+						user.emails = await res.json()
+					}
 
-          if (options?.log) {
-            authModuleRaw.log.info(`user`, user)
-          }
+					if (options?.log) {
+						authModuleRaw.log.info(`user`, user)
+					}
 
-          return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
-        },
-  }
+					return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
+				},
+	}
 }
