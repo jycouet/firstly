@@ -41,7 +41,7 @@
     "!dist/**/*.spec.*"
   ],
   "pnpm": {
-    "onlyBuiltDependencies": [
+    "ignoredBuiltDependencies": [
       "esbuild",
       "sharp"
     ],
