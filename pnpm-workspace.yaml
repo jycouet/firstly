@@ -18,7 +18,7 @@ catalogs:
   '@kitql/helpers': 0.8.11
   '@kitql/eslint-config': 0.5.8
   '@kitql/handles': 0.2.3
-  '@kitql/internals': 0.9.9
+  '@kitql/internals': 0.10.3
 
  testing:
   '@playwright/test': 1.51.0
