@@ -40,9 +40,6 @@
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*"
   ],
-  "engines": {
-    "node": ">=18"
-  },
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
