@@ -80,4 +80,4 @@ catalogs:
     vite: 5.4.1
 
 onlyBuiltDependencies:
-  - sharp
+  - esbuild
