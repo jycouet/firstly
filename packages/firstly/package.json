@@ -101,7 +101,7 @@
       "types": "./esm/formats/index.d.ts",
       "default": "./esm/formats/index.js"
     },
-    "./auth": {
+    "./auth/client": {
       "types": "./esm/auth/index.d.ts",
       "default": "./esm/auth/index.js"
     },
@@ -109,7 +109,7 @@
       "types": "./esm/auth/server/index.d.ts",
       "default": "./esm/auth/server/index.js"
     },
-    "./changeLog": {
+    "./changeLog/client": {
       "types": "./esm/changeLog/index.d.ts",
       "default": "./esm/changeLog/index.js"
     },
@@ -121,7 +121,7 @@
       "types": "./esm/cron/server/index.d.ts",
       "default": "./esm/cron/server/index.js"
     },
-    "./feedback": {
+    "./feedback/client": {
       "types": "./esm/feedback/index.d.ts",
       "default": "./esm/feedback/index.js"
     },
@@ -129,7 +129,7 @@
       "types": "./esm/feedback/server/index.d.ts",
       "default": "./esm/feedback/server/index.js"
     },
-    "./mail": {
+    "./mail/client": {
       "types": "./esm/mail/index.d.ts",
       "default": "./esm/mail/index.js"
     },

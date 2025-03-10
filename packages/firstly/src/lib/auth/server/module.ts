@@ -6,6 +6,8 @@ import type { ClassType, UserInfo } from 'remult'
 import { red } from '@kitql/helpers'
 import { getRelativePackagePath } from '@kitql/internals'
 
+import { building } from '$app/environment'
+
 import { AuthController } from '..'
 import { FF_Role } from '../..'
 import { Module } from '../../api'
@@ -221,7 +223,7 @@ export const getSafeOptions = <
 					},
 				} as const)
 
-	if (AUTH_OPTIONS.debug) {
+	if (AUTH_OPTIONS.debug && !building) {
 		authModuleRaw.log.info('ui', ui)
 	}
 
