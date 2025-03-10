@@ -30,9 +30,6 @@ RUN pnpm install --production=false
 # Build the application
 RUN pnpm -F docs build
 
-# Stage 2: Serve app with nginx server
-FROM nginx:latest
-
 # Copy the build output to replace the default nginx contents
 COPY --from=build /app/docs/dist /usr/share/nginx/html
 
