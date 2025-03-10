@@ -28,3 +28,4 @@ packages/ui
 
 packages/firstly/src/app.html
 packages/firstly/static/favicon.svg
+.astro
