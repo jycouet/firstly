@@ -116,8 +116,8 @@ catalogs:
       specifier: 5.0.2
       version: 5.0.2
     esm-env:
-      specifier: 1.0.0
-      version: 1.0.0
+      specifier: 1.2.2
+      version: 1.2.2
     tslib:
       specifier: 2.8.0
       version: 2.8.0
@@ -267,7 +267,7 @@ importers:
         version: 4.12.14(postcss@8.4.38)
       esm-env:
         specifier: catalog:tooling
-        version: 1.0.0
+        version: 1.2.2
       nodemailer:
         specifier: catalog:prod
         version: 6.9.14
@@ -3349,11 +3349,11 @@ packages:
       jiti:
         optional: true
 
-  esm-env@1.0.0:
-    resolution: {integrity: sha512-Cf6VksWPsTuW01vU9Mk/3vRue91Zevka5SjyNf3nEpokFRuqt/KjUQoGAwq9qMmhpLTHmXzSIrFRw8zxWzmFBA==}
-
   esm-env@1.2.1:
     resolution: {integrity: sha512-U9JedYYjCnadUlXk7e1Kr+aENQhtUaoaV9+gZm1T8LC/YBAPJx3NSPIAurFOC0U5vrdSevnUJS2/wUVxGwPhng==}
+
+  esm-env@1.2.2:
+    resolution: {integrity: sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA==}
 
   espree@10.1.0:
     resolution: {integrity: sha512-M1M6CpiE6ffoigIOWYO9UDP8TMUw9kqb21tf+08IgDYjCsOvCuDt4jQcZmoYxx+w7zlKw9/N0KXfto+I8/FrXA==}
@@ -7441,15 +7441,15 @@ snapshots:
 
   '@kitql/helpers@0.8.10':
     dependencies:
-      esm-env: 1.2.1
+      esm-env: 1.2.2
 
   '@kitql/helpers@0.8.11':
     dependencies:
-      esm-env: 1.2.1
+      esm-env: 1.2.2
 
   '@kitql/helpers@0.8.12':
     dependencies:
-      esm-env: 1.2.1
+      esm-env: 1.2.2
 
   '@kitql/internals@0.10.3':
     dependencies:
@@ -9535,9 +9535,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  esm-env@1.0.0: {}
-
   esm-env@1.2.1: {}
+
+  esm-env@1.2.2: {}
 
   espree@10.1.0:
     dependencies:

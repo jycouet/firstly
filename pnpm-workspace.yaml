@@ -11,7 +11,7 @@ catalogs:
   vite-plugin-watch-and-run: 1.7.1
   vite-plugin-kit-routes: 0.8.3
   vite-plugin-stripper: 0.5.4
-  esm-env: 1.0.0
+  esm-env: 1.2.2
   '@clack/prompts': 0.7.0
 
  kitql:
