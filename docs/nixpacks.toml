@@ -1,2 +1,0 @@
-[phases.setup]
-aptPkgs = ['gcc-unwrapped', 'libuuid', 'libGL']
