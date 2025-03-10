@@ -84,7 +84,7 @@ export const cron: (
 		if (with_metadata) {
 			// If the job is "stopped", there will still be a next date, but it will not fire it. The job has to start.
 			l.push(
-				`(${job.running ? green('running') : red('stopped')}, next at ${yellow(job.nextDate().toISO()!)})`,
+				`(${job.isActive ? green('running') : red('stopped')}, next at ${yellow(job.nextDate().toISO()!)})`,
 			)
 		}
 

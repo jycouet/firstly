@@ -1,24 +1,25 @@
 {
   "name": "docs",
-  "version": "0.0.0",
   "type": "module",
-  "license": "MIT",
-  "private": true,
+  "version": "0.0.1",
   "scripts": {
-    "build": "vite build",
-    "dev": "vite dev",
-    "format": "kitql-lint -f"
+    "dev": "astro dev",
+    "lint": "kitql-lint",
+    "format": "kitql-lint --format",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "catalog:docs",
+    "@kitql/eslint-config": "catalog:kitql",
+    "accessible-astro-components": "catalog:docs",
+    "astro": "catalog:docs",
+    "astro-icon": "catalog:docs",
+    "sharp": "catalog:docs"
   },
   "devDependencies": {
-    "@iconify-json/fxemoji": "catalog:docs",
-    "@iconify-json/heroicons": "catalog:docs",
-    "@sveltejs/adapter-static": "catalog:sveltekit",
-    "@sveltejs/kit": "catalog:sveltekit",
-    "@sveltejs/vite-plugin-svelte": "catalog:sveltekit",
-    "@sveltepress/theme-default": "catalog:docs",
-    "@sveltepress/vite": "catalog:docs",
-    "svelte": "catalog:svelte",
-    "typescript": "catalog:tooling",
-    "vite": "catalog:tooling"
+    "prettier-plugin-astro": "catalog:docs"
   }
 }
