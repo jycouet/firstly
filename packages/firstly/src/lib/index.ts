@@ -1,5 +1,4 @@
 import type { FindOptionsBase } from 'remult'
-import { Log } from '@kitql/helpers'
 
 import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
 import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
@@ -44,14 +43,8 @@ export {
 	Clipboardable,
 }
 
-// ******************************
-// Objects
-// ******************************
-export const ff_Log = new Log('firstly')
-
-export const FF_Role = {
-	FF_Role_Admin: 'FF_Role.Admin',
-} as const
+export { FF_Role } from './common.js'
+export { ff_Log } from './common.js'
 
 // ******************************
 // Helpers types
