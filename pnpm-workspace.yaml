@@ -55,7 +55,7 @@ catalogs:
   tailwindcss: 3.4.4
   tailwind-merge: 2.3.0
   clsx: 2.1.1
-  daisyui: 4.12.14
+  daisyui: 5.0.0
 
  prod:
   '@oslojs/crypto': 1.0.1
