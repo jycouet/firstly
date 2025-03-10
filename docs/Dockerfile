@@ -29,12 +29,3 @@ RUN pnpm install --production=false
 
 # Build the application
 RUN pnpm -F docs build
-
-# Copy the build output to replace the default nginx contents
-COPY --from=build /app/docs/dist /usr/share/nginx/html
-
-# Expose port 80
-EXPOSE 80
-
-# Default command to start nginx
-CMD ["nginx", "-g", "daemon off;"]
