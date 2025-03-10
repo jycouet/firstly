@@ -1,3 +1,0 @@
-[phases.setup]
-nixPkgs = ['pnpm']
-nixLibs = ['gcc-unwrapped', 'libuuid', 'libGL']
