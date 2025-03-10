@@ -74,7 +74,11 @@ catalogs:
     '@sveltejs/vite-plugin-svelte': 3.1.2
 
   old-svelte:
-    'svelte': 4.2.18
+    svelte: 4.2.18
 
   old-vite:
     vite: 5.4.1
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
