@@ -65,7 +65,7 @@ catalogs:
   nodemailer: 6.9.14
   arctic: 3.5.0
   bcryptjs: 3.0.2
-  cron: 3.1.7
+  cron: 3.5.0
   svelty-email: 0.0.11
 
  old-sveltekit:

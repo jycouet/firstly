@@ -67,8 +67,8 @@ catalogs:
       specifier: 3.0.2
       version: 3.0.2
     cron:
-      specifier: 3.1.7
-      version: 3.1.7
+      specifier: 3.5.0
+      version: 3.5.0
     nodemailer:
       specifier: 6.9.14
       version: 6.9.14
@@ -261,7 +261,7 @@ importers:
         version: 2.1.1
       cron:
         specifier: catalog:prod
-        version: 3.1.7
+        version: 3.5.0
       daisyui:
         specifier: catalog:ui
         version: 4.12.14(postcss@8.4.38)
@@ -2846,8 +2846,8 @@ packages:
   cose-base@2.2.0:
     resolution: {integrity: sha512-AzlgcsCbUMymkADOJtQm3wO9S3ltPfYOFD5033keQn9NJzIbtnZj+UdBJe7DYml/8TdbtHJW3j58SOnKhWY/5g==}
 
-  cron@3.1.7:
-    resolution: {integrity: sha512-tlBg7ARsAMQLzgwqVxy8AZl/qlTc5nibqYwtNGoCrd+cV+ugI+tvZC1oT/8dFH8W455YrywGykx/KMmAqOr7Jw==}
+  cron@3.5.0:
+    resolution: {integrity: sha512-0eYZqCnapmxYcV06uktql93wNWdlTmmBFP2iYz+JPVcQqlyFYcn1lFuIk4R54pkOmE7mcldTAPZv6X5XA4Q46A==}
 
   cross-spawn@5.1.0:
     resolution: {integrity: sha512-pTgQJ5KC0d2hcY8eyL1IzlBPYjTkyH72XRZPnLyKus2mBfNjQs3klqbJU2VILqZryAZUt9JOb3h/mWMy23/f5A==}
@@ -4123,8 +4123,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  luxon@3.4.4:
-    resolution: {integrity: sha512-zobTr7akeGHnv7eBOXcRgMeCP6+uyYsczwmeRCauvpvaAltgNyTbLH/+VaEAPUeWBT+1GuNmz4wC/6jtQzbbVA==}
+  luxon@3.5.0:
+    resolution: {integrity: sha512-rh+Zjr6DNfUYR3bPwJEnuwDdqMbxZW7LOQfUN4B54+Cl+0o5zaU9RJ6bcidfDtC1cWCZXQ+nvX8bf6bAji37QQ==}
     engines: {node: '>=12'}
 
   magic-string@0.25.9:
@@ -8869,10 +8869,10 @@ snapshots:
     dependencies:
       layout-base: 2.0.1
 
-  cron@3.1.7:
+  cron@3.5.0:
     dependencies:
       '@types/luxon': 3.4.2
-      luxon: 3.4.4
+      luxon: 3.5.0
 
   cross-spawn@5.1.0:
     dependencies:
@@ -10262,7 +10262,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  luxon@3.4.4: {}
+  luxon@3.5.0: {}
 
   magic-string@0.25.9:
     dependencies:
