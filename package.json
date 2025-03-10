@@ -2,7 +2,6 @@
   "name": "firstly-monorepo",
   "version": "0.0.0",
   "description": "An opinionated Remult setup !",
-  "packageManager": "pnpm@10.5.2",
   "keywords": [
     "remult",
     "svelte",
