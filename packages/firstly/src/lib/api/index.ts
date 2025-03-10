@@ -7,6 +7,8 @@ import { Log } from '@kitql/helpers'
 
 import { building } from '$app/environment'
 
+import { sveltekit } from '$lib/sveltekit/server'
+
 type ModuleInput = {
 	/**
 	 * The name of the module (usefull for logging and debugging purposes)
@@ -50,10 +52,11 @@ type Options = RemultServerOptions<RequestEvent<Partial<Record<string, string>>,
 export let entities: ClassType<any>[] = []
 /**
  * it's basically `remultSveltekit` with the `modules` option
+ * @deprecated will be done directly in remult when modules will be in 😉
  */
 export const firstly = (o: Options) => {
 	const modulesSorted = modulesFlatAndOrdered([
-		...(o.modules ?? []),
+		...[...(o.modules ?? []), sveltekit()],
 		new Module({
 			name: 'default',
 			entities: o.entities ?? [],

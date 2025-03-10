@@ -14,6 +14,9 @@ declare module 'remult' {
 	}
 }
 
+/**
+ * @deprecated will be done directly in remult when modules will be in 😉
+ */
 export const sveltekit: () => Module = () => {
 	return new Module({
 		name: 'sveltekit',

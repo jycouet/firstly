@@ -5,7 +5,6 @@ import { firstly, Module } from '$lib/api'
 import { FF_Role_Auth, FFAuthUser } from '$lib/auth'
 import { auth } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'
-import { sveltekit } from '$lib/sveltekit/server'
 
 const Role = {
 	...FF_Role,
@@ -28,8 +27,6 @@ export class _AppUser extends FFAuthUser {
 
 export const api = firstly({
 	modules: [
-		sveltekit(),
-
 		mail({
 			template: {
 				brandColor: '#E10098',
@@ -68,7 +65,7 @@ export const api = firstly({
 						'https://images.unsplash.com/photo-1588421357937-c6dadca810cf?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
 				},
 			},
-			debug: true,
+			// debug: true,
 			providers: {
 				demo: [
 					{ name: 'Noam' },

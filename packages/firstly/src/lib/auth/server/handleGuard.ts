@@ -54,6 +54,10 @@ export function handleGuard(config: RouteGuardConfig): Handle {
 		// Check if the path is in the authenticated routes
 		const isAuthenticatedRoute = pathMatchesAnyPattern(path, config.authenticated)
 
+		// Check if the current path is the login page
+		const isLoginPage =
+			path === config.redirectToLogin || path === config.redirectToLogin.replace(/\/$/, '')
+
 		// Create login URL with redirect parameter
 		const createLoginUrl = (returnUrl: string) => {
 			const encodedReturnUrl = encodeURIComponent(returnUrl)
@@ -62,18 +66,24 @@ export function handleGuard(config: RouteGuardConfig): Handle {
 		}
 
 		// Handle root path
-		if (path === '/') {
+		if (path === config.redirectToLogin) {
 			if (isAuthenticated) {
 				config.redirect(302, config.redirectAuthenticated)
 			} else {
-				config.redirect(302, config.redirectToLogin)
+				// Only redirect if we're not already on the login page
+				if (!isLoginPage) {
+					config.redirect(302, config.redirectToLogin)
+				}
 			}
 		}
 
 		// If user is not authenticated and tries to access an authenticated route
 		if (!isAuthenticated && isAuthenticatedRoute) {
 			// Redirect to login with the current URL as the redirect target
-			config.redirect(302, createLoginUrl(fullUrl))
+			// Only redirect if we're not already on the login page
+			if (!isLoginPage) {
+				config.redirect(302, createLoginUrl(fullUrl))
+			}
 		}
 
 		// If user is authenticated and tries to access an anonymous-only route
