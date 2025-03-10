@@ -12,7 +12,7 @@ catalogs:
   vite-plugin-kit-routes: 0.8.3
   vite-plugin-stripper: 0.5.4
   esm-env: 1.0.0
-  '@clack/prompts': 0.7.0
+  '@clack/prompts': 0.10.0
 
  kitql:
   '@kitql/helpers': 0.8.11
