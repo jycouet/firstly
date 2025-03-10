@@ -15,41 +15,41 @@ import { auth } from 'firstly/auth'
 // import { github } from 'firstly/auth/server'
 
 const Role = {
-  ADMIN: 'admin'
+	ADMIN: 'admin',
 }
 
 export const remultApi = firstly({
-  modules: [
-    auth({
-      providers: {
-        // enable demo account (usefull for testing as there is no password!)
-        demo: [
-          // Few demo accounts
-          { name: 'Noam' },
-          { name: 'Ermin' },
-          { name: 'JYC', roles: [Role.ADMIN] }
-        ],
+	modules: [
+		auth({
+			providers: {
+				// enable demo account (usefull for testing as there is no password!)
+				demo: [
+					// Few demo accounts
+					{ name: 'Noam' },
+					{ name: 'Ermin' },
+					{ name: 'JYC', roles: [Role.ADMIN] },
+				],
 
-        // enable login / password
-        password: {},
+				// enable login / password
+				password: {},
 
-        // enable otp login
-        otp: {
-          send: async (data) => {
-            console.info(`OTP to send`, JSON.stringify(data, null, 2))
-          }
-        },
+				// enable otp login
+				otp: {
+					send: async (data) => {
+						console.info(`OTP to send`, JSON.stringify(data, null, 2))
+					},
+				},
 
-        // enable oauth login
-        oAuths: [
-          // github example (we are waiting for you to add more providers / examples!)
-          // github({
-          //   authorizationURLOptions: { scopes: ['user:email'] },
-          //   log: true,
-          // }),
-        ]
-      }
-    })
-  ]
+				// enable oauth login
+				oAuths: [
+					// github example (we are waiting for you to add more providers / examples!)
+					// github({
+					//   authorizationURLOptions: { scopes: ['user:email'] },
+					//   log: true,
+					// }),
+				],
+			},
+		}),
+	],
 })
 ```

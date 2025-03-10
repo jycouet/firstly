@@ -75,12 +75,12 @@ export const firstly = (o: Options) => {
 		error: o.error
 			? o.error
 			: async (e) => {
-				// REMULT P2: validation error should probably be 409
-				// if 400 we move to 409
-				if (e.httpStatusCode == 400) {
-					e.sendError(409, e.responseBody)
-				}
-			},
+					// REMULT P2: validation error should probably be 409
+					// if 400 we move to 409
+					if (e.httpStatusCode == 400) {
+						e.sendError(409, e.responseBody)
+					}
+				},
 		// Add user configuration
 		...o,
 
