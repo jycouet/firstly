@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { FieldGroup, storeItem } from '$lib'
-
+	import { FieldGroup, storeItem } from '../..'
 	import { cellsBuildor } from '../../cellsBuildor'
 	import { dialog, type DialogMetaDataInternal } from './dialog'
 	import DialogPrimitive from './DialogPrimitive.svelte'
