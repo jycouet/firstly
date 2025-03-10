@@ -1,30 +1,55 @@
 {
-  "name": "kitql",
-  "version": "0.0.1",
-  "author": "jycouet <jycouet@gmail.com>",
+  "name": "firstly-monorepo",
+  "version": "0.0.0",
+  "description": "An opinionated Remult setup !",
+  "keywords": [
+    "remult",
+    "svelte",
+    "sveltekit"
+  ],
   "license": "MIT",
   "type": "module",
+  "bin": "./esm/bin/cmd.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jycouet/firstly",
+    "homepage": "https://github.com/jycouet/firstly"
+  },
   "scripts": {
-    "build": "pnpm -F \"!docs\" build",
+    "//// ---- PROD ---- ////": "",
     "release:version": "npm run changeset version",
-    "release": "npm run build && changeset publish --verbose",
+    "release": "pnpm -F firstly compile && changeset publish",
+    "//// OTHERS ////": "",
+    "root-format": "kitql-lint -f",
     "reset": "git clean -xdf",
-    "format": "kitql-lint --format",
     "up-dep": "pnpm -r up --latest"
   },
   "devDependencies": {
     "@changesets/changelog-github": "catalog:lib-author-helper",
     "@changesets/cli": "catalog:lib-author-helper",
-    "@vitest/coverage-v8": "catalog:testing",
-    "esbuild": "catalog:tooling",
-    "rimraf": "catalog:tooling"
+    "@kitql/eslint-config": "catalog:kitql",
+    "@playwright/test": "catalog:testing"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "directory": "dist",
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*"
+  ],
+  "engines": {
+    "node": ">=18"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
     ],
     "patchedDependencies": {
-      "@sveltejs/package": "patches/@sveltejs__package.patch"
+      "@melt-ui/svelte@0.86.3": "patches/@melt-ui__svelte@0.86.3.patch",
+      "svelty-email@0.0.11": "patches/svelty-email@0.0.11.patch"
     }
   }
 }
