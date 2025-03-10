@@ -29,3 +29,12 @@ RUN pnpm install --production=false
 
 # Build the application
 RUN pnpm -F docs build
+
+# Production stage with Nginx for serving static files
+FROM nginx:alpine
+
+# Copy the built files from the builder stage to Nginx's serve directory
+COPY --from=builder /docs/dist /usr/share/nginx/html
+
+# Expose port 80
+EXPOSE 80
