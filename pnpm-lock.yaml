@@ -115,9 +115,6 @@ catalogs:
     '@tsconfig/svelte':
       specifier: 5.0.2
       version: 5.0.2
-    esbuild:
-      specifier: 0.25.0
-      version: 0.25.0
     esm-env:
       specifier: 1.2.2
       version: 1.2.2
@@ -212,9 +209,6 @@ importers:
         specifier: catalog:docs
         version: 0.33.5
     devDependencies:
-      esbuild:
-        specifier: catalog:tooling
-        version: 0.25.0
       prettier-plugin-astro:
         specifier: catalog:docs
         version: 0.14.1
