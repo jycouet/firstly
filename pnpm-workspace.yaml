@@ -38,7 +38,7 @@ catalogs:
     '@changesets/cli': 2.27.1
 
   svelte:
-    'svelte': 5.17.0
+    'svelte': 5.23.0
     svelte-check: 4.0.5
     svelte-micro: 2.5.7
 
@@ -75,7 +75,7 @@ catalogs:
     '@sveltejs/vite-plugin-svelte': 3.1.2
 
   old-svelte:
-    svelte: 4.2.18
+    svelte: 5.23.0
 
   old-vite:
     vite: 5.4.1
