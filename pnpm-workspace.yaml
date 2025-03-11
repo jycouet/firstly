@@ -46,7 +46,7 @@ catalogs:
     '@sveltejs/adapter-node': 5.2.2
     '@sveltejs/adapter-static': 3.0.4
     '@sveltejs/kit': 2.7.3
-    '@sveltejs/vite-plugin-svelte': 3.1.2
+    '@sveltejs/vite-plugin-svelte': 5.0.3
     '@sveltejs/package': 2.3.2
 
   ui:
@@ -72,7 +72,7 @@ catalogs:
     svelty-email: 0.0.11
 
   old-sveltekit:
-    '@sveltejs/vite-plugin-svelte': 3.1.2
+    '@sveltejs/vite-plugin-svelte': 5.0.3
 
   old-svelte:
     svelte: 4.2.18
