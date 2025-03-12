@@ -9,6 +9,7 @@ import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import type StreamTransport from 'nodemailer/lib/stream-transport'
 import type { ComponentProps, ComponentType, SvelteComponent } from 'svelte'
 import { render } from 'svelty-email'
+import { asClassComponent } from 'svelte/legacy';
 
 import { remult } from 'remult'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
@@ -111,8 +112,8 @@ const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>
 				...mailOptions.templateProps,
 			}
 
-			mailOptions.text = render({ template, props, options: { plainText: true, pretty: true } })
-			mailOptions.html = render({ template, props, options: { plainText: false, pretty: true } })
+			mailOptions.text = render({ template: asClassComponent(template), props, options: { plainText: true, pretty: true } })
+			mailOptions.html = render({ template: asClassComponent(template), props, options: { plainText: false, pretty: true } })
 		}
 
 		const info = await transporter.sendMail({
@@ -123,13 +124,13 @@ const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>
 			mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
                  We are still nice and generated you an email preview link: 
                  👉 ${cyan(
-																		String(
-																			nodemailer.getTestMessageUrl(
-																				// @ts-ignore
-																				info,
-																			),
-																		),
-																	)}
+				String(
+					nodemailer.getTestMessageUrl(
+						// @ts-ignore
+						info,
+					),
+				),
+			)}
 
                  To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
       `)

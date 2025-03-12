@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import DefaultMail from '$lib/mail/templates/DefaultMail.svelte'
 </script>
 

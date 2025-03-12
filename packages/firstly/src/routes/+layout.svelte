@@ -7,7 +7,7 @@
 	import { route } from '$lib/ROUTES'
 	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
 
-	import '../app.pcss'
+	import '../app.css'
 
 	import type { LayoutData } from './$types'
 

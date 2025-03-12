@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { Button, Container, Head, Heading, Html, Preview, Section, Text } from 'svelty-email'
+	import { Head, Html } from 'svelty-email'
+
+	// import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } from 'svelty-email'
 
 	export let previewText: string | undefined
 	export let title: string | undefined
@@ -65,22 +67,24 @@
 </script>
 
 <Html>
-	<Head />
-	<Preview preview={previewText ?? title + '...'} />
-	<Section style={main}>
-		<Container style={container}>
-			{#if title}
-				<Heading style={heading}>{title}</Heading>
-			{/if}
-
-			{#each sections as s}
-				<Text style={s.highlighted ? highlighted : paragraph}>
-					{s.text}
-				</Text>
-				{#if s.cta}
-					<Button pY={19} style={button} href={s.cta.link}>{s.cta.text}</Button>
+	<Head {title} />
+	<!-- <Body>
+		<Preview preview={previewText ?? title + '...'} />
+		<Section style={main}>
+			<Container style={container}>
+				{#if title}
+					<Heading style={heading}>{title}</Heading>
 				{/if}
-			{/each}
-		</Container>
-	</Section>
+
+				{#each sections as s}
+					<Text style={s.highlighted ? highlighted : paragraph}>
+						{s.text}
+					</Text>
+					{#if s.cta}
+						<Button pY={19} style={button} href={s.cta.link}>{s.cta.text}</Button>
+					{/if}
+				{/each}
+			</Container>
+		</Section>
+	</Body> -->
 </Html>

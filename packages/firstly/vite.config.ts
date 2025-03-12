@@ -1,4 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite'
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, loadEnv } from 'vite'
 
 import type { KIT_ROUTES } from '$lib/ROUTES'
@@ -19,6 +20,7 @@ const config = defineConfig(({ mode }) => {
 			port: parseInt(env.PORT ?? '3132'),
 		},
 		plugins: [
+			tailwindcss(),
 			firstly<KIT_ROUTES>({
 				kitRoutes: {
 					LINKS: {
