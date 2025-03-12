@@ -1,81 +1,72 @@
 packages:
-  - docs
-  - packages/*
+ - docs
+ - packages/*
 
 catalogs:
-  docs:
-    '@astrojs/starlight': 0.32.2
-    accessible-astro-components: 4.0.3
-    astro: 5.4.2
-    astro-icon: 1.1.5
-    sharp: 0.33.5
-    prettier-plugin-astro: 0.14.1
+ docs:
+  '@astrojs/starlight': 0.32.2
+  accessible-astro-components: 4.0.3
+  astro: 5.4.2
+  astro-icon: 1.1.5
+  sharp: 0.33.5
+  prettier-plugin-astro: 0.14.1
 
-  tooling:
-    typescript: 5.8.2
-    # 'esbuild': '0.25.1'
-    vite: 6.0.7
-    '@tsconfig/svelte': 5.0.2
-    tslib: 2.8.0
-    vite-plugin-watch-and-run: 1.7.1
-    vite-plugin-kit-routes: 0.8.3
-    vite-plugin-stripper: 0.6.4
-    esm-env: 1.2.2
-    '@clack/prompts': 0.10.0
+ tooling:
+  typescript: 5.8.2
+  # 'esbuild': '0.25.1'
+  vite: 6.0.7
+  '@tsconfig/svelte': 5.0.2
+  tslib: 2.8.0
+  vite-plugin-watch-and-run: 1.7.1
+  vite-plugin-kit-routes: 0.8.3
+  vite-plugin-stripper: 0.6.4
+  esm-env: 1.2.2
+  '@clack/prompts': 0.10.0
 
-  kitql:
-    '@kitql/helpers': 0.8.11
-    '@kitql/eslint-config': 0.5.8
-    '@kitql/handles': 0.2.3
-    '@kitql/internals': 0.10.3
+ kitql:
+  '@kitql/helpers': 0.8.11
+  '@kitql/eslint-config': 0.5.8
+  '@kitql/handles': 0.2.3
+  '@kitql/internals': 0.10.3
 
-  testing:
-    '@playwright/test': 1.51.0
-    vitest: 3.0.1
+ testing:
+  '@playwright/test': 1.51.0
+  vitest: 3.0.1
 
-  lib-author-helper:
-    '@changesets/changelog-github': 0.5.0
-    '@changesets/cli': 2.27.1
+ lib-author-helper:
+  '@changesets/changelog-github': 0.5.0
+  '@changesets/cli': 2.27.1
 
-  svelte:
-    'svelte': 5.17.0
-    svelte-check: 4.0.5
-    svelte-micro: 2.5.7
+ svelte:
+  'svelte': 5.17.0
+  svelte-check: 4.0.5
+  svelte-micro: 2.5.7
 
-  sveltekit:
-    '@sveltejs/adapter-node': 5.2.2
-    '@sveltejs/adapter-static': 3.0.4
-    '@sveltejs/kit': 2.7.3
-    '@sveltejs/vite-plugin-svelte': 3.1.2
-    '@sveltejs/package': 2.3.2
+ sveltekit:
+  '@sveltejs/adapter-node': 5.2.2
+  '@sveltejs/adapter-static': 3.0.4
+  '@sveltejs/kit': 2.7.3
+  '@sveltejs/vite-plugin-svelte': 3.1.2
+  '@sveltejs/package': 2.3.2
 
-  ui:
-    mermaid: 11.4.1
-    '@mdi/js': 7.4.47
-    '@melt-ui/svelte': 0.86.3
-    autoprefixer: 10.4.19
-    postcss: 8.4.38
-    tailwindcss: 3.4.4
-    tailwind-merge: 2.6.0
-    clsx: 2.1.1
-    daisyui: 4.12.14
+ ui:
+  mermaid: 11.4.1
+  '@mdi/js': 7.4.47
+  '@melt-ui/svelte': 0.86.3
+  autoprefixer: 10.4.19
+  postcss: 8.4.38
+  tailwindcss: 3.4.4
+  tailwind-merge: 2.6.0
+  clsx: 2.1.1
+  daisyui: 4.12.14
 
-  prod:
-    '@oslojs/crypto': 1.0.1
-    '@oslojs/encoding': 1.1.0
-    '@oslojs/otp': 1.1.0
-    '@types/nodemailer': 6.4.14
-    nodemailer: 6.10.0
-    arctic: 3.5.0
-    bcryptjs: 3.0.2
-    cron: 4.1.0
-    svelty-email: 0.0.11
-
-  old-sveltekit:
-    '@sveltejs/vite-plugin-svelte': 3.1.2
-
-  old-svelte:
-    svelte: 4.2.18
-
-  old-vite:
-    vite: 5.4.1
+ prod:
+  '@oslojs/crypto': 1.0.1
+  '@oslojs/encoding': 1.1.0
+  '@oslojs/otp': 1.1.0
+  '@types/nodemailer': 6.4.14
+  nodemailer: 6.10.0
+  arctic: 3.5.0
+  bcryptjs: 3.0.2
+  cron: 4.1.0
+  svelty-email: 0.0.11
