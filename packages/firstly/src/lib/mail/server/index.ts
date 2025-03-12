@@ -82,11 +82,14 @@ const initMail: (o?: MailOptions<SvelteComponent>) => void = async (o) => {
 
 declare module 'remult' {
 	export interface RemultContext {
-		sendMail?: typeof sendMail
+		/** Better checking is it's present or not, that's why it's "?" */
+		sendMail?: SendMail
 	}
 }
 
-export const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
+export type SendMail = typeof sendMail
+
+const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,
 	mailOptions: Parameters<typeof transporter.sendMail>[0] & {
