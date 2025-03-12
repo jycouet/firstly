@@ -9,6 +9,7 @@ import { building } from '$app/environment'
 
 import { sveltekit } from '../sveltekit/server'
 
+
 type ModuleInput = {
 	/**
 	 * The name of the module (usefull for logging and debugging purposes)
@@ -49,6 +50,16 @@ type Options = RemultServerOptions<RequestEvent<Partial<Record<string, string>>,
 	modules?: Module[] | undefined
 }
 
+declare module 'remult' {
+	export interface RemultContext {
+		// REMULT: it should be there already ?! no?
+		request: RequestEvent
+		setHeaders(headers: Record<string, string>): void
+		setCookie(...args: Parameters<RequestEvent['cookies']['set']>): void
+		deleteCookie(...args: Parameters<RequestEvent['cookies']['delete']>): void
+	}
+}
+
 export let entities: ClassType<any>[] = []
 /**
  * it's basically `remultSveltekit` with the `modules` option
@@ -75,12 +86,12 @@ export const firstly = (o: Options) => {
 		error: o.error
 			? o.error
 			: async (e) => {
-					// REMULT P2: validation error should probably be 409
-					// if 400 we move to 409
-					if (e.httpStatusCode == 400) {
-						e.sendError(409, e.responseBody)
-					}
-				},
+				// REMULT P2: validation error should probably be 409
+				// if 400 we move to 409
+				if (e.httpStatusCode == 400) {
+					e.sendError(409, e.responseBody)
+				}
+			},
 		// Add user configuration
 		...o,
 

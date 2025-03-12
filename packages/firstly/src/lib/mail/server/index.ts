@@ -14,23 +14,17 @@ import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
 import { Module } from '../../api'
 import { default as DefaultMail } from '../templates/DefaultMail.svelte'
+import { remult } from 'remult'
 
 export type TransportTypes =
 	| SMTPTransport
-	| SMTPTransport.Options
-	| string
 	| SMTPPool
-	| SMTPPool.Options
 	| SendmailTransport
-	| SendmailTransport.Options
 	| StreamTransport
-	| StreamTransport.Options
 	| JSONTransport
-	| JSONTransport.Options
 	| SESTransport
-	| SESTransport.Options
 	| typeNodemailer.Transport<any>
-	| typeNodemailer.TransportOptions
+	| DefaultOptions
 
 export type DefaultOptions =
 	| SMTPTransport.Options
@@ -86,6 +80,12 @@ const initMail: (o?: MailOptions<SvelteComponent>) => void = async (o) => {
 	}
 }
 
+declare module 'remult' {
+	export interface RemultContext {
+		sendMail?: typeof sendMail
+	}
+}
+
 export const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,
@@ -120,13 +120,13 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
 			mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
                  We are still nice and generated you an email preview link: 
                  👉 ${cyan(
-																		String(
-																			nodemailer.getTestMessageUrl(
-																				// @ts-ignore
-																				info,
-																			),
-																		),
-																	)}
+				String(
+					nodemailer.getTestMessageUrl(
+						// @ts-ignore
+						info,
+					),
+				),
+			)}
 
                  To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
       `)
@@ -149,6 +149,7 @@ const mailModule = new Module({
 export const mail: (o?: MailOptions<SvelteComponent>) => Module = (o) => {
 	mailModule.initApi = () => {
 		initMail(o)
+		remult.context.sendMail = sendMail
 	}
 	return mailModule
 }

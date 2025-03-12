@@ -5,7 +5,6 @@ import { generateState } from 'arctic'
 import { EntityError, remult, repo } from 'remult'
 import { green, magenta, yellow } from '@kitql/helpers'
 
-import { sendMail } from '../../mail/server/index.js'
 import { FFAuthProvider } from '../Entities.js'
 import { invalidateSession } from './helperDb.js'
 import { ff_createSession } from './helperFirstly.js'
@@ -103,7 +102,10 @@ export class AuthControllerServer {
 				authModuleRaw.log.success(`${green('[custom]')}${magenta('[invitationSend]')} (${yellow(url)})`)
 				return 'Mail sent !'
 			} else {
-				await sendMail('invitationSend', {
+				if (!remult.context.sendMail) {
+					throw new EntityError({ message: 'sendMail is not enabled!' })
+				}
+				await remult.context.sendMail('invitationSend', {
 					to: email,
 					subject: 'Invitation',
 
@@ -194,7 +196,10 @@ export class AuthControllerServer {
 				await AUTH_OPTIONS.providers?.password.mail.verify.send({ email, url })
 				authModuleRaw.log.success(`${green('[custom]')}${magenta('[verifyMailSend]')} (${yellow(url)})`)
 			} else {
-				await sendMail('verifyMailSend', {
+				if (!remult.context.sendMail) {
+					throw new EntityError({ message: 'sendMail is not enabled!' })
+				}
+				await remult.context.sendMail('verifyMailSend', {
 					to: email,
 					subject: 'Wecome',
 
@@ -292,7 +297,10 @@ export class AuthControllerServer {
 				)
 				return oSafe.strings.resetPasswordSend
 			} else {
-				await sendMail('resetPasswordSend', {
+				if (!remult.context.sendMail) {
+					throw new EntityError({ message: 'sendMail is not enabled!' })
+				}
+				await remult.context.sendMail('resetPasswordSend', {
 					to: email,
 					subject: 'Reset your password',
 
