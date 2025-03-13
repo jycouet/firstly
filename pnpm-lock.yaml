@@ -125,8 +125,8 @@ catalogs:
       specifier: 0.8.3
       version: 0.8.3
     vite-plugin-stripper:
-      specifier: 0.6.4
-      version: 0.6.4
+      specifier: 0.8.0
+      version: 0.8.0
     vite-plugin-watch-and-run:
       specifier: 1.7.1
       version: 1.7.1
@@ -277,7 +277,7 @@ importers:
         version: 0.8.3(@sveltejs/kit@2.7.3(@sveltejs/vite-plugin-svelte@3.1.2(svelte@4.2.18)(vite@5.4.1(@types/node@22.5.1)(terser@5.31.1)))(svelte@4.2.18)(vite@5.4.1(@types/node@22.5.1)(terser@5.31.1)))
       vite-plugin-stripper:
         specifier: catalog:tooling
-        version: 0.6.4
+        version: 0.8.0
     devDependencies:
       '@kitql/helpers':
         specifier: catalog:kitql
@@ -5375,8 +5375,8 @@ packages:
     peerDependencies:
       '@sveltejs/kit': ^2.4.0
 
-  vite-plugin-stripper@0.6.4:
-    resolution: {integrity: sha512-h56B/h16dcVXCWHMOpKxP0cv418wcQ1/vqZpFZu2PlOiBBcMCGfxK2HgsdRmty2aKjBUwI1PBJ3x4ZEX0e00SA==}
+  vite-plugin-stripper@0.8.0:
+    resolution: {integrity: sha512-wVAP4i2Cf0TLbW7eOG/6QfG9rdhyQurGaDOS1Zbne7dpglspuZGRo/WfqPRVn8pcZ6HII/3zWsTyO7YQctp0hQ==}
     engines: {node: ^16.14 || >=18}
 
   vite-plugin-watch-and-run@1.7.1:
@@ -11677,7 +11677,7 @@ snapshots:
       '@sveltejs/kit': 2.7.3(@sveltejs/vite-plugin-svelte@3.1.2(svelte@4.2.18)(vite@5.4.1(@types/node@22.5.1)(terser@5.31.1)))(svelte@4.2.18)(vite@5.4.1(@types/node@22.5.1)(terser@5.31.1))
       vite-plugin-watch-and-run: 1.7.4
 
-  vite-plugin-stripper@0.6.4:
+  vite-plugin-stripper@0.8.0:
     dependencies:
       '@kitql/helpers': 0.8.12
       '@kitql/internals': 0.10.3
