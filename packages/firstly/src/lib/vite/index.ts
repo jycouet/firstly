@@ -54,8 +54,18 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 
 		// @ts-ignore
 		...stripper({
-			decorators: ['BackendMethod'],
-			hard: true,
+			decorators: [
+				{ decorator: 'BackendMethod' },
+				{
+					decorator: 'Entity',
+					args_1: [
+						{ fn: 'backendPrefilter' }, // will remove this function
+						{ fn: 'backendPreprocessFilter' },
+						{ fn: 'sqlExpression' },
+						{ fn: 'dbName' },
+					],
+				},
+			],
 			debug: options?.stripper?.debug ?? false,
 			nullify: ['$env/static/private', '$env/dynamic/private'],
 		}),
