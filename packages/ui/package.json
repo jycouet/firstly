@@ -10,15 +10,15 @@
     "generate_to_static": "vite build --base=/api/static"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "catalog:old-sveltekit",
+    "@sveltejs/vite-plugin-svelte": "catalog:sveltekit",
     "@tsconfig/svelte": "catalog:tooling",
     "mermaid": "catalog:ui",
-    "svelte": "catalog:old-svelte",
+    "svelte": "catalog:svelte",
     "svelte-check": "catalog:svelte",
     "svelte-micro": "catalog:svelte",
     "tslib": "catalog:tooling",
     "typescript": "catalog:tooling",
-    "vite": "catalog:old-vite",
+    "vite": "catalog:tooling",
     "vite-plugin-watch-and-run": "catalog:tooling"
   }
 }

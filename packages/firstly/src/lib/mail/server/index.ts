@@ -10,6 +10,7 @@ import type StreamTransport from 'nodemailer/lib/stream-transport'
 import type { ComponentProps, ComponentType, SvelteComponent } from 'svelte'
 import { render } from 'svelty-email'
 
+import { remult } from 'remult'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
 import { Module } from '../../api'
@@ -17,20 +18,13 @@ import { default as DefaultMail } from '../templates/DefaultMail.svelte'
 
 export type TransportTypes =
 	| SMTPTransport
-	| SMTPTransport.Options
-	| string
 	| SMTPPool
-	| SMTPPool.Options
 	| SendmailTransport
-	| SendmailTransport.Options
 	| StreamTransport
-	| StreamTransport.Options
 	| JSONTransport
-	| JSONTransport.Options
 	| SESTransport
-	| SESTransport.Options
 	| typeNodemailer.Transport<any>
-	| typeNodemailer.TransportOptions
+	| DefaultOptions
 
 export type DefaultOptions =
 	| SMTPTransport.Options
@@ -86,7 +80,16 @@ const initMail: (o?: MailOptions<SvelteComponent>) => void = async (o) => {
 	}
 }
 
-export const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
+declare module 'remult' {
+	export interface RemultContext {
+		/** Better checking is it's present or not, that's why it's "?" */
+		sendMail?: SendMail
+	}
+}
+
+export type SendMail = typeof sendMail
+
+const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,
 	mailOptions: Parameters<typeof transporter.sendMail>[0] & {
@@ -149,6 +152,7 @@ const mailModule = new Module({
 export const mail: (o?: MailOptions<SvelteComponent>) => Module = (o) => {
 	mailModule.initApi = () => {
 		initMail(o)
+		remult.context.sendMail = sendMail
 	}
 	return mailModule
 }
