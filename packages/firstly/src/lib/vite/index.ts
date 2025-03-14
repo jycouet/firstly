@@ -3,7 +3,7 @@ import {
 	type PluginOption,
 } from 'vite'
 import { kitRoutes, type Options, type RouteMappings } from 'vite-plugin-kit-routes'
-import { stripper } from 'vite-plugin-stripper'
+// import { stripper } from 'vite-plugin-stripper'
 
 // import { Log } from '@kitql/helpers'
 
@@ -53,11 +53,11 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 		}),
 
 		// @ts-ignore
-		...stripper({
-			decorators: ['BackendMethod'],
-			hard: true,
-			debug: options?.stripper?.debug ?? false,
-			nullify: ['$env/static/private', '$env/dynamic/private'],
-		}),
+		// ...stripper({
+		// 	decorators: ['BackendMethod'],
+		// 	hard: true,
+		// 	debug: options?.stripper?.debug ?? false,
+		// 	nullify: ['$env/static/private', '$env/dynamic/private'],
+		// }),
 	]
 }
