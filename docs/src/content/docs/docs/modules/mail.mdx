@@ -10,9 +10,9 @@ wheel and use the great [nodemailer](https://nodemailer.com/) package.
 Anywhere in your code you can then:
 
 ```ts
-import { sendMail } from 'firstly/mail'
+import { remult } from 'remult'
 
-await sendMail('my_first_mail', {
+await remult.context.sendMail('my_first_mail', {
 	to: '...@...',
 	subject: 'Hello from firstly',
 	html: 'hello <b>hello</b> 👋',
@@ -29,6 +29,8 @@ Instead of passing the `html` param, you can pass `templateProps`, and it will u
 template.
 
 ```ts
+import { sendMail } from 'firstly/mail/server'
+
 await sendMail('my_second_mail', {
 	to: '...@...',
 	subject: 'Hello from firstly (a second time)',
@@ -69,25 +71,6 @@ export const api = firstly({
 				pass: '...',
 			},
 		},
-	},
-})
-```
-
-## Service sendgrid example
-
-or you can use another transport like
-[nodemailer-sendgrid](https://www.npmjs.com/package/nodemailer-sendgrid):
-
-```ts
-import nodemailerSendgrid from 'nodemailer-sendgrid'
-
-import { SENDGRID_API_KEY } from '$env/static/private'
-
-export const api = firstly({
-	mail: {
-		transport: nodemailerSendgrid({
-			apiKey: SENDGRID_API_KEY,
-		}),
 	},
 })
 ```

@@ -45,9 +45,9 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 			...{
 				format_page_route_id: true,
 				logs: {
-					...options?.kitRoutes?.logs,
 					post_update_run: false,
 					update: false,
+					...options?.kitRoutes?.logs,
 				},
 			},
 		}),
