@@ -1,10 +1,10 @@
 <script lang="ts">
 	import mermaid from 'mermaid'
 
-	import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
+	import type { FirstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 
 	// eslint-disable-next-line
-	export let firstlyDataAuth: firstlyDataAuth
+	export let firstlyDataAuth: FirstlyDataAuth
 
 	// The default diagram
 	let diagram = `\

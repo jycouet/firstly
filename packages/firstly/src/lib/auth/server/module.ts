@@ -13,16 +13,13 @@ import { FF_Role } from '../..'
 import { Module } from '../../api'
 import type { RecursivePartial } from '../../utils/types'
 import { FF_Role_Auth, FFAuthAccount, FFAuthUser, FFAuthUserSession } from '../Entities'
-import type { firstlyData, firstlyDataAuth } from '../types'
+import type { FirstlyData, FirstlyDataAuth, ProviderAuthorizationURLOptions } from '../types'
 import { AuthControllerServer } from './AuthController.server'
 import { validateSessionToken } from './helperDb'
 import { setSessionTokenCookie } from './helperRemultServer'
 import { initRoleFromEnv } from './helperRole'
 
-export type { firstlyData }
 
-export type ProviderConfigured = Record<string, ProviderAuthorizationURLOptions>
-export type ProviderAuthorizationURLOptions = string[]
 export type OAuth2UserInfo = {
 	raw?: any
 	providerUserId: string
@@ -50,7 +47,7 @@ type AuthOptions<
 	}
 
 	debug?: boolean
-	ui?: false | RecursivePartial<firstlyDataAuth['ui']>
+	ui?: false | RecursivePartial<FirstlyDataAuth['ui']>
 
 	strings?: {
 		resetPasswordSend?: string
@@ -186,48 +183,48 @@ export const getSafeOptions = <
 		AUTH_OPTIONS.ui === false
 			? undefined
 			: ({
-					paths: {
+				paths: {
+					base,
+					sign_up: signUp ? buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_up, 'sign-up') : false,
+					sign_in: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_in, 'sign-in'),
+					forgot_password: buildUrlOrDefault(
 						base,
-						sign_up: signUp ? buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_up, 'sign-up') : false,
-						sign_in: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.sign_in, 'sign-in'),
-						forgot_password: buildUrlOrDefault(
-							base,
-							AUTH_OPTIONS.ui?.paths?.forgot_password,
-							'forgot-password',
-						),
-						reset_password: buildUrlOrDefault(
-							base,
-							AUTH_OPTIONS.ui?.paths?.reset_password,
-							'reset-password',
-						),
-						verify_email: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.verify_email, 'verify-email'),
-					},
-					strings: {
-						app_name: AUTH_OPTIONS.ui?.strings?.app_name ?? '',
-						email: AUTH_OPTIONS.ui?.strings?.email ?? 'Email',
-						email_placeholder: AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',
-						password: AUTH_OPTIONS.ui?.strings?.password ?? 'Password',
-						password_placeholder: AUTH_OPTIONS.ui?.strings?.password_placeholder ?? 'Your password',
-						confirm: AUTH_OPTIONS.ui?.strings?.confirm ?? 'Confirm',
-						reset: AUTH_OPTIONS.ui?.strings?.reset ?? 'Reset',
-						btn_sign_up: AUTH_OPTIONS.ui?.strings?.btn_sign_up ?? 'Sign up',
-						btn_sign_in: AUTH_OPTIONS.ui?.strings?.btn_sign_in ?? 'Sign in',
-						forgot_password: AUTH_OPTIONS.ui?.strings?.forgot_password ?? 'Forgot your password?',
-						send_password_reset_instructions:
-							AUTH_OPTIONS.ui?.strings?.send_password_reset_instructions ??
-							'Send password reset instructions',
-						back_to_sign_in: AUTH_OPTIONS.ui?.strings?.back_to_sign_in ?? 'Back to sign in',
-					},
-					images: {
-						main: AUTH_OPTIONS.ui?.images?.main ?? '',
-					},
-				} as const)
+						AUTH_OPTIONS.ui?.paths?.forgot_password,
+						'forgot-password',
+					),
+					reset_password: buildUrlOrDefault(
+						base,
+						AUTH_OPTIONS.ui?.paths?.reset_password,
+						'reset-password',
+					),
+					verify_email: buildUrlOrDefault(base, AUTH_OPTIONS.ui?.paths?.verify_email, 'verify-email'),
+				},
+				strings: {
+					app_name: AUTH_OPTIONS.ui?.strings?.app_name ?? '',
+					email: AUTH_OPTIONS.ui?.strings?.email ?? 'Email',
+					email_placeholder: AUTH_OPTIONS.ui?.strings?.email_placeholder ?? 'Your email address',
+					password: AUTH_OPTIONS.ui?.strings?.password ?? 'Password',
+					password_placeholder: AUTH_OPTIONS.ui?.strings?.password_placeholder ?? 'Your password',
+					confirm: AUTH_OPTIONS.ui?.strings?.confirm ?? 'Confirm',
+					reset: AUTH_OPTIONS.ui?.strings?.reset ?? 'Reset',
+					btn_sign_up: AUTH_OPTIONS.ui?.strings?.btn_sign_up ?? 'Sign up',
+					btn_sign_in: AUTH_OPTIONS.ui?.strings?.btn_sign_in ?? 'Sign in',
+					forgot_password: AUTH_OPTIONS.ui?.strings?.forgot_password ?? 'Forgot your password?',
+					send_password_reset_instructions:
+						AUTH_OPTIONS.ui?.strings?.send_password_reset_instructions ??
+						'Send password reset instructions',
+					back_to_sign_in: AUTH_OPTIONS.ui?.strings?.back_to_sign_in ?? 'Back to sign in',
+				},
+				images: {
+					main: AUTH_OPTIONS.ui?.images?.main ?? '',
+				},
+			} as const)
 
 	if (AUTH_OPTIONS.debug && !building) {
 		authModuleRaw.log.info('ui', ui)
 	}
 
-	const firstlyData: firstlyData = {
+	const firstlyData: FirstlyData = {
 		module: 'auth',
 		debug: AUTH_OPTIONS.debug,
 		props: {

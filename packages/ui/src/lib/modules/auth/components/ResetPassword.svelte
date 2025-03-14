@@ -1,32 +1,32 @@
 <script lang="ts">
-  import { isError } from '../../../../../../firstly/src/lib'
-  import { AuthController } from '../../../../../../firstly/src/lib/auth'
-  import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
+	import { isError } from '../../../../../../firstly/src/lib'
+	import { AuthController } from '../../../../../../firstly/src/lib/auth'
+	import type { FirstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 
-  // eslint-disable-next-line
-  export let firstlyDataAuth: firstlyDataAuth
-  export let password1 = ''
-  export let password2 = ''
+	// eslint-disable-next-line
+	export let firstlyDataAuth: FirstlyDataAuth
+	export let password1 = ''
+	export let password2 = ''
 
-  let msgError = ''
-  let msgSuccess = ''
-  let loading = false
+	let msgError = ''
+	let msgSuccess = ''
+	let loading = false
 
-  async function reset() {
-    msgError = ''
-    msgSuccess = ''
-    loading = true
-    const token = new URL(location.href).searchParams.get('token')
-    try {
-      msgSuccess = await AuthController.resetPassword(token ?? '', password1)
-      window.location.href = '/'
-    } catch (error) {
-      if (isError(error)) {
-        msgError = error.message ?? ''
-      }
-      loading = false
-    } 
-  }
+	async function reset() {
+		msgError = ''
+		msgSuccess = ''
+		loading = true
+		const token = new URL(location.href).searchParams.get('token')
+		try {
+			msgSuccess = await AuthController.resetPassword(token ?? '', password1)
+			window.location.href = '/'
+		} catch (error) {
+			if (isError(error)) {
+				msgError = error.message ?? ''
+			}
+			loading = false
+		}
+	}
 </script>
 
 <div class="login">

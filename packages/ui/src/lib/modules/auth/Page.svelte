@@ -1,21 +1,22 @@
 <script lang="ts">
-  import { Link, Route } from 'svelte-micro'
+	import { Link, Route } from 'svelte-micro'
 
-  import type { firstlyData } from '../../../../../firstly/src/lib/auth/types'
-  import ForgotPassword from './components/ForgotPassword.svelte'
-  import ResetPassword from './components/ResetPassword.svelte'
-  import SignIn from './components/SignIn.svelte'
-  import SignUp from './components/SignUp.svelte'
-  // import Flows from './components/Flows.svelte'
+	import type { FirstlyData } from '../../../../../firstly/src/lib/auth/types'
+	import ForgotPassword from './components/ForgotPassword.svelte'
+	import ResetPassword from './components/ResetPassword.svelte'
+	import SignIn from './components/SignIn.svelte'
+	import SignUp from './components/SignUp.svelte'
 
-  // eslint-disable-next-line
-  export let firstlyData: firstlyData
-  let firstlyDataAuth = firstlyData.props
+	// import Flows from './components/Flows.svelte'
 
-  let email = ''
+	// eslint-disable-next-line
+	export let firstlyData: FirstlyData
+	let firstlyDataAuth = firstlyData.props
 
-  // Check if main image is provided
-  $: hasMainImage = !!firstlyDataAuth.ui?.images?.main
+	let email = ''
+
+	// Check if main image is provided
+	$: hasMainImage = !!firstlyDataAuth.ui?.images?.main
 </script>
 
 <div class="wrapper" class:with-image={hasMainImage}>
