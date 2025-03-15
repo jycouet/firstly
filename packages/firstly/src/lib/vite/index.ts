@@ -5,17 +5,12 @@ import {
 import { kitRoutes, type Options, type RouteMappings } from 'vite-plugin-kit-routes'
 import { stripper } from 'vite-plugin-stripper'
 
-// import { Log } from '@kitql/helpers'
-
-// const toRemove = ['@node-rs/argon2', '@node-rs/bcrypt']
-// oslo needs to be in the dependencies (not devDependencies) !!
-// const toRemove = ['oslo/password', 'oslo']
+// const toRemove = ['async_hooks', 'join', 'fs', 'path']
 
 export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
-	stripper?: { debug?: boolean }
+	stripper?: Parameters<typeof stripper>[0]
 	kitRoutes?: Options<KIT_ROUTES>
 }): PluginOption {
-	// const toRemove = ['async_hooks', 'join', 'fs', 'path']
 	// @ts-ignore
 	return [
 		// {
@@ -55,9 +50,7 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 
 		// @ts-ignore
 		...stripper({
-			// decorators: ['BackendMethod'],
-			// hard: true,
-			strip: [
+			strip: options?.stripper?.strip ?? [
 				{ decorator: 'BackendMethod' },
 				{
 					decorator: 'Entity',
@@ -70,7 +63,7 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 				},
 			],
 			debug: options?.stripper?.debug ?? false,
-			nullify: ['$env/static/private', '$env/dynamic/private'],
+			nullify: options?.stripper?.nullify ?? ['$env/static/private', '$env/dynamic/private'],
 		}),
 	]
 }
