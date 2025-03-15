@@ -1,36 +1,39 @@
 import { Allow, BackendMethod, EntityError, remult } from 'remult'
 import { stry } from '@kitql/helpers'
 
-import { FEEDBACK_OPTIONS } from './server'
-
-const GITHUB_GRAPHQL_ENDPOINT = 'https://api.github.com/graphql'
-
 async function getGitHub(query: string, variables?: Record<string, any>) {
-	if (!FEEDBACK_OPTIONS.GITHUB_API_TOKEN) {
-		throw new EntityError({ message: 'GITHUB_API_TOKEN not found in .env' })
-	}
-
-	try {
-		const headers: Headers = new Headers({
-			Authorization: 'Bearer ' + FEEDBACK_OPTIONS.GITHUB_API_TOKEN,
-			'Content-Type': 'application/json',
-		})
-		const body = stry({ query, variables }, 0)
-		const response = await fetch(GITHUB_GRAPHQL_ENDPOINT, { method: 'POST', headers, body })
-		const result = await response.json()
-		if (result.errors) {
-			console.error(`result ERRORS`, body, stry(result))
+	if (import.meta.env.SSR) {
+		if (!remult.context.feedbackOptions.GITHUB_API_TOKEN) {
+			console.error(`GITHUB_API_TOKEN not found in .env`)
+			throw new EntityError({ message: 'Feedback module not well configured' })
 		}
-		return result.data
-	} catch (error) {
-		console.error(`error`, error)
+
+		try {
+			const headers: Headers = new Headers({
+				Authorization: 'Bearer ' + remult.context.feedbackOptions.GITHUB_API_TOKEN,
+				'Content-Type': 'application/json',
+			})
+			const body = stry({ query, variables }, 0)
+			const GITHUB_GRAPHQL_ENDPOINT = 'https://api.github.com/graphql'
+			const response = await fetch(GITHUB_GRAPHQL_ENDPOINT, { method: 'POST', headers, body })
+			const result = await response.json()
+			if (result.errors) {
+				console.error(`result ERRORS`, body, stry(result))
+			}
+			return result.data
+		} catch (error) {
+			console.error(`error`, error)
+		}
 	}
 	return null
 }
 
 async function addMetaData(issueId: string, author: string | undefined, page: string) {
-	const commentToMinimize = await getGitHub(
-		`mutation AddComment($input: AddCommentInput!) {
+	if (import.meta.env.SSR) {
+
+
+		const commentToMinimize = await getGitHub(
+			`mutation AddComment($input: AddCommentInput!) {
 			addComment(input: $input) {
 				commentEdge {
 					node {
@@ -40,16 +43,16 @@ async function addMetaData(issueId: string, author: string | undefined, page: st
 			}
 		}
 		`,
-		{
-			input: {
-				subjectId: issueId,
-				body: `<pre>\n${JSON.stringify({ author, page }, null, 2)}\n</pre>`,
+			{
+				input: {
+					subjectId: issueId,
+					body: `<pre>\n${JSON.stringify({ author, page }, null, 2)}\n</pre>`,
+				},
 			},
-		},
-	)
+		)
 
-	await getGitHub(
-		`mutation MinimizeComment($input: MinimizeCommentInput!) {
+		await getGitHub(
+			`mutation MinimizeComment($input: MinimizeCommentInput!) {
 			minimizeComment(input: $input) {
 				minimizedComment {
 					isMinimized
@@ -57,13 +60,14 @@ async function addMetaData(issueId: string, author: string | undefined, page: st
 			}
 		}
 		`,
-		{
-			input: {
-				subjectId: commentToMinimize.addComment.commentEdge.node.id,
-				classifier: 'OFF_TOPIC',
+			{
+				input: {
+					subjectId: commentToMinimize.addComment.commentEdge.node.id,
+					classifier: 'OFF_TOPIC',
+				},
 			},
-		},
-	)
+		)
+	}
 }
 
 export class FeedbackController {
@@ -92,16 +96,18 @@ export class FeedbackController {
 		}
 		`,
 			{
-				repository: FEEDBACK_OPTIONS.repo.name,
-				owner: FEEDBACK_OPTIONS.repo.owner,
-				filter: FEEDBACK_OPTIONS.milestones?.title_filter ?? '',
+				repository: remult.context.feedbackOptions.repo.name,
+				owner: remult.context.feedbackOptions.repo.owner,
+				filter: remult.context.feedbackOptions.milestones?.title_filter ?? '',
 			},
 		)
 		return (data.repository.milestones.nodes as { id: string; number: number; title: string }[]).map(
 			(c) => {
 				return {
 					...c,
-					title: c.title.replaceAll(FEEDBACK_OPTIONS.milestones?.title_filter ?? '', '').trim(),
+					title: c.title
+						.replaceAll(remult.context.feedbackOptions.milestones?.title_filter ?? '', '')
+						.trim(),
 				}
 			},
 		)
@@ -143,11 +149,11 @@ export class FeedbackController {
 			}			
 		`,
 			{
-				repository: FEEDBACK_OPTIONS.repo.name,
-				owner: FEEDBACK_OPTIONS.repo.owner,
+				repository: remult.context.feedbackOptions.repo.name,
+				owner: remult.context.feedbackOptions.repo.owner,
 				milestoneNumber,
 				filters: {
-					labels: FEEDBACK_OPTIONS.milestones?.labels_filters ?? [],
+					labels: remult.context.feedbackOptions.milestones?.labels_filters ?? [],
 					states: [issueState],
 				},
 				issueOrder,
@@ -155,8 +161,10 @@ export class FeedbackController {
 		)
 
 		return data.repository.milestone.issues.nodes.map((issue: any) => {
-			const hasWaitingForAnswerLabel = FEEDBACK_OPTIONS.highlight_label
-				? issue.labels.nodes.some((label: any) => label.name.includes(FEEDBACK_OPTIONS.highlight_label))
+			const hasWaitingForAnswerLabel = remult.context.feedbackOptions.highlight_label
+				? issue.labels.nodes.some((label: any) =>
+					label.name.includes(remult.context.feedbackOptions.highlight_label),
+				)
 				: false
 			return {
 				id: issue.id,
@@ -204,8 +212,8 @@ export class FeedbackController {
 			}
 		`,
 			{
-				repository: FEEDBACK_OPTIONS.repo.name,
-				owner: FEEDBACK_OPTIONS.repo.owner,
+				repository: remult.context.feedbackOptions.repo.name,
+				owner: remult.context.feedbackOptions.repo.owner,
 				issueNumber,
 			},
 		)
@@ -253,10 +261,10 @@ export class FeedbackController {
 			}
 		}
 
-		const hasWaitingForAnswerLabel = FEEDBACK_OPTIONS.highlight_label
+		const hasWaitingForAnswerLabel = remult.context.feedbackOptions.highlight_label
 			? data.repository.issue.labels.nodes.some((label: any) =>
-					label.name.includes(FEEDBACK_OPTIONS.highlight_label),
-				)
+				label.name.includes(remult.context.feedbackOptions.highlight_label),
+			)
 			: false
 
 		const toRet = {
@@ -287,8 +295,8 @@ export class FeedbackController {
 				}
 			}`,
 			{
-				repository: FEEDBACK_OPTIONS.repo.name,
-				owner: FEEDBACK_OPTIONS.repo.owner,
+				repository: remult.context.feedbackOptions.repo.name,
+				owner: remult.context.feedbackOptions.repo.owner,
 			},
 		)
 
@@ -298,7 +306,7 @@ export class FeedbackController {
 		}
 
 		const create_label = repoInfoData.labels.nodes.find(
-			(c) => c.name === FEEDBACK_OPTIONS.create_label,
+			(c) => c.name === remult.context.feedbackOptions.create_label,
 		)
 
 		const newIssue = await getGitHub(
@@ -343,8 +351,8 @@ export class FeedbackController {
 
 		const inputIssue: { id: string; labelIds: string[] } = {
 			id: issueId,
-			labelIds: (FEEDBACK_OPTIONS.highlight_label
-				? labels.filter((c) => c.name !== FEEDBACK_OPTIONS.highlight_label)
+			labelIds: (remult.context.feedbackOptions.highlight_label
+				? labels.filter((c) => c.name !== remult.context.feedbackOptions.highlight_label)
 				: labels
 			).map((c) => c.id),
 		}
@@ -384,8 +392,8 @@ export class FeedbackController {
 
 		const inputIssue: { id: string; labelIds: string[] } = {
 			id: issueId,
-			labelIds: (FEEDBACK_OPTIONS.highlight_label
-				? labels.filter((c) => c.name !== FEEDBACK_OPTIONS.highlight_label)
+			labelIds: (remult.context.feedbackOptions.highlight_label
+				? labels.filter((c) => c.name !== remult.context.feedbackOptions.highlight_label)
 				: labels
 			).map((c) => c.id),
 		}

@@ -26,8 +26,8 @@ catalogs:
       version: 0.33.5
   kitql:
     '@kitql/eslint-config':
-      specifier: 0.5.8
-      version: 0.5.8
+      specifier: 0.6.0-next.0
+      version: 0.6.0-next.0
     '@kitql/helpers':
       specifier: 0.8.11
       version: 0.8.11
@@ -122,8 +122,8 @@ catalogs:
       specifier: 0.8.3
       version: 0.8.3
     vite-plugin-stripper:
-      specifier: 0.6.4
-      version: 0.6.4
+      specifier: 0.9.0-next.0
+      version: 0.9.0-next.0
     vite-plugin-watch-and-run:
       specifier: 1.7.1
       version: 1.7.1
@@ -176,10 +176,13 @@ importers:
         version: 2.28.1
       '@kitql/eslint-config':
         specifier: catalog:kitql
-        version: 0.5.8(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(svelte@5.23.0)(typescript@5.8.2)
+        version: 0.6.0-next.0(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(svelte@5.23.0)(typescript@5.8.2)
       '@playwright/test':
         specifier: catalog:testing
         version: 1.51.0
+      prettier:
+        specifier: 3.5.3
+        version: 3.5.3
     publishDirectory: dist
 
   docs:
@@ -189,7 +192,7 @@ importers:
         version: 0.32.2(astro@5.4.2(@types/node@22.5.1)(jiti@1.21.6)(rollup@4.30.1)(terser@5.31.1)(tsx@4.17.0)(typescript@5.8.2)(yaml@2.7.0))
       '@kitql/eslint-config':
         specifier: catalog:kitql
-        version: 0.5.8(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(svelte@5.23.0)(typescript@5.8.2)
+        version: 0.6.0-next.0(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(svelte@5.23.0)(typescript@5.8.2)
       accessible-astro-components:
         specifier: catalog:docs
         version: 4.0.3
@@ -274,7 +277,7 @@ importers:
         version: 0.8.3(@sveltejs/kit@2.19.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.23.0)(vite@6.0.7(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.23.0)(vite@6.0.7(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))
       vite-plugin-stripper:
         specifier: catalog:tooling
-        version: 0.6.4
+        version: 0.9.0-next.0
     devDependencies:
       '@kitql/helpers':
         specifier: catalog:kitql
@@ -1222,9 +1225,11 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@kitql/eslint-config@0.5.8':
-    resolution: {integrity: sha512-68sRXzatvVoXLZm2HaK95yBHeXV21Dd0y6v+Jp8CPjjzxmNmr4skDW6aYxYu/HCn3uKOxw04drQkkJKjW9rjyQ==}
+  '@kitql/eslint-config@0.6.0-next.0':
+    resolution: {integrity: sha512-loYb8kOPigXs0aba9WjLk6dOkbI80n2rONx+jeYzh70hRYFcso3eB4fa69sFh1IIHgcOp6wNdHUDQcbp2cRXnQ==}
     hasBin: true
+    peerDependencies:
+      prettier: ^3.5.3
 
   '@kitql/helpers@0.8.10':
     resolution: {integrity: sha512-r9m0eQyjy3Z2sdeXA8wRGl2tgKtZ9puPuZ3vm9Cv3WMMWVmbKVzUJvF+4UucsHzT9xECFbO9lcQu7lIb774PPQ==}
@@ -2619,13 +2624,13 @@ packages:
     peerDependencies:
       eslint: '>=6.0.0'
 
-  eslint-plugin-pnpm-catalogs@0.1.0:
-    resolution: {integrity: sha512-4FzIfTfr06U3ULStgSMSmpDsfhtxsbSAxKLvXLo+/i/z48v4+4WD0Yr5hTb6E37X/ch8isKiTl4bnnvSENTYFA==}
+  eslint-plugin-pnpm@0.3.1:
+    resolution: {integrity: sha512-vi5iHoELIAlBbX4AW8ZGzU3tUnfxuXhC/NKo3qRcI5o9igbz6zJUqSlQ03bPeMqWIGTPatZnbWsNR1RnlNERNQ==}
     peerDependencies:
       eslint: ^9.0.0
 
-  eslint-plugin-svelte@3.0.3:
-    resolution: {integrity: sha512-R7HSKkLN33P6WwYhVbO+5xPT0YIpO+YAZfWxow7I1IvjVgZOxuI7zReqxFL3B7F028u16Megx+hn8SEXDNcDvw==}
+  eslint-plugin-svelte@3.1.0:
+    resolution: {integrity: sha512-hSQyLDkuuHPJby1ixZfUVrfLON42mT0Odf18MbwAgFUPuyIwJlhy3acUY1/bxt+Njucq/dQxR543zYDqkBNLmw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.1 || ^9.0.0
@@ -3825,6 +3830,9 @@ packages:
   pathe@2.0.1:
     resolution: {integrity: sha512-6jpjMpOth5S9ITVu5clZ7NOgHNsv5vRQdheL9ztp2vZmM6fRbLvyua1tiBIL4lk8SAe3ARzeXEly6siXCjDHDw==}
 
+  pathe@2.0.3:
+    resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
+
   pathval@2.0.0:
     resolution: {integrity: sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==}
     engines: {node: '>= 14.16'}
@@ -3875,8 +3883,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  pnpm-catalogs-utils@0.1.0:
-    resolution: {integrity: sha512-avysWJc452htYTnae14ENYTI3fSzZ1U1xNrdSJ2kFgwDaDvdEKIM5Iu+WljP2cdr/HAKKQ1hnuvu3sQJ3Eq/zQ==}
+  pnpm-workspace-yaml@0.3.1:
+    resolution: {integrity: sha512-3nW5RLmREmZ8Pm8MbPsO2RM+99RRjYd25ynj3NV0cFsN7CcEl4sDFzgoFmSyduFwxFQ2Qbu3y2UdCh6HlyUOeA==}
 
   points-on-curve@0.2.0:
     resolution: {integrity: sha512-0mYKnYYe9ZcqMCWhUjItv/oHjvgEsfKvnUTg8sAtnHr3GVy7rGkXCb6d5cSyqrWqL4k81b9CPg3urd+T7aop3A==}
@@ -4728,8 +4736,8 @@ packages:
     peerDependencies:
       '@sveltejs/kit': ^2.4.0
 
-  vite-plugin-stripper@0.6.4:
-    resolution: {integrity: sha512-h56B/h16dcVXCWHMOpKxP0cv418wcQ1/vqZpFZu2PlOiBBcMCGfxK2HgsdRmty2aKjBUwI1PBJ3x4ZEX0e00SA==}
+  vite-plugin-stripper@0.9.0-next.0:
+    resolution: {integrity: sha512-X9pRJnFLvsQ16LzmDAdEj8fRIrmituN86MRCiTJco7CWaJj3LsH/36hDGNfssPKfRUHlnczmTObYIAsnCyOYsA==}
     engines: {node: ^16.14 || >=18}
 
   vite-plugin-watch-and-run@1.7.1:
@@ -4937,6 +4945,10 @@ packages:
   yallist@4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
 
+  yaml-eslint-parser@1.3.0:
+    resolution: {integrity: sha512-E/+VitOorXSLiAqtTd7Yqax0/pAS3xaYMP+AUUJGOK1OZG3rhcj9fcJOM5HJ2VrP1FrStVCWr1muTfQCdj4tAA==}
+    engines: {node: ^14.17.0 || >=16.0.0}
+
   yaml@1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
@@ -5115,9 +5127,9 @@ snapshots:
 
   '@babel/generator@7.26.5':
     dependencies:
-      '@babel/parser': 7.26.5
-      '@babel/types': 7.26.5
-      '@jridgewell/gen-mapping': 0.3.5
+      '@babel/parser': 7.26.10
+      '@babel/types': 7.26.10
+      '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
       jsesc: 3.1.0
 
@@ -5128,7 +5140,6 @@ snapshots:
   '@babel/parser@7.26.10':
     dependencies:
       '@babel/types': 7.26.10
-    optional: true
 
   '@babel/parser@7.26.5':
     dependencies:
@@ -5141,16 +5152,16 @@ snapshots:
   '@babel/template@7.25.9':
     dependencies:
       '@babel/code-frame': 7.26.2
-      '@babel/parser': 7.26.5
-      '@babel/types': 7.26.5
+      '@babel/parser': 7.26.10
+      '@babel/types': 7.26.10
 
   '@babel/traverse@7.26.5':
     dependencies:
       '@babel/code-frame': 7.26.2
       '@babel/generator': 7.26.5
-      '@babel/parser': 7.26.5
+      '@babel/parser': 7.26.10
       '@babel/template': 7.25.9
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.10
       debug: 4.4.0
       globals: 11.12.0
     transitivePeerDependencies:
@@ -5160,7 +5171,6 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
-    optional: true
 
   '@babel/types@7.26.5':
     dependencies:
@@ -5685,9 +5695,9 @@ snapshots:
   '@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3)':
     dependencies:
       '@babel/generator': 7.26.5
-      '@babel/parser': 7.26.5
+      '@babel/parser': 7.26.10
       '@babel/traverse': 7.26.5
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.10
       prettier: 3.5.3
       semver: 7.7.1
     optionalDependencies:
@@ -5826,7 +5836,6 @@ snapshots:
       '@jridgewell/set-array': 1.2.1
       '@jridgewell/sourcemap-codec': 1.5.0
       '@jridgewell/trace-mapping': 0.3.25
-    optional: true
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
@@ -5845,7 +5854,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@kitql/eslint-config@0.5.8(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(svelte@5.23.0)(typescript@5.8.2)':
+  '@kitql/eslint-config@0.6.0-next.0(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(svelte@5.23.0)(typescript@5.8.2)':
     dependencies:
       '@eslint/compat': 1.2.7(eslint@9.22.0(jiti@1.21.6))
       '@eslint/js': 9.22.0
@@ -5855,8 +5864,8 @@ snapshots:
       '@typescript-eslint/parser': 8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2)
       commander: 13.1.0
       eslint: 9.22.0(jiti@1.21.6)
-      eslint-plugin-pnpm-catalogs: 0.1.0(eslint@9.22.0(jiti@1.21.6))
-      eslint-plugin-svelte: 3.0.3(eslint@9.22.0(jiti@1.21.6))(svelte@5.23.0)
+      eslint-plugin-pnpm: 0.3.1(eslint@9.22.0(jiti@1.21.6))
+      eslint-plugin-svelte: 3.1.0(eslint@9.22.0(jiti@1.21.6))(svelte@5.23.0)
       eslint-plugin-unused-imports: 4.1.4(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))
       globals: 16.0.0
       jsonc-eslint-parser: 2.4.0
@@ -5865,6 +5874,7 @@ snapshots:
       prettier-plugin-svelte: 3.3.2(prettier@3.5.3)(svelte@5.23.0)
       prettier-plugin-tailwindcss: 0.6.6(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(prettier-plugin-astro@0.14.1)(prettier-plugin-svelte@3.3.2(prettier@3.5.3)(svelte@5.23.0))(prettier@3.5.3)
       typescript-eslint: 8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2)
+      yaml-eslint-parser: 1.3.0
     transitivePeerDependencies:
       - '@ianvs/prettier-plugin-sort-imports'
       - '@prettier/plugin-pug'
@@ -6630,10 +6640,13 @@ snapshots:
     dependencies:
       acorn: 8.14.0
 
+  acorn-jsx@5.3.2(acorn@8.14.1):
+    dependencies:
+      acorn: 8.14.1
+
   acorn@8.14.0: {}
 
-  acorn@8.14.1:
-    optional: true
+  acorn@8.14.1: {}
 
   ajv@6.12.6:
     dependencies:
@@ -7565,14 +7578,17 @@ snapshots:
       eslint: 9.22.0(jiti@1.21.6)
       semver: 7.7.1
 
-  eslint-plugin-pnpm-catalogs@0.1.0(eslint@9.22.0(jiti@1.21.6)):
+  eslint-plugin-pnpm@0.3.1(eslint@9.22.0(jiti@1.21.6)):
     dependencies:
       eslint: 9.22.0(jiti@1.21.6)
       find-up-simple: 1.0.1
       jsonc-eslint-parser: 2.4.0
-      pnpm-catalogs-utils: 0.1.0
+      pathe: 2.0.3
+      pnpm-workspace-yaml: 0.3.1
+      tinyglobby: 0.2.12
+      yaml-eslint-parser: 1.3.0
 
-  eslint-plugin-svelte@3.0.3(eslint@9.22.0(jiti@1.21.6))(svelte@5.23.0):
+  eslint-plugin-svelte@3.1.0(eslint@9.22.0(jiti@1.21.6))(svelte@5.23.0):
     dependencies:
       '@eslint-community/eslint-utils': 4.4.1(eslint@9.22.0(jiti@1.21.6))
       '@jridgewell/sourcemap-codec': 1.5.0
@@ -7653,14 +7669,14 @@ snapshots:
 
   espree@10.3.0:
     dependencies:
-      acorn: 8.14.0
-      acorn-jsx: 5.3.2(acorn@8.14.0)
+      acorn: 8.14.1
+      acorn-jsx: 5.3.2(acorn@8.14.1)
       eslint-visitor-keys: 4.2.0
 
   espree@9.6.1:
     dependencies:
-      acorn: 8.14.0
-      acorn-jsx: 5.3.2(acorn@8.14.0)
+      acorn: 8.14.1
+      acorn-jsx: 5.3.2(acorn@8.14.1)
       eslint-visitor-keys: 3.4.3
 
   esprima@4.0.1: {}
@@ -8326,7 +8342,7 @@ snapshots:
 
   jsonc-eslint-parser@2.4.0:
     dependencies:
-      acorn: 8.14.0
+      acorn: 8.14.1
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
       semver: 7.7.1
@@ -9209,6 +9225,8 @@ snapshots:
 
   pathe@2.0.1: {}
 
+  pathe@2.0.3: {}
+
   pathval@2.0.0: {}
 
   peberminta@0.9.0: {}
@@ -9245,7 +9263,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
-  pnpm-catalogs-utils@0.1.0:
+  pnpm-workspace-yaml@0.3.1:
     dependencies:
       yaml: 2.7.0
 
@@ -10187,7 +10205,7 @@ snapshots:
       '@sveltejs/kit': 2.19.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.23.0)(vite@6.0.7(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.23.0)(vite@6.0.7(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))
       vite-plugin-watch-and-run: 1.7.4
 
-  vite-plugin-stripper@0.6.4:
+  vite-plugin-stripper@0.9.0-next.0:
     dependencies:
       '@kitql/helpers': 0.8.12
       '@kitql/internals': 0.10.3
@@ -10351,6 +10369,11 @@ snapshots:
   xxhash-wasm@1.1.0: {}
 
   yallist@4.0.0: {}
+
+  yaml-eslint-parser@1.3.0:
+    dependencies:
+      eslint-visitor-keys: 3.4.3
+      yaml: 2.7.0
 
   yaml@1.10.2: {}
 

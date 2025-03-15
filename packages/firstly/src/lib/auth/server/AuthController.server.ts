@@ -15,8 +15,8 @@ import {
 	setRedirectCookie,
 } from './helperRemultServer.js'
 import { mergeRoles } from './helperRole.js'
-import { AUTH_OPTIONS, authModuleRaw, getSafeOptions, type ProviderConfigured } from './module.js'
-
+import { AUTH_OPTIONS, authModuleRaw, getSafeOptions } from './module.js'
+import type { ProviderConfigured } from '../types.js'
 export class AuthControllerServer {
 	/**
 	 * Sign out the current user

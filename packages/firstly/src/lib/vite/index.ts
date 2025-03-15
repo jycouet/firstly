@@ -1,9 +1,11 @@
 import {
+	mergeConfig,
 	//mergeConfig
 	type PluginOption,
 } from 'vite'
 import { kitRoutes, type Options, type RouteMappings } from 'vite-plugin-kit-routes'
-// import { stripper } from 'vite-plugin-stripper'
+
+import { stripper } from 'vite-plugin-stripper'
 
 // import { Log } from '@kitql/helpers'
 
@@ -15,28 +17,29 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 	stripper?: { debug?: boolean }
 	kitRoutes?: Options<KIT_ROUTES>
 }): PluginOption {
+	// const toRemove = ['async_hooks', 'join', 'fs', 'path']
 	// @ts-ignore
 	return [
 		// {
-		//   name: 'vite-plugin-firstly',
-		//   enforce: 'pre',
+		// 	name: 'vite-plugin-firstly',
+		// 	enforce: 'pre',
 
-		//   config: async (a) => {
-		//     return mergeConfig(a, {
-		//       build: {
-		//         // THE ERROR:
-		//         // RollupError: Unexpected character '�' or Unexpected character '\u{7f}'
-		//         // This code (A) is to fix in `build` mode
-		//         rollupOptions: {
-		//           external: toRemove,
-		//         },
-		//       },
-		//       // This code (B) is to fix in `dev` mode
-		//       optimizeDeps: {
-		//         exclude: toRemove,
-		//       },
-		//     })
-		//   },
+		// 	config: async (a) => {
+		// 		return mergeConfig(a, {
+		// 			build: {
+		// 				// THE ERROR:
+		// 				// RollupError: Unexpected character '�' or Unexpected character '\u{7f}'
+		// 				// This code (A) is to fix in `build` mode
+		// 				rollupOptions: {
+		// 					external: toRemove,
+		// 				},
+		// 			},
+		// 			// This code (B) is to fix in `dev` mode
+		// 			optimizeDeps: {
+		// 				exclude: toRemove,
+		// 			},
+		// 		})
+		// 	},
 		// },
 
 		// @ts-ignore
@@ -53,11 +56,23 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 		}),
 
 		// @ts-ignore
-		// ...stripper({
-		// 	decorators: ['BackendMethod'],
-		// 	hard: true,
-		// 	debug: options?.stripper?.debug ?? false,
-		// 	nullify: ['$env/static/private', '$env/dynamic/private'],
-		// }),
+		...stripper({
+			// decorators: ['BackendMethod'],
+			// hard: true,
+			strip: [
+				{ decorator: 'BackendMethod' },
+				{
+					decorator: 'Entity',
+					args_1: [
+						{ fn: 'backendPrefilter' },
+						{ fn: 'backendPreprocessFilter' },
+						{ fn: 'sqlExpression' },
+						{ fn: 'saved', excludeEntityKeys: ['users'] }
+					]
+				}
+			],
+			debug: options?.stripper?.debug ?? false,
+			nullify: ['$env/static/private', '$env/dynamic/private'],
+		}),
 	]
 }

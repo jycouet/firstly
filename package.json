@@ -28,7 +28,8 @@
     "@changesets/changelog-github": "catalog:lib-author-helper",
     "@changesets/cli": "catalog:lib-author-helper",
     "@kitql/eslint-config": "catalog:kitql",
-    "@playwright/test": "catalog:testing"
+    "@playwright/test": "catalog:testing",
+    "prettier": "3.5.3"
   },
   "sideEffects": false,
   "publishConfig": {

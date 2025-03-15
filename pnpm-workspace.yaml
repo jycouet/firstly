@@ -19,13 +19,13 @@ catalogs:
   tslib: 2.8.0
   vite-plugin-watch-and-run: 1.7.1
   vite-plugin-kit-routes: 0.8.3
-  vite-plugin-stripper: 0.6.4
+  vite-plugin-stripper: 0.9.0-next.0
   esm-env: 1.2.2
   '@clack/prompts': 0.10.0
 
  kitql:
   '@kitql/helpers': 0.8.11
-  '@kitql/eslint-config': 0.5.8
+  '@kitql/eslint-config': 0.6.0-next.0
   '@kitql/handles': 0.2.3
   '@kitql/internals': 0.10.3
 
