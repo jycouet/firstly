@@ -3,7 +3,6 @@
 
 	import type { FirstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 
-	// eslint-disable-next-line
 	export let firstlyDataAuth: FirstlyDataAuth
 
 	// The default diagram

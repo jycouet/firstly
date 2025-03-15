@@ -30,8 +30,6 @@ async function getGitHub(query: string, variables?: Record<string, any>) {
 
 async function addMetaData(issueId: string, author: string | undefined, page: string) {
 	if (import.meta.env.SSR) {
-
-
 		const commentToMinimize = await getGitHub(
 			`mutation AddComment($input: AddCommentInput!) {
 			addComment(input: $input) {
@@ -163,8 +161,8 @@ export class FeedbackController {
 		return data.repository.milestone.issues.nodes.map((issue: any) => {
 			const hasWaitingForAnswerLabel = remult.context.feedbackOptions.highlight_label
 				? issue.labels.nodes.some((label: any) =>
-					label.name.includes(remult.context.feedbackOptions.highlight_label),
-				)
+						label.name.includes(remult.context.feedbackOptions.highlight_label),
+					)
 				: false
 			return {
 				id: issue.id,
@@ -263,8 +261,8 @@ export class FeedbackController {
 
 		const hasWaitingForAnswerLabel = remult.context.feedbackOptions.highlight_label
 			? data.repository.issue.labels.nodes.some((label: any) =>
-				label.name.includes(remult.context.feedbackOptions.highlight_label),
-			)
+					label.name.includes(remult.context.feedbackOptions.highlight_label),
+				)
 			: false
 
 		const toRet = {

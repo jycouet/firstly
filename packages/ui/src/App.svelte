@@ -3,7 +3,6 @@
 
 	import type { FirstlyData } from '../../firstly/src/lib/auth/types'
 
-	// eslint-disable-next-line
 	export let firstlyData: FirstlyData
 
 	const modules = {

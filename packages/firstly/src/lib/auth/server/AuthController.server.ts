@@ -6,6 +6,7 @@ import { EntityError, remult, repo } from 'remult'
 import { green, magenta, yellow } from '@kitql/helpers'
 
 import { FFAuthProvider } from '../Entities.js'
+import type { ProviderConfigured } from '../types.js'
 import { invalidateSession } from './helperDb.js'
 import { ff_createSession } from './helperFirstly.js'
 import { createDate, generateAndEncodeToken } from './helperOslo.js'
@@ -16,7 +17,7 @@ import {
 } from './helperRemultServer.js'
 import { mergeRoles } from './helperRole.js'
 import { AUTH_OPTIONS, authModuleRaw, getSafeOptions } from './module.js'
-import type { ProviderConfigured } from '../types.js'
+
 export class AuthControllerServer {
 	/**
 	 * Sign out the current user

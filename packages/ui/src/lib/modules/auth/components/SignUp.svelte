@@ -4,7 +4,6 @@
 	import { isError } from '../../../../../../firstly/src/lib/helper'
 	import { autofocus } from '../helpers'
 
-	// eslint-disable-next-line
 	export let firstlyDataAuth: FirstlyDataAuth
 
 	export let view = 'login'

@@ -9,7 +9,6 @@
 
 	// import Flows from './components/Flows.svelte'
 
-	// eslint-disable-next-line
 	export let firstlyData: FirstlyData
 	let firstlyDataAuth = firstlyData.props
 

@@ -1,10 +1,8 @@
 import {
-	mergeConfig,
 	//mergeConfig
 	type PluginOption,
 } from 'vite'
 import { kitRoutes, type Options, type RouteMappings } from 'vite-plugin-kit-routes'
-
 import { stripper } from 'vite-plugin-stripper'
 
 // import { Log } from '@kitql/helpers'
@@ -67,9 +65,9 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 						{ fn: 'backendPrefilter' },
 						{ fn: 'backendPreprocessFilter' },
 						{ fn: 'sqlExpression' },
-						{ fn: 'saved', excludeEntityKeys: ['users'] }
-					]
-				}
+						{ fn: 'saved', excludeEntityKeys: ['users'] },
+					],
+				},
 			],
 			debug: options?.stripper?.debug ?? false,
 			nullify: ['$env/static/private', '$env/dynamic/private'],

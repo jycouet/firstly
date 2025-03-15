@@ -4,7 +4,6 @@
 	import type { FirstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 	import { autofocus } from '../helpers'
 
-	// eslint-disable-next-line
 	export let firstlyDataAuth: FirstlyDataAuth
 	export let email = ''
 
