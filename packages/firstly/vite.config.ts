@@ -13,7 +13,7 @@ const config = defineConfig(({ mode }) => {
 		server: {
 			fs: {
 				// FIXME: Allow serving files from one level up to the project root (I don't know why this is necessary... I probably did something wrong in the monorepo...)
-				allow: ['../../../..'],
+				// allow: ['../../../..'],
 			},
 			host: env.HOST ?? '127.0.0.1',
 			port: parseInt(env.PORT ?? '3132'),

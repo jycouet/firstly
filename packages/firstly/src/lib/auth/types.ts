@@ -1,10 +1,10 @@
-export type firstlyData = {
+export type FirstlyData = {
 	module: 'auth'
 	debug?: boolean
-	props: firstlyDataAuth
+	props: FirstlyDataAuth
 }
 
-export type firstlyDataAuth = {
+export type FirstlyDataAuth = {
 	ui?: {
 		paths: {
 			base: string
@@ -33,3 +33,6 @@ export type firstlyDataAuth = {
 		}
 	}
 }
+
+export type ProviderConfigured = Record<string, ProviderAuthorizationURLOptions>
+export type ProviderAuthorizationURLOptions = string[]

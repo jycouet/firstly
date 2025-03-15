@@ -1,7 +1,7 @@
 import { BackendMethod } from 'remult'
 
 import { FF_Role_Auth } from './Entities'
-import type { ProviderConfigured } from './server/module'
+import type { ProviderConfigured } from './types'
 
 export class AuthController {
 	// Private static fields

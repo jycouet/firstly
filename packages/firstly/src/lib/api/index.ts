@@ -49,6 +49,16 @@ type Options = RemultServerOptions<RequestEvent<Partial<Record<string, string>>,
 	modules?: Module[] | undefined
 }
 
+declare module 'remult' {
+	export interface RemultContext {
+		// REMULT: it should be there already ?! no?
+		request: RequestEvent
+		setHeaders(headers: Record<string, string>): void
+		setCookie(...args: Parameters<RequestEvent['cookies']['set']>): void
+		deleteCookie(...args: Parameters<RequestEvent['cookies']['delete']>): void
+	}
+}
+
 export let entities: ClassType<any>[] = []
 /**
  * it's basically `remultSveltekit` with the `modules` option

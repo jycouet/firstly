@@ -5,12 +5,8 @@ import { remult } from 'remult'
 
 import { env } from '$env/dynamic/private'
 
-import {
-	authModuleRaw,
-	type FFOAuth2Provider,
-	type OAuth2UserInfo,
-	type ProviderAuthorizationURLOptions,
-} from '../module'
+import type { ProviderAuthorizationURLOptions } from '../../types'
+import { authModuleRaw, type FFOAuth2Provider, type OAuth2UserInfo } from '../module'
 import { checkOAuthConfig } from './helperProvider'
 
 //------------------------------

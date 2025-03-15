@@ -1,30 +1,29 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+	import { onMount } from 'svelte'
 
-  import type { firstlyData } from '../../firstly/src/lib/auth/types'
+	import type { FirstlyData } from '../../firstly/src/lib/auth/types'
 
-  // eslint-disable-next-line
-  export let firstlyData: firstlyData
+	export let firstlyData: FirstlyData
 
-  const modules = {
-    auth: import('./lib/modules/auth/Page.svelte'),
-    admin: import('./lib/modules/admin/Page.svelte'),
-    storage: import('./lib/modules/storage/Page.svelte'),
-  } as const
+	const modules = {
+		auth: import('./lib/modules/auth/Page.svelte'),
+		admin: import('./lib/modules/admin/Page.svelte'),
+		storage: import('./lib/modules/storage/Page.svelte'),
+	} as const
 
-  let activeModuleRef: any
+	let activeModuleRef: any
 
-  // Function to load a specific module
-  function loadModule(moduleName: keyof typeof modules) {
-    activeModuleRef = modules[moduleName]
-  }
+	// Function to load a specific module
+	function loadModule(moduleName: keyof typeof modules) {
+		activeModuleRef = modules[moduleName]
+	}
 
-  const getKeys = () => Object.keys(modules) as (keyof typeof modules)[]
+	const getKeys = () => Object.keys(modules) as (keyof typeof modules)[]
 
-  // Load the initial module based on firstlyData
-  onMount(() => {
-    loadModule(firstlyData.module)
-  })
+	// Load the initial module based on firstlyData
+	onMount(() => {
+		loadModule(firstlyData.module)
+	})
 </script>
 
 <main>

@@ -13,16 +13,12 @@ import { FF_Role } from '../..'
 import { Module } from '../../api'
 import type { RecursivePartial } from '../../utils/types'
 import { FF_Role_Auth, FFAuthAccount, FFAuthUser, FFAuthUserSession } from '../Entities'
-import type { firstlyData, firstlyDataAuth } from '../types'
+import type { FirstlyData, FirstlyDataAuth, ProviderAuthorizationURLOptions } from '../types'
 import { AuthControllerServer } from './AuthController.server'
 import { validateSessionToken } from './helperDb'
 import { setSessionTokenCookie } from './helperRemultServer'
 import { initRoleFromEnv } from './helperRole'
 
-export type { firstlyData }
-
-export type ProviderConfigured = Record<string, ProviderAuthorizationURLOptions>
-export type ProviderAuthorizationURLOptions = string[]
 export type OAuth2UserInfo = {
 	raw?: any
 	providerUserId: string
@@ -50,7 +46,7 @@ type AuthOptions<
 	}
 
 	debug?: boolean
-	ui?: false | RecursivePartial<firstlyDataAuth['ui']>
+	ui?: false | RecursivePartial<FirstlyDataAuth['ui']>
 
 	strings?: {
 		resetPasswordSend?: string
@@ -227,7 +223,7 @@ export const getSafeOptions = <
 		authModuleRaw.log.info('ui', ui)
 	}
 
-	const firstlyData: firstlyData = {
+	const firstlyData: FirstlyData = {
 		module: 'auth',
 		debug: AUTH_OPTIONS.debug,
 		props: {

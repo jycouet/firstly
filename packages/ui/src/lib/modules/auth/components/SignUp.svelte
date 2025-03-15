@@ -1,40 +1,39 @@
 <script lang="ts">
-  import { AuthController } from '../../../../../../firstly/src/lib/auth'
-  import type { firstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
-  import { isError } from '../../../../../../firstly/src/lib/helper'
-  import { autofocus } from '../helpers'
+	import { AuthController } from '../../../../../../firstly/src/lib/auth'
+	import type { FirstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
+	import { isError } from '../../../../../../firstly/src/lib/helper'
+	import { autofocus } from '../helpers'
 
-  // eslint-disable-next-line
-  export let firstlyDataAuth: firstlyDataAuth
+	export let firstlyDataAuth: FirstlyDataAuth
 
-  export let view = 'login'
-  export let email = ''
+	export let view = 'login'
+	export let email = ''
 
-  let msgError = ''
-  let msgSuccess = ''
+	let msgError = ''
+	let msgSuccess = ''
 
-  let password: string
-  // let pincode: number
-  let loading = false
+	let password: string
+	// let pincode: number
+	let loading = false
 
-  async function signIn() {
-    msgError = ''
-    msgSuccess = ''
-    loading = true
-    try {
-      msgSuccess = await AuthController.signUpPassword(email, password)
-      window.location.href = '/'
-    } catch (error) {
-      if (isError(error)) {
-        msgError = error.message ?? ''
-      }
-      loading = false
-    } 
-  }
+	async function signIn() {
+		msgError = ''
+		msgSuccess = ''
+		loading = true
+		try {
+			msgSuccess = await AuthController.signUpPassword(email, password)
+			window.location.href = '/'
+		} catch (error) {
+			if (isError(error)) {
+				msgError = error.message ?? ''
+			}
+			loading = false
+		}
+	}
 
-  const handlePin = () => {
-    throw new Error('Not impl yet')
-  }
+	const handlePin = () => {
+		throw new Error('Not impl yet')
+	}
 </script>
 
 {#if view == 'login'}

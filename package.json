@@ -21,6 +21,7 @@
     "release": "pnpm -F firstly compile && changeset publish",
     "//// OTHERS ////": "",
     "root-format": "kitql-lint -f",
+    "root-lint": "kitql-lint",
     "reset": "git clean -xdf",
     "up-dep": "pnpm -r up --latest"
   },
@@ -28,7 +29,8 @@
     "@changesets/changelog-github": "catalog:lib-author-helper",
     "@changesets/cli": "catalog:lib-author-helper",
     "@kitql/eslint-config": "catalog:kitql",
-    "@playwright/test": "catalog:testing"
+    "@playwright/test": "catalog:testing",
+    "prettier": "catalog:tooling"
   },
   "sideEffects": false,
   "publishConfig": {
@@ -39,11 +41,5 @@
     "dist",
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*"
-  ],
-  "pnpm": {
-    "patchedDependencies": {
-      "@melt-ui/svelte@0.86.3": "patches/@melt-ui__svelte@0.86.3.patch",
-      "svelty-email@0.0.11": "patches/svelty-email@0.0.11.patch"
-    }
-  }
+  ]
 }
