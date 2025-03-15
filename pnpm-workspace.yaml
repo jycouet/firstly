@@ -2,18 +2,21 @@ packages:
  - docs
  - packages/*
 
+patchedDependencies:
+ '@melt-ui/svelte@0.86.3': patches/@melt-ui__svelte@0.86.3.patch
+ svelty-email@0.0.11: patches/svelty-email@0.0.11.patch
+
 catalogs:
  docs:
   '@astrojs/starlight': 0.32.2
   accessible-astro-components: 4.0.3
-  astro: 5.4.2
+  astro: 5.5.2
   astro-icon: 1.1.5
   sharp: 0.33.5
   prettier-plugin-astro: 0.14.1
 
  tooling:
   typescript: 5.8.2
-  # 'esbuild': '0.25.1'
   vite: 6.0.7
   '@tsconfig/svelte': 5.0.2
   tslib: 2.8.0
@@ -22,11 +25,11 @@ catalogs:
   vite-plugin-stripper: 0.9.0-next.0
   esm-env: 1.2.2
   '@clack/prompts': 0.10.0
+  prettier: 3.5.3
 
  kitql:
   '@kitql/helpers': 0.8.11
   '@kitql/eslint-config': 0.6.0-next.0
-  '@kitql/handles': 0.2.3
   '@kitql/internals': 0.10.3
 
  testing:
@@ -44,13 +47,12 @@ catalogs:
 
  sveltekit:
   '@sveltejs/adapter-node': 5.2.2
-  '@sveltejs/adapter-static': 3.0.4
-  '@sveltejs/kit': 2.19.0
+  '@sveltejs/kit': 2.19.2
   '@sveltejs/vite-plugin-svelte': 5.0.3
   '@sveltejs/package': 2.3.2
 
  ui:
-  mermaid: 11.4.1
+  mermaid: 11.5.0
   '@mdi/js': 7.4.47
   '@melt-ui/svelte': 0.86.3
   autoprefixer: 10.4.19

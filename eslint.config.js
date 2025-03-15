@@ -2,7 +2,9 @@ import { kitql } from '@kitql/eslint-config'
 
 /** @type { import("eslint").Linter.Config[] } */
 export default [
-	...kitql({ pnpmCatalogs: { enable: false } }),
+	...kitql({
+		// pnpmCatalogs: { enable: false },
+	}),
 	{
 		name: 'firstly:ignores',
 		ignores: ['**/lib/auth/static/assets/'],
