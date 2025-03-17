@@ -22,7 +22,7 @@ const getSendMail = () => {
 	if (!remult.context.sendMail) {
 		authModuleRaw.log.error(`Missing ${green(`remult.context`)}.${red(`sendMail`)}`)
 		authModuleRaw.log.error('')
-		authModuleRaw.log.error(gray("Add this to your modules:"))
+		authModuleRaw.log.error(gray('Add this to your modules:'))
 		authModuleRaw.log.error('import { mail } from "firstly/mail/server"')
 		authModuleRaw.log.error('')
 		authModuleRaw.log.error('{')
@@ -49,7 +49,7 @@ export class AuthControllerServer {
 		deleteSessionTokenCookie()
 		return {
 			message: 'signed out',
-			user: undefined
+			user: undefined,
 		}
 	}
 
@@ -84,7 +84,7 @@ export class AuthControllerServer {
 
 		return {
 			message: `You're in with demo account!`,
-			user: oSafe.transformDbUserToClientUser(session, user)
+			user: oSafe.transformDbUserToClientUser(session, user),
 		}
 	}
 
@@ -130,7 +130,7 @@ export class AuthControllerServer {
 				authModuleRaw.log.success(`${green('[custom]')}${magenta('[invitationSend]')} (${yellow(url)})`)
 				return {
 					message: 'Mail sent !',
-					user: remult.user
+					user: remult.user,
 				} satisfies AuthResponse
 			} else {
 				const sendMail = getSendMail()
@@ -161,14 +161,14 @@ export class AuthControllerServer {
 
 				return {
 					message: 'Demo Mail sent !',
-					user: remult.user
+					user: remult.user,
 				} satisfies AuthResponse
 			}
 		}
 
 		return {
 			message: 'ok',
-			user: remult.user
+			user: remult.user,
 		} satisfies AuthResponse
 	}
 
@@ -227,7 +227,7 @@ export class AuthControllerServer {
 				const session = await ff_createSession(user.id)
 				return {
 					message: 'ok',
-					user: oSafe.transformDbUserToClientUser(session, user)
+					user: oSafe.transformDbUserToClientUser(session, user),
 				} satisfies AuthResponse
 			}
 		} else {
@@ -262,7 +262,7 @@ export class AuthControllerServer {
 
 		return {
 			message: 'ok',
-			user: remult.user
+			user: remult.user,
 		} satisfies AuthResponse
 	}
 
@@ -294,7 +294,7 @@ export class AuthControllerServer {
 
 				return {
 					message: 'ok',
-					user: oSafe.transformDbUserToClientUser(session, existingAccount.user)
+					user: oSafe.transformDbUserToClientUser(session, existingAccount.user),
 				} satisfies AuthResponse
 			}
 
@@ -341,7 +341,7 @@ export class AuthControllerServer {
 				)
 				return {
 					message: oSafe.strings.resetPasswordSend,
-					user: remult.user
+					user: remult.user,
 				} satisfies AuthResponse
 			} else {
 				const sendMail = getSendMail()
@@ -371,7 +371,7 @@ export class AuthControllerServer {
 				authModuleRaw.log.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
 				return {
 					message: `Demo | ${oSafe.strings.resetPasswordSend}`,
-					user: remult.user
+					user: remult.user,
 				}
 			}
 		}
@@ -419,7 +419,7 @@ export class AuthControllerServer {
 
 		return {
 			message: 'reseted',
-			user: remult.user
+			user: remult.user,
 		}
 	}
 
@@ -469,14 +469,14 @@ export class AuthControllerServer {
 			authModuleRaw.log.success(`name: ${yellow(email)}, otp: ${yellow(otp)}, uri: ${yellow(uri)}`)
 			return {
 				message: 'Mail sent !',
-				user: remult.user
+				user: remult.user,
 			} satisfies AuthResponse
 		} else {
 			authModuleRaw.log.error(`You need to provide a otp.send hook in the auth options!`)
 		}
 		return {
 			message: 'Hum, something went wrong !',
-			user: remult.user
+			user: remult.user,
 		} satisfies AuthResponse
 	}
 
@@ -527,7 +527,7 @@ export class AuthControllerServer {
 
 		return {
 			message: 'verified',
-			user: oSafe.transformDbUserToClientUser(session, user)
+			user: oSafe.transformDbUserToClientUser(session, user),
 		} satisfies AuthResponse
 	}
 

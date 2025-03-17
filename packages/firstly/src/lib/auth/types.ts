@@ -1,4 +1,4 @@
-import type { UserInfo } from "remult"
+import type { UserInfo } from 'remult'
 
 export type FirstlyData = {
 	module: 'auth'
