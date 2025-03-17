@@ -820,8 +820,8 @@ new Log('').info(
 	gray(
 		italic(
 			`${bold('❔ More help')} ` +
-			`at ${cyan('https://github.com/jycouet/firstly')} ` +
-			`(📄 Docs, ⭐ Github, 📣 Discord, ...)\n`,
+				`at ${cyan('https://github.com/jycouet/firstly')} ` +
+				`(📄 Docs, ⭐ Github, 📣 Discord, ...)\n`,
 		),
 	),
 )
