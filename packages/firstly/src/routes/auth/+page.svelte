@@ -20,7 +20,9 @@
 		msgError = ''
 		msgSuccess = ''
 		try {
-			await AuthController.signUpPassword(indentifier, password)
+			const res = await AuthController.signUpPassword(indentifier, password)
+			remult.user = res.user
+			msgSuccess = res.message
 			await invalidateAll()
 		} catch (error) {
 			if (isError(error)) {
@@ -33,7 +35,9 @@
 		msgError = ''
 		msgSuccess = ''
 		try {
-			await AuthController.signInPassword(indentifier, password)
+			const res = await AuthController.signInPassword(indentifier, password)
+			remult.user = res.user
+			msgSuccess = res.message
 			await invalidateAll()
 		} catch (error) {
 			if (isError(error)) {
@@ -46,7 +50,9 @@
 		msgError = ''
 		msgSuccess = ''
 		try {
-			await AuthController.signOut()
+			const res = await AuthController.signOut()
+			remult.user = res.user
+			msgSuccess = res.message
 			await invalidateAll()
 		} catch (error) {
 			if (isError(error)) {
@@ -59,7 +65,9 @@
 		msgError = ''
 		msgSuccess = ''
 		try {
-			msgSuccess = await AuthController.invite(indentifier)
+			const res = await AuthController.invite(indentifier)
+			remult.user = res.user
+			msgSuccess = res.message
 			await invalidateAll()
 		} catch (error) {
 			if (isError(error)) {
@@ -72,7 +80,9 @@
 		msgError = ''
 		msgSuccess = ''
 		try {
-			msgSuccess = await AuthController.forgotPassword(indentifier)
+			const res = await AuthController.forgotPassword(indentifier)
+			remult.user = res.user
+			msgSuccess = res.message
 			await invalidateAll()
 		} catch (error) {
 			if (isError(error)) {
@@ -85,7 +95,9 @@
 		msgError = ''
 		msgSuccess = ''
 		try {
-			msgSuccess = await AuthController.resetPassword(token, rPassword)
+			const res = await AuthController.resetPassword(token, rPassword)
+			remult.user = res.user
+			msgSuccess = res.message
 			await invalidateAll()
 		} catch (error) {
 			if (isError(error)) {
@@ -98,7 +110,9 @@
 		msgError = ''
 		msgSuccess = ''
 		try {
-			msgSuccess = await AuthController.signInDemo(username)
+			const res = await AuthController.signInDemo(username)
+			remult.user = res.user
+			msgSuccess = res.message
 			await invalidateAll()
 		} catch (error) {
 			if (isError(error)) {
@@ -111,7 +125,9 @@
 		msgError = ''
 		msgSuccess = ''
 		try {
-			msgSuccess = await AuthController.signInOTP(indentifierOtp)
+			const res = await AuthController.signInOTP(indentifierOtp)
+			remult.user = res.user
+			msgSuccess = res.message
 			await invalidateAll()
 		} catch (error) {
 			if (isError(error)) {
@@ -124,7 +140,9 @@
 		msgError = ''
 		msgSuccess = ''
 		try {
-			msgSuccess = await AuthController.verifyOtp(indentifierOtp, otp)
+			const res = await AuthController.verifyOtp(indentifierOtp, otp)
+			remult.user = res.user
+			msgSuccess = res.message
 			await invalidateAll()
 		} catch (error) {
 			if (isError(error)) {

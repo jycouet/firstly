@@ -5,6 +5,7 @@ import { firstly, Module } from '$lib/api'
 import { FF_Role_Auth, FFAuthUser } from '$lib/auth'
 import { auth } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'
+import { task } from '$modules/task/server'
 
 const Role = {
 	...FF_Role,
@@ -118,5 +119,7 @@ export const api = firstly({
 			//   return h.resolve(h.event)
 			// },
 		}),
+
+		task({ specialInfo: 'Hello from the server' }),
 	],
 })

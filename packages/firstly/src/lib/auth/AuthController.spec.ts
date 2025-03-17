@@ -19,7 +19,7 @@ const userAdmin: UserInfo = {
 }
 
 describe('demo', () => {
-	beforeEach(async () => {})
+	beforeEach(async () => { })
 
 	it('Invalid Demo User', async () => {
 		firstly({
@@ -58,8 +58,9 @@ describe('demo', () => {
 		api.withRemult(undefined, async () => {
 			const dp = new InMemoryDataProvider()
 			remult.dataProvider = dp
-			const signIn = await AuthController.signInDemo('Noam')
-			expect(signIn).toBe(`You're in with Noam demo account!`)
+			const res = await AuthController.signInDemo('Noam')
+			expect(res.message).toBe(`You're in with demo account!`)
+			expect(res.user!.name).toBe('Noam')
 
 			remult.dataProvider = TestApiDataProvider({ dataProvider: dp })
 			try {
