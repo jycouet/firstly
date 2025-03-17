@@ -1,3 +1,5 @@
+import type { UserInfo } from 'remult'
+
 export type FirstlyData = {
 	module: 'auth'
 	debug?: boolean
@@ -36,3 +38,25 @@ export type FirstlyDataAuth = {
 
 export type ProviderConfigured = Record<string, ProviderAuthorizationURLOptions>
 export type ProviderAuthorizationURLOptions = string[]
+
+export type AuthResponse = {
+	message: string
+	user: UserInfo | undefined
+}
+
+export interface AuthServerAbstraction {
+	signOut: () => Promise<AuthResponse>
+	signInDemo: (name: string) => Promise<AuthResponse>
+	invite: (email: string) => Promise<AuthResponse>
+	signUpPassword: (email: string, password: string) => Promise<AuthResponse>
+	signInPassword: (email: string, password: string) => Promise<AuthResponse>
+	forgotPassword: (email: string) => Promise<AuthResponse>
+	resetPassword: (token: string, password: string) => Promise<AuthResponse>
+	signInOTP: (email: string) => Promise<AuthResponse>
+	verifyOtp: (email: string, otp: string) => Promise<AuthResponse>
+	signInOAuthGetUrl: (o: {
+		provider: keyof ProviderConfigured
+		options?: ProviderConfigured[keyof ProviderConfigured]
+		redirect?: string
+	}) => Promise<string>
+}

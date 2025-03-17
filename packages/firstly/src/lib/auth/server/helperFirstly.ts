@@ -6,4 +6,5 @@ export const ff_createSession = async (userId: string) => {
 	const token = generateToken()
 	const session = await createSession(token, userId)
 	setSessionTokenCookie(token, session.expiresAt)
+	return session
 }

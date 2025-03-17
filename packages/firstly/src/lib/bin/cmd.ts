@@ -5,9 +5,11 @@ import { read, write } from '@kitql/internals'
 
 // Need this trick to be be replaced by the real lib alias here ;)
 const libAlias = '$' + 'lib'
+const serverAlias = '$' + 'server'
+const modulesAlias = '$' + 'modules'
 
 const pkgFirstly = JSON.parse(read('./node_modules/firstly/package.json') ?? '{}')
-const versionFirstly = pkgFirstly?.peerDependencies?.['remult'] ?? 'latest'
+const versionOfRemult = pkgFirstly?.peerDependencies?.['remult'] ?? 'latest'
 
 const pkg = JSON.parse(read('./package.json') ?? '{}')
 const version = pkg.devDependencies?.['firstly'] ?? pkg.dependencies?.['firstly'] ?? '???'
@@ -70,7 +72,7 @@ pkg.devDependencies = mergeAndSort(pkg.devDependencies, {
 	'@kitql/eslint-config': '0.5.8',
 	'@kitql/helpers': '0.8.12',
 	pg: '8.12.0',
-	remult: versionFirstly,
+	remult: versionOfRemult,
 })
 
 pkg.dependencies = mergeAndSort(pkg.dependencies, {})
@@ -86,12 +88,34 @@ if (res.includes('all') || res.includes('dependencies')) {
 }
 
 const obj = {
+	// Configs
 	'./.npmrc': [
 		`engine-strict=true
 
 public-hoist-pattern[]=*eslint*
 public-hoist-pattern[]=*prettier*
 public-hoist-pattern[]=*globals*
+`,
+	],
+	'./.gitignore': [
+		`node_modules
+
+# Output
+/.svelte-kit
+/build
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Firstly / Remult
+/db
 `,
 	],
 	'./eslint.config.js': [
@@ -148,26 +172,115 @@ export default {
 # GITHUB_CLIENT_SECRET = ''
 `,
 	],
-	'./src/lib/firstly/index.ts': [
+	'./tsconfig.json': [
+		`{
+  "extends": "./.svelte-kit/tsconfig.json",
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "moduleResolution": "bundler"
+  }
+  // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
+  //
+  // If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes
+  // from the referenced tsconfig.json - TypeScript does not merge them in
+}
+`,
+	],
+	'./vite.config.ts': [
+		`import { sveltekit } from '@sveltejs/kit/vite'
+import { defineConfig } from 'vite'
+
+import { firstly } from 'firstly/vite'
+
+import type { KIT_ROUTES } from '${libAlias}/ROUTES'
+
+export default defineConfig({
+  plugins: [
+    // @ts-ignore JYC TODO (vite 5 / vite 6...)
+    firstly<KIT_ROUTES>({
+      kitRoutes: {
+        LINKS: { 
+          login: 'ff/auth/sign-in',
+          github: 'https://github.com/[owner]/[repo]',
+          remult_admin: 'api/admin',
+        },
+      }
+    }),
+    sveltekit(),
+  ],
+})
+`,
+	],
+	'./svelte.config.js': [
+		`import adapter from '@sveltejs/adapter-auto'
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
+
+/** @type {import('@sveltejs/kit').Config} */
+const config = {
+	// Consult https://svelte.dev/docs/kit/integrations
+	// for more information about preprocessors
+	preprocess: vitePreprocess(),
+
+	kit: {
+		// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
+		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
+		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
+		adapter: adapter(),
+    alias: {
+			$modules: './src/modules',
+			$server: './src/server',
+		},
+	},
+}
+
+export default config
+`,
+	],
+
+	// App files
+	'./src/app.d.ts': [
+		`// See https://svelte.dev/docs/kit/types#app.d.ts
+// for information about these interfaces
+declare global {
+	namespace App {
+		// interface Error {}
+		// interface Locals {}
+		// interface PageData {}
+		// interface PageState {}
+		// interface Platform {}
+	}
+}
+
+declare module 'remult' {
+	export interface UserInfo {
+		// Your custom user info
+	}
+
+	export interface FieldOptions<entityType, valueType> {
+		placeholder?: string
+	}
+}
+
+export { }
+`,
+	],
+	'./src/server/index.ts': [
 		`import { FF_Role } from 'firstly'
 import { firstly, Module } from 'firstly/api'
 import { auth } from 'firstly/auth/server'
+import { mail } from 'firstly/mail/server'
 import { changeLog } from 'firstly/changeLog/server'
-import { Log } from '@kitql/helpers'
 
-import { task } from './modules/task'
-
-/**
- * Your roles, use them in your app !
- */
-export const Role = {
-  Boss: 'Boss',
-}
-
-/**
- * Your logs with a nice prefix, use \`log.info("Hello")\` / \`log.success("Yeah")\` / \`log.error("Ho nooo!")\` and see !
- */
-export const log = new Log('${pkg.name}')
+import { log, Role } from '${libAlias}'
+import { task } from '${modulesAlias}/task/server'
 
 export const api = firstly({
   //----------------------------------------
@@ -209,6 +322,13 @@ export const api = firstly({
     }),
 
     //----------------------------------------
+    // Core Module: mail
+    //----------------------------------------
+    mail({
+      // options
+    }),
+
+    //----------------------------------------
     // example of a userland module
     //----------------------------------------
     task({ specialInfo: 'hello from userland' }),
@@ -238,8 +358,8 @@ export const api = firstly({
 import { redirect } from '@sveltejs/kit'
 
 import { handleAuth, handleGuard } from 'firstly/auth/server'
-import { api as handleRemult } from '${libAlias}/firstly'
 import { route } from '${libAlias}/ROUTES'
+import { api as handleRemult } from '${serverAlias}'
 
 export const handle = sequence(
 	//
@@ -258,25 +378,9 @@ export const handle = sequence(
 `,
 	],
 	'./src/routes/api/[...remult]/+server.ts': [
-		`import { api } from '${libAlias}/firstly'
+		`import { api } from '${serverAlias}'
 
 export const { GET, POST, PUT, DELETE } = api
-`,
-	],
-	'./src/routes/+page.svelte': [
-		`<h1>Home</h1>
-
-<p>
-    Welcome here
-</p>`,
-	],
-	'./src/routes/app/+page.svelte': [
-		`<h1>App</h1>
-
-<p>
-    Only autenticated users can see this page!
-</p>
-
 `,
 	],
 	'./src/routes/+layout.server.ts': [
@@ -302,30 +406,63 @@ export const load = (async (event) => {
 }) satisfies LayoutLoad
 `,
 	],
-	'./src/routes/+page.ts': [
-		`import { remult } from 'remult'
-import type { PageLoad } from './$types'
-
-export const load = (async (event) => {
-  // Instruct remult to use the special svelte fetch
-  // Like this univeral load will work in SSR & CSR
-  remult.useFetch(event.fetch)
-  // return repo(Task).find()
-}) satisfies PageLoad
-`,
-	],
 	'./src/routes/+layout.svelte': [
 		`<script lang="ts">
-  import { remult } from 'remult'
+  import { untrack } from 'svelte'
+	import { createSubscriber } from 'svelte/reactivity'
+
+	import { Remult, remult } from 'remult'
 
   import { route } from '${libAlias}/ROUTES'
   import SignIn from '${libAlias}/ui/SignIn.svelte'
   import SignOut from '${libAlias}/ui/SignOut.svelte'
 
-  import type { LayoutData } from './$types'
+import type { LayoutData } from './$types'
 
-  export let data: LayoutData
-  $: remult.user = data.user
+	interface Props {
+		data: LayoutData
+		children?: import('svelte').Snippet
+	}
+
+	let { data, children }: Props = $props()
+
+	$effect(() => {
+		// Trigger the effect only on data.user update
+		data.user
+		untrack(() => {
+			remult.user = data.user
+		})
+	})
+
+	// To be done once in the application.
+	function initRemultSvelteReactivity() {
+		// Auth reactivity (remult.user, remult.authenticated(), ...)
+		{
+			let update = () => {}
+			let s = createSubscriber((u) => {
+				update = u
+			})
+			remult.subscribeAuth({
+				reportObserved: () => s(),
+				reportChanged: () => update(),
+			})
+		}
+
+		// Entities reactivity
+		{
+			Remult.entityRefInit = (x) => {
+				let update = () => {}
+				let s = createSubscriber((u) => {
+					update = u
+				})
+				x.subscribe({
+					reportObserved: () => s(),
+					reportChanged: () => update(),
+				})
+			}
+		}
+	}
+	initRemultSvelteReactivity()
 </script>
 
 <svelte:head>
@@ -358,12 +495,13 @@ export const load = (async (event) => {
 
 <a href={route('/')}>Home</a> | 
 {#if remult.authenticated()}
-  <a href={route('/app')}>App (Protected route)</a>
+  <a href={route('/app')}>App (Protected route)</a> |
 {/if}
+<a href={route('/demo/task')}>Demo task</a>
 
 <hr />
 
-<slot />
+{@render children?.()}
 
 <hr />
 
@@ -376,6 +514,56 @@ export const load = (async (event) => {
 <a href={route('github', { owner: 'jycouet', repo: 'firstly' })} target="_blank"> ⭐️ firstly </a>
 |
 <a href={route('github', { owner: 'remult', repo: 'remult' })} target="_blank">⭐️ remult</a>
+`,
+	],
+	'./src/routes/+page.ts': [
+		`import { remult } from 'remult'
+import type { PageLoad } from './$types'
+
+export const load = (async (event) => {
+  // Instruct remult to use the special svelte fetch
+  // Like this univeral load will work in SSR & CSR
+  remult.useFetch(event.fetch)
+  // return repo(Task).find()
+}) satisfies PageLoad
+`,
+	],
+	'./src/routes/+page.svelte': [
+		`<h1>Home</h1>
+
+<p>
+    Welcome here
+</p>`,
+	],
+	'./src/routes/app/+page.svelte': [
+		`<h1>App</h1>
+
+<p>
+    Only autenticated users can see this page!
+</p>
+
+`,
+	],
+
+	// Lib files
+	'./src/lib/index.ts': [
+		`import { FF_Role } from 'firstly'
+import { FF_Role_Auth } from 'firstly/auth/client'
+import { Log } from '@kitql/helpers'
+
+/**
+ * Your logs with a nice prefix, use \`log.info("Hello")\` / \`log.success("Yeah")\` / \`log.error("Ho nooo!")\` and see !
+ */
+export const log = new Log('${pkg.name}')
+
+/**
+ * Your roles, use them in your app !
+ */
+export const Role = {
+	Boss: 'Boss',
+	...FF_Role_Auth,
+	...FF_Role,
+} as const
 `,
 	],
 	'./src/lib/ui/SignIn.svelte': [
@@ -450,99 +638,39 @@ export const load = (async (event) => {
 <button on:click={logout}>Logout</button>
 `,
 	],
-	'./tsconfig.json': [
-		`{
-  "extends": "./.svelte-kit/tsconfig.json",
-  "compilerOptions": {
-    "experimentalDecorators": true,
-    "allowJs": true,
-    "checkJs": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-    "moduleResolution": "bundler"
-  }
-  // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
-  //
-  // If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes
-  // from the referenced tsconfig.json - TypeScript does not merge them in
+
+	// Task module
+	'./src/modules/task/index.ts': [
+		`import { Log } from '@kitql/helpers'
+
+export const log = new Log("Custom Task Log")`,
+	],
+	'./src/modules/task/server/index.ts': [
+		`import { Module } from 'firstly/api'
+
+import { Task } from '../client/Task'
+import { TaskController } from '../client/TaskController'
+
+export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
+	const m = new Module({
+		name: 'task',
+		entities: [Task],
+		controllers: [TaskController],
+		initApi: async () => {
+			m.log.success(\`Task module is ready! 🚀 (specialInfo: \${specialInfo})\`)
+		},
+	})
+
+	return m
 }
 `,
 	],
-	'./vite.config.ts': [
-		`import { sveltekit } from '@sveltejs/kit/vite'
-import { defineConfig } from 'vite'
-
-import { firstly } from 'firstly/vite'
-
-import type { KIT_ROUTES } from '${libAlias}/ROUTES'
-
-export default defineConfig({
-  plugins: [
-    // @ts-ignore JYC TODO (vite 5 / vite 6...)
-    firstly<KIT_ROUTES>({
-      kitRoutes: {
-        LINKS: { 
-          login: 'ff/auth/sign-in',
-          github: 'https://github.com/[owner]/[repo]',
-          remult_admin: 'api/admin',
-        },
-      }
-    }),
-    sveltekit(),
-  ],
-})
-`,
-	],
-	'./.gitignore': [
-		`node_modules
-
-# Output
-/.svelte-kit
-/build
-
-# Env
-.env
-.env.*
-!.env.example
-!.env.test
-
-# Vite
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
-
-# Firstly / Remult
-/db
-`,
-	],
-	'./src/lib/firstly/modules/task/index.ts': [
-		`import { Module } from 'firstly/api'
-
-import { log } from '${libAlias}/firstly'
-
-import { Task } from './Task'
-import { TaskController } from './TaskController'
-
-export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
-  return new Module({
-    name: 'task',
-    entities: [Task],
-    controllers: [TaskController],
-    initApi: async () => {
-      log.success(\`Task module is ready! 🚀 (specialInfo: \${specialInfo})\`)
-    },
-  })
-}`,
-	],
-	'./src/lib/firstly/modules/task/Task.ts': [
-		`import { Entity, Field, Fields, ValueListFieldType } from 'remult'
+	'./src/modules/task/client/Task.ts': [
+		`import { Allow, Entity, Field, Fields, ValueListFieldType } from 'remult'
 import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'firstly'
 
 @Entity('task', {
-  allowApiCrud: true,
+  allowApiCrud: Allow.authenticated,
 })
 export class Task {
   @Fields.cuid()
@@ -581,10 +709,10 @@ export class TypeOfTaskEnum extends BaseEnum {
 }    
 `,
 	],
-	'./src/lib/firstly/modules/task/TaskController.ts': [
+	'./src/modules/task/client/TaskController.ts': [
 		`import { BackendMethod } from 'remult'
 
-import { log } from '${libAlias}/firstly'
+import { log } from '${libAlias}'
 
 /**
  * await TaskController.sayHiFromTask("JYC")
@@ -597,6 +725,81 @@ export class TaskController {
 }
 `,
 	],
+	'./src/modules/task/ui/svelte/TaskAdd.svelte': [
+		`<script lang="ts">
+	import { EntityError, repo } from 'remult'
+
+	import { Task } from '${modulesAlias}/task/client/Task'
+
+	let task = $state(repo(Task).create())
+	let error = $state<EntityError<Task> | null>(null)
+
+	const add = async (e: Event) => {
+		e.preventDefault()
+    error = null
+		try {
+			await repo(Task).insert(task)
+			task = repo(Task).create()
+		} catch (e) {
+			if (e instanceof EntityError) {
+				error = e
+			}
+		}
+	}
+</script>
+
+<form onsubmit={add}>
+	<p>
+		{error?.modelState?.title}
+	</p>
+	<label for={repo(Task).fields.title.key}>{repo(Task).fields.title.caption}</label>
+	<input id={repo(Task).fields.title.key} type="text" bind:value={task.title} />
+	<button disabled={!repo(Task).metadata.apiInsertAllowed()}>Add</button>
+</form>
+`,
+	],
+	'./src/modules/task/ui/svelte/TaskList.svelte': [
+		`<script lang="ts">
+	import { repo } from 'remult'
+
+	import { Task } from '${modulesAlias}/task/client/Task'
+
+	let list: Task[] = $state([])
+
+	$effect(() => {
+		if (repo(Task).metadata.apiReadAllowed) {
+			return repo(Task)
+				.liveQuery()
+				.subscribe((info) => {
+					list = info.applyChanges(list)
+				})
+		}
+	})
+</script>
+
+{#if repo(Task).metadata.apiReadAllowed}
+	<ul>
+		{#each list as task (task.id)}
+			<li>{task.title}</li>
+		{/each}
+	</ul>
+{:else}
+	<p>Login to see the task list!</p>
+{/if}
+`,
+	],
+	'./src/routes/demo/task/+page.svelte': [
+		`<script lang="ts">
+	import TaskAdd from '${modulesAlias}/task/ui/svelte/TaskAdd.svelte'
+	import TaskList from '${modulesAlias}/task/ui/svelte/TaskList.svelte'
+</script>
+
+<h1>Task Module</h1>
+
+<TaskAdd />
+<TaskList />
+`,
+	],
 }
 
 for (const [path, content] of Object.entries(obj)) {
@@ -604,7 +807,7 @@ for (const [path, content] of Object.entries(obj)) {
 		write(path, content)
 	} else {
 		if (res.includes('module-demo')) {
-			if (path.startsWith('./src/lib/firstly/modules/task')) {
+			if (path.startsWith('./src/modules/task')) {
 				write(path, content)
 			}
 		}

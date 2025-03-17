@@ -1,44 +1,14 @@
 import { BackendMethod } from 'remult'
 
 import { FF_Role_Auth } from './Entities'
-import type { ProviderConfigured } from './types'
+import type { AuthServerAbstraction, ProviderConfigured } from './types'
 
 export class AuthController {
-	// Private static fields
-	static #signOutFn: any
-	static #signInDemoFn: any
-	static #inviteFn: any
-	static #signUpPasswordFn: any
-	static #signInPasswordFn: any
-	static #forgotPasswordFn: any
-	static #resetPasswordFn: any
-	static #signInOTPFn: any
-	static #verifyOtpFn: any
-	static #signInOAuthGetUrlFn: any
+	static #server: AuthServerAbstraction
 
 	// Internal setter method that can be used by the module
-	static _setAbstraction(impl: {
-		signOut: any
-		signInDemo: any
-		invite: any
-		signUpPassword: any
-		signInPassword: any
-		forgotPassword: any
-		resetPassword: any
-		signInOTP: any
-		verifyOtp: any
-		signInOAuthGetUrl: any
-	}) {
-		this.#signOutFn = impl.signOut
-		this.#signInDemoFn = impl.signInDemo
-		this.#inviteFn = impl.invite
-		this.#signUpPasswordFn = impl.signUpPassword
-		this.#signInPasswordFn = impl.signInPassword
-		this.#forgotPasswordFn = impl.forgotPassword
-		this.#resetPasswordFn = impl.resetPassword
-		this.#signInOTPFn = impl.signInOTP
-		this.#verifyOtpFn = impl.verifyOtp
-		this.#signInOAuthGetUrlFn = impl.signInOAuthGetUrl
+	static _setAbstraction(impl: AuthServerAbstraction) {
+		this.#server = impl
 	}
 
 	/**
@@ -46,7 +16,7 @@ export class AuthController {
 	 */
 	@BackendMethod({ allowed: true })
 	static async signOut() {
-		return await AuthController.#signOutFn()
+		return await AuthController.#server.signOut()
 	}
 
 	/**
@@ -55,7 +25,7 @@ export class AuthController {
 	 */
 	@BackendMethod({ allowed: true })
 	static async signInDemo(name: string) {
-		return await AuthController.#signInDemoFn(name)
+		return await AuthController.#server.signInDemo(name)
 	}
 
 	/**
@@ -63,7 +33,7 @@ export class AuthController {
 	 */
 	@BackendMethod({ allowed: FF_Role_Auth.FF_Role_Auth_Invite })
 	static async invite(email: string) {
-		return await AuthController.#inviteFn(email)
+		return await AuthController.#server.invite(email)
 	}
 
 	/**
@@ -71,7 +41,7 @@ export class AuthController {
 	 */
 	@BackendMethod({ allowed: true })
 	static async signUpPassword(email: string, password: string) {
-		return await AuthController.#signUpPasswordFn(email, password)
+		return await AuthController.#server.signUpPassword(email, password)
 	}
 
 	/**
@@ -79,7 +49,7 @@ export class AuthController {
 	 */
 	@BackendMethod({ allowed: true })
 	static async signInPassword(email: string, password: string) {
-		return await AuthController.#signInPasswordFn(email, password)
+		return await AuthController.#server.signInPassword(email, password)
 	}
 
 	/**
@@ -87,7 +57,7 @@ export class AuthController {
 	 */
 	@BackendMethod({ allowed: true })
 	static async forgotPassword(email: string) {
-		return await AuthController.#forgotPasswordFn(email)
+		return await AuthController.#server.forgotPassword(email)
 	}
 
 	/**
@@ -95,13 +65,13 @@ export class AuthController {
 	 */
 	@BackendMethod({ allowed: true })
 	static async resetPassword(token: string, password: string) {
-		return await AuthController.#resetPasswordFn(token, password)
+		return await AuthController.#server.resetPassword(token, password)
 	}
 
 	/** OTP */
 	@BackendMethod({ allowed: true })
 	static async signInOTP(email: string) {
-		return await AuthController.#signInOTPFn(email)
+		return await AuthController.#server.signInOTP(email)
 	}
 
 	/**
@@ -109,7 +79,7 @@ export class AuthController {
 	 */
 	@BackendMethod({ allowed: true })
 	static async verifyOtp(email: string, otp: string) {
-		return await AuthController.#verifyOtpFn(email, otp)
+		return await AuthController.#server.verifyOtp(email, otp)
 	}
 
 	/** OAUTH */
@@ -131,6 +101,6 @@ export class AuthController {
 		options?: ProviderConfigured[T]
 		redirect?: string
 	}) {
-		return await AuthController.#signInOAuthGetUrlFn(o)
+		return await AuthController.#server.signInOAuthGetUrl(o)
 	}
 }

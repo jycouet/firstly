@@ -3,10 +3,10 @@ import { createTOTPKeyURI, generateTOTP, verifyTOTPWithGracePeriod } from '@oslo
 import { generateState } from 'arctic'
 
 import { EntityError, remult, repo } from 'remult'
-import { green, magenta, yellow } from '@kitql/helpers'
+import { gray, green, magenta, red, yellow } from '@kitql/helpers'
 
 import { FFAuthProvider } from '../Entities.js'
-import type { ProviderConfigured } from '../types.js'
+import type { AuthResponse, ProviderConfigured } from '../types.js'
 import { invalidateSession } from './helperDb.js'
 import { ff_createSession } from './helperFirstly.js'
 import { createDate, generateAndEncodeToken } from './helperOslo.js'
@@ -18,22 +18,46 @@ import {
 import { mergeRoles } from './helperRole.js'
 import { AUTH_OPTIONS, authModuleRaw, getSafeOptions } from './module.js'
 
+const getSendMail = () => {
+	if (!remult.context.sendMail) {
+		authModuleRaw.log.error(`Missing ${green(`remult.context`)}.${red(`sendMail`)}`)
+		authModuleRaw.log.error('')
+		authModuleRaw.log.error(gray('Add this to your modules:'))
+		authModuleRaw.log.error('import { mail } from "firstly/mail/server"')
+		authModuleRaw.log.error('')
+		authModuleRaw.log.error('{')
+		authModuleRaw.log.error(`  modules: [`)
+		authModuleRaw.log.error(`    mail({`)
+		authModuleRaw.log.error(`      // options`)
+		authModuleRaw.log.error(`    })`)
+		authModuleRaw.log.error(`  ]`)
+		authModuleRaw.log.error('}')
+		authModuleRaw.log.error('')
+		throw new EntityError({ message: 'Error: Contact your administrator.' })
+	}
+	return remult.context.sendMail
+}
+
 export class AuthControllerServer {
 	/**
 	 * Sign out the current user
 	 */
-	static async signOut() {
+	static async signOut(): Promise<AuthResponse> {
 		if (remult.user?.session.id) {
 			await invalidateSession(remult.user?.session.id)
 		}
 		deleteSessionTokenCookie()
+		return {
+			message: 'signed out',
+			user: undefined,
+		}
 	}
 
 	/**
 	 * Sign in with a demo account
 	 * _(The easiest way to demo & test your application)_
 	 */
-	static async signInDemo(name: string) {
+	static async signInDemo(name: string): Promise<AuthResponse> {
 		const accounts = AUTH_OPTIONS.providers?.demo ?? []
 		if (accounts.length === 0) {
 			throw new EntityError({ message: `Demo accounts are not enabled!` })
@@ -56,15 +80,18 @@ export class AuthControllerServer {
 
 		await repo(oSafe.User).save(user)
 
-		await ff_createSession(user.id)
+		const session = await ff_createSession(user.id)
 
-		return `You're in with ${name} demo account!`
+		return {
+			message: `You're in with demo account!`,
+			user: oSafe.transformDbUserToClientUser(session, user),
+		}
 	}
 
 	/**
 	 * This is for login / password authentication invite
 	 */
-	static async invite(emailParam: string) {
+	static async invite(emailParam: string): Promise<AuthResponse> {
 		const email = emailParam.toLowerCase()
 
 		const oSafe = getSafeOptions()
@@ -101,12 +128,13 @@ export class AuthControllerServer {
 			if (AUTH_OPTIONS?.invitationSend) {
 				await AUTH_OPTIONS?.invitationSend({ email, url })
 				authModuleRaw.log.success(`${green('[custom]')}${magenta('[invitationSend]')} (${yellow(url)})`)
-				return 'Mail sent !'
+				return {
+					message: 'Mail sent !',
+					user: remult.user,
+				} satisfies AuthResponse
 			} else {
-				if (!remult.context.sendMail) {
-					throw new EntityError({ message: 'sendMail is not enabled!' })
-				}
-				await remult.context.sendMail('invitationSend', {
+				const sendMail = getSendMail()
+				await sendMail('invitationSend', {
 					to: email,
 					subject: 'Invitation',
 
@@ -130,18 +158,25 @@ export class AuthControllerServer {
 				})
 
 				authModuleRaw.log.success(`${magenta('[invitationSend]')} (${yellow(url)})`)
-				return 'Demo Mail sent !'
+
+				return {
+					message: 'Demo Mail sent !',
+					user: remult.user,
+				} satisfies AuthResponse
 			}
 		}
 
-		return 'ok'
+		return {
+			message: 'ok',
+			user: remult.user,
+		} satisfies AuthResponse
 	}
 
 	/**
 	 * This is for login / password authentication SignUp
 	 * _(The first param `email` can be "anything")_
 	 */
-	static async signUpPassword(emailParam: string, password: string) {
+	static async signUpPassword(emailParam: string, password: string): Promise<AuthResponse> {
 		const oSafe = getSafeOptions()
 		if (!oSafe.signUp) {
 			throw new EntityError({ message: oSafe.strings.cannotSignUp })
@@ -189,7 +224,11 @@ export class AuthControllerServer {
 				identifier: email,
 			})
 			if (user) {
-				await ff_createSession(user.id)
+				const session = await ff_createSession(user.id)
+				return {
+					message: 'ok',
+					user: oSafe.transformDbUserToClientUser(session, user),
+				} satisfies AuthResponse
 			}
 		} else {
 			const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
@@ -197,10 +236,8 @@ export class AuthControllerServer {
 				await AUTH_OPTIONS.providers?.password.mail.verify.send({ email, url })
 				authModuleRaw.log.success(`${green('[custom]')}${magenta('[verifyMailSend]')} (${yellow(url)})`)
 			} else {
-				if (!remult.context.sendMail) {
-					throw new EntityError({ message: 'sendMail is not enabled!' })
-				}
-				await remult.context.sendMail('verifyMailSend', {
+				const sendMail = getSendMail()
+				await sendMail('verifyMailSend', {
 					to: email,
 					subject: 'Wecome',
 
@@ -223,14 +260,17 @@ export class AuthControllerServer {
 			}
 		}
 
-		return 'ok'
+		return {
+			message: 'ok',
+			user: remult.user,
+		} satisfies AuthResponse
 	}
 
 	/**
 	 * This is for login / password authentication SignIn
 	 * _(The first param `email` can be "anything")_
 	 */
-	static async signInPassword(emailParam: string, password: string) {
+	static async signInPassword(emailParam: string, password: string): Promise<AuthResponse> {
 		const email = emailParam.toLowerCase()
 
 		const oSafe = getSafeOptions()
@@ -250,9 +290,12 @@ export class AuthControllerServer {
 		if (existingAccount) {
 			const validPassword = oSafe.password.verify(password ?? '', existingAccount?.hashPassword ?? '')
 			if (validPassword) {
-				await ff_createSession(existingAccount.userId)
+				const session = await ff_createSession(existingAccount.userId)
 
-				return 'ok'
+				return {
+					message: 'ok',
+					user: oSafe.transformDbUserToClientUser(session, existingAccount.user),
+				} satisfies AuthResponse
 			}
 
 			authModuleRaw.log.error({ email, passwordLength: password.length })
@@ -266,7 +309,7 @@ export class AuthControllerServer {
 	/**
 	 * Forgot your password ? Send a mail to reset it.
 	 */
-	static async forgotPassword(emailParam: string) {
+	static async forgotPassword(emailParam: string): Promise<AuthResponse> {
 		const email = emailParam.toLowerCase()
 		const oSafe = getSafeOptions()
 
@@ -296,12 +339,13 @@ export class AuthControllerServer {
 				authModuleRaw.log.success(
 					`${green('[custom]')}${magenta('[resetPasswordSend]')} (${yellow(url)})`,
 				)
-				return oSafe.strings.resetPasswordSend
+				return {
+					message: oSafe.strings.resetPasswordSend,
+					user: remult.user,
+				} satisfies AuthResponse
 			} else {
-				if (!remult.context.sendMail) {
-					throw new EntityError({ message: 'sendMail is not enabled!' })
-				}
-				await remult.context.sendMail('resetPasswordSend', {
+				const sendMail = getSendMail()
+				await sendMail('resetPasswordSend', {
 					to: email,
 					subject: 'Reset your password',
 
@@ -325,7 +369,10 @@ export class AuthControllerServer {
 				})
 
 				authModuleRaw.log.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
-				return `Demo | ${oSafe.strings.resetPasswordSend}`
+				return {
+					message: `Demo | ${oSafe.strings.resetPasswordSend}`,
+					user: remult.user,
+				}
 			}
 		}
 		throw new EntityError({ message: oSafe.strings.anErrorOccurred })
@@ -334,7 +381,7 @@ export class AuthControllerServer {
 	/**
 	 * Reset your password with a token
 	 */
-	static async resetPassword(token: string, password: string) {
+	static async resetPassword(token: string, password: string): Promise<AuthResponse> {
 		const oSafe = getSafeOptions()
 
 		if (!oSafe.password.enabled) {
@@ -370,11 +417,14 @@ export class AuthControllerServer {
 
 		await ff_createSession(account.userId)
 
-		return 'reseted'
+		return {
+			message: 'reseted',
+			user: remult.user,
+		}
 	}
 
 	/** OTP */
-	static async signInOTP(emailParam: string) {
+	static async signInOTP(emailParam: string): Promise<AuthResponse> {
 		const email = emailParam.toLowerCase()
 		const oSafe = getSafeOptions()
 
@@ -417,17 +467,23 @@ export class AuthControllerServer {
 
 			await AUTH_OPTIONS.providers.otp?.send({ name: email, otp, uri })
 			authModuleRaw.log.success(`name: ${yellow(email)}, otp: ${yellow(otp)}, uri: ${yellow(uri)}`)
-			return 'Mail sent !'
+			return {
+				message: 'Mail sent !',
+				user: remult.user,
+			} satisfies AuthResponse
 		} else {
 			authModuleRaw.log.error(`You need to provide a otp.send hook in the auth options!`)
 		}
-		return 'Hum, something went wrong !'
+		return {
+			message: 'Hum, something went wrong !',
+			user: remult.user,
+		} satisfies AuthResponse
 	}
 
 	/**
 	 * Verify the OTP code
 	 */
-	static async verifyOtp(emailParam: string, otp: string) {
+	static async verifyOtp(emailParam: string, otp: string): Promise<AuthResponse> {
 		const email = emailParam.toLowerCase()
 		const oSafe = getSafeOptions()
 
@@ -467,9 +523,12 @@ export class AuthControllerServer {
 
 		await repo(oSafe.Account).save(account)
 
-		await ff_createSession(account.userId)
+		const session = await ff_createSession(account.userId)
 
-		return 'verified'
+		return {
+			message: 'verified',
+			user: oSafe.transformDbUserToClientUser(session, user),
+		} satisfies AuthResponse
 	}
 
 	/** OAUTH */
@@ -489,7 +548,7 @@ export class AuthControllerServer {
 		provider: T
 		options?: ProviderConfigured[T]
 		redirect?: string
-	}) {
+	}): Promise<string> {
 		const selectedOAuth = AUTH_OPTIONS.providers?.oAuths?.find((c) => c.name === o.provider)
 		if (selectedOAuth) {
 			const state = generateState()
