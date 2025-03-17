@@ -35,7 +35,7 @@
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
     "remult": "2.7.32-next.0",
-    "svelte": ">=4.2.18"
+    "svelte": ">=5"
   },
   "devDependencies": {
     "@kitql/helpers": "catalog:kitql",

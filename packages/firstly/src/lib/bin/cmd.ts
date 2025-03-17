@@ -276,6 +276,7 @@ export { }
     `import { FF_Role } from 'firstly'
 import { firstly, Module } from 'firstly/api'
 import { auth } from 'firstly/auth/server'
+import { mail } from 'firstly/mail/server'
 import { changeLog } from 'firstly/changeLog/server'
 
 import { log, Role } from '${libAlias}'
@@ -318,6 +319,13 @@ export const api = firstly({
           // github(),
         ],
       },
+    }),
+
+    //----------------------------------------
+    // Core Module: mail
+    //----------------------------------------
+    mail({
+      // options
     }),
 
     //----------------------------------------

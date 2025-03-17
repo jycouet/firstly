@@ -3,7 +3,7 @@ import { createTOTPKeyURI, generateTOTP, verifyTOTPWithGracePeriod } from '@oslo
 import { generateState } from 'arctic'
 
 import { EntityError, remult, repo } from 'remult'
-import { green, magenta, yellow } from '@kitql/helpers'
+import { gray, green, magenta, red, yellow } from '@kitql/helpers'
 
 import { FFAuthProvider } from '../Entities.js'
 import type { AuthResponse, ProviderConfigured } from '../types.js'
@@ -18,7 +18,25 @@ import {
 import { mergeRoles } from './helperRole.js'
 import { AUTH_OPTIONS, authModuleRaw, getSafeOptions } from './module.js'
 
-
+const getSendMail = () => {
+	if (!remult.context.sendMail) {
+		authModuleRaw.log.error(`Missing ${green(`remult.context`)}.${red(`sendMail`)}`)
+		authModuleRaw.log.error('')
+		authModuleRaw.log.error(gray("Add this to your modules:"))
+		authModuleRaw.log.error('import { mail } from "firstly/mail/server"')
+		authModuleRaw.log.error('')
+		authModuleRaw.log.error('{')
+		authModuleRaw.log.error(`  modules: [`)
+		authModuleRaw.log.error(`    mail({`)
+		authModuleRaw.log.error(`      // options`)
+		authModuleRaw.log.error(`    })`)
+		authModuleRaw.log.error(`  ]`)
+		authModuleRaw.log.error('}')
+		authModuleRaw.log.error('')
+		throw new EntityError({ message: 'Error: Contact your administrator.' })
+	}
+	return remult.context.sendMail
+}
 
 export class AuthControllerServer {
 	/**
@@ -115,10 +133,8 @@ export class AuthControllerServer {
 					user: remult.user
 				} satisfies AuthResponse
 			} else {
-				if (!remult.context.sendMail) {
-					throw new EntityError({ message: 'sendMail is not enabled!' })
-				}
-				await remult.context.sendMail('invitationSend', {
+				const sendMail = getSendMail()
+				await sendMail('invitationSend', {
 					to: email,
 					subject: 'Invitation',
 
@@ -220,10 +236,8 @@ export class AuthControllerServer {
 				await AUTH_OPTIONS.providers?.password.mail.verify.send({ email, url })
 				authModuleRaw.log.success(`${green('[custom]')}${magenta('[verifyMailSend]')} (${yellow(url)})`)
 			} else {
-				if (!remult.context.sendMail) {
-					throw new EntityError({ message: 'sendMail is not enabled!' })
-				}
-				await remult.context.sendMail('verifyMailSend', {
+				const sendMail = getSendMail()
+				await sendMail('verifyMailSend', {
 					to: email,
 					subject: 'Wecome',
 
@@ -330,10 +344,8 @@ export class AuthControllerServer {
 					user: remult.user
 				} satisfies AuthResponse
 			} else {
-				if (!remult.context.sendMail) {
-					throw new EntityError({ message: 'sendMail is not enabled!' })
-				}
-				await remult.context.sendMail('resetPasswordSend', {
+				const sendMail = getSendMail()
+				await sendMail('resetPasswordSend', {
 					to: email,
 					subject: 'Reset your password',
 
