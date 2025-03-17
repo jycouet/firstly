@@ -5,6 +5,8 @@ import { read, write } from '@kitql/internals'
 
 // Need this trick to be be replaced by the real lib alias here ;)
 const libAlias = '$' + 'lib'
+const serverAlias = '$' + 'server'
+const modulesAlias = '$' + 'modules'
 
 const pkgFirstly = JSON.parse(read('./node_modules/firstly/package.json') ?? '{}')
 const versionOfRemult = pkgFirstly?.peerDependencies?.['remult'] ?? 'latest'
@@ -244,21 +246,40 @@ export default config
   ],
 
   // App files
+  './src/app.d.ts': [
+    `// See https://svelte.dev/docs/kit/types#app.d.ts
+// for information about these interfaces
+declare global {
+	namespace App {
+		// interface Error {}
+		// interface Locals {}
+		// interface PageData {}
+		// interface PageState {}
+		// interface Platform {}
+	}
+}
+
+declare module 'remult' {
+	export interface UserInfo {
+		// Your custom user info
+	}
+
+	export interface FieldOptions<entityType, valueType> {
+		placeholder?: string
+	}
+}
+
+export { }
+`,
+  ],
   './src/server/index.ts': [
     `import { FF_Role } from 'firstly'
 import { firstly, Module } from 'firstly/api'
 import { auth } from 'firstly/auth/server'
 import { changeLog } from 'firstly/changeLog/server'
-import { log } from '${libAlias}'
 
-import { task } from './modules/task'
-
-/**
- * Your roles, use them in your app !
- */
-export const Role = {
-  Boss: 'Boss',
-}
+import { log, Role } from '${libAlias}'
+import { task } from '${modulesAlias}/task/server'
 
 export const api = firstly({
   //----------------------------------------
@@ -329,8 +350,8 @@ export const api = firstly({
 import { redirect } from '@sveltejs/kit'
 
 import { handleAuth, handleGuard } from 'firstly/auth/server'
-import { api as handleRemult } from '${libAlias}/firstly'
 import { route } from '${libAlias}/ROUTES'
+import { api as handleRemult } from '${serverAlias}'
 
 export const handle = sequence(
 	//
@@ -349,7 +370,7 @@ export const handle = sequence(
 `,
   ],
   './src/routes/api/[...remult]/+server.ts': [
-    `import { api } from '${libAlias}/firstly'
+    `import { api } from '${serverAlias}'
 
 export const { GET, POST, PUT, DELETE } = api
 `,
@@ -379,7 +400,10 @@ export const load = (async (event) => {
   ],
   './src/routes/+layout.svelte': [
     `<script lang="ts">
-  import { remult } from 'remult'
+  import { untrack } from 'svelte'
+	import { createSubscriber } from 'svelte/reactivity'
+
+	import { Remult, remult } from 'remult'
 
   import { route } from '${libAlias}/ROUTES'
   import SignIn from '${libAlias}/ui/SignIn.svelte'
@@ -463,8 +487,9 @@ import type { LayoutData } from './$types'
 
 <a href={route('/')}>Home</a> | 
 {#if remult.authenticated()}
-  <a href={route('/app')}>App (Protected route)</a>
+  <a href={route('/app')}>App (Protected route)</a> |
 {/if}
+<a href={route('/demo/task')}>Demo task</a>
 
 <hr />
 
@@ -514,13 +539,23 @@ export const load = (async (event) => {
 
   // Lib files
   './src/lib/index.ts': [
-    `
+    `import { FF_Role } from 'firstly'
+import { FF_Role_Auth } from 'firstly/auth/client'
 import { Log } from '@kitql/helpers'
 
 /**
  * Your logs with a nice prefix, use \`log.info("Hello")\` / \`log.success("Yeah")\` / \`log.error("Ho nooo!")\` and see !
  */
 export const log = new Log('${pkg.name}')
+
+/**
+ * Your roles, use them in your app !
+ */
+export const Role = {
+	Boss: 'Boss',
+	...FF_Role_Auth,
+	...FF_Role,
+} as const
 `,
   ],
   './src/lib/ui/SignIn.svelte': [
@@ -623,11 +658,11 @@ export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) =>
 `,
   ],
   './src/modules/task/client/Task.ts': [
-    `import { Entity, Field, Fields, ValueListFieldType } from 'remult'
+    `import { Allow, Entity, Field, Fields, ValueListFieldType } from 'remult'
 import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'firstly'
 
 @Entity('task', {
-  allowApiCrud: true,
+  allowApiCrud: Allow.authenticated,
 })
 export class Task {
   @Fields.cuid()
@@ -686,13 +721,14 @@ export class TaskController {
     `<script lang="ts">
 	import { EntityError, repo } from 'remult'
 
-	import { Task } from '$modules/task/client/Task'
+	import { Task } from '${modulesAlias}/task/client/Task'
 
 	let task = $state(repo(Task).create())
 	let error = $state<EntityError<Task> | null>(null)
 
 	const add = async (e: Event) => {
 		e.preventDefault()
+    error = null
 		try {
 			await repo(Task).insert(task)
 			task = repo(Task).create()
@@ -718,30 +754,36 @@ export class TaskController {
     `<script lang="ts">
 	import { repo } from 'remult'
 
-	import { Task } from '$modules/task/client/Task'
+	import { Task } from '${modulesAlias}/task/client/Task'
 
 	let list: Task[] = $state([])
 
 	$effect(() => {
-		return repo(Task)
-			.liveQuery()
-			.subscribe((info) => {
-				list = info.applyChanges(list)
-			})
+		if (repo(Task).metadata.apiReadAllowed) {
+			return repo(Task)
+				.liveQuery()
+				.subscribe((info) => {
+					list = info.applyChanges(list)
+				})
+		}
 	})
 </script>
 
-<ul>
-	{#each list as task (task.id)}
-		<li>{task.title}</li>
-	{/each}
-</ul>
+{#if repo(Task).metadata.apiReadAllowed}
+	<ul>
+		{#each list as task (task.id)}
+			<li>{task.title}</li>
+		{/each}
+	</ul>
+{:else}
+	<p>Login to see the task list!</p>
+{/if}
 `,
   ],
   './src/routes/demo/task/+page.svelte': [
     `<script lang="ts">
-	import TaskAdd from '$modules/task/ui/svelte/TaskAdd.svelte'
-	import TaskList from '$modules/task/ui/svelte/TaskList.svelte'
+	import TaskAdd from '${modulesAlias}/task/ui/svelte/TaskAdd.svelte'
+	import TaskList from '${modulesAlias}/task/ui/svelte/TaskList.svelte'
 </script>
 
 <h1>Task Module</h1>
