@@ -1,7 +1,7 @@
-import { Module } from '$lib/api'
+import { Module } from '$lib/server'
 
-import { Task } from '../client/Task'
-import { TaskController } from '../client/TaskController'
+import { Task } from '../Task'
+import { TaskController } from '../TaskController'
 
 export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
 	const m = new Module({

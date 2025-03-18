@@ -274,7 +274,7 @@ export { }
 	],
 	'./src/server/index.ts': [
 		`import { FF_Role } from 'firstly'
-import { firstly, Module } from 'firstly/api'
+import { firstly, Module } from 'firstly/server'
 import { auth } from 'firstly/auth/server'
 import { mail } from 'firstly/mail/server'
 import { changeLog } from 'firstly/changeLog/server'
@@ -646,10 +646,10 @@ export const Role = {
 export const log = new Log("Custom Task Log")`,
 	],
 	'./src/modules/task/server/index.ts': [
-		`import { Module } from 'firstly/api'
+		`import { Module } from 'firstly/server'
 
-import { Task } from '../client/Task'
-import { TaskController } from '../client/TaskController'
+import { Task } from '../Task'
+import { TaskController } from '../TaskController'
 
 export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
 	const m = new Module({
@@ -665,7 +665,7 @@ export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) =>
 }
 `,
 	],
-	'./src/modules/task/client/Task.ts': [
+	'./src/modules/task/Task.ts': [
 		`import { Allow, Entity, Field, Fields, ValueListFieldType } from 'remult'
 import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'firstly'
 
@@ -709,7 +709,7 @@ export class TypeOfTaskEnum extends BaseEnum {
 }    
 `,
 	],
-	'./src/modules/task/client/TaskController.ts': [
+	'./src/modules/task/TaskController.ts': [
 		`import { BackendMethod } from 'remult'
 
 import { log } from '${libAlias}'
@@ -729,7 +729,7 @@ export class TaskController {
 		`<script lang="ts">
 	import { EntityError, repo } from 'remult'
 
-	import { Task } from '${modulesAlias}/task/client/Task'
+	import { Task } from '${modulesAlias}/task/Task'
 
 	let task = $state(repo(Task).create())
 	let error = $state<EntityError<Task> | null>(null)
@@ -762,7 +762,7 @@ export class TaskController {
 		`<script lang="ts">
 	import { repo } from 'remult'
 
-	import { Task } from '${modulesAlias}/task/client/Task'
+	import { Task } from '${modulesAlias}/task/Task'
 
 	let list: Task[] = $state([])
 

@@ -86,9 +86,9 @@
       "svelte": "./esm/index.js",
       "default": "./esm/index.js"
     },
-    "./api": {
-      "types": "./esm/api/index.d.ts",
-      "default": "./esm/api/index.js"
+    "./server": {
+      "types": "./esm/server/index.d.ts",
+      "default": "./esm/server/index.js"
     },
     "./vite": {
       "types": "./esm/vite/index.d.ts",
@@ -101,7 +101,7 @@
       "types": "./esm/formats/index.d.ts",
       "default": "./esm/formats/index.js"
     },
-    "./auth/client": {
+    "./auth": {
       "types": "./esm/auth/index.d.ts",
       "default": "./esm/auth/index.js"
     },
@@ -109,7 +109,7 @@
       "types": "./esm/auth/server/index.d.ts",
       "default": "./esm/auth/server/index.js"
     },
-    "./changeLog/client": {
+    "./changeLog": {
       "types": "./esm/changeLog/index.d.ts",
       "default": "./esm/changeLog/index.js"
     },
@@ -121,7 +121,7 @@
       "types": "./esm/cron/server/index.d.ts",
       "default": "./esm/cron/server/index.js"
     },
-    "./feedback/client": {
+    "./feedback": {
       "types": "./esm/feedback/index.d.ts",
       "default": "./esm/feedback/index.js"
     },
@@ -129,7 +129,7 @@
       "types": "./esm/feedback/server/index.d.ts",
       "default": "./esm/feedback/server/index.js"
     },
-    "./mail/client": {
+    "./mail": {
       "types": "./esm/mail/index.d.ts",
       "default": "./esm/mail/index.js"
     },
