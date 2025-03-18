@@ -89,7 +89,7 @@ declare module 'remult' {
 
 export type SendMail = typeof sendMail
 
-const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
+export const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,
 	mailOptions: Parameters<typeof transporter.sendMail>[0] & {
@@ -146,7 +146,7 @@ const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>
 
 const mailModule = new Module({
 	name: 'mail',
-	priority: -778,
+	priority: -888,
 })
 
 export const mail: (o?: MailOptions<SvelteComponent>) => Module = (o) => {
