@@ -21,7 +21,8 @@
 		msgSuccess = ''
 		loading = true
 		try {
-			msgSuccess = await AuthController.signUpPassword(email, password)
+			const res = await AuthController.signUpPassword(email, password)
+			msgSuccess = res.message ?? ''
 			window.location.href = '/'
 		} catch (error) {
 			if (isError(error)) {

@@ -1,1 +1,0 @@
-import{v as r,x as l,aa as o,J as m,K as p,M as u,O as d,P as f,R as g}from"./index-C9jzxOBu.js";d();a[f]="src/lib/modules/storage/Page.svelte";function a(e,s){r(new.target),l(s,!1,a);var t=o("Hello from files");return m(e,t),p({...u()})}g(a);export{a as default};
