@@ -152,6 +152,8 @@ const mailModule = new Module({
 export const mail: (o?: MailOptions<SvelteComponent>) => Module = (o) => {
 	mailModule.initApi = () => {
 		initMail(o)
+	}
+	mailModule.initRequest = async () => {
 		remult.context.sendMail = sendMail
 	}
 	return mailModule
