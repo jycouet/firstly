@@ -548,7 +548,7 @@ export const load = (async (event) => {
 	// Lib files
 	'./src/lib/index.ts': [
 		`import { FF_Role } from 'firstly'
-import { FF_Role_Auth } from 'firstly/auth/client'
+import { FF_Role_Auth } from 'firstly/auth'
 import { Log } from '@kitql/helpers'
 
 /**
@@ -569,7 +569,7 @@ export const Role = {
 	'./src/lib/ui/SignIn.svelte': [
 		`<script lang="ts">
   import { isError } from 'firstly'
-  import { AuthController } from 'firstly/auth/client'
+  import { AuthController } from 'firstly/auth'
 
   import { goto, invalidateAll } from '$app/navigation'
 
@@ -619,7 +619,7 @@ export const Role = {
 	'./src/lib/ui/SignOut.svelte': [
 		`<script lang="ts">
   import { isError } from 'firstly'
-  import { AuthController } from 'firstly/auth/client'
+  import { AuthController } from 'firstly/auth'
 
   import { invalidateAll } from '$app/navigation'
 
