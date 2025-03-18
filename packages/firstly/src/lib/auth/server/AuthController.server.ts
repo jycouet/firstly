@@ -292,9 +292,11 @@ export class AuthControllerServer {
 			if (validPassword) {
 				const session = await ff_createSession(existingAccount.userId)
 
+				const user = await repo(oSafe.User).findId(existingAccount.userId)
+
 				return {
 					message: 'ok',
-					user: oSafe.transformDbUserToClientUser(session, existingAccount.user),
+					user: oSafe.transformDbUserToClientUser(session, user!),
 				} satisfies AuthResponse
 			}
 
