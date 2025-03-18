@@ -1,7 +1,7 @@
 import { Fields } from 'remult'
 
 import { FF_Entity, FF_Role } from '$lib'
-import { firstly, Module } from '$lib/api'
+import { firstly, Module } from '$lib/server'
 import { FF_Role_Auth, FFAuthUser } from '$lib/auth'
 import { auth } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'

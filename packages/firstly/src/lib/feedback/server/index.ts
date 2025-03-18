@@ -1,6 +1,6 @@
 import { remult } from 'remult'
 
-import { Module } from '../../api'
+import { Module } from '../../server'
 import { FeedbackController } from '../FeedbackController'
 import type { FeedbackOptions } from '../types'
 

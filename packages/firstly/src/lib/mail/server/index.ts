@@ -13,7 +13,7 @@ import { render } from 'svelty-email'
 import { remult } from 'remult'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
-import { Module } from '../../api'
+import { Module } from '../../server'
 import { default as DefaultMail } from '../templates/DefaultMail.svelte'
 
 export type TransportTypes =
