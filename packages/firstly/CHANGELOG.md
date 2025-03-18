@@ -1,5 +1,13 @@
 # firstly
 
+## 0.0.15
+
+### Patch Changes
+
+- [#98](https://github.com/jycouet/firstly/pull/98)
+  [`0d708f6`](https://github.com/jycouet/firstly/commit/0d708f605dc9d2943730f68ebf99c1d2f8a49926)
+  Thanks [@jycouet](https://github.com/jycouet)! - prepare JYC 0.0.15
+
 ## 0.0.14
 
 ### Patch Changes
