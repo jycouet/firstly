@@ -725,7 +725,7 @@ export class TaskController {
 }
 `,
 	],
-	'./src/modules/task/ui/svelte/TaskAdd.svelte': [
+	'./src/modules/task/ui/TaskAdd.svelte': [
 		`<script lang="ts">
 	import { EntityError, repo } from 'remult'
 
@@ -758,7 +758,7 @@ export class TaskController {
 </form>
 `,
 	],
-	'./src/modules/task/ui/svelte/TaskList.svelte': [
+	'./src/modules/task/ui/TaskList.svelte': [
 		`<script lang="ts">
 	import { repo } from 'remult'
 
@@ -790,8 +790,8 @@ export class TaskController {
 	],
 	'./src/routes/demo/task/+page.svelte': [
 		`<script lang="ts">
-	import TaskAdd from '${modulesAlias}/task/ui/svelte/TaskAdd.svelte'
-	import TaskList from '${modulesAlias}/task/ui/svelte/TaskList.svelte'
+	import TaskAdd from '${modulesAlias}/task/ui/TaskAdd.svelte'
+	import TaskList from '${modulesAlias}/task/ui/TaskList.svelte'
 </script>
 
 <h1>Task Module</h1>
