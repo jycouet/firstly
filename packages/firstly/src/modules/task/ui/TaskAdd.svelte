@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { EntityError, repo } from 'remult'
 
-	import { Task } from '$modules/task/client/Task'
+	import { Task } from '$modules/task/Task'
 
 	let task = $state(repo(Task).create())
 	let error = $state<EntityError<Task> | null>(null)

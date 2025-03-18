@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { repo } from 'remult'
 
-	import { Task } from '$modules/task/client/Task'
+	import { Task } from '$modules/task/Task'
 
 	let list: Task[] = $state([])
 

@@ -13,7 +13,7 @@ import { render } from 'svelty-email'
 import { remult } from 'remult'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
-import { Module } from '../../api'
+import { Module } from '../../server'
 import { default as DefaultMail } from '../templates/DefaultMail.svelte'
 
 export type TransportTypes =
@@ -89,7 +89,7 @@ declare module 'remult' {
 
 export type SendMail = typeof sendMail
 
-const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
+export const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,
 	mailOptions: Parameters<typeof transporter.sendMail>[0] & {
@@ -146,12 +146,14 @@ const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>
 
 const mailModule = new Module({
 	name: 'mail',
-	priority: -778,
+	priority: -888,
 })
 
 export const mail: (o?: MailOptions<SvelteComponent>) => Module = (o) => {
 	mailModule.initApi = () => {
 		initMail(o)
+	}
+	mailModule.initRequest = async () => {
 		remult.context.sendMail = sendMail
 	}
 	return mailModule

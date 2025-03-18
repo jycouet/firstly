@@ -16,7 +16,8 @@
 		msgSuccess = ''
 		loading = true
 		try {
-			msgSuccess = await AuthController.forgotPassword(email)
+			const res = await AuthController.forgotPassword(email)
+			msgSuccess = res.message ?? ''
 		} catch (error) {
 			if (isError(error)) {
 				msgError = error.message ?? ''

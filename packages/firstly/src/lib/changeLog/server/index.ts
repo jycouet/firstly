@@ -1,4 +1,4 @@
-import { Module } from '../../api'
+import { Module } from '../../server'
 import { ChangeLog } from '../index'
 
 /**

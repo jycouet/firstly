@@ -2,7 +2,7 @@ import { CronJob } from 'cron'
 
 import { green, magenta, red, yellow } from '@kitql/helpers'
 
-import { Module } from '../../api'
+import { Module } from '../../server'
 
 export const jobs: Record<
 	string,

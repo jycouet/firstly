@@ -1,6 +1,6 @@
 import { BackendMethod } from 'remult'
 
-import { log } from '../'
+import { log } from '.'
 
 /**
  * await TaskController.sayHiFromTask("JYC")

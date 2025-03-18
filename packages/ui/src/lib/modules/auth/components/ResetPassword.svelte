@@ -17,7 +17,8 @@
 		loading = true
 		const token = new URL(location.href).searchParams.get('token')
 		try {
-			msgSuccess = await AuthController.resetPassword(token ?? '', password1)
+			const res = await AuthController.resetPassword(token ?? '', password1)
+			msgSuccess = res.message ?? ''
 			window.location.href = '/'
 		} catch (error) {
 			if (isError(error)) {

@@ -10,7 +10,7 @@ import { building } from '$app/environment'
 
 import { AuthController } from '..'
 import { FF_Role } from '../..'
-import { Module } from '../../api'
+import { Module } from '../../server'
 import type { RecursivePartial } from '../../utils/types'
 import { FF_Role_Auth, FFAuthAccount, FFAuthUser, FFAuthUserSession } from '../Entities'
 import type { FirstlyData, FirstlyDataAuth, ProviderAuthorizationURLOptions } from '../types'

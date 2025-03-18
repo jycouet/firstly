@@ -1,9 +1,9 @@
 <script lang="ts">
 	import mermaid from 'mermaid'
 
-	import type { FirstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
+	// import type { FirstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 
-	export let firstlyDataAuth: FirstlyDataAuth
+	// export let firstlyDataAuth: FirstlyDataAuth
 
 	// The default diagram
 	let diagram = `\

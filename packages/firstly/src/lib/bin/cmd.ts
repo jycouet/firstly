@@ -69,7 +69,7 @@ function mergeAndSort(
 }
 
 pkg.devDependencies = mergeAndSort(pkg.devDependencies, {
-	'@kitql/eslint-config': '0.5.8',
+	'@kitql/eslint-config': '0.6.0',
 	'@kitql/helpers': '0.8.12',
 	pg: '8.12.0',
 	remult: versionOfRemult,
@@ -274,7 +274,7 @@ export { }
 	],
 	'./src/server/index.ts': [
 		`import { FF_Role } from 'firstly'
-import { firstly, Module } from 'firstly/api'
+import { firstly, Module } from 'firstly/server'
 import { auth } from 'firstly/auth/server'
 import { mail } from 'firstly/mail/server'
 import { changeLog } from 'firstly/changeLog/server'
@@ -548,7 +548,7 @@ export const load = (async (event) => {
 	// Lib files
 	'./src/lib/index.ts': [
 		`import { FF_Role } from 'firstly'
-import { FF_Role_Auth } from 'firstly/auth/client'
+import { FF_Role_Auth } from 'firstly/auth'
 import { Log } from '@kitql/helpers'
 
 /**
@@ -569,7 +569,7 @@ export const Role = {
 	'./src/lib/ui/SignIn.svelte': [
 		`<script lang="ts">
   import { isError } from 'firstly'
-  import { AuthController } from 'firstly/auth/client'
+  import { AuthController } from 'firstly/auth'
 
   import { goto, invalidateAll } from '$app/navigation'
 
@@ -619,7 +619,7 @@ export const Role = {
 	'./src/lib/ui/SignOut.svelte': [
 		`<script lang="ts">
   import { isError } from 'firstly'
-  import { AuthController } from 'firstly/auth/client'
+  import { AuthController } from 'firstly/auth'
 
   import { invalidateAll } from '$app/navigation'
 
@@ -646,10 +646,10 @@ export const Role = {
 export const log = new Log("Custom Task Log")`,
 	],
 	'./src/modules/task/server/index.ts': [
-		`import { Module } from 'firstly/api'
+		`import { Module } from 'firstly/server'
 
-import { Task } from '../client/Task'
-import { TaskController } from '../client/TaskController'
+import { Task } from '../Task'
+import { TaskController } from '../TaskController'
 
 export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
 	const m = new Module({
@@ -665,7 +665,7 @@ export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) =>
 }
 `,
 	],
-	'./src/modules/task/client/Task.ts': [
+	'./src/modules/task/Task.ts': [
 		`import { Allow, Entity, Field, Fields, ValueListFieldType } from 'remult'
 import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'firstly'
 
@@ -709,7 +709,7 @@ export class TypeOfTaskEnum extends BaseEnum {
 }    
 `,
 	],
-	'./src/modules/task/client/TaskController.ts': [
+	'./src/modules/task/TaskController.ts': [
 		`import { BackendMethod } from 'remult'
 
 import { log } from '${libAlias}'
@@ -725,11 +725,11 @@ export class TaskController {
 }
 `,
 	],
-	'./src/modules/task/ui/svelte/TaskAdd.svelte': [
+	'./src/modules/task/ui/TaskAdd.svelte': [
 		`<script lang="ts">
 	import { EntityError, repo } from 'remult'
 
-	import { Task } from '${modulesAlias}/task/client/Task'
+	import { Task } from '${modulesAlias}/task/Task'
 
 	let task = $state(repo(Task).create())
 	let error = $state<EntityError<Task> | null>(null)
@@ -758,11 +758,11 @@ export class TaskController {
 </form>
 `,
 	],
-	'./src/modules/task/ui/svelte/TaskList.svelte': [
+	'./src/modules/task/ui/TaskList.svelte': [
 		`<script lang="ts">
 	import { repo } from 'remult'
 
-	import { Task } from '${modulesAlias}/task/client/Task'
+	import { Task } from '${modulesAlias}/task/Task'
 
 	let list: Task[] = $state([])
 
@@ -790,8 +790,8 @@ export class TaskController {
 	],
 	'./src/routes/demo/task/+page.svelte': [
 		`<script lang="ts">
-	import TaskAdd from '${modulesAlias}/task/ui/svelte/TaskAdd.svelte'
-	import TaskList from '${modulesAlias}/task/ui/svelte/TaskList.svelte'
+	import TaskAdd from '${modulesAlias}/task/ui/TaskAdd.svelte'
+	import TaskList from '${modulesAlias}/task/ui/TaskList.svelte'
 </script>
 
 <h1>Task Module</h1>

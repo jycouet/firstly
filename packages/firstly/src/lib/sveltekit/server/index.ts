@@ -1,6 +1,6 @@
 import { remult } from 'remult'
 
-import { Module } from '../../api'
+import { Module } from '../../server'
 
 /**
  * @deprecated will be done directly in remult when modules will be in 😉

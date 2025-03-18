@@ -1,6 +1,6 @@
 import { Allow, Entity, Field, Fields, ValueListFieldType } from 'remult'
 
-import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from '../../../lib'
+import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from '../../lib'
 
 @Entity('task', {
 	allowApiCrud: Allow.authenticated,
