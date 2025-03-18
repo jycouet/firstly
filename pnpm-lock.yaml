@@ -26,14 +26,14 @@ catalogs:
       version: 0.33.5
   kitql:
     '@kitql/eslint-config':
-      specifier: 0.6.0-next.0
-      version: 0.6.0-next.0
+      specifier: 0.6.0
+      version: 0.6.0
     '@kitql/helpers':
       specifier: 0.8.11
       version: 0.8.11
     '@kitql/internals':
-      specifier: 0.10.3
-      version: 0.10.3
+      specifier: 0.10.4
+      version: 0.10.4
   lib-author-helper:
     '@changesets/changelog-github':
       specifier: 0.5.0
@@ -122,11 +122,11 @@ catalogs:
       specifier: 6.2.2
       version: 6.2.2
     vite-plugin-kit-routes:
-      specifier: 0.8.3
-      version: 0.8.3
+      specifier: 0.8.4
+      version: 0.8.4
     vite-plugin-stripper:
-      specifier: 0.9.0-next.1
-      version: 0.9.0-next.1
+      specifier: 0.9.0
+      version: 0.9.0
     vite-plugin-watch-and-run:
       specifier: 1.7.1
       version: 1.7.1
@@ -179,7 +179,7 @@ importers:
         version: 2.28.1
       '@kitql/eslint-config':
         specifier: catalog:kitql
-        version: 0.6.0-next.0(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(svelte@5.23.0)(typescript@5.8.2)
+        version: 0.6.0(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(svelte@5.23.0)(typescript@5.8.2)
       '@playwright/test':
         specifier: catalog:testing
         version: 1.51.0
@@ -195,7 +195,7 @@ importers:
         version: 0.32.2(astro@5.5.2(@types/node@22.5.1)(jiti@1.21.6)(rollup@4.30.1)(terser@5.31.1)(tsx@4.17.0)(typescript@5.8.2)(yaml@2.7.0))
       '@kitql/eslint-config':
         specifier: catalog:kitql
-        version: 0.6.0-next.0(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(svelte@5.23.0)(typescript@5.8.2)
+        version: 0.6.0(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(svelte@5.23.0)(typescript@5.8.2)
       accessible-astro-components:
         specifier: catalog:docs
         version: 4.1.0
@@ -220,7 +220,7 @@ importers:
         version: 0.10.0
       '@kitql/internals':
         specifier: catalog:kitql
-        version: 0.10.3
+        version: 0.10.4
       '@mdi/js':
         specifier: catalog:ui
         version: 7.4.47
@@ -277,10 +277,10 @@ importers:
         version: 6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)
       vite-plugin-kit-routes:
         specifier: catalog:tooling
-        version: 0.8.3(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.23.0)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.23.0)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))
+        version: 0.8.4(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.23.0)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.23.0)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))
       vite-plugin-stripper:
         specifier: catalog:tooling
-        version: 0.9.0-next.1
+        version: 0.9.0
     devDependencies:
       '@kitql/helpers':
         specifier: catalog:kitql
@@ -430,11 +430,6 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  '@babel/parser@7.26.5':
-    resolution: {integrity: sha512-SRJ4jYmXRqV1/Xc+TIVG84WjHBXKlxO9sHQnA2Pf12QQEAp1LOh6kDzNHXcUnbH1QI0FDoPPVOt+vyUDucxpaw==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
-
   '@babel/runtime@7.24.7':
     resolution: {integrity: sha512-UwgBRMjJP+xv857DCngvqXI3Iq6J4v0wXmwc6sapg+zyhbwmQX67LUEFrkK5tbyJ30jGuG3ZvWpBiB9LCy1kWw==}
     engines: {node: '>=6.9.0'}
@@ -449,10 +444,6 @@ packages:
 
   '@babel/types@7.26.10':
     resolution: {integrity: sha512-emqcG3vHrpxUKTrxcblR36dcrcoRDvKmnL/dCL6ZsHaShW80qxCAcNhzQZrpeM765VzEos+xOi4s+r4IXzTwdQ==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/types@7.26.5':
-    resolution: {integrity: sha512-L6mZmwFDK6Cjh1nRCLXpa6no13ZIioJDz7mdkzHv399pThrTa/k0nUlNaenOeh2kWu/iaOQYElEpKPUswUa9Vg==}
     engines: {node: '>=6.9.0'}
 
   '@braintree/sanitize-url@7.1.1':
@@ -1087,8 +1078,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@kitql/eslint-config@0.6.0-next.0':
-    resolution: {integrity: sha512-loYb8kOPigXs0aba9WjLk6dOkbI80n2rONx+jeYzh70hRYFcso3eB4fa69sFh1IIHgcOp6wNdHUDQcbp2cRXnQ==}
+  '@kitql/eslint-config@0.6.0':
+    resolution: {integrity: sha512-GRmip2GuGcco8EvDmUfO7BbGd07QFRzNnL+3l1aj/sHm7Ukv/cs07MOHlJhj6hteunibzXjAcXpvM0XIpgXUPA==}
     hasBin: true
     peerDependencies:
       prettier: ^3.5.3
@@ -1105,12 +1096,8 @@ packages:
     resolution: {integrity: sha512-aAihk32Ym8XFtwP1mwpuvG5J0Ov2LTnIVItJZI31bTnmlQ5tYSaYgvnD44lNiAjHQw0/tUstqIYRPK8C6wlLoA==}
     engines: {node: ^16.14 || >=18}
 
-  '@kitql/internals@0.10.3':
-    resolution: {integrity: sha512-Y5s1XE/66fuQFe1EVguXbSJHf71dVhoQFG21wUf/0GnguZvZBp0a582D9ReEDNTfjt2hhs31zZPLBs1Uz8UTgw==}
-    engines: {node: ^16.14 || >=18}
-
-  '@kitql/internals@0.10.4-next.0':
-    resolution: {integrity: sha512-tyxyPusdKBU1SpxAoBjoo8wvlfJ2PiCUJjaZKK1R4Uu4DgkrQ0c8GTBEmEI+U55ExFzDWNf5eN79/aywKU0+Rw==}
+  '@kitql/internals@0.10.4':
+    resolution: {integrity: sha512-F/DYyAeyLTbqOG9kGiEve2vQUvPllH4nEOFAE9/COBcNcrsJB4zExkK1a1LiS3qIi5Bq78flMyivvOlQ2TGGdQ==}
     engines: {node: ^16.14 || >=18}
 
   '@manypkg/find-root@1.1.0':
@@ -2490,8 +2477,8 @@ packages:
     peerDependencies:
       eslint: ^9.0.0
 
-  eslint-plugin-svelte@3.1.0:
-    resolution: {integrity: sha512-hSQyLDkuuHPJby1ixZfUVrfLON42mT0Odf18MbwAgFUPuyIwJlhy3acUY1/bxt+Njucq/dQxR543zYDqkBNLmw==}
+  eslint-plugin-svelte@3.3.0:
+    resolution: {integrity: sha512-pgGY5mT/ftZjG6xO4HltcQvne3rWUjStVDlvEZCR5cQKmZADbQp9kDmUc+fhIo1oO2HlXP25A+g4pkaoiBCxqg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.1 || ^9.0.0
@@ -4572,14 +4559,14 @@ packages:
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
-  vite-plugin-kit-routes@0.8.3:
-    resolution: {integrity: sha512-28OhugjlXs/RhuzxcGL907NKXV27soYzE7gt+/y10VUWvVqv5EJF2VIp1L1ZGAF40Kl5lS+XJDNC5dzXL2Fi9g==}
+  vite-plugin-kit-routes@0.8.4:
+    resolution: {integrity: sha512-2LPfh3udvhGwHXJMnA52HelstB51DWrwcOgxogj20q0/etQXMPFvackzdoNyKdGo1JYWMzPvDk8HSW3X5E+mhw==}
     engines: {node: ^16.14 || >=18}
     peerDependencies:
       '@sveltejs/kit': ^2.4.0
 
-  vite-plugin-stripper@0.9.0-next.1:
-    resolution: {integrity: sha512-TXzuDcW/y+zPXCeYJ5lbo3EchORvUn/NSG3i0vm26kq0evy6RuvaikfRd9TS09dN20m2RlAT+jaEwVSvPeDM3w==}
+  vite-plugin-stripper@0.9.0:
+    resolution: {integrity: sha512-i3ceh8XctbxOgWfIgdpDOLN7e9to+/nl6MIMw6pYGfwxPYjlZ7t/Y46PC65uYXkhYBpAnnr1xTdInA7ulyd9CA==}
     engines: {node: ^16.14 || >=18}
 
   vite-plugin-watch-and-run@1.7.1:
@@ -5009,10 +4996,6 @@ snapshots:
     dependencies:
       '@babel/types': 7.26.10
 
-  '@babel/parser@7.26.5':
-    dependencies:
-      '@babel/types': 7.26.5
-
   '@babel/runtime@7.24.7':
     dependencies:
       regenerator-runtime: 0.14.1
@@ -5036,11 +5019,6 @@ snapshots:
       - supports-color
 
   '@babel/types@7.26.10':
-    dependencies:
-      '@babel/helper-string-parser': 7.25.9
-      '@babel/helper-validator-identifier': 7.25.9
-
-  '@babel/types@7.26.5':
     dependencies:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
@@ -5647,7 +5625,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@kitql/eslint-config@0.6.0-next.0(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(svelte@5.23.0)(typescript@5.8.2)':
+  '@kitql/eslint-config@0.6.0(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.5.3))(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(svelte@5.23.0)(typescript@5.8.2)':
     dependencies:
       '@eslint/compat': 1.2.7(eslint@9.22.0(jiti@1.21.6))
       '@eslint/js': 9.22.0
@@ -5658,7 +5636,7 @@ snapshots:
       commander: 13.1.0
       eslint: 9.22.0(jiti@1.21.6)
       eslint-plugin-pnpm: 0.3.1(eslint@9.22.0(jiti@1.21.6))
-      eslint-plugin-svelte: 3.1.0(eslint@9.22.0(jiti@1.21.6))(svelte@5.23.0)
+      eslint-plugin-svelte: 3.3.0(eslint@9.22.0(jiti@1.21.6))(svelte@5.23.0)
       eslint-plugin-unused-imports: 4.1.4(@typescript-eslint/eslint-plugin@8.26.0(@typescript-eslint/parser@8.26.0(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.22.0(jiti@1.21.6))
       globals: 16.0.0
       jsonc-eslint-parser: 2.4.0
@@ -5704,14 +5682,7 @@ snapshots:
     dependencies:
       esm-env: 1.2.2
 
-  '@kitql/internals@0.10.3':
-    dependencies:
-      '@babel/parser': 7.26.5
-      '@kitql/helpers': 0.8.12
-      recast: 0.23.9
-      svelte: 5.23.0
-
-  '@kitql/internals@0.10.4-next.0':
+  '@kitql/internals@0.10.4':
     dependencies:
       '@babel/parser': 7.26.10
       '@babel/types': 7.26.10
@@ -7279,7 +7250,7 @@ snapshots:
   esast-util-from-js@2.0.1:
     dependencies:
       '@types/estree-jsx': 1.0.5
-      acorn: 8.14.0
+      acorn: 8.14.1
       esast-util-from-estree: 2.0.0
       vfile-message: 4.0.2
 
@@ -7360,7 +7331,7 @@ snapshots:
       tinyglobby: 0.2.12
       yaml-eslint-parser: 1.3.0
 
-  eslint-plugin-svelte@3.1.0(eslint@9.22.0(jiti@1.21.6))(svelte@5.23.0):
+  eslint-plugin-svelte@3.3.0(eslint@9.22.0(jiti@1.21.6))(svelte@5.23.0):
     dependencies:
       '@eslint-community/eslint-utils': 4.4.1(eslint@9.22.0(jiti@1.21.6))
       '@jridgewell/sourcemap-codec': 1.5.0
@@ -9937,17 +9908,17 @@ snapshots:
       - tsx
       - yaml
 
-  vite-plugin-kit-routes@0.8.3(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.23.0)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.23.0)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))):
+  vite-plugin-kit-routes@0.8.4(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.23.0)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.23.0)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))):
     dependencies:
       '@kitql/helpers': 0.8.12
-      '@kitql/internals': 0.10.3
+      '@kitql/internals': 0.10.4
       '@sveltejs/kit': 2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.23.0)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.23.0)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))
       vite-plugin-watch-and-run: 1.7.4
 
-  vite-plugin-stripper@0.9.0-next.1:
+  vite-plugin-stripper@0.9.0:
     dependencies:
       '@kitql/helpers': 0.8.12
-      '@kitql/internals': 0.10.4-next.0
+      '@kitql/internals': 0.10.4
       vite-plugin-watch-and-run: 1.7.4
 
   vite-plugin-watch-and-run@1.7.1:
