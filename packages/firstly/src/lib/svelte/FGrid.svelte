@@ -1,12 +1,12 @@
-<script lang="ts" generics="EntityType = unknown">
+<script lang="ts" generics="entityType = unknown">
 	import { type FieldMetadata } from 'remult'
 
 	import type { FF_Repo } from './FF_Repo.svelte'
 
-	interface Props<EntityType> {
+	interface Props<entityType> {
 		uid?: string
-		r: FF_Repo<EntityType>
-		fields?: FieldMetadata<unknown, EntityType>[]
+		r: FF_Repo<entityType>
+		fields?: FieldMetadata<unknown, entityType>[]
 
 		classes?: {
 			root?: string
@@ -19,7 +19,7 @@
 		classes = {
 			root: 'table',
 		},
-	}: Props<EntityType> = $props()
+	}: Props<entityType> = $props()
 </script>
 
 <table data-ff-grid class={classes?.root}>
@@ -43,7 +43,7 @@
 		{#each r.items ?? [] as item (r.repo.metadata.idMetadata.getId(item))}
 			<tr data-ff-grid-row>
 				{#each fields ?? [] as f (f.key)}
-					<td data-ff-grid-row-cell>{f.displayValue(item as Partial<EntityType>)}</td>
+					<td data-ff-grid-row-cell>{f.displayValue(item as Partial<entityType>)}</td>
 				{/each}
 			</tr>
 		{/each}

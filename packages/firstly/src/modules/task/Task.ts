@@ -1,6 +1,8 @@
 import { Allow, Entity, Field, Fields, ValueListFieldType } from 'remult'
 
 import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from '../../lib'
+import Title from './ui/Title.svelte'
+import { createCustomField } from '$lib/svelte/createCustomField'
 
 @Entity('task', {
 	allowApiCrud: Allow.authenticated,
@@ -15,7 +17,12 @@ export class Task {
 	@Fields.string<Task>({
 		ui: {
 			placeholder: 'Enter a title',
-			width: 50,
+			// width: 50,
+			hide: {
+				// header: true,
+			},
+			customField: true,
+			// customField: createCustomField(Title)
 		},
 		validate: (task) => {
 			if (task.title.length < 3) throw 'The title must be at least 3 characters long'
@@ -26,6 +33,7 @@ export class Task {
 	@Field(() => TypeOfTaskEnum, {
 		ui: {
 			width: 20,
+			
 		},
 	})
 	typeOfTask = TypeOfTaskEnum.EASY

@@ -4,12 +4,9 @@
 	import TaskList from '$modules/task/ui/TaskList.svelte'
 	import { FF_Repo, FForm, FGrid } from '$lib/svelte'
 
-	// FF_repo
-	// FR
-	// Repo
 	const r = new FF_Repo(Task, { findOptions: {} })
 
-	const fields = [r.repo.fields.title, r.repo.fields.typeOfTask]
+	const fields = [r.repo.fields.title,r.repo.fields.title, r.repo.fields.typeOfTask]
 </script>
 
 <h1>Task Module</h1>
@@ -21,7 +18,13 @@
 
 Next level!
 
-<FForm {r} {fields}></FForm>
+<FForm {r} {fields}>
+	<!-- {#snippet customField(field, value)}
+		{#if field.key === 'title'}
+			title stuff... 
+		{/if}
+	{/snippet} -->
+</FForm>
 
 <FGrid {r} />
 

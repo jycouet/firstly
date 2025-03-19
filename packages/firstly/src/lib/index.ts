@@ -1,10 +1,11 @@
-import type { FindOptionsBase } from 'remult'
+import type { FieldMetadata, FindOptionsBase } from 'remult'
 
 import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
 import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
 import type { ColumnDeciderArgs } from './changeLog/index.js'
 import { storeItem } from './storeItem.js'
 import { storeList } from './storeList.js'
+import type { CustomFieldSnippet } from './svelte/createCustomField.js'
 import { default as Button } from './ui/Button.svelte'
 import { default as Clipboardable } from './ui/Clipboardable.svelte'
 import type { dialog } from './ui/dialog/dialog.js'
@@ -166,8 +167,12 @@ declare module 'remult' {
 		skipForDefaultField?: boolean
 
 		ui?: {
+			hide?: {
+				header?: boolean
+			}
 			placeholder?: string
 			width?: number
+			customField?: CustomFieldSnippet
 		}
 	}
 
