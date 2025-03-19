@@ -1,12 +1,12 @@
-<script lang="ts">
+<script lang="ts" generics="valueType = unknown, entityType = unknown">
 	import { getValueList, type FieldMetadata } from 'remult'
 
 	const default_uid = $props.id()
 
 	interface Props {
 		uid?: string
-		field: FieldMetadata<any, any>
-		value: any
+		field: FieldMetadata<valueType, entityType>
+		value: valueType
 		error?: string
 	}
 
@@ -29,8 +29,16 @@
 			{/each}
 		</select>
 	{:else if field.inputType === 'checkbox'}
-		<input data-ff-field-checkbox class="" id={uid} type="checkbox" bind:checked={value}  />
+		<input data-ff-field-checkbox class="" id={uid} type="checkbox" bind:checked={value as boolean} />
 	{:else}
-		<input data-ff-field-input class="" id={uid} type={field.inputType} bind:value />
+		<input
+			autocomplete="off"
+			data-ff-field-input
+			class=""
+			id={uid}
+			type={field.inputType}
+			placeholder={field.options.ui?.placeholder}
+			bind:value
+		/>
 	{/if}
 </div>

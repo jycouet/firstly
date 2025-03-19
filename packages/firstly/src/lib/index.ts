@@ -166,6 +166,7 @@ declare module 'remult' {
 		skipForDefaultField?: boolean
 
 		ui?: {
+			placeholder?: string
 			width?: number
 		}
 	}

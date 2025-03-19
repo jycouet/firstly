@@ -27,10 +27,15 @@ Next level!
 
 <style>
 	:root {
-		--bg-base: black;
+		--bg-base: gray;
 	}
 
 	:global {
+		[data-ff-form-fields] {
+			display: flex;
+			gap: 1rem;
+		}
+
 		[data-ff-field-header] {
 			display: flex;
 			justify-content: space-between;

@@ -1,4 +1,4 @@
-<script lang="ts" generics="Entity">
+<script lang="ts" generics="EntityType = unknown">
 	import { EntityError, getEntityRef, remult, type FieldMetadata } from 'remult'
 
 	import type { FF_Repo } from './FF_Repo.svelte'
@@ -6,10 +6,10 @@
 
 	const default_uid = $props.id()
 
-	interface Props<Entity> {
+	interface Props<EntityType> {
 		uid?: string
-		r: FF_Repo<Entity>
-		fields?: FieldMetadata[]
+		r: FF_Repo<EntityType>
+		fields?: FieldMetadata<unknown, EntityType>[]
 
 		classes?: {
 			root?: string
@@ -25,7 +25,7 @@
 			root: 'form',
 			button: 'btn btn-primary',
 		},
-	}: Props<Entity> = $props()
+	}: Props<EntityType> = $props()
 
 	let values = $state(r.repo.create())
 	let errors = $state<Record<string, string>>({})
@@ -47,9 +47,11 @@
 </script>
 
 <form data-ff-form class={classes?.root} {onsubmit}>
-	{#each fields as field}
-		<FField uid="{uid}-{field.key}" {field} bind:value={values[field.key as keyof Entity]} error={errors[field.key]} />
-	{/each}
+	<div data-ff-form-fields>
+		{#each fields as field}
+		<FField uid="{uid}-{field.key}" {field} bind:value={values[field.key as keyof EntityType]} error={errors[field.key]} />
+		{/each}
+	</div>
 	<button data-ff-form-button class={classes?.button} disabled={!r.repo.metadata.apiInsertAllowed()}>
 		Add
 	</button>

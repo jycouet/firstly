@@ -14,6 +14,7 @@ export class Task {
 
 	@Fields.string<Task>({
 		ui: {
+			placeholder: 'Enter a title',
 			width: 50,
 		},
 		validate: (task) => {
@@ -22,7 +23,11 @@ export class Task {
 	})
 	title: string = ''
 
-	@Field(() => TypeOfTaskEnum)
+	@Field(() => TypeOfTaskEnum, {
+		ui: {
+			width: 20,
+		},
+	})
 	typeOfTask = TypeOfTaskEnum.EASY
 	
 	@Fields.boolean()
