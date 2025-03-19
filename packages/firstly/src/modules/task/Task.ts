@@ -1,8 +1,9 @@
-import { Allow, Entity, Field, Fields, ValueListFieldType } from 'remult'
+import { Allow, Entity, Field, Fields, getEntityRef, ValueListFieldType } from 'remult'
+
+import { createCustomField } from '$lib/svelte/createCustomField'
 
 import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from '../../lib'
 import Title from './ui/Title.svelte'
-import { createCustomField } from '$lib/svelte/createCustomField'
 
 @Entity('task', {
 	allowApiCrud: Allow.authenticated,
@@ -17,11 +18,13 @@ export class Task {
 	@Fields.string<Task>({
 		ui: {
 			placeholder: 'Enter a title',
-			// width: 50,
 			hide: {
 				// header: true,
 			},
-			customField: true,
+			position: {
+				span: 6,
+			},
+			// customField: true,
 			// customField: createCustomField(Title)
 		},
 		validate: (task) => {
@@ -33,12 +36,19 @@ export class Task {
 	@Field(() => TypeOfTaskEnum, {
 		ui: {
 			// width: 20,
-			
+			position: {
+				span: 3,
+			},
 		},
 	})
 	typeOfTask = TypeOfTaskEnum.EASY
-	
-	@Fields.boolean()
+
+	@Fields.boolean<Task>({
+		allowApiUpdate(entity) {
+			const isNew = entity ? getEntityRef(entity).isNew() : false
+			return !isNew
+		},
+	})
 	completed: boolean = false
 }
 

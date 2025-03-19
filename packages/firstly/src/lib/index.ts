@@ -172,8 +172,14 @@ declare module 'remult' {
 			}
 			placeholder?: string
 			position?: {
-				start?: number
 				span?: number
+				start?: number
+				end?: number
+				mobile?: {
+					span?: number
+					start?: number
+					end?: number
+				}
 			}
 			customField?: CustomFieldSnippet
 		}

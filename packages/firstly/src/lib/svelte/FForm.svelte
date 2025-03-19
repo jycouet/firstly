@@ -1,9 +1,9 @@
 <script lang="ts" generics="entityType = unknown">
 	import { EntityError, getEntityRef, remult, type FieldMetadata } from 'remult'
 
+	import type { CustomFieldSnippet } from './createCustomField'
 	import type { FF_Repo } from './FF_Repo.svelte'
 	import FField from './FField.svelte'
-	import type { CustomFieldSnippet } from './createCustomField'
 
 	const default_uid = $props.id()
 
@@ -12,7 +12,7 @@
 		r: FF_Repo<entityType>
 		fields?: FieldMetadata<unknown, entityType>[]
 		customField?: CustomFieldSnippet<unknown, entityType>
-
+		defaults?: Partial<entityType>
 		classes?: {
 			root?: string
 			button?: string
@@ -22,24 +22,29 @@
 	let {
 		uid = default_uid,
 		r,
-		fields = r.repo.fields.toArray().filter((c) => c.apiUpdateAllowed()),
+		fields,
 		customField,
+		defaults,
 		classes = {
 			root: 'form',
 			button: 'btn btn-primary',
 		},
 	}: Props<entityType> = $props()
 
-	let values = $state(r.repo.create())
+	let valuesToUse = $state(r.repo.create(defaults))
 	let errors = $state<Record<string, string>>({})
+
+	const fieldsToUse = $derived(
+		fields ?? r.repo.fields.toArray().filter((c) => c.apiUpdateAllowed(valuesToUse)),
+	)
 
 	const onsubmit = async (e: Event) => {
 		e.preventDefault()
 		try {
-			const newItem = await getEntityRef(values).save()
+			const newItem = await getEntityRef(valuesToUse).save()
 			// TODO: should I add to list now ?
 			r.items?.push(newItem)
-			values = r.repo.create()
+			valuesToUse = r.repo.create()
 			errors = {}
 		} catch (error) {
 			if (error instanceof EntityError) {
@@ -50,17 +55,18 @@
 </script>
 
 <form data-ff-form class={classes?.root} {onsubmit}>
-	<span data-ff-form-fields>
-		{#each fields as field}
+	<div data-ff-form-title>{r.repo.metadata.caption}</div>
+	<div data-ff-form-fields>
+		{#each fieldsToUse as field}
 			<FField
 				uid="{uid}-{field.key}"
 				{field}
-				bind:value={values[field.key as keyof entityType]}
+				bind:value={valuesToUse[field.key as keyof entityType]}
 				error={errors[field.key]}
 				{customField}
 			/>
 		{/each}
-	</span>
+	</div>
 	<button data-ff-form-button class={classes?.button} disabled={!r.repo.metadata.apiInsertAllowed()}>
 		Add
 	</button>

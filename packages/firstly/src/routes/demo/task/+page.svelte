@@ -3,34 +3,17 @@
 	import TaskAdd from '$modules/task/ui/TaskAdd.svelte'
 	import TaskList from '$modules/task/ui/TaskList.svelte'
 	import { FF_Repo, FForm, FGrid } from '$lib/svelte'
+	import { mergeFieldMetadata } from '$lib/svelte/mergeFieldMetadata'
 
 	const r = new FF_Repo(Task, { findOptions: {} })
 
 	// Set up fields with different widths
 	const fields = [
-		{
-			...r.repo.fields.title,
-			options: {
-				...r.repo.fields.title.options,
-				ui: {
-					...r.repo.fields.title.options.ui,
-					position: { span: 8, start: 3 },
-				},
-			},
-		},
-		{ ...r.repo.fields.title, options: { ...r.repo.fields.title.options } },
-		{
-			...r.repo.fields.typeOfTask,
-			options: { ...r.repo.fields.typeOfTask.options, ui: { position: { span: 3 } } },
-		},
-		{
-			...r.repo.fields.typeOfTask,
-			options: { ...r.repo.fields.typeOfTask.options, ui: { position: { span: 3 } } },
-		},
-		{
-			...r.repo.fields.typeOfTask,
-			options: { ...r.repo.fields.typeOfTask.options, ui: { position: { span: 3 } } },
-		},
+		mergeFieldMetadata(r.repo.fields.title, { ui: { position: { span: 12 } } }),
+		mergeFieldMetadata(r.repo.fields.title, { ui: { position: { span: 6, mobile: { span: 12 } } } }),
+		mergeFieldMetadata(r.repo.fields.title, { ui: { position: { span: 3 } } }),
+		mergeFieldMetadata(r.repo.fields.typeOfTask, { ui: { position: { start: 2, span: 3 } } }),
+		mergeFieldMetadata(r.repo.fields.typeOfTask, { ui: { position: { span: 3 } } }),
 	]
 </script>
 
@@ -43,7 +26,8 @@
 
 Next level!
 
-<FForm {r} {fields}>
+<!-- <FForm {r} {fields}> -->
+<FForm {r} defaults={{title: 'test'}}>
 	<!-- {#snippet customField(field, value)}
 		{#if field.key === 'title'}
 			title stuff... 
@@ -66,8 +50,18 @@ Next level!
 		}
 
 		[data-ff-field] {
+			grid-column-end: var(--ff-field-position-end);
+			grid-column: span var(--ff-field-position-span) / span var(--ff-field-position-span);
 			grid-column-start: var(--ff-field-position-start);
-			grid-column: span var(--ff-field-position-span, 12);
+		}
+
+		@media (max-width: 768px) {
+			[data-ff-field] {
+				grid-column-end: var(--ff-field-position-mobile-end);
+				grid-column: span var(--ff-field-position-mobile-span) / span
+					var(--ff-field-position-mobile-span);
+				grid-column-start: var(--ff-field-position-mobile-start);
+			}
 		}
 
 		[data-ff-field-header] {

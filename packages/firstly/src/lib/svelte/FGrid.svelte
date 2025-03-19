@@ -42,7 +42,7 @@
 		{/if}
 		{#each r.items ?? [] as item (r.repo.metadata.idMetadata.getId(item))}
 			<tr data-ff-grid-row>
-				{#each fields ?? [] as f (f.key)}
+				{#each fields as f (f.key)}
 					<td data-ff-grid-row-cell>{f.displayValue(item as Partial<entityType>)}</td>
 				{/each}
 			</tr>

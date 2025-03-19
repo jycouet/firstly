@@ -46,6 +46,10 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 	class=""
 	style:--ff-field-position-span={field.options.ui?.position?.span ?? 12}
 	style:--ff-field-position-start={field.options.ui?.position?.start}
+	style:--ff-field-position-end={field.options.ui?.position?.end}
+	style:--ff-field-position-mobile-span={field.options.ui?.position?.mobile?.span ?? 12}
+	style:--ff-field-position-mobile-start={field.options.ui?.position?.mobile?.start}
+	style:--ff-field-position-mobile-end={field.options.ui?.position?.mobile?.end}
 >
 	{#if !field.options.ui?.hide?.header}
 		<div data-ff-field-header class="">
