@@ -32,7 +32,7 @@ export class Task {
 
 	@Field(() => TypeOfTaskEnum, {
 		ui: {
-			width: 20,
+			// width: 20,
 			
 		},
 	})

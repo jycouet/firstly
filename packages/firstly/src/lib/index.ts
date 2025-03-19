@@ -171,7 +171,10 @@ declare module 'remult' {
 				header?: boolean
 			}
 			placeholder?: string
-			width?: number
+			position?: {
+				start?: number
+				span?: number
+			}
 			customField?: CustomFieldSnippet
 		}
 	}

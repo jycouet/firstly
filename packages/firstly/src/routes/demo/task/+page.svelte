@@ -6,7 +6,32 @@
 
 	const r = new FF_Repo(Task, { findOptions: {} })
 
-	const fields = [r.repo.fields.title,r.repo.fields.title, r.repo.fields.typeOfTask]
+	// Set up fields with different widths
+	const fields = [
+		{
+			...r.repo.fields.title,
+			options: {
+				...r.repo.fields.title.options,
+				ui: {
+					...r.repo.fields.title.options.ui,
+					position: { span: 8, start: 3 },
+				},
+			},
+		},
+		{ ...r.repo.fields.title, options: { ...r.repo.fields.title.options } },
+		{
+			...r.repo.fields.typeOfTask,
+			options: { ...r.repo.fields.typeOfTask.options, ui: { position: { span: 3 } } },
+		},
+		{
+			...r.repo.fields.typeOfTask,
+			options: { ...r.repo.fields.typeOfTask.options, ui: { position: { span: 3 } } },
+		},
+		{
+			...r.repo.fields.typeOfTask,
+			options: { ...r.repo.fields.typeOfTask.options, ui: { position: { span: 3 } } },
+		},
+	]
 </script>
 
 <h1>Task Module</h1>
@@ -35,8 +60,14 @@ Next level!
 
 	:global {
 		[data-ff-form-fields] {
-			display: flex;
+			display: grid;
+			grid-template-columns: repeat(12, minmax(0, 1fr));
 			gap: 1rem;
+		}
+
+		[data-ff-field] {
+			grid-column-start: var(--ff-field-position-start);
+			grid-column: span var(--ff-field-position-span, 12);
 		}
 
 		[data-ff-field-header] {

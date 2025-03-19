@@ -41,7 +41,12 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 	</div>
 {/snippet}
 
-<div data-ff-field class="" style="width: {field.options.ui?.width ?? 100}%">
+<div
+	data-ff-field
+	class=""
+	style:--ff-field-position-span={field.options.ui?.position?.span ?? 12}
+	style:--ff-field-position-start={field.options.ui?.position?.start}
+>
 	{#if !field.options.ui?.hide?.header}
 		<div data-ff-field-header class="">
 			<label data-ff-field-label for={uid} class="">{field.caption}</label>

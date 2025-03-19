@@ -3,6 +3,7 @@
 
 	import type { FF_Repo } from './FF_Repo.svelte'
 	import FField from './FField.svelte'
+	import type { CustomFieldSnippet } from './createCustomField'
 
 	const default_uid = $props.id()
 
@@ -10,7 +11,7 @@
 		uid?: string
 		r: FF_Repo<entityType>
 		fields?: FieldMetadata<unknown, entityType>[]
-			customField?: import('svelte').Snippet<[{ field: FieldMetadata<unknown, entityType>, value: unknown }]>
+		customField?: CustomFieldSnippet<unknown, entityType>
 
 		classes?: {
 			root?: string
