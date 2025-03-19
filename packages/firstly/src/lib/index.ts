@@ -164,6 +164,10 @@ declare module 'remult' {
 		multiSelect?: boolean
 
 		skipForDefaultField?: boolean
+
+		ui?: {
+			width?: number
+		}
 	}
 
 	export interface EntityOptions<entityType> {

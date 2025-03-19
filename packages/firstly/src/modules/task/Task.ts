@@ -13,17 +13,20 @@ export class Task {
 	createdAt?: Date
 
 	@Fields.string<Task>({
+		ui: {
+			width: 50,
+		},
 		validate: (task) => {
 			if (task.title.length < 3) throw 'The title must be at least 3 characters long'
 		},
 	})
 	title: string = ''
 
+	@Field(() => TypeOfTaskEnum)
+	typeOfTask = TypeOfTaskEnum.EASY
+	
 	@Fields.boolean()
 	completed: boolean = false
-
-	@Field(() => TypeOfTaskEnum, { inputType: 'selectEnum' })
-	typeOfTask = TypeOfTaskEnum.EASY
 }
 
 @ValueListFieldType()

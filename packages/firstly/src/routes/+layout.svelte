@@ -19,6 +19,7 @@
 		{ path: route('/ui/enum'), text: 'UI / Enum' },
 		{ path: route('/ui/fieldGroup'), text: 'UI / FieldGroup' },
 		{ path: route('/ui/select'), text: 'UI / Select' },
+		{ path: route('/demo/task'), text: 'Demo Task' },
 		{ path: route('firstly_sign_in'), text: '🔑 Module Auth', target: '_blank' },
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
@@ -32,6 +33,39 @@
 	export let data: LayoutData
 
 	$: remult.user = data.user
+
+	import { Remult } from 'remult'
+  import { createSubscriber } from 'svelte/reactivity'
+
+  // To be done once in the application.
+  function initRemultSvelteReactivity() {
+    // Auth reactivity (remult.user, remult.authenticated(), ...)
+    {
+      let update = () => {}
+      let s = createSubscriber((u) => {
+        update = u
+      })
+      remult.subscribeAuth({
+        reportObserved: () => s(),
+        reportChanged: () => update(),
+      })
+    }
+
+    // Entities reactivity
+    {
+      Remult.entityRefInit = (x) => {
+        let update = () => {}
+        let s = createSubscriber((u) => {
+          update = u
+        })
+        x.subscribe({
+          reportObserved: () => s(),
+          reportChanged: () => update(),
+        })
+      }
+    }
+  }
+  initRemultSvelteReactivity()
 </script>
 
 <svelte:head>
