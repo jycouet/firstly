@@ -1,5 +1,5 @@
-import { getContext, setContext, type Component } from 'svelte'
-import type { CustomFieldDefaultProps, DynamicCustomField } from './customField'
+import { getContext, setContext } from 'svelte'
+import type { DynamicCustomField } from './customField'
 
 // Define individual component theme interfaces
 export interface FieldTheme {

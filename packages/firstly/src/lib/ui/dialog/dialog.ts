@@ -1,7 +1,7 @@
 import type { SvelteComponent } from 'svelte'
 import { writable } from 'svelte/store'
 
-import { getEntityRef, type Repository } from 'remult'
+import { type Repository } from 'remult'
 
 import {
 	LibIcon_Add,

@@ -1,13 +1,10 @@
 <script lang="ts">
 	import { FF_Form } from '$lib/svelte'
 
-	import { FieldGroup, storeItem } from '../..'
-	import { cellsBuildor } from '../../cellsBuildor'
 	import { dialog, type DialogMetaDataInternal } from './dialog'
 	import DialogPrimitive from './DialogPrimitive.svelte'
-	import FormEditAction from './FormEditAction.svelte'
-
-	export let toShow: DialogMetaDataInternal
+	
+export let toShow: DialogMetaDataInternal
 
 	// $: cells = cellsBuildor(toShow.repo!, toShow.cells!)
 	// $: store = toShow.store ?? storeItem(toShow.repo!)

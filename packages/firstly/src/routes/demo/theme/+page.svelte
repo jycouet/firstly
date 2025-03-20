@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { FieldMetadata } from 'remult'
-
-	import { Task } from '$modules/task/Task'
+	
+import { Task } from '$modules/task/Task'
 	import EditCustom from '$modules/task/ui/EditCustom.svelte'
 	import { FF_Form, FF_Grid, FF_Repo, mergeFieldMetadata } from '$lib/svelte'
 

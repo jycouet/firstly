@@ -1,5 +1,5 @@
 <script lang="ts" generics="entityType = unknown">
-	import { EntityError, getEntityRef, remult, type FieldMetadata } from 'remult'
+	import { EntityError, getEntityRef, type FieldMetadata } from 'remult'
 
 	import { getFormTheme, type FieldTheme, type FormTheme } from './ff_Config'
 	import FField from './FF_Field.svelte'

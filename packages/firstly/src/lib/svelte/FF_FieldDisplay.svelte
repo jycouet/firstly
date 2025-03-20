@@ -1,7 +1,6 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
-	import type { Component } from 'svelte'
-
-	import { getValueList, type FieldMetadata } from 'remult'
+	
+import { type FieldMetadata } from 'remult'
 
 	import { getDynamicCustomField } from './ff_Config'
 

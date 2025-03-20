@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Task } from '$modules/task/Task'
-	import { FF_Repo, FF_Form, FF_Grid } from '$lib/svelte'
-	import { mergeFieldMetadata } from '$lib/svelte'
+	import { FF_Form, FF_Grid, FF_Repo, mergeFieldMetadata } from '$lib/svelte'
 
 	const r1 = new FF_Repo(Task, { findOptions: {} })
 	// const r = new FF_Repo(Task, { })
@@ -50,12 +49,12 @@
 	]
 
 	function handleEdit(item: Task) {
-		console.log('Edit task:', item)
+		console.info('Edit task:', item)
 		// Handle edit functionality
 	}
 
 	function handleDelete(item: Task) {
-		console.log('Delete task:', item)
+		console.info('Delete task:', item)
 		// Handle delete functionality
 	}
 </script>
@@ -79,7 +78,7 @@
 	<FF_Grid {r} showDelete={false} onedit={handleEdit} />
 	<hr />
 	<h2 class="text-2xl">Delete Only</h2>
-	<FF_Grid {r} showEdit={false}  ondelete={handleDelete} />
+	<FF_Grid {r} showEdit={false} ondelete={handleDelete} />
 	<hr />
 	<h2 class="text-2xl">No Actions</h2>
 	<FF_Grid {r} showEdit={false} showDelete={false} showCreate={false} />
