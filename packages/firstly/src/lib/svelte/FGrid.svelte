@@ -7,6 +7,7 @@
 	import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '$lib/ui/LibIcon'
 
 	import { FF_Repo } from './FF_Repo.svelte'
+	import FFieldDisplay from './FFieldDisplay.svelte'
 
 	interface Props<entityType> {
 		uid?: string
@@ -49,7 +50,7 @@
 	const showActions = $derived(showEdit || showDelete)
 </script>
 
-<div class="flex gap-2 justify-end">
+<div class="flex justify-end gap-2">
 	{#if r.aggregates?.$count}
 		Total: {r.aggregates?.$count}
 	{/if}
@@ -109,7 +110,9 @@
 		{#each r.items ?? [] as item (r.metadata.idMetadata.getId(item))}
 			<tr data-ff-grid-row>
 				{#each fields as f (f.key)}
-					<td data-ff-grid-row-cell>{f.displayValue(item as Partial<entityType>)}</td>
+					<td data-ff-grid-row-cell>
+						<FFieldDisplay field={f} value={item[f.key as keyof entityType]}></FFieldDisplay>
+					</td>
 				{/each}
 				{#if showActions}
 					<td data-ff-grid-actions-cell class={classes?.actionsColumn}>
