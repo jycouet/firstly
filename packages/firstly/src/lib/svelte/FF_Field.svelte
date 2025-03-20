@@ -2,7 +2,7 @@
 	import { getValueList, type FieldMetadata } from 'remult'
 
 	import type { CustomFieldSnippet } from './createCustomField'
-	import { getFieldTheme, type FieldTheme } from './ff_Config'
+	import { getCustomFieldFunction, getFieldTheme, type FieldTheme } from './ff_Config'
 
 	const default_uid = $props.id()
 
@@ -19,10 +19,22 @@
 	// Get theme from context or use default
 	const themeClasses = getFieldTheme()
 
-	let { uid = default_uid, field, value = $bindable(), error, customField, classes = {} }: Props = $props()
+	// Get global customField function if defined
+	const globalCustomFieldFn = getCustomFieldFunction()
+
+	let {
+		uid = default_uid,
+		field,
+		value = $bindable(),
+		error,
+		customField,
+		classes = {},
+	}: Props = $props()
 
 	// Merge provided classes with theme classes
 	classes = { ...themeClasses, ...classes }
+
+	const globalCustomField = globalCustomFieldFn?.({ field, value, error })
 
 	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
 </script>
@@ -68,13 +80,8 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 			{/if}
 		</div>
 	{/if}
-	{#if valueList}
-		<select data-ff-field-select class={classes?.select} id={uid} bind:value>
-			{#each valueList as item (item.id)}
-				<option value={item}>{item.caption}</option>
-			{/each}
-		</select>
-	{:else if customField === true}
+
+	{#if customField === true}
 		{@render customFieldEmpty()}
 	{:else if customField}
 		{@render customField({ field, value, error })}
@@ -82,8 +89,24 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 		{@render customFieldEmpty()}
 	{:else if field.options.ui?.customField}
 		{@render field.options.ui?.customField({ field, value, error })}
+	{:else if globalCustomField === true}
+		{@render customFieldEmpty()}
+	{:else if globalCustomField}
+		{@render globalCustomField({ field, value, error })}
+	{:else if valueList}
+		<select data-ff-field-select class={classes?.select} id={uid} bind:value>
+			{#each valueList as item (item.id)}
+				<option value={item}>{item.caption}</option>
+			{/each}
+		</select>
 	{:else if field.inputType === 'checkbox'}
-		<input data-ff-field-checkbox class={classes?.checkbox} id={uid} type="checkbox" bind:checked={value as boolean} />
+		<input
+			data-ff-field-checkbox
+			class={classes?.checkbox}
+			id={uid}
+			type="checkbox"
+			bind:checked={value as boolean}
+		/>
 	{:else}
 		<input
 			autocomplete="off"

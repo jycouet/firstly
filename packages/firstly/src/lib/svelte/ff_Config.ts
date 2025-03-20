@@ -1,4 +1,5 @@
 import { getContext, setContext } from 'svelte'
+import type { CustomFieldSnippet, CustomFieldType } from './createCustomField'
 
 // Define individual component theme interfaces
 export interface FieldTheme {
@@ -44,6 +45,15 @@ export interface Theme {
   form?: FormTheme
 }
 
+// Define the custom field function type
+export type CustomFieldFunction = <valueType, entityType>(info: CustomFieldType<valueType, entityType>) => CustomFieldSnippet<valueType, entityType> | undefined
+
+// Config interface that includes both theme and customField
+export interface Config {
+  theme: Theme
+  customField?: CustomFieldFunction
+}
+
 // Default themes for each component
 export const defaultFieldTheme: FieldTheme = {
   checkbox: 'checkbox',
@@ -79,6 +89,7 @@ export const defaultTheme: Theme = {
 
 // Theme context key
 const THEME_KEY = 'firstly:theme'
+const CUSTOM_FIELD_KEY = 'firstly:customField'
 
 // Helper to deeply merge objects
 function deepMerge<T>(target: T, source: Partial<T>): T {
@@ -120,6 +131,16 @@ export function setTheme(theme: Theme): Theme {
 // Get theme context
 export function getTheme(): Theme {
   return getContext(THEME_KEY) || defaultTheme
+}
+
+// Set custom field function
+export function setCustomFieldFunction(fn?: CustomFieldFunction): void {
+  setContext(CUSTOM_FIELD_KEY, fn)
+}
+
+// Get custom field function
+export function getCustomFieldFunction(): CustomFieldFunction | undefined {
+  return getContext(CUSTOM_FIELD_KEY)
 }
 
 // Helper functions to get component-specific themes

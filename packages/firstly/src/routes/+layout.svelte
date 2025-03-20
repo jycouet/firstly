@@ -6,6 +6,7 @@
 
 	import { route } from '$lib/ROUTES'
 	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
+	import { createCustomField } from '$lib/svelte/createCustomField'
 
 	import '../app.pcss'
 
@@ -16,6 +17,8 @@
 	import { FF_Config } from '$lib/svelte'
 
 	import type { LayoutData } from './$types'
+	import Title from '$modules/task/ui/Title.svelte'
+	import type { CustomFieldFunction } from '$lib/svelte/ff_Config'
 
 	const links = [
 		{ path: route('/'), text: 'Home' },
@@ -69,6 +72,13 @@
 		}
 	}
 	initRemultSvelteReactivity()
+	
+	const customField: CustomFieldFunction = ({field, value, error})=>{
+		// if (field.inputType === 'number') {
+		// 	return createCustomField(Title)
+		// }
+		return undefined
+	}
 </script>
 
 <svelte:head>
@@ -93,6 +103,7 @@
 			cancelButton: 'btn',
 		},
 	}}
+	{customField}
 >
 	<DialogManagement />
 
