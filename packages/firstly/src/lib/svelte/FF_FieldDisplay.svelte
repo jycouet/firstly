@@ -3,10 +3,7 @@
 
 	import { getValueList, type FieldMetadata } from 'remult'
 
-	import type { CustomFieldType } from './customField'
-	import { getCustomFieldFunction } from './ff_Config'
-
-	const globalCustomFieldFn = getCustomFieldFunction()
+	import { getDynamicCustomField } from './ff_Config'
 
 	interface Props {
 		field: FieldMetadata<valueType, entityType>
@@ -18,7 +15,7 @@
 	let { field, value, error }: Props = $props()
 
 	// let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
-	const globalCustomField = globalCustomFieldFn?.({ field, value, error, mode: 'display' })
+	const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'display' })
 </script>
 
 {#snippet customFieldEmpty()}
@@ -35,7 +32,7 @@
 ${field.key} = { lat: 0, lng: 0 }`}</pre>
 		<div>Or in a component like this:</div>
 		<pre style="font-size: 12px; background-color: #000000; padding: 0.4rem">{`<FF_Form {r}>
-  {#snippet customField(field, value)}
+  {#snippet customField(fieldgetDynamicCustomField
     {#if field.key === '${field.key}'}
       ...stuff... 
     {/if}

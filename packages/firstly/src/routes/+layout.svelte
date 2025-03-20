@@ -16,7 +16,7 @@
 	import EditCustom from '$modules/task/ui/EditCustom.svelte'
 	import Title from '$modules/task/ui/Title.svelte'
 	import { FF_Config } from '$lib/svelte'
-	import type { CustomFieldFunction } from '$lib/svelte/ff_Config'
+	import type { DynamicCustomField } from '$lib/svelte'
 
 	import type { LayoutData } from './$types'
 
@@ -74,7 +74,7 @@
 	}
 	initRemultSvelteReactivity()
 
-	const customField: CustomFieldFunction = ({ field, value, error, mode }) => {
+	const customField: DynamicCustomField = ({ field, value, error, mode }) => {
 		// return true
 		if (field.inputType === 'number' && mode === 'display') {
 			return Title
@@ -107,7 +107,7 @@
 			cancelButton: 'btn',
 		},
 	}}
-	{customField}
+	dynamicCustomField={customField}
 >
 	<DialogManagement />
 

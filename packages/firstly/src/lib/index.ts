@@ -23,7 +23,7 @@ import { default as LinkPlus } from './ui/link/LinkPlus.svelte'
 import { default as Loading } from './ui/Loading.svelte'
 import { default as Tooltip } from './ui/Tooltip.svelte'
 import type { Component } from 'svelte'
-import type { CustomFieldType } from './svelte/customField.js'
+import type { CustomFieldDefaultProps } from './svelte/customField.js'
 
 // ******************************
 // Svelte Components
@@ -183,8 +183,8 @@ declare module 'remult' {
 				}
 			}
 			customField?: {
-				display?: Component<CustomFieldType<entityType, valueType>>
-				edit?: Component<CustomFieldType<entityType, valueType>>
+				display?: Component<CustomFieldDefaultProps<entityType, valueType>>
+				edit?: Component<CustomFieldDefaultProps<entityType, valueType>>
 			}
 		}
 	}

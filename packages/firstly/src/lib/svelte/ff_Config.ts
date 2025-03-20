@@ -1,5 +1,5 @@
 import { getContext, setContext, type Component } from 'svelte'
-import type { CustomFieldType } from './customField'
+import type { CustomFieldDefaultProps, DynamicCustomField } from './customField'
 
 // Define individual component theme interfaces
 export interface FieldTheme {
@@ -45,13 +45,10 @@ export interface Theme {
   form?: FormTheme
 }
 
-// Define the custom field function type
-export type CustomFieldFunction = <valueType, entityType>(info: CustomFieldType<valueType, entityType>) => Component<CustomFieldType<valueType, entityType>> | undefined
-
 // Config interface that includes both theme and customField
 export interface Config {
   theme: Theme
-  customField?: CustomFieldFunction
+  customField?: DynamicCustomField
 }
 
 // Default themes for each component
@@ -134,12 +131,12 @@ export function getTheme(): Theme {
 }
 
 // Set custom field function
-export function setCustomFieldFunction(fn?: CustomFieldFunction): void {
+export function setDynamicCustomField(fn?: DynamicCustomField): void {
   setContext(CUSTOM_FIELD_KEY, fn)
 }
 
 // Get custom field function
-export function getCustomFieldFunction(): CustomFieldFunction | undefined {
+export function getDynamicCustomField(): DynamicCustomField | undefined {
   return getContext(CUSTOM_FIELD_KEY)
 }
 

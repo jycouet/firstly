@@ -1,7 +1,7 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
 	import { getValueList, type FieldMetadata } from 'remult'
 
-	import { getCustomFieldFunction, getFieldTheme, type FieldTheme } from './ff_Config'
+	import { getDynamicCustomField, getFieldTheme, type FieldTheme } from './ff_Config'
 
 	const default_uid = $props.id()
 
@@ -16,7 +16,6 @@
 	}
 
 	const themeClasses = getFieldTheme()
-	const globalCustomFieldFn = getCustomFieldFunction()
 
 	let {
 		uid = default_uid,
@@ -31,7 +30,7 @@
 	classes = { ...themeClasses, ...classes }
 
 	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
-	const globalCustomField = globalCustomFieldFn?.({ field, value, error, mode: 'edit' })
+	const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
 </script>
 
 {#snippet customFieldEmpty()}
@@ -39,6 +38,7 @@
 		<div style="color: red;">
 			You are missing a snippet for "{field.key}"
 		</div>
+		getDynamicCustomField
 		<div>In the entity directly:</div>
 		<pre style="font-size: 12px; background-color: #000000; padding: 0.4rem">{`@Fields.json({
   ui: {

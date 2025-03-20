@@ -1,8 +1,7 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
-	import type { CustomFieldType } from '$lib/svelte/customField'
+	import type { CustomFieldDefaultProps } from '$lib/svelte/customField'
 
-	interface Props extends CustomFieldType {
-	}
+	interface Props extends CustomFieldDefaultProps {}
 	// $bindable()
 	let { field, value, mode, error }: Props = $props()
 </script>

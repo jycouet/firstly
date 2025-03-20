@@ -1,32 +1,22 @@
-// import { mount, type Component } from 'svelte'
-
 import type { FieldMetadata, FieldOptions } from 'remult'
+import type { Component } from 'svelte'
 
 export type FieldMode = 'edit' | 'display'
-export type CustomFieldType<valueType = unknown, entityType = unknown> = {
+export type CustomFieldDefaultProps<valueType = unknown, entityType = unknown> = {
 	mode: FieldMode
 	field: FieldMetadata<valueType, entityType>
 	value: valueType
 	error?: string
 }
-// export type CustomFieldSnippet<valueType = unknown, entityType = unknown> =
-// 	| true
-// 	| import('svelte').Snippet<[CustomFieldType<valueType, entityType>]>
 
-// export const createCustomField = <V = unknown, E = unknown>(c: Component<any, any, any>) => {
-// 	return (props: CustomFieldType<V, E>) => {
-// 		// Handle both client-side and server-side rendering
-// 		if (typeof document === 'undefined') {
-// 			// Server-side rendering: Return a placeholder element
-// 			return `<div data-custom-field></div>`
-// 		} else {
-// 			// Client-side rendering: Mount the component to a real DOM element
-// 			const target = document.createElement('div')
-// 			const component = mount(c, { target, props })
-// 			return component
-// 		}
-// 	}
-// }
+// props?: any
+// 	rowToProps?: (row: any) => any
+export type CustomFieldComponent<valueType = unknown, entityType = unknown> = Component<CustomFieldDefaultProps<valueType, entityType>>
+
+
+// Define the custom field function type
+export type DynamicCustomField = <valueType, entityType>(infos: CustomFieldDefaultProps<valueType, entityType>) => Component<CustomFieldDefaultProps<valueType, entityType>> | undefined
+
 
 export const mergeFieldMetadata = <entityType>(
 	metadata: FieldMetadata<unknown, entityType>,
