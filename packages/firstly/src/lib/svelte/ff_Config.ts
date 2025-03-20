@@ -1,5 +1,5 @@
-import { getContext, setContext } from 'svelte'
-import type { CustomFieldSnippet, CustomFieldType } from './customField'
+import { getContext, setContext, type Component } from 'svelte'
+import type { CustomFieldType } from './customField'
 
 // Define individual component theme interfaces
 export interface FieldTheme {
@@ -38,7 +38,7 @@ export interface FormTheme {
 export interface Theme {
   // Common styles that apply to the app
   root?: string
-  
+
   // Component-specific themes
   field?: FieldTheme
   grid?: GridTheme
@@ -46,7 +46,7 @@ export interface Theme {
 }
 
 // Define the custom field function type
-export type CustomFieldFunction = <valueType, entityType>(info: CustomFieldType<valueType, entityType>) => CustomFieldSnippet<valueType, entityType> | undefined
+export type CustomFieldFunction = <valueType, entityType>(info: CustomFieldType<valueType, entityType>) => Component<CustomFieldType<valueType, entityType>> | undefined
 
 // Config interface that includes both theme and customField
 export interface Config {
@@ -94,18 +94,18 @@ const CUSTOM_FIELD_KEY = 'firstly:customField'
 // Helper to deeply merge objects
 function deepMerge<T>(target: T, source: Partial<T>): T {
   const result = { ...target }
-  
+
   if (source && typeof source === 'object' && !Array.isArray(source)) {
     Object.keys(source).forEach(key => {
       const sourceValue = source[key as keyof typeof source]
       const targetValue = target[key as keyof typeof target]
-      
+
       if (
-        sourceValue && 
-        typeof sourceValue === 'object' && 
+        sourceValue &&
+        typeof sourceValue === 'object' &&
         !Array.isArray(sourceValue) &&
-        targetValue && 
-        typeof targetValue === 'object' && 
+        targetValue &&
+        typeof targetValue === 'object' &&
         !Array.isArray(targetValue)
       ) {
         // If both values are objects, recursively merge them
@@ -119,7 +119,7 @@ function deepMerge<T>(target: T, source: Partial<T>): T {
       }
     })
   }
-  
+
   return result
 }
 

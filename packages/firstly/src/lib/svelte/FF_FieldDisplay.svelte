@@ -1,7 +1,9 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
+	import type { Component } from 'svelte'
+
 	import { getValueList, type FieldMetadata } from 'remult'
 
-	import type { CustomFieldSnippet } from './customField'
+	import type { CustomFieldType } from './customField'
 	import { getCustomFieldFunction } from './ff_Config'
 
 	const globalCustomFieldFn = getCustomFieldFunction()
@@ -10,10 +12,10 @@
 		field: FieldMetadata<valueType, entityType>
 		value: valueType
 		error?: string
-		customField?: CustomFieldSnippet<valueType, entityType>
+		// customField?: Component<CustomFieldType<valueType, entityType>>
 	}
 
-	let { field, value, error, customField }: Props = $props()
+	let { field, value, error }: Props = $props()
 
 	// let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
 	const globalCustomField = globalCustomFieldFn?.({ field, value, error, mode: 'display' })
@@ -42,18 +44,20 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 	</div>
 {/snippet}
 
-{#if customField === true}
+<!-- {#if customField === true}
 	{@render customFieldEmpty()}
-{:else if customField}
-	{@render customField({ field, value, error, mode: 'display' })}
+{:else if customField} -->
+<!-- {@render customField({ field, value, error, mode: 'display' })}
 {:else if field.options.ui?.customField?.display === true}
 	{@render customFieldEmpty()}
 {:else if field.options.ui?.customField?.display}
-	{@render field.options.ui?.customField?.display({ field, value, error, mode: 'display' })}
-{:else if globalCustomField === true}
-	{@render customFieldEmpty()}
+	{@render field.options.ui?.customField?.display({ field, value, error, mode: 'display' })} -->
+{#if field.options.ui?.customField?.edit}
+	{@const Component = field.options.ui?.customField?.edit}
+	<Component {field} bind:value {error} mode="edit" />
 {:else if globalCustomField}
-	{@render globalCustomField({ field, value, error, mode: 'display' })}
+	{@const Component = globalCustomField}
+	<Component {field} bind:value {error} mode="edit" />
 {:else}
 	{field.displayValue({ [field.key]: value } as Partial<entityType>)}
 {/if}

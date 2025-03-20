@@ -1,7 +1,6 @@
 <script lang="ts" generics="entityType = unknown">
 	import { EntityError, getEntityRef, remult, type FieldMetadata } from 'remult'
 
-	import type { CustomFieldSnippet } from './customField'
 	import { getFormTheme, type FieldTheme, type FormTheme } from './ff_Config'
 	import FField from './FF_Field.svelte'
 	import type { FF_Repo } from './FF_Repo.svelte'
@@ -12,7 +11,6 @@
 		uid?: string
 		r: FF_Repo<entityType>
 		fields?: FieldMetadata<unknown, entityType>[]
-		customField?: CustomFieldSnippet<unknown, entityType>
 		defaults?: Partial<entityType>
 		classes?: FormTheme & {
 			fields?: FieldTheme

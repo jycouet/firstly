@@ -1,7 +1,6 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
 	import { getValueList, type FieldMetadata } from 'remult'
 
-	import type { CustomFieldSnippet } from './customField'
 	import { getCustomFieldFunction, getFieldTheme, type FieldTheme } from './ff_Config'
 
 	const default_uid = $props.id()
@@ -76,14 +75,14 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 		{@render customFieldEmpty()}
 	{:else if customField}
 		{@render customField({ field, value, error, mode: 'edit' })} -->
-	{#if field.options.ui?.customField?.edit === true}
-		{@render customFieldEmpty()}
-	{:else if field.options.ui?.customField?.edit}
-		{@render field.options.ui?.customField?.edit({ field, value, error, mode: 'edit' })}
-	{:else if globalCustomField === true}
-		{@render customFieldEmpty()}
+	<!-- {:else if field.options.ui?.customField?.edit === true}
+		{@render customFieldEmpty()} -->
+	{#if field.options.ui?.customField?.edit}
+		{@const Component = field.options.ui?.customField?.edit}
+		<Component {field} bind:value {error} mode="edit" />
 	{:else if globalCustomField}
-		{@render globalCustomField({ field, value, error, mode: 'edit' })}
+		{@const Component = globalCustomField}
+		<Component {field} bind:value {error} mode="edit" />
 	{:else if valueList}
 		<select data-ff-field-select class={classes?.select} id={uid} bind:value>
 			{#each valueList as item (item.id)}

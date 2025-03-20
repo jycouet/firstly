@@ -2,9 +2,6 @@ import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
 
 import { FF_Role } from '../../lib/common.js'
 import { TaskTypeEnum } from './TaskTypeEnum'
-import Title from './ui/Title.svelte'
-import { createCustomField } from '$lib/svelte/customField.js'
-import EditCustom from './ui/EditCustom.svelte'
 
 
 @Entity('task', {

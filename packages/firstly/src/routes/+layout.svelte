@@ -5,7 +5,6 @@
 	import { page } from '$app/stores'
 
 	import { route } from '$lib/ROUTES'
-	import { createCustomField } from '$lib/svelte'
 	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
 
 	import '../app.pcss'
@@ -77,11 +76,11 @@
 
 	const customField: CustomFieldFunction = ({ field, value, error, mode }) => {
 		// return true
-		// if (field.inputType === 'number' && mode === "display") {
-		// 	return createCustomField(Title)
-		// } else if (field.inputType === 'number' && mode === "edit") {
-		// 	return createCustomField(EditNumber)
-		// }
+		if (field.inputType === 'number' && mode === 'display') {
+			return Title
+		} else if (field.inputType === 'number' && mode === 'edit') {
+			return EditCustom
+		}
 		return undefined
 	}
 </script>

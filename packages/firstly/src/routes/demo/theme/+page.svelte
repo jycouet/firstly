@@ -1,7 +1,9 @@
 <script lang="ts">
+	import type { FieldMetadata } from 'remult'
+
 	import { Task } from '$modules/task/Task'
 	import EditCustom from '$modules/task/ui/EditCustom.svelte'
-	import { createCustomField, FF_Form, FF_Grid, FF_Repo, mergeFieldMetadata } from '$lib/svelte'
+	import { FF_Form, FF_Grid, FF_Repo, mergeFieldMetadata } from '$lib/svelte'
 
 	const r = new FF_Repo(Task, {
 		queryOptions: {
@@ -19,7 +21,7 @@
 			ui: {
 				position: { span: 2 },
 				customField: {
-					edit: createCustomField(EditCustom),
+					edit: EditCustom,
 				},
 			},
 		}),
@@ -31,9 +33,10 @@
 <div class="flex flex-col gap-1">
 	<!-- <FForm {r} {fields}> -->
 	<FF_Form {r} {fields}>
-		<!-- {#snippet customField({ field })}
+		<!-- {#snippet customField({ field, value })}
 			{#if field.key === 'title'}
 				title stuff... {field.key}
+				<EditCustom {field} {value} mode="edit" />
 			{/if}
 		{/snippet} -->
 	</FF_Form>
