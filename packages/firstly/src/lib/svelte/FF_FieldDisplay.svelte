@@ -1,13 +1,13 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
 	import { type FieldMetadata } from 'remult'
 
+	import { isComponentObject } from './customField'
 	import { getDynamicCustomField } from './ff_Config'
 
 	interface Props {
 		field: FieldMetadata<valueType, entityType>
 		value: valueType
 		error?: string
-		// customField?: Component<CustomFieldType<valueType, entityType>>
 	}
 
 	let { field, value, error }: Props = $props()
@@ -39,20 +39,23 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 	</div>
 {/snippet}
 
-<!-- {#if customField === true}
-	{@render customFieldEmpty()}
-{:else if customField} -->
-<!-- {@render customField({ field, value, error, mode: 'display' })}
-{:else if field.options.ui?.customField?.display === true}
-	{@render customFieldEmpty()}
-{:else if field.options.ui?.customField?.display}
-	{@render field.options.ui?.customField?.display({ field, value, error, mode: 'display' })} -->
 {#if field.options.ui?.customField?.edit}
-	{@const Component = field.options.ui?.customField?.edit}
-	<Component {field} bind:value {error} mode="edit" />
+	{@const customField = field.options.ui?.customField?.edit}
+	{#if isComponentObject(customField)}
+		{@const Component = customField.component}
+		<Component {field} bind:value {error} mode="edit" {...customField.props} />
+	{:else}
+		{@const Component = customField}
+		<Component {field} bind:value {error} mode="edit" />
+	{/if}
 {:else if globalCustomField}
-	{@const Component = globalCustomField}
-	<Component {field} bind:value {error} mode="edit" />
+	{#if isComponentObject(globalCustomField)}
+		{@const Component = globalCustomField.component}
+		<Component {field} bind:value {error} mode="edit" {...globalCustomField.props} />
+	{:else}
+		{@const Component = globalCustomField}
+		<Component {field} bind:value {error} mode="edit" />
+	{/if}
 {:else}
 	{field.displayValue({ [field.key]: value } as Partial<entityType>)}
 {/if}
