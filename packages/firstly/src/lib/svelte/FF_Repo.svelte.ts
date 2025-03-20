@@ -40,17 +40,21 @@ type FQueryOptions<entityType> = QueryOptions<entityType> & {
 
 // Helper type to extract aggregate result type from query options
 type ExtractAggregateResult<Entity, Options extends FQueryOptions<Entity>> = Options extends {
-	aggregate: infer A;
+	aggregate: infer A
 }
 	? GroupByResult<
 			Entity,
 			never,
-			A extends { sum?: infer S } ? S extends NumericKeys<Entity>[] ? S : never : never,
-			A extends { avg?: infer V } ? V extends NumericKeys<Entity>[] ? V : never : never,
-			A extends { min?: infer M } ? M extends (keyof MembersOnly<Entity>)[] ? M : never : never,
-			A extends { max?: infer X } ? X extends (keyof MembersOnly<Entity>)[] ? X : never : never,
-			A extends { distinctCount?: infer D } ? D extends (keyof MembersOnly<Entity>)[] ? D : never : never
-	  >
+			A extends { sum?: infer S } ? (S extends NumericKeys<Entity>[] ? S : never) : never,
+			A extends { avg?: infer V } ? (V extends NumericKeys<Entity>[] ? V : never) : never,
+			A extends { min?: infer M } ? (M extends (keyof MembersOnly<Entity>)[] ? M : never) : never,
+			A extends { max?: infer X } ? (X extends (keyof MembersOnly<Entity>)[] ? X : never) : never,
+			A extends { distinctCount?: infer D }
+				? D extends (keyof MembersOnly<Entity>)[]
+					? D
+					: never
+				: never
+		>
 	: EmptyAggregateResult
 
 // Define a type for the paginator based on the query options
@@ -61,11 +65,11 @@ type PaginatorWithAggregate<Entity, Options extends FQueryOptions<Entity>> = Pag
 
 // Any paginator type that has the necessary properties we need
 type AnyPaginator<Entity> = {
-	items: Entity[];
-	hasNextPage: boolean;
-	aggregates?: any;
-	count(): Promise<number>;
-	nextPage(): Promise<any>;
+	items: Entity[]
+	hasNextPage: boolean
+	aggregates?: any
+	count(): Promise<number>
+	nextPage(): Promise<any>
 }
 
 export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptions<Entity>> {
@@ -100,7 +104,10 @@ export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptio
 
 	constructor(
 		ent: ClassType<Entity>,
-		o?: { findOptions?: FindOptions<Entity>; queryOptions?: Options },
+		o?: {
+			findOptions?: FindOptions<Entity> & { skipAutoFetch?: Boolean }
+			queryOptions?: Options & { skipAutoFetch?: Boolean } 
+		},
 	) {
 		this.#repo = remultRepo(ent)
 		this.fields = this.#repo.fields
@@ -108,12 +115,14 @@ export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptio
 		this.#paginator = undefined
 		this.#queryOptions = o?.queryOptions
 
-		this.loading.init = o?.findOptions !== undefined || o?.queryOptions !== undefined
-
-		if (o?.findOptions !== undefined) {
+		if (o?.findOptions !== undefined && !o.findOptions.skipAutoFetch) {
+			this.loading.init = true
 			this.find(o.findOptions)
-		} else if (o?.queryOptions !== undefined) {
+		} else if (o?.queryOptions !== undefined && !o.queryOptions.skipAutoFetch) {
+			this.loading.init = true
 			this.query(o.queryOptions as FQueryOptions<Entity>)
+		} else {
+			this.loadingEnd()
 		}
 	}
 
@@ -142,9 +151,9 @@ export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptio
 					...options.aggregate,
 				},
 			}
-			
+
 			const queryResult = this.#repo.query(mergedOptions)
-			this.#paginator = await queryResult.paginator() as PaginatorWithAggregate<Entity, Options>
+			this.#paginator = (await queryResult.paginator()) as PaginatorWithAggregate<Entity, Options>
 			this.items = this.#paginator.items
 			// @ts-ignore - We know the structure will match due to how we define the types
 			this.aggregates = this.#paginator.aggregates
