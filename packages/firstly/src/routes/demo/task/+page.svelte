@@ -5,29 +5,41 @@
 	import { FF_Repo, FForm, FGrid } from '$lib/svelte'
 	import { mergeFieldMetadata } from '$lib/svelte/mergeFieldMetadata'
 
-	const r = new FF_Repo(Task, { findOptions: {} })
+	const r1 = new FF_Repo(Task, { findOptions: {} })
+	// const r = new FF_Repo(Task, { })
+
+	const r = new FF_Repo(Task, {
+		queryOptions: {},
+	})
+	// $effect(async () => {
+	// 	const p = await rr.paginator({pageSize: 2, aggregate: {}})
+	// 	// const tt = await p.paginator()
+	// 	// console.log(await tt.count())
+	// 	// console.log(tt)
+
+	// })
 
 	// Set up fields with different widths
 	const fields = [
-		mergeFieldMetadata(r.repo.fields.title, { ui: { position: { span: 12 } } }),
-		mergeFieldMetadata(r.repo.fields.title, { ui: { position: { span: 6, mobile: { span: 12 } } } }),
-		mergeFieldMetadata(r.repo.fields.title, { ui: { position: { span: 3 } } }),
-		mergeFieldMetadata(r.repo.fields.typeOfTask, { ui: { position: { start: 2, span: 3 } } }),
-		mergeFieldMetadata(r.repo.fields.typeOfTask, { ui: { position: { span: 3 } } }),
+		mergeFieldMetadata(r.fields.title, { ui: { position: { span: 12 } } }),
+		mergeFieldMetadata(r.fields.title, { ui: { position: { span: 6, mobile: { span: 12 } } } }),
+		mergeFieldMetadata(r.fields.title, { ui: { position: { span: 3 } } }),
+		mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { start: 2, span: 3 } } }),
+		mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { span: 3 } } }),
 	]
 </script>
 
 <h1>Task Module</h1>
 
-<TaskAdd />
-<TaskList />
+<!-- <TaskAdd />
+<TaskList /> -->
 
 <hr />
 
 Next level!
 
 <!-- <FForm {r} {fields}> -->
-<FForm {r} defaults={{title: 'test'}}>
+<FForm {r}>
 	<!-- {#snippet customField(field, value)}
 		{#if field.key === 'title'}
 			title stuff... 

@@ -15,13 +15,18 @@
 
 	let {
 		r,
-		fields = r.repo.fields.toArray().filter((c) => c.apiUpdateAllowed()),
+		fields = r.fields.toArray().filter((c) => c.apiUpdateAllowed()),
 		classes = {
 			root: 'table',
 		},
 	}: Props<entityType> = $props()
 </script>
 
+{#if r.totalCount}
+	<div class="text-right">
+		Total: {r.totalCount}
+	</div>
+{/if}
 <table data-ff-grid class={classes?.root}>
 	<thead>
 		<tr data-ff-grid-header>
@@ -40,7 +45,12 @@
 				</tr>
 			{/each}
 		{/if}
-		{#each r.items ?? [] as item (r.repo.metadata.idMetadata.getId(item))}
+		{#if r.globalError}
+			<tr>
+				<td colspan={fields.length} class="text-danger">{r.globalError}</td>
+			</tr>
+		{/if}
+		{#each r.items ?? [] as item (r.metadata.idMetadata.getId(item))}
 			<tr data-ff-grid-row>
 				{#each fields as f (f.key)}
 					<td data-ff-grid-row-cell>{f.displayValue(item as Partial<entityType>)}</td>
@@ -49,8 +59,18 @@
 		{/each}
 	</tbody>
 </table>
+{#if r.hasNextPage}
+	<div class="text-right">
+		<button onclick={() => r.queryMore()}>Load More</button>
+	</div>
+{/if}
 
 <style>
+	.text-danger {
+		color: red;
+		text-align: center;
+		padding-top: 2rem;
+	}
 	.cell-loading {
 		width: 100%;
 		height: 1.5rem;

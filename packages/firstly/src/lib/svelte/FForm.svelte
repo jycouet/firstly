@@ -31,20 +31,21 @@
 		},
 	}: Props<entityType> = $props()
 
-	let valuesToUse = $state(r.repo.create(defaults))
+	let valuesToUse = $state(r.create(defaults))
 	let errors = $state<Record<string, string>>({})
 
 	const fieldsToUse = $derived(
-		fields ?? r.repo.fields.toArray().filter((c) => c.apiUpdateAllowed(valuesToUse)),
+		fields ?? r.fields.toArray().filter((c) => c.apiUpdateAllowed(r.item)),
 	)
 
 	const onsubmit = async (e: Event) => {
 		e.preventDefault()
 		try {
-			const newItem = await getEntityRef(valuesToUse).save()
-			// TODO: should I add to list now ?
-			r.items?.push(newItem)
-			valuesToUse = r.repo.create()
+			const newItem = await getEntityRef(r.item).save()
+			if(newItem){
+				r.items?.push(newItem)
+			}
+			valuesToUse = r.create()
 			errors = {}
 		} catch (error) {
 			if (error instanceof EntityError) {
@@ -55,19 +56,19 @@
 </script>
 
 <form data-ff-form class={classes?.root} {onsubmit}>
-	<div data-ff-form-title>{r.repo.metadata.caption}</div>
+	<div data-ff-form-title>{r.metadata.caption}</div>
 	<div data-ff-form-fields>
 		{#each fieldsToUse as field}
-			<FField
-				uid="{uid}-{field.key}"
-				{field}
-				bind:value={valuesToUse[field.key as keyof entityType]}
-				error={errors[field.key]}
-				{customField}
-			/>
+				<FField
+					uid="{uid}-{field.key}"
+					{field}
+					bind:value={valuesToUse[field.key as keyof entityType]}
+					error={errors[field.key]}
+					{customField}
+				/>
 		{/each}
 	</div>
-	<button data-ff-form-button class={classes?.button} disabled={!r.repo.metadata.apiInsertAllowed()}>
+	<button data-ff-form-button class={classes?.button} disabled={!r.metadata.apiInsertAllowed()}>
 		Add
 	</button>
 </form>
