@@ -50,6 +50,7 @@
 
 	const onsubmit = async (e: Event) => {
 		e.preventDefault()
+		r.loading.saving = true
 		globalError = undefined
 		try {
 			// const ref = getEntityRef(valuesToUse)
@@ -75,6 +76,7 @@
 				globalError = error.message
 			}
 		}
+		r.loading.saving = false
 	}
 </script>
 
@@ -97,9 +99,9 @@
 		<button
 			data-ff-form-button
 			class={classes?.submitButton}
-			disabled={!r.metadata.apiInsertAllowed()}
+			disabled={!r.metadata.apiInsertAllowed() || r.loading.saving}
 		>
-			{ref.isNew() ? 'Add' : 'Save'}
+			{ref.isNew() ? 'Add' : 'Save'}{r.loading.saving ? '...' : ''}
 		</button>
 		{globalError}
 	</div>

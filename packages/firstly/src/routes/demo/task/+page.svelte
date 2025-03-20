@@ -3,6 +3,13 @@
 	import { FF_Form, FF_Grid, FF_Repo, mergeFieldMetadata } from '$lib/svelte'
 
 	const r1 = new FF_Repo(Task, { findOptions: {} })
+	// $effect(() => {
+	// 	untrack(async () => {
+	// 		const dd = await r1.find({})
+	// 		dd?.[0].id
+	// 	})
+	// })
+
 	// const r = new FF_Repo(Task, { })
 
 	const r = new FF_Repo(Task, {
@@ -17,6 +24,7 @@
 			},
 		},
 	})
+
 	// const tt = async () => {
 
 	// 	const res = await r.query({

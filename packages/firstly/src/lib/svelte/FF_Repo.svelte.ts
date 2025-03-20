@@ -10,6 +10,9 @@ import {
 	type QueryOptions,
 	type Repository,
 } from 'remult'
+import { Log } from '@kitql/helpers'
+
+import { tryCatch, tryCatchSync } from './tryCatch'
 
 // In our case the empty is always the $count (so almost empty :))
 type EmptyAggregateResult = {
@@ -20,6 +23,8 @@ type Loading = {
 	init: boolean
 	fetching: boolean
 	more: boolean
+	saving: boolean
+	deleting: boolean
 }
 
 type QueryOptionsHelper<entityType> = QueryOptions<entityType> & {
@@ -78,6 +83,8 @@ export class FF_Repo<
 		init: false,
 		fetching: false,
 		more: false,
+		saving: false,
+		deleting: false,
 	})
 
 	items = $state<Entity[] | undefined>(undefined)
@@ -88,12 +95,15 @@ export class FF_Repo<
 	// errors = $state<ErrorInfo<Entity> | undefined>(undefined)
 	globalError = $state<string | undefined>(undefined)
 
-	private loadingEnd = () => {
+	private loadingEnd = <T = undefined>(toRet?: T) => {
 		this.loading = {
 			init: false,
 			fetching: false,
 			more: false,
+			saving: false,
+			deleting: false,
 		}
+		return toRet
 	}
 
 	constructor(
@@ -116,6 +126,7 @@ export class FF_Repo<
 		this.#findOptions = o?.findOptions
 		this.#queryOptions = o?.queryOptions
 		this.item = o?.item
+
 		if (o?.findOptions !== undefined && !o.findOptions.skipAutoFetch) {
 			this.loading.init = true
 			this.find(o.findOptions)
@@ -129,24 +140,27 @@ export class FF_Repo<
 
 	async find(options: FindOptions<Entity>) {
 		this.loading.fetching = true
-		try {
-			this.items = await this.#repo.find({
+
+		const { data, error } = await tryCatch(
+			this.#repo.find({
 				...this.#findOptions,
 				...options,
-			})
-		} catch (error) {
-			// @ts-ignore
-			this.globalError = error?.message
+			}),
+		)
+		if (error) {
+			this.globalError = error.message
+			return this.loadingEnd()
 		}
 
-		this.loadingEnd()
-		return this.items
+		this.items = data
+		return this.loadingEnd(data)
 	}
 
 	async query(options: Pick<QueryOptionsHelper<Entity>, 'where' | 'orderBy'>) {
 		this.loading.fetching = true
-		try {
-			const queryResult = this.#repo.query({
+
+		const { data: queryResult, error: queryResultError } = tryCatchSync(() =>
+			this.#repo.query({
 				pageSize: 25,
 				...this.#queryOptions,
 				...options,
@@ -155,44 +169,58 @@ export class FF_Repo<
 				aggregate: {
 					...this.#queryOptions?.aggregate,
 				},
-			})
-			this.#paginator = (await queryResult.paginator()) as PaginatorWithAggregate<Entity, QueryOptions>
-			this.items = this.#paginator.items
-			// @ts-ignore - We know the structure will match due to how we define the types
-			this.aggregates = this.#paginator.aggregates
-			this.hasNextPage = this.#paginator.hasNextPage && this.aggregates!.$count > this.items!.length
-		} catch (error) {
-			// @ts-ignore
-			this.globalError = error?.message
+			}),
+		)
+		if (queryResultError) {
+			this.globalError = queryResultError.message
+			return this.loadingEnd()
 		}
 
-		this.loadingEnd()
+		const { data: paginator, error: paginatorError } = await tryCatch(queryResult.paginator())
+		if (paginatorError) {
+			this.globalError = paginatorError.message
+			return this.loadingEnd()
+		}
 
-		return { items: this.items, aggregates: this.aggregates, hasNextPage: this.hasNextPage }
+		this.#paginator = paginator as PaginatorWithAggregate<Entity, QueryOptions>
+		this.items = this.#paginator.items
+		// @ts-expect-error - We know the structure will match due to how we define the types
+		this.aggregates = this.#paginator.aggregates
+		this.hasNextPage = this.#paginator.hasNextPage && this.aggregates!.$count > this.items!.length
+
+		return this.loadingEnd({
+			items: this.items,
+			aggregates: this.aggregates!,
+			hasNextPage: this.hasNextPage,
+		})
 	}
 
 	async queryMore() {
 		if (this.#paginator === undefined) {
-			throw new Error('No paginator found')
+			new Log('FF_Repo').error('No paginator found')
+			return undefined
 		}
 		this.loading = {
 			...this.loading,
 			fetching: true,
 			more: true,
 		}
-		try {
-			const nextPage = await this.#paginator.nextPage()
-			this.#paginator = nextPage as PaginatorWithAggregate<Entity, QueryOptions>
-			this.items?.push(...nextPage.items)
-			this.hasNextPage = this.#paginator.hasNextPage && this.aggregates!.$count > this.items!.length
-		} catch (error) {
-			// @ts-ignore
-			this.globalError = error?.message
+
+		const { data: nextPage, error: nextPageError } = await tryCatch(this.#paginator.nextPage())
+		if (nextPageError) {
+			this.globalError = nextPageError.message
+			return this.loadingEnd()
 		}
 
-		this.loadingEnd()
+		this.#paginator = nextPage as PaginatorWithAggregate<Entity, QueryOptions>
+		this.items?.push(...nextPage.items)
+		this.hasNextPage = this.#paginator.hasNextPage && this.aggregates!.$count > this.items!.length
 
-		return { items: this.items, aggregates: this.aggregates, hasNextPage: this.hasNextPage }
+		return this.loadingEnd({
+			items: this.items,
+			aggregates: this.aggregates!,
+			hasNextPage: this.hasNextPage,
+		})
 	}
 
 	create(...args: Parameters<Repository<Entity>['create']>) {
@@ -201,6 +229,7 @@ export class FF_Repo<
 	}
 
 	async delete(...args: Parameters<Repository<Entity>['delete']>) {
+		this.loading.deleting = true
 		await this.#repo.delete(...args)
 		// REMULT P4: return the deleted item ?
 		if (typeof args[0] === 'string') {
@@ -213,5 +242,6 @@ export class FF_Repo<
 		if (this.aggregates) {
 			this.aggregates.$count = this.aggregates.$count - 1
 		}
+		return this.loadingEnd()
 	}
 }
