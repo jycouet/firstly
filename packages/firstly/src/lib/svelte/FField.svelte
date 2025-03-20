@@ -83,7 +83,8 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 			id={uid}
 			type={field.inputType}
 			placeholder={field.options.ui?.placeholder}
-			bind:value
+			bind:value={() => field.valueConverter.fromInput(value as any),
+			(v) => (value = field.valueConverter.toInput(v) as valueType)}
 		/>
 	{/if}
 </div>

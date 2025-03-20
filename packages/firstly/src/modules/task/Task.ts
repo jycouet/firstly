@@ -46,6 +46,16 @@ export class Task {
 	})
 	typeOfTask = TaskTypeEnum.EASY
 
+	
+	@Fields.number({
+		ui: {
+			position: {
+				span: 3
+			}
+		}
+	})
+	size = 0
+
 	@Fields.boolean<Task>({
 		allowApiUpdate(entity) {
 			const isNew = entity ? getEntityRef(entity).isNew() : false

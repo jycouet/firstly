@@ -15,6 +15,7 @@
 		defaults?: Partial<entityType>
 		classes?: {
 			root?: string
+			actions?: string
 			button?: string
 		}
 		show?: {
@@ -34,14 +35,17 @@
 		},
 		classes = {
 			root: 'form',
+			actions: 'flex justify-end gap-2',
 			button: 'btn btn-primary',
 		},
 		onSaved,
 	}: Props<entityType> = $props()
 
-	let valuesToUse = $state(r.item ? r.item : r.create(defaults)) as entityType
 	let errors = $state<Record<string, string>>({})
 	let globalError = $state<string | undefined>(undefined)
+
+	let valuesToUse = $state(r.item ? r.item : r.create(defaults))
+	let ref = $derived(getEntityRef(valuesToUse))
 	const fieldsToUse = $derived(
 		fields ?? r.fields.toArray().filter((c) => c.apiUpdateAllowed(r.item)),
 	)
@@ -50,23 +54,22 @@
 		e.preventDefault()
 		globalError = undefined
 		try {
-			const ref = getEntityRef(valuesToUse)
-			const wasNew = ref.isNew()			
-			const itemSaved = await ref.save()
-			if(wasNew){
-				if(itemSaved){
-					r.items?.unshift(itemSaved)
-				}
-				if(r.aggregates && r.aggregates.$count !== undefined){
+			// const ref = getEntityRef(valuesToUse)
+			// const wasNew = ref.isNew()
+			if (ref.isNew()) {
+				const itemSaved = await ref.save()
+				r.items?.unshift(itemSaved)
+				if (r.aggregates && r.aggregates.$count !== undefined) {
 					r.aggregates.$count = r.aggregates.$count + 1
 				}
 				valuesToUse = r.create()
-			}
-			if(itemSaved){
+				onSaved?.(itemSaved)
+			} else {
+				const itemSaved = await ref.save()
 				onSaved?.(itemSaved)
 			}
 			errors = {}
-		} catch (error) {			
+		} catch (error) {
 			if (error instanceof EntityError) {
 				errors = error.modelState as Record<string, string>
 			} else {
@@ -79,21 +82,24 @@
 
 <form data-ff-form class={classes?.root} {onsubmit}>
 	{#if show?.title}
-		<div data-ff-form-title>{r.metadata.caption}</div>
+		<div data-ff-form-title>{ref.isNew() ? 'Add' : 'Save'} {r.metadata.caption}</div>
 	{/if}
 	<div data-ff-form-fields>
 		{#each fieldsToUse as field}
-				<FField
-					uid="{uid}-{field.key}"
-					{field}
-					bind:value={valuesToUse[field.key as keyof entityType]}
-					error={errors[field.key]}
-					{customField}
-				/>
+			<FField
+				uid="{uid}-{field.key}"
+				{field}
+				bind:value={valuesToUse[field.key as keyof entityType]}
+				error={errors[field.key]}
+				{customField}
+			/>
 		{/each}
 	</div>
-	<button data-ff-form-button class={classes?.button} disabled={!r.metadata.apiInsertAllowed()}>
-		Add
-	</button>
+	<div data-ff-form-actions class={classes?.actions}>
+		<button data-ff-form-button class={classes?.button} disabled={!r.metadata.apiInsertAllowed()}>
+			{ref.isNew() ? 'Add' : 'Save'}
+		</button>
+		{globalError}
+	</div>
 	{globalError}
 </form>
