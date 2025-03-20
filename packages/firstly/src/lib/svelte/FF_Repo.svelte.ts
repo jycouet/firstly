@@ -203,8 +203,8 @@ export class FF_Repo<
 		return this.item
 	}
 
-	delete(...args: Parameters<Repository<Entity>['delete']>) {
-		this.#repo.delete(...args)
+	async delete(...args: Parameters<Repository<Entity>['delete']>) {
+		await this.#repo.delete(...args)
 		// REMULT P4: return the deleted item ?
 		if (typeof args[0] === 'string') {
 			this.items = this.items?.filter((i) => this.metadata.idMetadata.getId(i) !== args[0])

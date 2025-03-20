@@ -3,7 +3,6 @@ import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
 import { FF_Role } from '../../lib/common.js'
 import { TaskTypeEnum } from './TaskTypeEnum'
 
-console.info(`FF_Role.FF_Role_Admin`, FF_Role.FF_Role_Admin)
 
 @Entity('task', {
 	// allowApiCrud: Allow.authenticated,
