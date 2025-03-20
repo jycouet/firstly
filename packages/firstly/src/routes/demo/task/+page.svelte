@@ -9,8 +9,24 @@
 	// const r = new FF_Repo(Task, { })
 
 	const r = new FF_Repo(Task, {
-		queryOptions: {},
+		queryOptions: {
+			aggregate: {
+				distinctCount: ['title', 'id']
+			}
+		},
 	})
+	// const tt = async () => {
+
+	// 	const res = await r.query({
+	// 		aggregate: {
+	// 			max: ['title']
+	// 		}
+	// 	})
+	// 	res.aggregates
+	// }
+	$inspect(r.aggregates)
+		
+	
 	// $effect(async () => {
 	// 	const p = await rr.paginator({pageSize: 2, aggregate: {}})
 	// 	// const tt = await p.paginator()

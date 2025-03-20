@@ -22,9 +22,9 @@
 	}: Props<entityType> = $props()
 </script>
 
-{#if r.totalCount}
+{#if r.aggregates?.$count}
 	<div class="text-right">
-		Total: {r.totalCount}
+		Total: {r.aggregates?.$count}
 	</div>
 {/if}
 <table data-ff-grid class={classes?.root}>
