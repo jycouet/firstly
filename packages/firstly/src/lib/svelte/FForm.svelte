@@ -46,7 +46,7 @@
 			const newItem = await ref.save()
 			if(newItem && wasNew){
 				r.items?.unshift(newItem)
-				if(r.aggregates && r.aggregates.$count){
+				if(r.aggregates && r.aggregates.$count !== undefined){
 					r.aggregates.$count = r.aggregates.$count + 1
 				}
 			}

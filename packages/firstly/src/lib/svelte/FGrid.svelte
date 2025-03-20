@@ -9,7 +9,8 @@
 		uid?: string
 		r: FF_Repo<entityType>
 		fields?: FieldMetadata<unknown, entityType>[]
-		showActions?: boolean
+		showEdit?: boolean
+		showDelete?: boolean
 		onedit?: (item: entityType) => void
 		ondelete?: (item: entityType) => void
 
@@ -17,21 +18,28 @@
 			root?: string
 			actions?: string
 			actionButton?: string
+			actionsColumn?: string
+			actionsHeader?: string
 		}
 	}
 
 	let {
 		r,
 		fields = r.fields.toArray().filter((c) => c.apiUpdateAllowed()),
-		showActions = true,
+		showEdit = true,
+		showDelete = true,
 		onedit,
 		ondelete,
 		classes = {
 			root: 'table',
 			actions: 'flex gap-2 justify-end',
-			actionButton: 'px-2 py-1 text-xs',
+			actionButton: 'text-xs',
+			actionsColumn: 'text-right',
+			actionsHeader: 'text-right',
 		},
 	}: Props<entityType> = $props()
+
+	const showActions = $derived(showEdit || showDelete)
 </script>
 
 {#if r.aggregates?.$count}
@@ -46,7 +54,7 @@
 				<th data-ff-grid-header-cell>{item.caption}</th>
 			{/each}
 			{#if showActions}
-				<th data-ff-grid-header-cell>Actions</th>
+				<th data-ff-grid-header-cell class={classes?.actionsHeader}>Actions</th>
 			{/if}
 		</tr>
 	</thead>
@@ -74,9 +82,9 @@
 					<td data-ff-grid-row-cell>{f.displayValue(item as Partial<entityType>)}</td>
 				{/each}
 				{#if showActions}
-					<td data-ff-grid-actions-cell>
+					<td data-ff-grid-actions-cell class={classes?.actionsColumn}>
 						<div class={classes?.actions}>
-							{#if onedit}
+							{#if onedit && showEdit}
 								<button 
 									disabled={!r.metadata.apiUpdateAllowed(item)}
 									class={classes?.actionButton} 
@@ -86,7 +94,7 @@
 									<Icon data={LibIcon_Edit} />
 								</button>
 							{/if}
-							{#if ondelete}
+							{#if ondelete && showDelete}
 								<button 
 									disabled={!r.metadata.apiDeleteAllowed(item)}
 									class={classes?.actionButton} 

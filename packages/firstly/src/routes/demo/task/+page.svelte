@@ -82,9 +82,34 @@ Next level!
 	{/snippet} -->
 </FForm>
 
+<h2>Default Grid (Edit and Delete)</h2>
 <FGrid 
 	{r} 
-	showActions={true}
+	onedit={handleEdit}
+	ondelete={handleDelete}
+/>
+
+<h2>Edit Only</h2>
+<FGrid 
+	{r} 
+	showDelete={false}
+	onedit={handleEdit}
+	ondelete={handleDelete}
+/>
+
+<h2>Delete Only</h2>
+<FGrid 
+	{r} 
+	showEdit={false}
+	onedit={handleEdit}
+	ondelete={handleDelete}
+/>
+
+<h2>No Actions</h2>
+<FGrid 
+	{r} 
+	showEdit={false}
+	showDelete={false}
 	onedit={handleEdit}
 	ondelete={handleDelete}
 />
@@ -139,6 +164,19 @@ Next level!
 		select[data-ff-field-select] {
 			background-color: var(--bg-base);
 			width: 100%;
+		}
+
+		/* Styles for disabled action buttons in FGrid */
+		[data-ff-grid-action-edit]:disabled,
+		[data-ff-grid-action-delete]:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+			pointer-events: all;
+		}
+
+		[data-ff-grid-action-edit]:not(:disabled),
+		[data-ff-grid-action-delete]:not(:disabled) {
+			cursor: pointer;
 		}
 	}
 </style>
