@@ -76,13 +76,13 @@
 	<!-- onedit={handleEdit} -->
 	<hr />
 	<h2 class="text-2xl">Edit Only</h2>
-	<FGrid {r} showDelete={false} onedit={handleEdit} ondelete={handleDelete} />
+	<FGrid {r} showDelete={false} onedit={handleEdit} />
 	<hr />
 	<h2 class="text-2xl">Delete Only</h2>
-	<FGrid {r} showEdit={false} onedit={handleEdit} ondelete={handleDelete} />
+	<FGrid {r} showEdit={false}  ondelete={handleDelete} />
 	<hr />
 	<h2 class="text-2xl">No Actions</h2>
-	<FGrid {r} showEdit={false} showDelete={false} onedit={handleEdit} ondelete={handleDelete} />
+	<FGrid {r} showEdit={false} showDelete={false} showCreate={false} />
 </div>
 
 <style>
