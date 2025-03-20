@@ -2,11 +2,15 @@ import { Allow, Entity, Field, Fields, getEntityRef, ValueListFieldType } from '
 
 import { createCustomField } from '$lib/svelte/createCustomField'
 
-import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from '../../lib'
+import { BaseEnum, FF_Role, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from '../../lib'
 import Title from './ui/Title.svelte'
 
 @Entity('task', {
-	allowApiCrud: Allow.authenticated,
+	// allowApiCrud: Allow.authenticated,
+	allowApiRead: true,
+	allowApiInsert: Allow.authenticated,
+	allowApiUpdate: Allow.authenticated,
+	allowApiDelete: FF_Role.FF_Role_Admin,
 })
 export class Task {
 	@Fields.cuid()

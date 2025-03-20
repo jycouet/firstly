@@ -52,6 +52,16 @@
 		mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { start: 2, span: 3 } } }),
 		mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { span: 3 } } }),
 	]
+
+	function handleEdit(item: Task) {
+		console.log('Edit task:', item)
+		// Handle edit functionality
+	}
+
+	function handleDelete(item: Task) {
+		console.log('Delete task:', item)
+		// Handle delete functionality
+	}
 </script>
 
 <h1>Task Module</h1>
@@ -72,7 +82,12 @@ Next level!
 	{/snippet} -->
 </FForm>
 
-<FGrid {r} />
+<FGrid 
+	{r} 
+	showActions={true}
+	onedit={handleEdit}
+	ondelete={handleDelete}
+/>
 
 <style>
 	:root {
