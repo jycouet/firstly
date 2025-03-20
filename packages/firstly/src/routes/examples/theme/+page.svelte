@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Task } from '$modules/task/Task'
-	import { FF_Repo, FForm, FGrid } from '$lib/svelte'
+	import { FF_Repo, FF_Form, FF_Grid } from '$lib/svelte'
 	import { mergeFieldMetadata } from '$lib/svelte/mergeFieldMetadata'
 
 	const r = new FF_Repo(Task, {
@@ -24,14 +24,14 @@
 
 	<div class="flex flex-col gap-1">
 		<!-- <FForm {r} {fields}> -->
-		<FForm {r}>
+		<FF_Form {r}>
 			<!-- {#snippet customField(field, value)}
 		{#if field.key === 'title'}
 			title stuff... 
 		{/if}
 	{/snippet} -->
-		</FForm>
+		</FF_Form>
 		<hr />
 		<h2 class="text-2xl">Default Grid (Edit and Delete)</h2>
-		<FGrid {r} />
+		<FF_Grid {r} />
 	</div>

@@ -13,7 +13,7 @@
 
 	import { Remult } from 'remult'
 
-	import { ThemeProvider } from '$lib'
+	import { FF_Config } from '$lib/svelte'
 
 	import type { LayoutData } from './$types'
 
@@ -75,7 +75,7 @@
 	<title>Firstly</title>
 </svelte:head>
 
-<ThemeProvider
+<FF_Config
 	theme={{
 		root: 'bg-gray-100',
 		field: {
@@ -251,4 +251,4 @@
 			<!-- /sidebar menu -->
 		</aside>
 	</div>
-</ThemeProvider>
+</FF_Config>

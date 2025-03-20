@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Task } from '$modules/task/Task'
-	import { FF_Repo, FForm, FGrid } from '$lib/svelte'
+	import { FF_Repo, FF_Form, FF_Grid } from '$lib/svelte'
 	import { mergeFieldMetadata } from '$lib/svelte/mergeFieldMetadata'
 
 	const r1 = new FF_Repo(Task, { findOptions: {} })
@@ -61,28 +61,28 @@
 </script>
 
 <div class="flex flex-col gap-1">
-	<!-- <FForm {r} {fields}> -->
-	<FForm {r}>
+	<!-- <FF_Form {r} {fields}> -->
+	<FF_Form {r}>
 		<!-- {#snippet customField(field, value)}
 		{#if field.key === 'title'}
 			title stuff... 
 		{/if}
 	{/snippet} -->
-	</FForm>
+	</FF_Form>
 	<hr />
 	<h2 class="text-2xl">Default Grid (Edit and Delete)</h2>
-	<FGrid {r} />
+	<FF_Grid {r} />
 	<!-- ondelete={handleDelete} -->
 	<!-- onedit={handleEdit} -->
 	<hr />
 	<h2 class="text-2xl">Edit Only</h2>
-	<FGrid {r} showDelete={false} onedit={handleEdit} />
+	<FF_Grid {r} showDelete={false} onedit={handleEdit} />
 	<hr />
 	<h2 class="text-2xl">Delete Only</h2>
-	<FGrid {r} showEdit={false}  ondelete={handleDelete} />
+	<FF_Grid {r} showEdit={false}  ondelete={handleDelete} />
 	<hr />
 	<h2 class="text-2xl">No Actions</h2>
-	<FGrid {r} showEdit={false} showDelete={false} showCreate={false} />
+	<FF_Grid {r} showEdit={false} showDelete={false} showCreate={false} />
 </div>
 
 <!-- <style>

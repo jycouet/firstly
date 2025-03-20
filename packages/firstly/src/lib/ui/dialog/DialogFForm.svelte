@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { FForm } from '$lib/svelte'
+	import { FF_Form } from '$lib/svelte'
 
 	import { FieldGroup, storeItem } from '../..'
 	import { cellsBuildor } from '../../cellsBuildor'
@@ -56,12 +56,12 @@
 	classes={{ root: toShow.classes?.root }}
 	on:change={() => dialog.close(toShow.id, { success: false })}
 >
-	<FForm
+	<FF_Form
 		r={toShow.r!}
 		show={{ title: false }}
 		defaults={toShow.defaults}
 		onSaved={(item) => dialog.close(toShow.id, { success: true, item })}
-	></FForm>
+	></FF_Form>
 	<!-- <form on:submit|preventDefault={onInsert}>
 		<div class="grid {toShow.classes?.formGrid ?? ''} gap-4 pb-4">
 			<FieldGroup

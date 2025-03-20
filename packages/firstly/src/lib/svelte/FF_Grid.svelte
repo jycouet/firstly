@@ -6,8 +6,8 @@
 	import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '$lib/ui/LibIcon'
 
 	import { FF_Repo } from './FF_Repo.svelte'
-	import FFieldDisplay from './FFieldDisplay.svelte'
-	import { getGridTheme, type GridTheme } from './theme'
+	import FFieldDisplay from './FF_FieldDisplay.svelte'
+	import { getGridTheme, type GridTheme } from './ff_Config'
 
 	interface Props<entityType> {
 		uid?: string

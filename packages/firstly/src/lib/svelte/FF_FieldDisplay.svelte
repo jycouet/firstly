@@ -28,13 +28,13 @@
 })
 ${field.key} = { lat: 0, lng: 0 }`}</pre>
 		<div>Or in a component like this:</div>
-		<pre style="font-size: 12px; background-color: #000000; padding: 0.4rem">{`<FForm {r}>
+		<pre style="font-size: 12px; background-color: #000000; padding: 0.4rem">{`<FF_Form {r}>
   {#snippet customField(field, value)}
     {#if field.key === '${field.key}'}
       ...stuff... 
     {/if}
   {/snippet}
-</FForm>`}</pre>
+</FF_Form>`}</pre>
 	</div>
 {/snippet}
 

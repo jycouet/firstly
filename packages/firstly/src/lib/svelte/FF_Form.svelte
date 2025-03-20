@@ -3,8 +3,8 @@
 
 	import type { CustomFieldSnippet } from './createCustomField'
 	import type { FF_Repo } from './FF_Repo.svelte'
-	import FField from './FField.svelte'
-	import { getFormTheme, type FormTheme, type FieldTheme } from './theme'
+	import FField from './FF_Field.svelte'
+	import { getFormTheme, type FormTheme, type FieldTheme } from './ff_Config'
 
 	const default_uid = $props.id()
 
