@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Task } from '$modules/task/Task'
-	import { FF_Repo, FF_Form, FF_Grid } from '$lib/svelte'
-	import { mergeFieldMetadata } from '$lib/svelte'
+	import { FF_Form, FF_Grid, FF_Repo, mergeFieldMetadata } from '$lib/svelte'
 
 	const r = new FF_Repo(Task, {
 		queryOptions: {
@@ -21,17 +20,16 @@
 	]
 </script>
 
-
-	<div class="flex flex-col gap-1">
-		<!-- <FForm {r} {fields}> -->
-		<FF_Form {r}>
-			<!-- {#snippet customField(field, value)}
-		{#if field.key === 'title'}
-			title stuff... 
-		{/if}
-	{/snippet} -->
-		</FF_Form>
-		<hr />
-		<h2 class="text-2xl">Default Grid (Edit and Delete)</h2>
-		<FF_Grid {r} />
-	</div>
+<div class="flex flex-col gap-1">
+	<!-- <FForm {r} {fields}> -->
+	<FF_Form {r}>
+		<!-- {#snippet customField({ field })}
+			{#if field.key === 'title'}
+				title stuff...
+			{/if}
+		{/snippet} -->
+	</FF_Form>
+	<hr />
+	<h2 class="text-2xl">Default Grid (Edit and Delete)</h2>
+	<FF_Grid {r} />
+</div>

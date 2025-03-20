@@ -2,6 +2,9 @@ import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
 
 import { FF_Role } from '../../lib/common.js'
 import { TaskTypeEnum } from './TaskTypeEnum'
+import Title from './ui/Title.svelte'
+import { createCustomField } from '$lib/svelte/customField.js'
+import EditCustom from './ui/EditCustom.svelte'
 
 
 @Entity('task', {
@@ -15,7 +18,7 @@ export class Task {
 	@Fields.cuid()
 	id!: string
 
-	@Fields.createdAt({inputType: "coucou"})
+	@Fields.createdAt({ inputType: "coucou" })
 	createdAt?: Date
 
 	@Fields.string<Task>({
@@ -27,8 +30,8 @@ export class Task {
 			position: {
 				span: 6,
 			},
-			// customField: true,
-			// customField: createCustomField(Title)
+			// customField: { edit: true },
+			customField: { edit: createCustomField(EditCustom) },
 		},
 		validate: (task) => {
 			if (task.title.length < 3) throw 'The title must be at least 3 characters long'
@@ -46,7 +49,7 @@ export class Task {
 	})
 	typeOfTask = TaskTypeEnum.EASY
 
-	
+
 	@Fields.number({
 		ui: {
 			position: {

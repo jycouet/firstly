@@ -5,8 +5,8 @@
 	import { page } from '$app/stores'
 
 	import { route } from '$lib/ROUTES'
-	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
 	import { createCustomField } from '$lib/svelte'
+	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
 
 	import '../app.pcss'
 
@@ -14,11 +14,12 @@
 
 	import { Remult } from 'remult'
 
+	import EditCustom from '$modules/task/ui/EditCustom.svelte'
+	import Title from '$modules/task/ui/Title.svelte'
 	import { FF_Config } from '$lib/svelte'
+	import type { CustomFieldFunction } from '$lib/svelte/ff_Config'
 
 	import type { LayoutData } from './$types'
-	import Title from '$modules/task/ui/Title.svelte'
-	import type { CustomFieldFunction } from '$lib/svelte/ff_Config'
 
 	const links = [
 		{ path: route('/'), text: 'Home' },
@@ -29,6 +30,7 @@
 		{ path: route('/ui/fieldGroup'), text: 'UI / FieldGroup' },
 		{ path: route('/ui/select'), text: 'UI / Select' },
 		{ path: route('/demo/task'), text: 'Demo Task' },
+		{ path: route('/demo/theme'), text: 'Demo Theme' },
 		{ path: route('firstly_sign_in'), text: '🔑 Module Auth', target: '_blank' },
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
@@ -72,11 +74,14 @@
 		}
 	}
 	initRemultSvelteReactivity()
-	
-	const customField: CustomFieldFunction = ({field, value, error, mode})=>{
-		if (field.inputType === 'number' && mode === "display") {
-			return createCustomField(Title)
-		}
+
+	const customField: CustomFieldFunction = ({ field, value, error, mode }) => {
+		// return true
+		// if (field.inputType === 'number' && mode === "display") {
+		// 	return createCustomField(Title)
+		// } else if (field.inputType === 'number' && mode === "edit") {
+		// 	return createCustomField(EditNumber)
+		// }
 		return undefined
 	}
 </script>

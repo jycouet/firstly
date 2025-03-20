@@ -3,6 +3,7 @@ import type { FindOptionsBase } from 'remult'
 import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
 import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
 import type { ColumnDeciderArgs } from './changeLog/index.js'
+import { ff_Log, FF_Role } from './common.js'
 import { storeItem } from './storeItem.js'
 import { storeList } from './storeList.js'
 import type { CustomFieldSnippet } from './svelte/customField.js'
@@ -44,8 +45,6 @@ export {
 	Clipboardable,
 }
 
-import { FF_Role } from './common.js'
-import { ff_Log } from './common.js'
 export { FF_Role, ff_Log }
 
 // ******************************
@@ -182,7 +181,10 @@ declare module 'remult' {
 					end?: number
 				}
 			}
-			customField?: CustomFieldSnippet
+			customField?: {
+				display?: CustomFieldSnippet
+				edit?: CustomFieldSnippet
+			}
 		}
 	}
 

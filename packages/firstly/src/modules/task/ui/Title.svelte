@@ -3,8 +3,8 @@
 
 	interface Props extends CustomFieldType {
 	}
-
-	let { field, value = $bindable(), mode, error }: Props = $props()
+	// $bindable()
+	let { field, value, mode, error }: Props = $props()
 </script>
 
 {mode}

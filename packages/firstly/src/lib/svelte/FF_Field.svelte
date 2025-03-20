@@ -82,10 +82,10 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 		{@render customFieldEmpty()}
 	{:else if customField}
 		{@render customField({ field, value, error, mode: 'edit' })}
-	{:else if field.options.ui?.customField === true}
+	{:else if field.options.ui?.customField?.edit === true}
 		{@render customFieldEmpty()}
-	{:else if field.options.ui?.customField}
-		{@render field.options.ui?.customField({ field, value, error, mode: 'edit' })}
+	{:else if field.options.ui?.customField?.edit}
+		{@render field.options.ui?.customField?.edit({ field, value, error, mode: 'edit' })}
 	{:else if globalCustomField === true}
 		{@render customFieldEmpty()}
 	{:else if globalCustomField}

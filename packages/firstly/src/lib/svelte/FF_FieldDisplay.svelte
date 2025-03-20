@@ -15,7 +15,7 @@
 
 	let { field, value, error, customField }: Props = $props()
 
-	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
+	// let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
 	const globalCustomField = globalCustomFieldFn?.({ field, value, error, mode: 'display' })
 </script>
 
@@ -46,10 +46,10 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 	{@render customFieldEmpty()}
 {:else if customField}
 	{@render customField({ field, value, error, mode: 'display' })}
-{:else if field.options.ui?.customField === true}
+{:else if field.options.ui?.customField?.display === true}
 	{@render customFieldEmpty()}
-{:else if field.options.ui?.customField}
-	{@render field.options.ui?.customField({ field, value, error, mode: 'display' })}
+{:else if field.options.ui?.customField?.display}
+	{@render field.options.ui?.customField?.display({ field, value, error, mode: 'display' })}
 {:else if globalCustomField === true}
 	{@render customFieldEmpty()}
 {:else if globalCustomField}
