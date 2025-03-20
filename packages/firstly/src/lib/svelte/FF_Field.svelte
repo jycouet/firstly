@@ -1,7 +1,7 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
 	import { getValueList, type FieldMetadata } from 'remult'
 
-	import { isComponentObject, type CustomFieldDefaultProps } from './customField'
+	import { isComponentObject } from './customField'
 	import { getDynamicCustomField, getFieldTheme, type FieldTheme } from './ff_Config'
 
 	const default_uid = $props.id()

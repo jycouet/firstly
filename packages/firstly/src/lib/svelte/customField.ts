@@ -14,27 +14,23 @@ export type CustomFieldDefaultProps<valueType = unknown, entityType = unknown> =
  * Type guard to check if a CustomFieldComponent is an object with a component property
  */
 export function isComponentObject<valueType = unknown, entityType = unknown>(
-	customField: CustomFieldComponent<valueType, entityType>
+	customField: CustomFieldComponent<valueType, entityType>,
 ): customField is {
 	component: Component<CustomFieldDefaultProps<valueType, entityType>>
 	props?: any
 	// rowToProps?: (row: any) => any
 } {
-	return typeof customField === 'object' && 'component' in customField;
+	return typeof customField === 'object' && 'component' in customField
 }
 
+type ComponentObject<valueType, entityType> = {
+	component: Component<CustomFieldDefaultProps<valueType, entityType>>
+	props?: any
+}
 export type CustomFieldComponent<valueType = unknown, entityType = unknown> =
-	Component<
-		CustomFieldDefaultProps<valueType, entityType>
-	> | {
-		component: Component<
-			CustomFieldDefaultProps<valueType, entityType>
-		>
-		props?: any
-		// rowToProps?: (row: any) => any
-	}
+	| ComponentObject<valueType, entityType>['component']
+	| ComponentObject<valueType, entityType>
 
-// Define the custom field function type
 export type DynamicCustomField = <valueType, entityType>(
 	infos: CustomFieldDefaultProps<valueType, entityType>,
 ) => CustomFieldComponent<valueType, entityType> | undefined

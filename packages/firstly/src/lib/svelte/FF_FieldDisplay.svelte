@@ -39,22 +39,22 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 	</div>
 {/snippet}
 
-{#if field.options.ui?.customField?.edit}
-	{@const customField = field.options.ui?.customField?.edit}
+{#if field.options.ui?.customField?.display}
+	{@const customField = field.options.ui?.customField?.display}
 	{#if isComponentObject(customField)}
 		{@const Component = customField.component}
-		<Component {field} bind:value {error} mode="edit" {...customField.props} />
+		<Component {field} bind:value {error} mode="display" {...customField.props} />
 	{:else}
 		{@const Component = customField}
-		<Component {field} bind:value {error} mode="edit" />
+		<Component {field} bind:value {error} mode="display" />
 	{/if}
 {:else if globalCustomField}
 	{#if isComponentObject(globalCustomField)}
 		{@const Component = globalCustomField.component}
-		<Component {field} bind:value {error} mode="edit" {...globalCustomField.props} />
+		<Component {field} bind:value {error} mode="display" {...globalCustomField.props} />
 	{:else}
 		{@const Component = globalCustomField}
-		<Component {field} bind:value {error} mode="edit" />
+		<Component {field} bind:value {error} mode="display" />
 	{/if}
 {:else}
 	{field.displayValue({ [field.key]: value } as Partial<entityType>)}
