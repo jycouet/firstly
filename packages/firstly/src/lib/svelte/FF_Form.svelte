@@ -2,9 +2,9 @@
 	import { EntityError, getEntityRef, remult, type FieldMetadata } from 'remult'
 
 	import type { CustomFieldSnippet } from './customField'
-	import type { FF_Repo } from './FF_Repo.svelte'
+	import { getFormTheme, type FieldTheme, type FormTheme } from './ff_Config'
 	import FField from './FF_Field.svelte'
-	import { getFormTheme, type FormTheme, type FieldTheme } from './ff_Config'
+	import type { FF_Repo } from './FF_Repo.svelte'
 
 	const default_uid = $props.id()
 
@@ -30,7 +30,6 @@
 		uid = default_uid,
 		r,
 		fields,
-		customField,
 		defaults,
 		show = {
 			title: true,
@@ -92,13 +91,16 @@
 				{field}
 				bind:value={valuesToUse[field.key as keyof entityType]}
 				error={errors[field.key]}
-				{customField}
 				classes={classes?.fields}
 			/>
 		{/each}
 	</div>
 	<div data-ff-form-actions class={classes?.actions}>
-		<button data-ff-form-button class={classes?.submitButton} disabled={!r.metadata.apiInsertAllowed()}>
+		<button
+			data-ff-form-button
+			class={classes?.submitButton}
+			disabled={!r.metadata.apiInsertAllowed()}
+		>
 			{ref.isNew() ? 'Add' : 'Save'}
 		</button>
 		{globalError}

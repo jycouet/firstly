@@ -11,7 +11,7 @@
 		field: FieldMetadata<valueType, entityType>
 		value: valueType
 		error?: string
-		customField?: CustomFieldSnippet<valueType, entityType>
+		// customField?: CustomFieldSnippet<valueType, entityType>
 
 		classes?: FieldTheme
 	}
@@ -24,7 +24,7 @@
 		field,
 		value = $bindable(),
 		error,
-		customField,
+		// customField,
 		classes = {},
 	}: Props = $props()
 
@@ -33,7 +33,6 @@
 
 	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
 	const globalCustomField = globalCustomFieldFn?.({ field, value, error, mode: 'edit' })
-
 </script>
 
 {#snippet customFieldEmpty()}
@@ -44,18 +43,13 @@
 		<div>In the entity directly:</div>
 		<pre style="font-size: 12px; background-color: #000000; padding: 0.4rem">{`@Fields.json({
   ui: {
-    customField: createCustomField(Map)
+    customField: { display: createCustomField(Map) }
   },
 })
 ${field.key} = { lat: 0, lng: 0 }`}</pre>
 		<div>Or in a component like this:</div>
 		<pre style="font-size: 12px; background-color: #000000; padding: 0.4rem">{`<FF_Form {r}>
-  {#snippet customField(field, value)}
-    {#if field.key === '${field.key}'}
-      ...stuff... 
-    {/if}
-  {/snippet}
-</FF_Form>`}</pre>
+  ...`}</pre>
 	</div>
 {/snippet}
 
@@ -78,11 +72,11 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 		</div>
 	{/if}
 
-	{#if customField === true}
+	<!-- {#if customField === true}
 		{@render customFieldEmpty()}
 	{:else if customField}
-		{@render customField({ field, value, error, mode: 'edit' })}
-	{:else if field.options.ui?.customField?.edit === true}
+		{@render customField({ field, value, error, mode: 'edit' })} -->
+	{#if field.options.ui?.customField?.edit === true}
 		{@render customFieldEmpty()}
 	{:else if field.options.ui?.customField?.edit}
 		{@render field.options.ui?.customField?.edit({ field, value, error, mode: 'edit' })}

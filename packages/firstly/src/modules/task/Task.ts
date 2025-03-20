@@ -31,7 +31,7 @@ export class Task {
 				span: 6,
 			},
 			// customField: { edit: true },
-			customField: { edit: createCustomField(EditCustom) },
+			// customField: { edit: createCustomField(EditCustom) },
 		},
 		validate: (task) => {
 			if (task.title.length < 3) throw 'The title must be at least 3 characters long'
