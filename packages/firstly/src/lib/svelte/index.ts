@@ -5,6 +5,7 @@ import { default as FF_Field } from './FF_Field.svelte'
 import { default as FF_Form } from './FF_Form.svelte'
 import { default as FF_Grid } from './FF_Grid.svelte'
 
+export { mergeFieldMetadata, createCustomField } from './customField'
 export { FF_Repo } from './FF_Repo.svelte'
 export { FF_Grid, FF_Form, FF_Field, FF_Config }
 export { getTheme, getFieldTheme, getGridTheme, getFormTheme, setTheme }

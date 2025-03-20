@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Task } from '$modules/task/Task'
 	import { FF_Repo, FF_Form, FF_Grid } from '$lib/svelte'
-	import { mergeFieldMetadata } from '$lib/svelte/mergeFieldMetadata'
+	import { mergeFieldMetadata } from '$lib/svelte'
 
 	const r1 = new FF_Repo(Task, { findOptions: {} })
 	// const r = new FF_Repo(Task, { })

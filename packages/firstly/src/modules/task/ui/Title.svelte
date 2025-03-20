@@ -1,12 +1,16 @@
-<script lang="ts" generics="ValueType = unknown, EntityType = unknown">
-	import { type FieldMetadata } from 'remult'
+<script lang="ts" generics="valueType = unknown, entityType = unknown">
+	import type { CustomFieldType } from '$lib/svelte/customField'
 
-	interface Props {
-		field: FieldMetadata<ValueType, EntityType>
-		value: ValueType
+	interface Props extends CustomFieldType {
 	}
 
-	let { field, value = $bindable() }: Props = $props()
+	let { field, value = $bindable(), mode, error }: Props = $props()
 </script>
 
-I'm rendering this... {field.key} {value}
+{mode}
+<div>
+	I'm rendering this... {field.key}!
+</div>
+<div>
+	And this is the value: {value}
+</div>

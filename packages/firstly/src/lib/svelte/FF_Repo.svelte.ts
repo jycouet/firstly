@@ -150,7 +150,7 @@ export class FF_Repo<
 		this.loading.fetching = true
 		try {
 			const queryResult = this.#repo.query({
-				pageSize: 2,
+				pageSize: 25,
 				...this.#queryOptions,
 				...options,
 				// Yes, we always want to aggregate to get at least the $count!

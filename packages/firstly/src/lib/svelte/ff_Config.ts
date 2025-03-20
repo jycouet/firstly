@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte'
-import type { CustomFieldSnippet, CustomFieldType } from './createCustomField'
+import type { CustomFieldSnippet, CustomFieldType } from './customField'
 
 // Define individual component theme interfaces
 export interface FieldTheme {

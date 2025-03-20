@@ -1,7 +1,7 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
 	import { getValueList, type FieldMetadata } from 'remult'
 
-	import type { CustomFieldSnippet } from './createCustomField'
+	import type { CustomFieldSnippet } from './customField'
 	import { getCustomFieldFunction, getFieldTheme, type FieldTheme } from './ff_Config'
 
 	const default_uid = $props.id()
@@ -16,10 +16,7 @@
 		classes?: FieldTheme
 	}
 
-	// Get theme from context or use default
 	const themeClasses = getFieldTheme()
-
-	// Get global customField function if defined
 	const globalCustomFieldFn = getCustomFieldFunction()
 
 	let {
@@ -34,9 +31,9 @@
 	// Merge provided classes with theme classes
 	classes = { ...themeClasses, ...classes }
 
-	const globalCustomField = globalCustomFieldFn?.({ field, value, error })
-
 	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
+	const globalCustomField = globalCustomFieldFn?.({ field, value, error, mode: 'edit' })
+
 </script>
 
 {#snippet customFieldEmpty()}
@@ -84,15 +81,15 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 	{#if customField === true}
 		{@render customFieldEmpty()}
 	{:else if customField}
-		{@render customField({ field, value, error })}
+		{@render customField({ field, value, error, mode: 'edit' })}
 	{:else if field.options.ui?.customField === true}
 		{@render customFieldEmpty()}
 	{:else if field.options.ui?.customField}
-		{@render field.options.ui?.customField({ field, value, error })}
+		{@render field.options.ui?.customField({ field, value, error, mode: 'edit' })}
 	{:else if globalCustomField === true}
 		{@render customFieldEmpty()}
 	{:else if globalCustomField}
-		{@render globalCustomField({ field, value, error })}
+		{@render globalCustomField({ field, value, error, mode: 'edit' })}
 	{:else if valueList}
 		<select data-ff-field-select class={classes?.select} id={uid} bind:value>
 			{#each valueList as item (item.id)}

@@ -1,7 +1,10 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
 	import { getValueList, type FieldMetadata } from 'remult'
 
-	import type { CustomFieldSnippet } from './createCustomField'
+	import type { CustomFieldSnippet } from './customField'
+	import { getCustomFieldFunction } from './ff_Config'
+
+	const globalCustomFieldFn = getCustomFieldFunction()
 
 	interface Props {
 		field: FieldMetadata<valueType, entityType>
@@ -13,6 +16,7 @@
 	let { field, value, error, customField }: Props = $props()
 
 	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
+	const globalCustomField = globalCustomFieldFn?.({ field, value, error, mode: 'display' })
 </script>
 
 {#snippet customFieldEmpty()}
@@ -38,16 +42,18 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 	</div>
 {/snippet}
 
-{#if valueList}
-	{field.displayValue({ [field.key]: value } as Partial<entityType>)}
-{:else if customField === true}
+{#if customField === true}
 	{@render customFieldEmpty()}
 {:else if customField}
-	{@render customField({ field, value, error })}
+	{@render customField({ field, value, error, mode: 'display' })}
 {:else if field.options.ui?.customField === true}
 	{@render customFieldEmpty()}
 {:else if field.options.ui?.customField}
-	{@render field.options.ui?.customField({ field, value, error })}
+	{@render field.options.ui?.customField({ field, value, error, mode: 'display' })}
+{:else if globalCustomField === true}
+	{@render customFieldEmpty()}
+{:else if globalCustomField}
+	{@render globalCustomField({ field, value, error, mode: 'display' })}
 {:else}
 	{field.displayValue({ [field.key]: value } as Partial<entityType>)}
 {/if}

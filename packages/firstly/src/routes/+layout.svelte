@@ -6,7 +6,7 @@
 
 	import { route } from '$lib/ROUTES'
 	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
-	import { createCustomField } from '$lib/svelte/createCustomField'
+	import { createCustomField } from '$lib/svelte'
 
 	import '../app.pcss'
 
@@ -73,10 +73,10 @@
 	}
 	initRemultSvelteReactivity()
 	
-	const customField: CustomFieldFunction = ({field, value, error})=>{
-		// if (field.inputType === 'number') {
-		// 	return createCustomField(Title)
-		// }
+	const customField: CustomFieldFunction = ({field, value, error, mode})=>{
+		if (field.inputType === 'number' && mode === "display") {
+			return createCustomField(Title)
+		}
 		return undefined
 	}
 </script>
