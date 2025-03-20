@@ -121,7 +121,16 @@
 									disabled={!r.metadata.apiDeleteAllowed(item)}
 									class={classes?.actionButton}
 									data-ff-grid-action-delete
-									onclick={() => ondelete?.(item)}
+									onclick={async () => {
+										if (ondelete) {
+											ondelete?.(item)
+										} else {
+											const res = await dialog.confirmDelete("")
+											if (res.success) {
+												await r.delete(item)
+											}
+										}
+									}}
 								>
 									<Icon data={LibIcon_Delete} />
 								</button>

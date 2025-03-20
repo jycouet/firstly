@@ -85,8 +85,8 @@ Next level!
 <h2>Default Grid (Edit and Delete)</h2>
 <FGrid 
 	{r} 
-	ondelete={handleDelete}
 	/>
+	<!-- ondelete={handleDelete} -->
 	<!-- onedit={handleEdit} -->
 
 <h2>Edit Only</h2>

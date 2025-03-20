@@ -1,4 +1,4 @@
-import type { FieldMetadata, FindOptionsBase } from 'remult'
+import type { FindOptionsBase } from 'remult'
 
 import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
 import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
@@ -44,8 +44,9 @@ export {
 	Clipboardable,
 }
 
-export { FF_Role } from './common.js'
-export { ff_Log } from './common.js'
+import { FF_Role } from './common.js'
+import { ff_Log } from './common.js'
+export { FF_Role, ff_Log }
 
 // ******************************
 // Helpers types

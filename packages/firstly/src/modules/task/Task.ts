@@ -1,18 +1,16 @@
-import { Allow, Entity, Field, Fields, getEntityRef, ValueListFieldType } from 'remult'
+import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
 
-import { createCustomField } from '$lib/svelte/createCustomField'
-
-import { BaseEnum, LibIcon_Add, LibIcon_Delete } from '../../lib'
-import type {  BaseEnumOptions } from '../../lib'
-import Title from './ui/Title.svelte'
+import { FF_Role } from '../../lib/common.js'
 import { TaskTypeEnum } from './TaskTypeEnum'
+
+console.info(`FF_Role.FF_Role_Admin`, FF_Role.FF_Role_Admin)
+
 @Entity('task', {
 	// allowApiCrud: Allow.authenticated,
 	allowApiRead: true,
 	allowApiInsert: Allow.authenticated,
 	allowApiUpdate: Allow.authenticated,
-	allowApiDelete: false,
-	// allowApiDelete: FF_Role.FF_Role_Admin,
+	allowApiDelete: FF_Role.FF_Role_Admin,
 })
 export class Task {
 	@Fields.cuid()
