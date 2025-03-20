@@ -3,7 +3,6 @@ import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
 import { FF_Role } from '../../lib/common.js'
 import { TaskTypeEnum } from './TaskTypeEnum'
 
-
 @Entity('task', {
 	// allowApiCrud: Allow.authenticated,
 	allowApiRead: true,
@@ -15,7 +14,7 @@ export class Task {
 	@Fields.cuid()
 	id!: string
 
-	@Fields.createdAt({ inputType: "coucou" })
+	@Fields.createdAt({ inputType: 'coucou' })
 	createdAt?: Date
 
 	@Fields.string<Task>({
@@ -46,13 +45,12 @@ export class Task {
 	})
 	typeOfTask = TaskTypeEnum.EASY
 
-
 	@Fields.number({
 		ui: {
 			position: {
-				span: 3
-			}
-		}
+				span: 3,
+			},
+		},
 	})
 	size = 0
 

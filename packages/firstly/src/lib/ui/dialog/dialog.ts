@@ -3,6 +3,8 @@ import { writable } from 'svelte/store'
 
 import { type Repository } from 'remult'
 
+import type { FF_Repo } from '$lib/svelte'
+
 import {
 	LibIcon_Add,
 	LibIcon_Delete,
@@ -12,7 +14,6 @@ import {
 	type CellsInput,
 	type StoreItem,
 } from '../../'
-import type { FF_Repo } from '$lib/svelte'
 
 export type DialogClasses = {
 	/**
@@ -154,10 +155,7 @@ const createDialogManagement = () => {
 			}
 			return show(detail, type)
 		},
-		fform: <entityType>(
-			r: FF_Repo<entityType>,
-			settings: DialogFormType<entityType>,
-		) => {
+		fform: <entityType>(r: FF_Repo<entityType>, settings: DialogFormType<entityType>) => {
 			// const topicPrefixText = settings?.topicPrefixText
 			// 	? settings?.topicPrefixText + ' '
 			// 	: type === 'insert'
@@ -166,12 +164,11 @@ const createDialogManagement = () => {
 			// 			? 'Modifier '
 			// 			: 'Détail '
 
-
 			const detail: DialogMetaData<entityType> = {
 				detail: {
 					caption: r.metadata.caption,
 					icon: {
-						data: LibIcon_Edit
+						data: LibIcon_Edit,
 						// data: type === 'insert' ? LibIcon_Add : type === 'update' ? LibIcon_Edit : LibIcon_Search,
 					},
 				},
@@ -186,7 +183,7 @@ const createDialogManagement = () => {
 				r,
 				// topicPrefixText,
 			}
-			return show(detail, "fform")
+			return show(detail, 'fform')
 		},
 
 		show: (dialog: DialogMetaData) => {

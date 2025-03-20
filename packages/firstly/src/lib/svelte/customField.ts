@@ -1,5 +1,6 @@
-import type { FieldMetadata, FieldOptions } from 'remult'
 import type { Component } from 'svelte'
+
+import type { FieldMetadata, FieldOptions } from 'remult'
 
 export type FieldMode = 'edit' | 'display'
 export type CustomFieldDefaultProps<valueType = unknown, entityType = unknown> = {
@@ -11,12 +12,14 @@ export type CustomFieldDefaultProps<valueType = unknown, entityType = unknown> =
 
 // props?: any
 // 	rowToProps?: (row: any) => any
-export type CustomFieldComponent<valueType = unknown, entityType = unknown> = Component<CustomFieldDefaultProps<valueType, entityType>>
-
+export type CustomFieldComponent<valueType = unknown, entityType = unknown> = Component<
+	CustomFieldDefaultProps<valueType, entityType>
+>
 
 // Define the custom field function type
-export type DynamicCustomField = <valueType, entityType>(infos: CustomFieldDefaultProps<valueType, entityType>) => Component<CustomFieldDefaultProps<valueType, entityType>> | undefined
-
+export type DynamicCustomField = <valueType, entityType>(
+	infos: CustomFieldDefaultProps<valueType, entityType>,
+) => Component<CustomFieldDefaultProps<valueType, entityType>> | undefined
 
 export const mergeFieldMetadata = <entityType>(
 	metadata: FieldMetadata<unknown, entityType>,

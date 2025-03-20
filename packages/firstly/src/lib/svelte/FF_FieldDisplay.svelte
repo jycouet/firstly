@@ -1,6 +1,5 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
-	
-import { type FieldMetadata } from 'remult'
+	import { type FieldMetadata } from 'remult'
 
 	import { getDynamicCustomField } from './ff_Config'
 

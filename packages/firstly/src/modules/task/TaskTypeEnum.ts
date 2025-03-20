@@ -1,7 +1,8 @@
-import { BaseEnum, type BaseEnumOptions } from "../../lib/BaseEnum.js"
-import { LibIcon_Add, LibIcon_Delete } from "../../lib/ui/LibIcon.js"
-import { ValueListFieldType } from "remult"
-import type { Task } from "./Task"
+import { ValueListFieldType } from 'remult'
+
+import { BaseEnum, type BaseEnumOptions } from '../../lib/BaseEnum.js'
+import { LibIcon_Add, LibIcon_Delete } from '../../lib/ui/LibIcon.js'
+import type { Task } from './Task'
 
 @ValueListFieldType()
 export class TaskTypeEnum extends BaseEnum {

@@ -1,9 +1,9 @@
 <script>
 	import Button from '../Button.svelte'
 	import { dialog } from './dialog'
+	import DialogFForm from './DialogFForm.svelte'
 	import DialogForm from './DialogForm.svelte'
 	import DialogPrimitive from './DialogPrimitive.svelte'
-	import DialogFForm from './DialogFForm.svelte'
 
 	$: dialogSorted = $dialog.sort((a, b) => a.id - b.id)
 </script>
