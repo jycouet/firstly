@@ -11,9 +11,22 @@
 		value: valueType
 		error?: string
 		customField?: CustomFieldSnippet<valueType, entityType>
+
+		classes?: {
+			root?: string
+			label?: string
+			error?: string
+			select?: string
+			checkbox?: string
+			input?: string
+		}
 	}
 
-	let { uid = default_uid, field, value = $bindable(), error, customField }: Props = $props()
+	let { uid = default_uid, field, value = $bindable(), error, customField, classes = {
+		checkbox: 'checkbox',
+		input: 'input',
+		select: 'select',
+	} }: Props = $props()
 
 	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
 </script>
@@ -43,7 +56,7 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 
 <div
 	data-ff-field
-	class=""
+	class={classes?.root}
 	style:--ff-field-position-span={field.options.ui?.position?.span ?? 12}
 	style:--ff-field-position-start={field.options.ui?.position?.start}
 	style:--ff-field-position-end={field.options.ui?.position?.end}
@@ -60,7 +73,7 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 		</div>
 	{/if}
 	{#if valueList}
-		<select data-ff-field-select class="" id={uid} bind:value>
+		<select data-ff-field-select class={classes?.select} id={uid} bind:value>
 			{#each valueList as item (item.id)}
 				<option value={item}>{item.caption}</option>
 			{/each}
@@ -74,12 +87,12 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 	{:else if field.options.ui?.customField}
 		{@render field.options.ui?.customField({ field, value, error })}
 	{:else if field.inputType === 'checkbox'}
-		<input data-ff-field-checkbox class="" id={uid} type="checkbox" bind:checked={value as boolean} />
+		<input data-ff-field-checkbox class={classes?.checkbox} id={uid} type="checkbox" bind:checked={value as boolean} />
 	{:else}
 		<input
 			autocomplete="off"
 			data-ff-field-input
-			class=""
+			class={classes?.input}
 			id={uid}
 			type={field.inputType}
 			placeholder={field.options.ui?.placeholder}
@@ -88,3 +101,36 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 		/>
 	{/if}
 </div>
+
+<style>
+	:global {
+		[data-ff-form-fields] {
+			display: grid;
+			grid-template-columns: repeat(12, minmax(0, 1fr));
+			gap: 1rem;
+		}
+
+		[data-ff-field] {
+			grid-column-end: var(--ff-field-position-end);
+			grid-column: span var(--ff-field-position-span) / span var(--ff-field-position-span);
+			grid-column-start: var(--ff-field-position-start);
+		}
+
+		@media (max-width: 768px) {
+			[data-ff-field] {
+				grid-column-end: var(--ff-field-position-mobile-end);
+				grid-column: span var(--ff-field-position-mobile-span) / span
+					var(--ff-field-position-mobile-span);
+				grid-column-start: var(--ff-field-position-mobile-start);
+			}
+		}
+
+		input[data-ff-field-input] {
+			width: 100%;
+		}
+
+		select[data-ff-field-select] {
+			width: 100%;
+		}
+	}
+</style>

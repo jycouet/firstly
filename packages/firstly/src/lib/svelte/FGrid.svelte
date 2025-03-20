@@ -1,7 +1,6 @@
 <script lang="ts" generics="entityType = unknown">
-	import { getEntityRef, repo, type FieldMetadata } from 'remult'
+	import { getEntityRef, type FieldMetadata } from 'remult'
 
-	import { Task } from '$modules/task/Task'
 	import { dialog } from '$lib/ui/dialog/dialog'
 	import Icon from '$lib/ui/Icon.svelte'
 	import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '$lib/ui/LibIcon'

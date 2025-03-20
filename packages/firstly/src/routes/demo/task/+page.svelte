@@ -85,7 +85,7 @@
 	<FGrid {r} showEdit={false} showDelete={false} showCreate={false} />
 </div>
 
-<style>
+<!-- <style>
 	:root {
 		--bg-base: gray;
 	}
@@ -149,5 +149,6 @@
 		[data-ff-grid-action-delete]:not(:disabled) {
 			cursor: pointer;
 		}
-	}
+	} 
 </style>
+-->
