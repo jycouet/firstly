@@ -49,8 +49,8 @@
 		mergeFieldMetadata(r.fields.title, { ui: { position: { span: 12 } } }),
 		mergeFieldMetadata(r.fields.title, { ui: { position: { span: 6, mobile: { span: 12 } } } }),
 		mergeFieldMetadata(r.fields.title, { ui: { position: { span: 3 } } }),
-		mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { start: 2, span: 3 } } }),
-		mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { span: 3 } } }),
+		// mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { start: 2, span: 3 } } }),
+		// mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { span: 3 } } }),
 	]
 
 	function handleEdit(item: Task) {
@@ -85,9 +85,9 @@ Next level!
 <h2>Default Grid (Edit and Delete)</h2>
 <FGrid 
 	{r} 
-	onedit={handleEdit}
 	ondelete={handleDelete}
-/>
+	/>
+	<!-- onedit={handleEdit} -->
 
 <h2>Edit Only</h2>
 <FGrid 

@@ -2,15 +2,17 @@ import { Allow, Entity, Field, Fields, getEntityRef, ValueListFieldType } from '
 
 import { createCustomField } from '$lib/svelte/createCustomField'
 
-import { BaseEnum, FF_Role, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from '../../lib'
+import { BaseEnum, LibIcon_Add, LibIcon_Delete } from '../../lib'
+import type {  BaseEnumOptions } from '../../lib'
 import Title from './ui/Title.svelte'
-
+import { TaskTypeEnum } from './TaskTypeEnum'
 @Entity('task', {
 	// allowApiCrud: Allow.authenticated,
 	allowApiRead: true,
 	allowApiInsert: Allow.authenticated,
 	allowApiUpdate: Allow.authenticated,
-	allowApiDelete: FF_Role.FF_Role_Admin,
+	allowApiDelete: false,
+	// allowApiDelete: FF_Role.FF_Role_Admin,
 })
 export class Task {
 	@Fields.cuid()
@@ -37,7 +39,7 @@ export class Task {
 	})
 	title: string = ''
 
-	@Field(() => TypeOfTaskEnum, {
+	@Field(() => TaskTypeEnum, {
 		ui: {
 			// width: 20,
 			position: {
@@ -45,7 +47,7 @@ export class Task {
 			},
 		},
 	})
-	typeOfTask = TypeOfTaskEnum.EASY
+	typeOfTask = TaskTypeEnum.EASY
 
 	@Fields.boolean<Task>({
 		allowApiUpdate(entity) {
@@ -54,19 +56,4 @@ export class Task {
 		},
 	})
 	completed: boolean = false
-}
-
-@ValueListFieldType()
-export class TypeOfTaskEnum extends BaseEnum {
-	static EASY = new TypeOfTaskEnum('EASY', {
-		caption: 'Easy',
-		icon: { data: LibIcon_Add },
-	})
-	static HARD = new TypeOfTaskEnum('HARD', {
-		caption: 'Hard',
-		icon: { data: LibIcon_Delete },
-	})
-	constructor(id: string, o?: BaseEnumOptions<TypeOfTaskEnum>) {
-		super(id, o)
-	}
 }

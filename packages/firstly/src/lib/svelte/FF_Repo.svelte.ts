@@ -100,8 +100,8 @@ export class FF_Repo<
 	}
 
 	constructor(
-		ent: ClassType<Entity>,
-		o?:
+		public ent: ClassType<Entity>,
+		o?: (
 			| {
 					findOptions?: FindOptions<Entity> & { skipAutoFetch?: Boolean }
 					queryOptions?: never
@@ -109,7 +109,8 @@ export class FF_Repo<
 			| {
 					findOptions?: never
 					queryOptions?: QueryOptions & { skipAutoFetch?: Boolean }
-			  },
+			  }
+		) & { item?: Entity },
 	) {
 		this.#repo = remultRepo(ent)
 		this.fields = this.#repo.fields
@@ -117,7 +118,7 @@ export class FF_Repo<
 		this.#paginator = undefined
 		this.#findOptions = o?.findOptions
 		this.#queryOptions = o?.queryOptions
-
+		this.item = o?.item
 		if (o?.findOptions !== undefined && !o.findOptions.skipAutoFetch) {
 			this.loading.init = true
 			this.find(o.findOptions)

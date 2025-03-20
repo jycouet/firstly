@@ -3,6 +3,7 @@
 	import { dialog } from './dialog'
 	import DialogForm from './DialogForm.svelte'
 	import DialogPrimitive from './DialogPrimitive.svelte'
+	import DialogFForm from './DialogFForm.svelte'
 
 	$: dialogSorted = $dialog.sort((a, b) => a.id - b.id)
 </script>
@@ -39,6 +40,8 @@
 		</DialogPrimitive>
 	{:else if toShow.type === 'insert' || toShow.type === 'update' || toShow.type === 'view'}
 		<DialogForm {toShow}></DialogForm>
+	{:else if toShow.type === 'fform'}
+		<DialogFForm {toShow}></DialogFForm>
 	{:else if toShow.component && toShow.children}
 		<DialogPrimitive
 			detail={toShow.detail}

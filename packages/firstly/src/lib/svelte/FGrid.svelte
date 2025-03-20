@@ -1,9 +1,12 @@
 <script lang="ts" generics="entityType = unknown">
-	import { type FieldMetadata } from 'remult'
+	import { getEntityRef, repo, type FieldMetadata } from 'remult'
 
-	import type { FF_Repo } from './FF_Repo.svelte'
+	import { Task } from '$modules/task/Task'
+	import { dialog } from '$lib/ui/dialog/dialog'
 	import Icon from '$lib/ui/Icon.svelte'
 	import { LibIcon_Delete, LibIcon_Edit } from '$lib/ui/LibIcon'
+
+	import { FF_Repo } from './FF_Repo.svelte'
 
 	interface Props<entityType> {
 		uid?: string
@@ -73,7 +76,9 @@
 		{/if}
 		{#if r.globalError}
 			<tr>
-				<td colspan={showActions ? fields.length + 1 : fields.length} class="text-danger">{r.globalError}</td>
+				<td colspan={showActions ? fields.length + 1 : fields.length} class="text-danger"
+					>{r.globalError}</td
+				>
 			</tr>
 		{/if}
 		{#each r.items ?? [] as item (r.metadata.idMetadata.getId(item))}
@@ -84,22 +89,39 @@
 				{#if showActions}
 					<td data-ff-grid-actions-cell class={classes?.actionsColumn}>
 						<div class={classes?.actions}>
-							{#if onedit && showEdit}
-								<button 
+							{#if showEdit}
+								<button
 									disabled={!r.metadata.apiUpdateAllowed(item)}
-									class={classes?.actionButton} 
+									class={classes?.actionButton}
 									data-ff-grid-action-edit
-									onclick={() => onedit(item)}
+									onclick={async () => {
+										if (onedit) {
+											onedit?.(item)
+										} else {
+											const ref = getEntityRef(item)
+											const newR = new FF_Repo(r.ent, { item: ref.clone() })
+											const res = await dialog.fform(newR, {})
+											if (res.success) {
+												if (r.items) {
+													r.items[
+														r.items.findIndex(
+															(i) => r.metadata.idMetadata.getId(i) === r.metadata.idMetadata.getId(res.item),
+														)
+													] = res.item
+												}
+											}
+										}
+									}}
 								>
 									<Icon data={LibIcon_Edit} />
 								</button>
 							{/if}
-							{#if ondelete && showDelete}
-								<button 
+							{#if showDelete}
+								<button
 									disabled={!r.metadata.apiDeleteAllowed(item)}
-									class={classes?.actionButton} 
-									data-ff-grid-action-delete 
-									onclick={() => ondelete(item)}
+									class={classes?.actionButton}
+									data-ff-grid-action-delete
+									onclick={() => ondelete?.(item)}
 								>
 									<Icon data={LibIcon_Delete} />
 								</button>

@@ -1,7 +1,7 @@
 import type { SvelteComponent } from 'svelte'
 import { writable } from 'svelte/store'
 
-import type { Repository } from 'remult'
+import { getEntityRef, type Repository } from 'remult'
 
 import {
 	LibIcon_Add,
@@ -12,6 +12,7 @@ import {
 	type CellsInput,
 	type StoreItem,
 } from '../../'
+import type { FF_Repo } from '$lib/svelte'
 
 export type DialogClasses = {
 	/**
@@ -44,6 +45,7 @@ export type DialogMetaData<entityType = any> = {
 	focusKey?: string
 
 	topicPrefixText?: string
+	r?: FF_Repo<entityType>
 }
 
 type ResultClose<entityType = any> = {
@@ -52,7 +54,14 @@ type ResultClose<entityType = any> = {
 	// createRequest?: entityType
 }
 
-export type DialogType = 'custom' | 'confirm' | 'confirmDelete' | 'insert' | 'update' | 'view'
+export type DialogType =
+	| 'custom'
+	| 'confirm'
+	| 'confirmDelete'
+	| 'insert'
+	| 'update'
+	| 'view'
+	| 'fform'
 export type DialogFormType<entityType> = {
 	cells?: CellsInput<entityType>
 	defaults?: Partial<entityType>
@@ -144,6 +153,40 @@ const createDialogManagement = () => {
 				topicPrefixText,
 			}
 			return show(detail, type)
+		},
+		fform: <entityType>(
+			r: FF_Repo<entityType>,
+			settings: DialogFormType<entityType>,
+		) => {
+			// const topicPrefixText = settings?.topicPrefixText
+			// 	? settings?.topicPrefixText + ' '
+			// 	: type === 'insert'
+			// 		? `Créer `
+			// 		: type === 'update'
+			// 			? 'Modifier '
+			// 			: 'Détail '
+
+
+			const detail: DialogMetaData<entityType> = {
+				detail: {
+					caption: r.metadata.caption,
+					icon: {
+						data: LibIcon_Edit
+						// data: type === 'insert' ? LibIcon_Add : type === 'update' ? LibIcon_Edit : LibIcon_Search,
+					},
+				},
+				// repo,
+				// store,
+				cells: settings.cells ?? [],
+				defaults: settings?.defaults,
+				classes: settings?.classes,
+				reThrow: settings?.reThrow,
+				wDelete: settings?.wDelete,
+				focusKey: settings?.focusKey,
+				r,
+				// topicPrefixText,
+			}
+			return show(detail, "fform")
 		},
 
 		show: (dialog: DialogMetaData) => {
