@@ -7,11 +7,15 @@ import type {
 	GroupByResult,
 	MembersOnly,
 	NumericKeys,
+	Paginator,
 	QueryOptions,
 	QueryResult,
 	Repository,
 } from 'remult'
 import { EntityError, repo as remultRepo } from 'remult'
+
+// Define this locally since it's not exported from remult
+type EmptyAggregateResult = 'EmptyAggregateResult'
 
 type Loading = {
 	init: boolean
@@ -33,13 +37,41 @@ type FQueryOptions<entityType> = QueryOptions<entityType> & {
 		'group' | 'orderBy' | 'where' | 'limit' | 'page'
 	>
 }
-// type PaginatorOf<T extends (...args: any) => any> = Awaited<ReturnType<ReturnType<T>['paginator']>>
 
-export class FF_Repo<Entity> {
+// Helper type to extract aggregate result type from query options
+type ExtractAggregateResult<Entity, Options extends FQueryOptions<Entity>> = Options extends {
+	aggregate: infer A;
+}
+	? GroupByResult<
+			Entity,
+			never,
+			A extends { sum?: infer S } ? S extends NumericKeys<Entity>[] ? S : never : never,
+			A extends { avg?: infer V } ? V extends NumericKeys<Entity>[] ? V : never : never,
+			A extends { min?: infer M } ? M extends (keyof MembersOnly<Entity>)[] ? M : never : never,
+			A extends { max?: infer X } ? X extends (keyof MembersOnly<Entity>)[] ? X : never : never,
+			A extends { distinctCount?: infer D } ? D extends (keyof MembersOnly<Entity>)[] ? D : never : never
+	  >
+	: EmptyAggregateResult
+
+// Define a type for the paginator based on the query options
+type PaginatorWithAggregate<Entity, Options extends FQueryOptions<Entity>> = Paginator<
+	Entity,
+	ExtractAggregateResult<Entity, Options>
+>
+
+// Any paginator type that has the necessary properties we need
+type AnyPaginator<Entity> = {
+	items: Entity[];
+	hasNextPage: boolean;
+	aggregates?: any;
+	count(): Promise<number>;
+	nextPage(): Promise<any>;
+}
+
+export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptions<Entity>> {
 	#repo: Repository<Entity>
-	// #paginator: PaginatorOf<Repository<Entity>['query']> | undefined
-	#paginator: any | undefined
-	#queryOptions: FQueryOptions<Entity> | undefined
+	#paginator: PaginatorWithAggregate<Entity, Options> | undefined
+	#queryOptions: Options | undefined
 
 	fields: Repository<Entity>['fields']
 	metadata: Repository<Entity>['metadata']
@@ -51,9 +83,7 @@ export class FF_Repo<Entity> {
 	})
 
 	items = $state<Entity[] | undefined>(undefined)
-	aggregates = $state<GroupByResult<Entity, never, never, never, never, never, never> | undefined>(
-		undefined,
-	)
+	aggregates = $state<ExtractAggregateResult<Entity, Options> | undefined>(undefined)
 	hasNextPage = $state<boolean | undefined>(undefined)
 
 	item = $state<Entity | undefined>(undefined)
@@ -70,7 +100,7 @@ export class FF_Repo<Entity> {
 
 	constructor(
 		ent: ClassType<Entity>,
-		o?: { findOptions?: FindOptions<Entity>; queryOptions?: FQueryOptions<Entity> },
+		o?: { findOptions?: FindOptions<Entity>; queryOptions?: Options },
 	) {
 		this.#repo = remultRepo(ent)
 		this.fields = this.#repo.fields
@@ -83,7 +113,7 @@ export class FF_Repo<Entity> {
 		if (o?.findOptions !== undefined) {
 			this.find(o.findOptions)
 		} else if (o?.queryOptions !== undefined) {
-			this.query(o.queryOptions)
+			this.query(o.queryOptions as FQueryOptions<Entity>)
 		}
 	}
 
@@ -103,18 +133,20 @@ export class FF_Repo<Entity> {
 	async query(options: FQueryOptions<Entity>) {
 		this.loading.fetching = true
 		try {
-			this.#paginator = await this.#repo
-				.query({
-					pageSize: 2,
-					...this.#queryOptions,
-					...options,
-					aggregate: {
-						...this.#queryOptions?.aggregate,
-						...options.aggregate,
-					},
-				})
-				.paginator()
+			const mergedOptions = {
+				pageSize: 2,
+				...this.#queryOptions,
+				...options,
+				aggregate: {
+					...this.#queryOptions?.aggregate,
+					...options.aggregate,
+				},
+			}
+			
+			const queryResult = this.#repo.query(mergedOptions)
+			this.#paginator = await queryResult.paginator() as PaginatorWithAggregate<Entity, Options>
 			this.items = this.#paginator.items
+			// @ts-ignore - We know the structure will match due to how we define the types
 			this.aggregates = this.#paginator.aggregates
 			this.hasNextPage = this.#paginator.hasNextPage
 		} catch (error) {
@@ -137,9 +169,10 @@ export class FF_Repo<Entity> {
 			more: true,
 		}
 		try {
-			this.#paginator = await this.#paginator.nextPage()
-			this.items?.push(...this.#paginator.items)
-			this.hasNextPage = this.#paginator.hasNextPage
+			const nextPage = await this.#paginator.nextPage()
+			this.#paginator = nextPage as PaginatorWithAggregate<Entity, Options>
+			this.items?.push(...nextPage.items)
+			this.hasNextPage = nextPage.hasNextPage
 		} catch (error) {
 			// @ts-ignore
 			this.globalError = error?.message

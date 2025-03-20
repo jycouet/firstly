@@ -10,6 +10,7 @@
 
 	const r = new FF_Repo(Task, {
 		queryOptions: {
+			pageSize: 1,
 			aggregate: {
 				distinctCount: ['title', 'id']
 			}
@@ -25,6 +26,9 @@
 	// 	res.aggregates
 	// }
 	$inspect(r.aggregates)
+	$inspect(r.aggregates?.title.distinctCount)
+	$inspect(r.aggregates?.id.distinctCount)
+	
 		
 	
 	// $effect(async () => {
