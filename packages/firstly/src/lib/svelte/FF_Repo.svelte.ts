@@ -14,8 +14,10 @@ import type {
 } from 'remult'
 import { EntityError, repo as remultRepo } from 'remult'
 
-// Define this locally since it's not exported from remult
-type EmptyAggregateResult = 'EmptyAggregateResult'
+// In our case the empty is always the $count (so almost empty :))
+type EmptyAggregateResult = {
+	$count: number
+}
 
 type Loading = {
 	init: boolean
@@ -23,7 +25,7 @@ type Loading = {
 	more: boolean
 }
 
-type FQueryOptions<entityType> = QueryOptions<entityType> & {
+type QueryOptionsHelper<entityType> = QueryOptions<entityType> & {
 	aggregate?: Omit<
 		GroupByOptions<
 			entityType,
@@ -39,7 +41,7 @@ type FQueryOptions<entityType> = QueryOptions<entityType> & {
 }
 
 // Helper type to extract aggregate result type from query options
-type ExtractAggregateResult<Entity, Options extends FQueryOptions<Entity>> = Options extends {
+type ExtractAggregateResult<Entity, Options extends QueryOptionsHelper<Entity>> = Options extends {
 	aggregate: infer A
 }
 	? GroupByResult<
@@ -58,24 +60,19 @@ type ExtractAggregateResult<Entity, Options extends FQueryOptions<Entity>> = Opt
 	: EmptyAggregateResult
 
 // Define a type for the paginator based on the query options
-type PaginatorWithAggregate<Entity, Options extends FQueryOptions<Entity>> = Paginator<
+type PaginatorWithAggregate<Entity, Options extends QueryOptionsHelper<Entity>> = Paginator<
 	Entity,
 	ExtractAggregateResult<Entity, Options>
 >
 
-// Any paginator type that has the necessary properties we need
-type AnyPaginator<Entity> = {
-	items: Entity[]
-	hasNextPage: boolean
-	aggregates?: any
-	count(): Promise<number>
-	nextPage(): Promise<any>
-}
-
-export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptions<Entity>> {
+export class FF_Repo<
+	Entity,
+	QueryOptions extends QueryOptionsHelper<Entity> = QueryOptionsHelper<Entity>,
+> {
 	#repo: Repository<Entity>
-	#paginator: PaginatorWithAggregate<Entity, Options> | undefined
-	#queryOptions: Options | undefined
+	#paginator: PaginatorWithAggregate<Entity, QueryOptions> | undefined
+	#findOptions: FindOptions<Entity> | undefined
+	#queryOptions: QueryOptions | undefined
 
 	fields: Repository<Entity>['fields']
 	metadata: Repository<Entity>['metadata']
@@ -87,11 +84,11 @@ export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptio
 	})
 
 	items = $state<Entity[] | undefined>(undefined)
-	aggregates = $state<ExtractAggregateResult<Entity, Options> | undefined>(undefined)
+	aggregates = $state<ExtractAggregateResult<Entity, QueryOptions> | undefined>(undefined)
 	hasNextPage = $state<boolean | undefined>(undefined)
 
 	item = $state<Entity | undefined>(undefined)
-	errors = $state<ErrorInfo<Entity> | undefined>(undefined)
+	// errors = $state<ErrorInfo<Entity> | undefined>(undefined)
 	globalError = $state<string | undefined>(undefined)
 
 	private loadingEnd = () => {
@@ -104,15 +101,21 @@ export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptio
 
 	constructor(
 		ent: ClassType<Entity>,
-		o?: {
-			findOptions?: FindOptions<Entity> & { skipAutoFetch?: Boolean }
-			queryOptions?: Options & { skipAutoFetch?: Boolean } 
-		},
+		o?:
+			| {
+					findOptions?: FindOptions<Entity> & { skipAutoFetch?: Boolean }
+					queryOptions?: never
+			  }
+			| {
+					findOptions?: never
+					queryOptions?: QueryOptions & { skipAutoFetch?: Boolean }
+			  },
 	) {
 		this.#repo = remultRepo(ent)
 		this.fields = this.#repo.fields
 		this.metadata = this.#repo.metadata
 		this.#paginator = undefined
+		this.#findOptions = o?.findOptions
 		this.#queryOptions = o?.queryOptions
 
 		if (o?.findOptions !== undefined && !o.findOptions.skipAutoFetch) {
@@ -120,7 +123,7 @@ export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptio
 			this.find(o.findOptions)
 		} else if (o?.queryOptions !== undefined && !o.queryOptions.skipAutoFetch) {
 			this.loading.init = true
-			this.query(o.queryOptions as FQueryOptions<Entity>)
+			this.query(o.queryOptions)
 		} else {
 			this.loadingEnd()
 		}
@@ -129,7 +132,10 @@ export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptio
 	async find(options: FindOptions<Entity>) {
 		this.loading.fetching = true
 		try {
-			this.items = await this.#repo.find(options)
+			this.items = await this.#repo.find({
+				...this.#findOptions,
+				...options,
+			})
 		} catch (error) {
 			// @ts-ignore
 			this.globalError = error?.message
@@ -139,21 +145,20 @@ export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptio
 		return this.items
 	}
 
-	async query(options: FQueryOptions<Entity>) {
+	async query(options: Pick<QueryOptionsHelper<Entity>, 'where' | 'orderBy'>) {
 		this.loading.fetching = true
 		try {
-			const mergedOptions = {
+			const queryResult = this.#repo.query({
 				pageSize: 2,
 				...this.#queryOptions,
 				...options,
+				// Yes, we always want to aggregate to get at least the $count!
+				// End empty object is giving us that
 				aggregate: {
 					...this.#queryOptions?.aggregate,
-					...options.aggregate,
 				},
-			}
-
-			const queryResult = this.#repo.query(mergedOptions)
-			this.#paginator = (await queryResult.paginator()) as PaginatorWithAggregate<Entity, Options>
+			})
+			this.#paginator = (await queryResult.paginator()) as PaginatorWithAggregate<Entity, QueryOptions>
 			this.items = this.#paginator.items
 			// @ts-ignore - We know the structure will match due to how we define the types
 			this.aggregates = this.#paginator.aggregates
@@ -179,7 +184,7 @@ export class FF_Repo<Entity, Options extends FQueryOptions<Entity> = FQueryOptio
 		}
 		try {
 			const nextPage = await this.#paginator.nextPage()
-			this.#paginator = nextPage as PaginatorWithAggregate<Entity, Options>
+			this.#paginator = nextPage as PaginatorWithAggregate<Entity, QueryOptions>
 			this.items?.push(...nextPage.items)
 			this.hasNextPage = nextPage.hasNextPage
 		} catch (error) {

@@ -41,9 +41,14 @@
 	const onsubmit = async (e: Event) => {
 		e.preventDefault()
 		try {
-			const newItem = await getEntityRef(r.item).save()
-			if(newItem){
-				r.items?.push(newItem)
+			const ref = getEntityRef(r.item)
+			const wasNew = ref.isNew()
+			const newItem = await ref.save()
+			if(newItem && wasNew){
+				r.items?.unshift(newItem)
+				if(r.aggregates && r.aggregates.$count){
+					r.aggregates.$count = r.aggregates.$count + 1
+				}
 			}
 			valuesToUse = r.create()
 			errors = {}

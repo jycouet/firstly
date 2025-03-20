@@ -5,7 +5,9 @@
 	import { FF_Repo, FForm, FGrid } from '$lib/svelte'
 	import { mergeFieldMetadata } from '$lib/svelte/mergeFieldMetadata'
 
-	const r1 = new FF_Repo(Task, { findOptions: {} })
+	const r1 = new FF_Repo(Task, { findOptions: {
+
+	} })
 	// const r = new FF_Repo(Task, { })
 
 	const r = new FF_Repo(Task, {
@@ -31,9 +33,8 @@
 	// }
 	// $inspect(r.aggregates)
 	// $inspect(r.aggregates?.title.distinctCount)
-	// $inspect(r.aggregates?.id.distinctCount)
-	$inspect(r.loading)
-		
+	// $inspect(r.aggregates)
+	// $inspect(r.loading)
 	
 	// $effect(async () => {
 	// 	const p = await rr.paginator({pageSize: 2, aggregate: {}})
