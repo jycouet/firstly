@@ -4,7 +4,7 @@
 	import { Task } from '$modules/task/Task'
 	import { dialog } from '$lib/ui/dialog/dialog'
 	import Icon from '$lib/ui/Icon.svelte'
-	import { LibIcon_Delete, LibIcon_Edit } from '$lib/ui/LibIcon'
+	import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '$lib/ui/LibIcon'
 
 	import { FF_Repo } from './FF_Repo.svelte'
 
@@ -12,8 +12,10 @@
 		uid?: string
 		r: FF_Repo<entityType>
 		fields?: FieldMetadata<unknown, entityType>[]
+		showCreate?: boolean
 		showEdit?: boolean
 		showDelete?: boolean
+		oncreate?: () => void
 		onedit?: (item: entityType) => void
 		ondelete?: (item: entityType) => void
 
@@ -29,8 +31,10 @@
 	let {
 		r,
 		fields = r.fields.toArray().filter((c) => c.apiUpdateAllowed()),
+		showCreate = true,
 		showEdit = true,
 		showDelete = true,
+		oncreate,
 		onedit,
 		ondelete,
 		classes = {
@@ -45,11 +49,32 @@
 	const showActions = $derived(showEdit || showDelete)
 </script>
 
-{#if r.aggregates?.$count}
-	<div class="text-right">
+<div class="flex gap-2 justify-end">
+	{#if r.aggregates?.$count}
 		Total: {r.aggregates?.$count}
-	</div>
-{/if}
+	{/if}
+
+	{#if showCreate}
+		<button
+			disabled={!r.metadata.apiInsertAllowed()}
+			class="create-button"
+			data-ff-grid-action-create
+			onclick={async () => {
+				if (oncreate) {
+					oncreate()
+				} else {
+					const res = await dialog.fform(r, { defaults: {} })
+					if (res.success && r.items) {
+						r.items.unshift(res.item)
+					}
+				}
+			}}
+		>
+			<Icon data={LibIcon_Add} />
+		</button>
+	{/if}
+</div>
+
 <table data-ff-grid class={classes?.root}>
 	<thead>
 		<tr data-ff-grid-header>
@@ -57,7 +82,7 @@
 				<th data-ff-grid-header-cell>{item.caption}</th>
 			{/each}
 			{#if showActions}
-				<th data-ff-grid-header-cell class={classes?.actionsHeader}>Actions</th>
+				<th data-ff-grid-header-cell class={classes?.actionsHeader} style="width: 1rem;"> Actions </th>
 			{/if}
 		</tr>
 	</thead>
@@ -125,7 +150,7 @@
 										if (ondelete) {
 											ondelete?.(item)
 										} else {
-											const res = await dialog.confirmDelete("")
+											const res = await dialog.confirmDelete('')
 											if (res.success) {
 												await r.delete(item)
 											}
@@ -183,5 +208,14 @@
 		100% {
 			transform: translateX(100%);
 		}
+	}
+
+	[data-ff-grid-action-create] {
+		opacity: 1;
+		color: inherit;
+	}
+
+	[data-ff-grid-action-create]:disabled {
+		opacity: 0.5;
 	}
 </style>

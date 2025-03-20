@@ -15,7 +15,7 @@ export class Task {
 	@Fields.cuid()
 	id!: string
 
-	@Fields.createdAt()
+	@Fields.createdAt({inputType: "coucou"})
 	createdAt?: Date
 
 	@Fields.string<Task>({

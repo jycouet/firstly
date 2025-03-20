@@ -163,7 +163,7 @@ export class FF_Repo<
 			this.items = this.#paginator.items
 			// @ts-ignore - We know the structure will match due to how we define the types
 			this.aggregates = this.#paginator.aggregates
-			this.hasNextPage = this.#paginator.hasNextPage
+			this.hasNextPage = this.#paginator.hasNextPage && this.aggregates!.$count > this.items!.length
 		} catch (error) {
 			// @ts-ignore
 			this.globalError = error?.message
@@ -187,7 +187,7 @@ export class FF_Repo<
 			const nextPage = await this.#paginator.nextPage()
 			this.#paginator = nextPage as PaginatorWithAggregate<Entity, QueryOptions>
 			this.items?.push(...nextPage.items)
-			this.hasNextPage = nextPage.hasNextPage
+			this.hasNextPage = this.#paginator.hasNextPage && this.aggregates!.$count > this.items!.length
 		} catch (error) {
 			// @ts-ignore
 			this.globalError = error?.message

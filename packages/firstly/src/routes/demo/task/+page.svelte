@@ -1,13 +1,9 @@
 <script lang="ts">
 	import { Task } from '$modules/task/Task'
-	import TaskAdd from '$modules/task/ui/TaskAdd.svelte'
-	import TaskList from '$modules/task/ui/TaskList.svelte'
 	import { FF_Repo, FForm, FGrid } from '$lib/svelte'
 	import { mergeFieldMetadata } from '$lib/svelte/mergeFieldMetadata'
 
-	const r1 = new FF_Repo(Task, { findOptions: {
-
-	} })
+	const r1 = new FF_Repo(Task, { findOptions: {} })
 	// const r = new FF_Repo(Task, { })
 
 	const r = new FF_Repo(Task, {
@@ -18,8 +14,8 @@
 			// skipAutoFetch: true,
 			pageSize: 1,
 			aggregate: {
-				distinctCount: ['title', 'id']
-			}
+				distinctCount: ['title', 'id'],
+			},
 		},
 	})
 	// const tt = async () => {
@@ -35,7 +31,7 @@
 	// $inspect(r.aggregates?.title.distinctCount)
 	// $inspect(r.aggregates)
 	// $inspect(r.loading)
-	
+
 	// $effect(async () => {
 	// 	const p = await rr.paginator({pageSize: 2, aggregate: {}})
 	// 	// const tt = await p.paginator()
@@ -64,55 +60,30 @@
 	}
 </script>
 
-<h1>Task Module</h1>
-
-<!-- <TaskAdd />
-<TaskList /> -->
-
-<hr />
-
-Next level!
-
-<!-- <FForm {r} {fields}> -->
-<FForm {r}>
-	<!-- {#snippet customField(field, value)}
+<div class="flex flex-col gap-1">
+	<!-- <FForm {r} {fields}> -->
+	<FForm {r}>
+		<!-- {#snippet customField(field, value)}
 		{#if field.key === 'title'}
 			title stuff... 
 		{/if}
 	{/snippet} -->
-</FForm>
-
-<h2>Default Grid (Edit and Delete)</h2>
-<FGrid 
-	{r} 
-	/>
+	</FForm>
+	<hr />
+	<h2 class="text-2xl">Default Grid (Edit and Delete)</h2>
+	<FGrid {r} />
 	<!-- ondelete={handleDelete} -->
 	<!-- onedit={handleEdit} -->
-
-<h2>Edit Only</h2>
-<FGrid 
-	{r} 
-	showDelete={false}
-	onedit={handleEdit}
-	ondelete={handleDelete}
-/>
-
-<h2>Delete Only</h2>
-<FGrid 
-	{r} 
-	showEdit={false}
-	onedit={handleEdit}
-	ondelete={handleDelete}
-/>
-
-<h2>No Actions</h2>
-<FGrid 
-	{r} 
-	showEdit={false}
-	showDelete={false}
-	onedit={handleEdit}
-	ondelete={handleDelete}
-/>
+	<hr />
+	<h2 class="text-2xl">Edit Only</h2>
+	<FGrid {r} showDelete={false} onedit={handleEdit} ondelete={handleDelete} />
+	<hr />
+	<h2 class="text-2xl">Delete Only</h2>
+	<FGrid {r} showEdit={false} onedit={handleEdit} ondelete={handleDelete} />
+	<hr />
+	<h2 class="text-2xl">No Actions</h2>
+	<FGrid {r} showEdit={false} showDelete={false} onedit={handleEdit} ondelete={handleDelete} />
+</div>
 
 <style>
 	:root {
