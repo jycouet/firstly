@@ -2,6 +2,7 @@
 	import { getValueList, type FieldMetadata } from 'remult'
 
 	import type { CustomFieldSnippet } from './createCustomField'
+	import { getFieldTheme, type FieldTheme } from './theme'
 
 	const default_uid = $props.id()
 
@@ -12,21 +13,16 @@
 		error?: string
 		customField?: CustomFieldSnippet<valueType, entityType>
 
-		classes?: {
-			root?: string
-			label?: string
-			error?: string
-			select?: string
-			checkbox?: string
-			input?: string
-		}
+		classes?: FieldTheme
 	}
 
-	let { uid = default_uid, field, value = $bindable(), error, customField, classes = {
-		checkbox: 'checkbox',
-		input: 'input',
-		select: 'select',
-	} }: Props = $props()
+	// Get theme from context or use default
+	const themeClasses = getFieldTheme()
+
+	let { uid = default_uid, field, value = $bindable(), error, customField, classes = {} }: Props = $props()
+
+	// Merge provided classes with theme classes
+	classes = { ...themeClasses, ...classes }
 
 	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
 </script>
@@ -65,10 +61,10 @@ ${field.key} = { lat: 0, lng: 0 }`}</pre>
 	style:--ff-field-position-mobile-end={field.options.ui?.position?.mobile?.end}
 >
 	{#if !field.options.ui?.hide?.header}
-		<div data-ff-field-header class="">
-			<label data-ff-field-label for={uid} class="">{field.caption}</label>
+		<div data-ff-field-header class={classes?.header}>
+			<label data-ff-field-label for={uid} class={classes?.label}>{field.caption}</label>
 			{#if error}
-				<span data-ff-field-error class="">{error}</span>
+				<span data-ff-field-error class={classes?.error}>{error}</span>
 			{/if}
 		</div>
 	{/if}

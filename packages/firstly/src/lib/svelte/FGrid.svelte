@@ -7,6 +7,7 @@
 
 	import { FF_Repo } from './FF_Repo.svelte'
 	import FFieldDisplay from './FFieldDisplay.svelte'
+	import { getGridTheme, type GridTheme } from './theme'
 
 	interface Props<entityType> {
 		uid?: string
@@ -19,14 +20,11 @@
 		onedit?: (item: entityType) => void
 		ondelete?: (item: entityType) => void
 
-		classes?: {
-			root?: string
-			actions?: string
-			actionButton?: string
-			actionsColumn?: string
-			actionsHeader?: string
-		}
+		classes?: GridTheme
 	}
+
+	// Get theme from context
+	const themeClasses = getGridTheme()
 
 	let {
 		r,
@@ -37,14 +35,11 @@
 		oncreate,
 		onedit,
 		ondelete,
-		classes = {
-			root: 'table',
-			actions: 'flex gap-2 justify-end',
-			actionButton: 'text-xs',
-			actionsColumn: 'text-right',
-			actionsHeader: 'text-right',
-		},
+		classes = {},
 	}: Props<entityType> = $props()
+
+	// Merge provided classes with theme classes
+	classes = { ...themeClasses, ...classes }
 
 	const showActions = $derived(showEdit || showDelete)
 </script>
@@ -77,9 +72,9 @@
 
 <table data-ff-grid class={classes?.root}>
 	<thead>
-		<tr data-ff-grid-header>
+		<tr data-ff-grid-header class={classes?.header}>
 			{#each fields ?? [] as item (item.key)}
-				<th data-ff-grid-header-cell>{item.caption}</th>
+				<th data-ff-grid-header-cell class={classes?.headerCell}>{item.caption}</th>
 			{/each}
 			{#if showActions}
 				<th data-ff-grid-header-cell class={classes?.actionsHeader} style="width: 1rem;"> Actions </th>
@@ -107,9 +102,9 @@
 			</tr>
 		{/if}
 		{#each r.items ?? [] as item (r.metadata.idMetadata.getId(item))}
-			<tr data-ff-grid-row>
+			<tr data-ff-grid-row class={classes?.row}>
 				{#each fields as f (f.key)}
-					<td data-ff-grid-row-cell>
+					<td data-ff-grid-row-cell class={classes?.rowCell}>
 						<FFieldDisplay field={f} value={item[f.key as keyof entityType]}></FFieldDisplay>
 					</td>
 				{/each}
@@ -171,7 +166,7 @@
 </table>
 {#if r.hasNextPage}
 	<div class="text-right">
-		<button onclick={() => r.queryMore()}>Load More</button>
+		<button class={classes?.loadMoreButton} onclick={() => r.queryMore()}>Load More</button>
 	</div>
 {/if}
 

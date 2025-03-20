@@ -4,6 +4,7 @@
 	import type { CustomFieldSnippet } from './createCustomField'
 	import type { FF_Repo } from './FF_Repo.svelte'
 	import FField from './FField.svelte'
+	import { getFormTheme, type FormTheme, type FieldTheme } from './theme'
 
 	const default_uid = $props.id()
 
@@ -13,16 +14,17 @@
 		fields?: FieldMetadata<unknown, entityType>[]
 		customField?: CustomFieldSnippet<unknown, entityType>
 		defaults?: Partial<entityType>
-		classes?: {
-			root?: string
-			actions?: string
-			button?: string
+		classes?: FormTheme & {
+			fields?: FieldTheme
 		}
 		show?: {
 			title?: boolean
 		}
 		onSaved?: (item: entityType) => void
 	}
+
+	// Get theme from context
+	const themeClasses = getFormTheme()
 
 	let {
 		uid = default_uid,
@@ -33,13 +35,12 @@
 		show = {
 			title: true,
 		},
-		classes = {
-			root: 'form',
-			actions: 'flex justify-end gap-2',
-			button: 'btn btn-primary',
-		},
+		classes = {},
 		onSaved,
 	}: Props<entityType> = $props()
+
+	// Merge provided classes with theme classes
+	classes = { ...themeClasses, ...classes }
 
 	let errors = $state<Record<string, string>>({})
 	let globalError = $state<string | undefined>(undefined)
@@ -84,7 +85,7 @@
 	{#if show?.title}
 		<div data-ff-form-title>{ref.isNew() ? 'Add' : 'Save'} {r.metadata.caption}</div>
 	{/if}
-	<div data-ff-form-fields>
+	<div data-ff-form-fields class={classes?.fields}>
 		{#each fieldsToUse as field}
 			<FField
 				uid="{uid}-{field.key}"
@@ -92,11 +93,12 @@
 				bind:value={valuesToUse[field.key as keyof entityType]}
 				error={errors[field.key]}
 				{customField}
+				classes={classes?.fields}
 			/>
 		{/each}
 	</div>
 	<div data-ff-form-actions class={classes?.actions}>
-		<button data-ff-form-button class={classes?.button} disabled={!r.metadata.apiInsertAllowed()}>
+		<button data-ff-form-button class={classes?.submitButton} disabled={!r.metadata.apiInsertAllowed()}>
 			{ref.isNew() ? 'Add' : 'Save'}
 		</button>
 		{globalError}

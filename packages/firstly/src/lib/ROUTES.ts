@@ -12,6 +12,7 @@ const PAGES = {
   "/": `/`,
   "/auth": `/auth`,
   "/demo/task": `/demo/task`,
+  "/examples/theme": `/examples/theme`,
   "/mail": `/mail`,
   "/ui/dialog": `/ui/dialog`,
   "/ui/enum": `/ui/enum`,
@@ -152,7 +153,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 * ```
 */
 export type KIT_ROUTES = {
-  PAGES: { '/': never, '/auth': never, '/demo/task': never, '/mail': never, '/ui/dialog': never, '/ui/enum': never, '/ui/fieldGroup': never, '/ui/select': never }
+  PAGES: { '/': never, '/auth': never, '/demo/task': never, '/examples/theme': never, '/mail': never, '/ui/dialog': never, '/ui/enum': never, '/ui/fieldGroup': never, '/ui/select': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
   LINKS: { 'firstly_sign_in': never, 'remult_admin': never, 'github': 'owner' | 'repo' }

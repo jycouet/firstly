@@ -44,6 +44,42 @@ export {
 	Clipboardable,
 }
 
+// Export FField related components
+import { default as FField } from './svelte/FField.svelte'
+import { default as FForm } from './svelte/FForm.svelte'
+import { default as ThemeProvider } from './svelte/ThemeProvider.svelte'
+import { 
+	getTheme, 
+	getFieldTheme, 
+	getGridTheme, 
+	getFormTheme, 
+	setTheme, 
+	type Theme, 
+	type FieldTheme, 
+	type GridTheme, 
+	type FormTheme 
+} from './svelte/theme'
+
+
+export { 
+	FField,
+	FForm,
+	ThemeProvider,
+	getTheme,
+	getFieldTheme,
+	getGridTheme,
+	getFormTheme,
+	setTheme
+}
+
+// Export theme types
+export type { 
+	Theme, 
+	FieldTheme, 
+	GridTheme, 
+	FormTheme 
+}
+
 import { FF_Role } from './common.js'
 import { ff_Log } from './common.js'
 export { FF_Role, ff_Log }
