@@ -2,8 +2,8 @@
 	import { getValueList, type FieldMetadata } from 'remult'
 
 	import { getClasses, getDynamicCustomField } from '.'
+	import type { EditTheme } from './'
 	import { isComponentObject } from './customField'
-	import type { EditTheme } from './ff_Config'
 
 	const default_uid = $props.id()
 

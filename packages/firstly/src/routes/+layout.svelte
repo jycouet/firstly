@@ -1,3 +1,5 @@
+<!-- @migration-task Error while migrating Svelte code: Cannot use `export let` in runes mode — use `$props()` instead
+https://svelte.dev/e/legacy_export_invalid -->
 <script lang="ts">
 	// import { mdiHome } from '@mdi/js'
 	import { remult } from 'remult'
@@ -13,10 +15,8 @@
 
 	import { Remult } from 'remult'
 
-	import { FF_Config } from '$lib/svelte'
+	import { daisyTheme, emptyTheme, FF_Config } from '$lib/svelte'
 	import type { DynamicCustomField, Theme } from '$lib/svelte'
-
-	import type { LayoutData } from './$types'
 
 	const links = [
 		{ path: route('/'), text: 'Home' },
@@ -37,10 +37,6 @@
 		},
 		{ path: route('github'), text: '⭐️ firstly', target: '_blank' },
 	]
-
-	export let data: LayoutData
-
-	$: remult.user = data.user
 
 	// To be done once in the application.
 	function initRemultSvelteReactivity() {
@@ -82,23 +78,8 @@
 		return undefined
 	}
 
-	const theme: Theme = {
-		// root: 'bg-gray-100',
-		// field: {
-		// 	label: 'text-gray-800',
-		// 	input: 'bg-white',
-		// 	select: 'bg-white',
-		// 	checkbox: 'bg-white',
-		// },
-		// grid: {
-		// 	root: 'table table-zebra',
-		// 	headerCell: 'bg-gray-200',
-		// },
-		// form: {
-		// 	submitButton: 'btn btn-primary',
-		// 	cancelButton: 'btn',
-		// },
-	}
+	let theme: Theme = $state(daisyTheme)
+	// const theme = new FF_Theme()
 </script>
 
 <svelte:head>
@@ -206,14 +187,32 @@
 							<li>
 								<a href="/">Profile</a>
 							</li>
-							<li>
+							<!-- <li>
 								<a href="/">
 									Inbox
 									<span class="badge badge-success">12</span>
 								</a>
+							</li> -->
+							<li>
+								<button
+									class="btn btn-ghost"
+									onclick={() => {
+										theme = daisyTheme
+									}}
+								>
+									daisyTheme
+								</button>
 							</li>
-							<li><a href="/">Settings</a></li>
-							<li><a href="/">Logout</a></li>
+							<li>
+								<button
+									class="btn btn-ghost"
+									onclick={() => {
+										theme = emptyTheme
+									}}
+								>
+									emptyTheme
+								</button>
+							</li>
 						</ul>
 					</div>
 					<!-- /dropdown -->

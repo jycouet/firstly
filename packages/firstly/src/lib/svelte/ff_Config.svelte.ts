@@ -1,7 +1,7 @@
 import { getContext, setContext } from 'svelte'
 
-import type { DynamicCustomField } from './'
-import { deepMerge } from './'
+import type { DynamicCustomField } from '.'
+import { deepMerge } from '.'
 
 const THEME_KEY = 'firstly:theme'
 const DYNAMIC_CUSTOM_FIELD_KEY = 'firstly:dynamicCustomField'
@@ -58,7 +58,34 @@ export interface Theme {
 }
 
 // Default theme with all components
-export const defaultTheme: Theme = {
+export const emptyTheme: Theme = {
+	field: {
+		root: '',
+		label: '',
+		error: '',
+	},
+	edit: {
+		checkbox: '',
+		input: '',
+		select: '',
+	},
+	grid: {
+		root: '',
+		actions: '',
+		actionButton: '',
+		actionsColumn: '',
+		actionsHeader: '',
+	},
+	form: {
+		root: '',
+		fields: '',
+		actions: '',
+		submitButton: '',
+		cancelButton: '',
+	},
+}
+
+export const daisyTheme: Theme = {
 	field: {
 		root: '',
 		label: '',
@@ -94,12 +121,37 @@ export type FullyDefinedTheme = {
 	form: Required<FormTheme>
 }
 
+// export class FF_Theme {
+// 	#theme: Theme = $state(emptyTheme)
+
+// 	constructor() {
+// 	}
+
+// 	setTheme(theme: Theme) {
+// 		setContext(THEME_KEY, deepMerge(emptyTheme, theme)) as FullyDefinedTheme
+// 		// this.#theme = theme //
+// 	}
+
+// 	getTheme() {
+// 		return deepMerge(theme, getContext(THEME_KEY) || {})
+// 	}
+
+// 	getClasses<K extends keyof FullyDefinedTheme>(
+// 		key: K,
+// 		classes: Partial<FullyDefinedTheme[K]>,
+// 	) {
+// 		const lvl = this.#theme[key]
+// 		return deepMerge(lvl, classes)
+// 	}
+// }
+// export let theme = new FF_Theme()
+
 export function setTheme(theme: Theme) {
-	return setContext(THEME_KEY, deepMerge(defaultTheme, theme)) as FullyDefinedTheme
+	setContext(THEME_KEY, deepMerge(emptyTheme, theme)) as FullyDefinedTheme
 }
 
 export function getTheme() {
-	return deepMerge(defaultTheme, getContext(THEME_KEY) || {}) as FullyDefinedTheme
+	return deepMerge(emptyTheme, getContext(THEME_KEY) || {}) as FullyDefinedTheme
 }
 
 export function getClasses<K extends keyof FullyDefinedTheme>(

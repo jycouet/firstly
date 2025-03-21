@@ -5,7 +5,7 @@ import { default as FF_Field } from './FF_Field.svelte'
 import { default as FF_Form } from './FF_Form.svelte'
 import { default as FF_Grid } from './FF_Grid.svelte'
 
-export type { FieldTheme, FormTheme, GridTheme, Theme } from './ff_Config.js'
+export type { FieldTheme, FormTheme, GridTheme, Theme, EditTheme } from './ff_Config.svelte.js'
 
 export {
 	getDynamicCustomField,
@@ -13,7 +13,9 @@ export {
 	setDynamicCustomField,
 	setTheme,
 	getClasses,
-} from './ff_Config.js'
+	daisyTheme,
+	emptyTheme
+} from './ff_Config.svelte.js'
 
 export { FF_Grid, FF_Form, FF_Field, FF_Edit, FF_Config, FF_Display }
 

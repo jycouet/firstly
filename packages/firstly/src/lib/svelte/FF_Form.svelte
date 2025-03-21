@@ -75,7 +75,7 @@
 	}
 </script>
 
-<form data-ff-form class={classes?.root} {onsubmit}>
+<form data-ff-form class="{classes?.root} {r.metadata.key}" {onsubmit}>
 	{#if show?.title}
 		<div data-ff-form-title>{ref.isNew() ? 'Add' : 'Save'} {r.metadata.caption}</div>
 	{/if}
