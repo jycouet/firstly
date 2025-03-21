@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { DynamicCustomField } from './customField'
-	import { setDynamicCustomField, setTheme, type Theme } from './ff_Config'
+	import type { DynamicCustomField, Theme } from './'
+	import { setDynamicCustomField, setTheme } from './'
 
 	interface Props {
 		theme?: Theme
@@ -19,4 +19,4 @@
 	}
 </script>
 
-{@render children?.()} setDynamicCustomField
+{@render children?.()}

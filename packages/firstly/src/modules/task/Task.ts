@@ -2,13 +2,14 @@ import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
 
 import { FF_Role } from '../../lib/common.js'
 import { TaskTypeEnum } from './TaskTypeEnum'
+import Title from './ui/Title.svelte'
 
 @Entity('task', {
 	// allowApiCrud: Allow.authenticated,
 	allowApiRead: true,
 	allowApiInsert: Allow.authenticated,
 	allowApiUpdate: Allow.authenticated,
-	allowApiDelete: FF_Role.FF_Role_Admin,
+	allowApiDelete: false,
 })
 export class Task {
 	@Fields.cuid()
@@ -26,6 +27,9 @@ export class Task {
 			position: {
 				span: 6,
 			},
+			customField: {
+				// edit: TextField,
+			}
 			// customField: { edit: true },
 			// customField: { edit: createCustomField(EditCustom) },
 		},
@@ -48,7 +52,7 @@ export class Task {
 	@Fields.number({
 		ui: {
 			position: {
-				span: 3,
+				span: 2,
 			},
 		},
 	})

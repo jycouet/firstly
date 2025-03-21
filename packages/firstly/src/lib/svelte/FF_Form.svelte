@@ -1,9 +1,8 @@
 <script lang="ts" generics="entityType = unknown">
 	import { EntityError, getEntityRef, type FieldMetadata } from 'remult'
 
-	import { getFormTheme, type FieldTheme, type FormTheme } from './ff_Config'
-	import FField from './FF_Field.svelte'
-	import type { FF_Repo } from './FF_Repo.svelte'
+	import { FF_Field, getFormTheme } from './'
+	import type { FF_Repo, FieldTheme, FormTheme } from './'
 
 	const default_uid = $props.id()
 
@@ -86,7 +85,7 @@
 	{/if}
 	<div data-ff-form-fields class={classes?.fields}>
 		{#each fieldsToUse as field}
-			<FField
+			<FF_Field
 				uid="{uid}-{field.key}"
 				{field}
 				bind:value={valuesToUse[field.key as keyof entityType]}

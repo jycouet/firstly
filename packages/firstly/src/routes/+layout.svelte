@@ -16,7 +16,7 @@
 	import EditCustom from '$modules/task/ui/EditCustom.svelte'
 	import Title from '$modules/task/ui/Title.svelte'
 	import { FF_Config } from '$lib/svelte'
-	import type { DynamicCustomField } from '$lib/svelte'
+	import type { DynamicCustomField, Theme } from '$lib/svelte'
 
 	import type { LayoutData } from './$types'
 
@@ -28,8 +28,8 @@
 		{ path: route('/ui/enum'), text: 'UI / Enum' },
 		{ path: route('/ui/fieldGroup'), text: 'UI / FieldGroup' },
 		{ path: route('/ui/select'), text: 'UI / Select' },
-		{ path: route('/demo/task'), text: 'Demo Task' },
-		{ path: route('/demo/theme'), text: 'Demo Theme' },
+		{ path: route('/demo/FF_Simple'), text: 'Demo Simple' },
+		{ path: route('/demo/FF_Form_Grid'), text: 'Demo Form Grid' },
 		{ path: route('firstly_sign_in'), text: '🔑 Module Auth', target: '_blank' },
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
@@ -74,14 +74,32 @@
 	}
 	initRemultSvelteReactivity()
 
-	const customField: DynamicCustomField = ({ field, value, error, mode }) => {
-		// return true
-		if (field.inputType === 'number' && mode === 'display') {
-			return Title
-		} else if (field.inputType === 'number' && mode === 'edit') {
-			return EditCustom
-		}
+	const dynamicCustomField: DynamicCustomField = ({ field, value, error, mode }) => {
+		// if (field.inputType === 'number' && mode === 'display') {
+		// 	return Title
+		// }
+		// if (field.inputType === 'number' && mode === 'edit') {
+		// 	return EditCustom
+		// }
 		return undefined
+	}
+
+	const theme: Theme = {
+		// root: 'bg-gray-100',
+		// field: {
+		// 	label: 'text-gray-800',
+		// 	input: 'bg-white',
+		// 	select: 'bg-white',
+		// 	checkbox: 'bg-white',
+		// },
+		// grid: {
+		// 	root: 'table table-zebra',
+		// 	headerCell: 'bg-gray-200',
+		// },
+		// form: {
+		// 	submitButton: 'btn btn-primary',
+		// 	cancelButton: 'btn',
+		// },
 	}
 </script>
 
@@ -89,26 +107,7 @@
 	<title>Firstly</title>
 </svelte:head>
 
-<FF_Config
-	theme={{
-		root: 'bg-gray-100',
-		field: {
-			label: 'text-gray-800',
-			input: 'bg-white',
-			select: 'bg-white',
-			checkbox: 'bg-white',
-		},
-		grid: {
-			root: 'table table-zebra',
-			headerCell: 'bg-gray-200',
-		},
-		form: {
-			submitButton: 'btn btn-primary',
-			cancelButton: 'btn',
-		},
-	}}
-	dynamicCustomField={customField}
->
+<FF_Config {theme} {dynamicCustomField}>
 	<DialogManagement />
 
 	<div class="drawer bg-base-200 lg:drawer-open min-h-screen">

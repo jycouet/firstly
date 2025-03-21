@@ -5,9 +5,7 @@
 	import Icon from '$lib/ui/Icon.svelte'
 	import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '$lib/ui/LibIcon'
 
-	import { getGridTheme, type GridTheme } from './ff_Config'
-	import FFieldDisplay from './FF_FieldDisplay.svelte'
-	import { FF_Repo } from './FF_Repo.svelte'
+	import { FF_Display, FF_Repo, getGridTheme, type GridTheme } from './'
 
 	interface Props<entityType> {
 		uid?: string
@@ -105,7 +103,7 @@
 			<tr data-ff-grid-row class={classes?.row}>
 				{#each fields as f (f.key)}
 					<td data-ff-grid-row-cell class={classes?.rowCell}>
-						<FFieldDisplay field={f} value={item[f.key as keyof entityType]}></FFieldDisplay>
+						<FF_Display field={f} value={item[f.key as keyof entityType]}></FF_Display>
 					</td>
 				{/each}
 				{#if showActions}

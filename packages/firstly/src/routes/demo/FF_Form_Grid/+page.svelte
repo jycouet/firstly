@@ -1,60 +1,31 @@
 <script lang="ts">
+	import type { FieldMetadata } from 'remult'
+
 	import { Task } from '$modules/task/Task'
+	import Title from '$modules/task/ui/Title.svelte'
 	import { FF_Form, FF_Grid, FF_Repo, mergeFieldMetadata } from '$lib/svelte'
 
-	const r1 = new FF_Repo(Task, { findOptions: {} })
-	// $effect(() => {
-	// 	untrack(async () => {
-	// 		const dd = await r1.find({})
-	// 		dd?.[0].id
-	// 	})
-	// })
-
-	// const r = new FF_Repo(Task, { })
-
 	const r = new FF_Repo(Task, {
-		// findOptions: {
-
-		// },
 		queryOptions: {
 			// skipAutoFetch: true,
-			pageSize: 1,
+			pageSize: 2,
 			aggregate: {
 				distinctCount: ['title', 'id'],
 			},
 		},
 	})
 
-	// const tt = async () => {
-
-	// 	const res = await r.query({
-	// 		aggregate: {
-	// 			max: ['title']
-	// 		}
-	// 	})
-	// 	res.aggregates
-	// }
-	// $inspect(r.aggregates)
-	// $inspect(r.aggregates?.title.distinctCount)
-	// $inspect(r.aggregates)
-	// $inspect(r.loading)
-
-	// $effect(async () => {
-	// 	const p = await rr.paginator({pageSize: 2, aggregate: {}})
-	// 	// const tt = await p.paginator()
-	// 	// console.log(await tt.count())
-	// 	// console.log(tt)
-
-	// })
-
 	// Set up fields with different widths
 	const fields = [
-		mergeFieldMetadata(r.fields.title, { ui: { position: { span: 12 } } }),
-		mergeFieldMetadata(r.fields.title, { ui: { position: { span: 6, mobile: { span: 12 } } } }),
-		mergeFieldMetadata(r.fields.title, { ui: { position: { span: 3 } } }),
-		// mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { start: 2, span: 3 } } }),
-		// mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { span: 3 } } }),
-	]
+		// header: "hello",
+		mergeFieldMetadata(r.fields.title, {
+			ui: {
+				// customField: { edit: Title },
+				position: { span: 4, mobile: { span: 3 }, start: 2 },
+			},
+		}),
+		mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { span: 2, mobile: { span: 12 } } } }),
+	] as FieldMetadata<unknown, Task>[]
 
 	function handleEdit(item: Task) {
 		console.info('Edit task:', item)
@@ -67,20 +38,12 @@
 	}
 </script>
 
-<div class="flex flex-col gap-1">
-	<!-- <FF_Form {r} {fields}> -->
-	<FF_Form {r}>
-		<!-- {#snippet customField(field, value)}
-		{#if field.key === 'title'}
-			title stuff... 
-		{/if}
-	{/snippet} -->
-	</FF_Form>
+<div class="flex flex-col gap-2">
+	<h2 class="text-2xl">Form with defined fields</h2>
+	<FF_Form {r} {fields}></FF_Form>
 	<hr />
 	<h2 class="text-2xl">Default Grid (Edit and Delete)</h2>
 	<FF_Grid {r} />
-	<!-- ondelete={handleDelete} -->
-	<!-- onedit={handleEdit} -->
 	<hr />
 	<h2 class="text-2xl">Edit Only</h2>
 	<FF_Grid {r} showDelete={false} onedit={handleEdit} />

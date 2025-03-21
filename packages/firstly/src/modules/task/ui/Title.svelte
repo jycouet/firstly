@@ -6,7 +6,7 @@
 	let { field, value, mode, error }: Props = $props()
 </script>
 
-{mode}
+{mode}{field.options}!!!
 <div>
 	I'm rendering this... {field.key}!
 </div>

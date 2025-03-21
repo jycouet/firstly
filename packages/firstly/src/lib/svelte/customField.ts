@@ -10,16 +10,10 @@ export type CustomFieldDefaultProps<valueType = unknown, entityType = unknown> =
 	error?: string
 }
 
-/**
- * Type guard to check if a CustomFieldComponent is an object with a component property
- */
-export function isComponentObject<valueType = unknown, entityType = unknown>(
+// TODO: make this a generic something ?
+export function isComponentObject<valueType, entityType>(
 	customField: CustomFieldComponent<valueType, entityType>,
-): customField is {
-	component: Component<CustomFieldDefaultProps<valueType, entityType>>
-	props?: any
-	// rowToProps?: (row: any) => any
-} {
+): customField is ComponentObject<valueType, entityType> {
 	return typeof customField === 'object' && 'component' in customField
 }
 
