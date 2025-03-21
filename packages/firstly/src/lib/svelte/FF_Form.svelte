@@ -1,7 +1,7 @@
 <script lang="ts" generics="entityType = unknown">
 	import { EntityError, getEntityRef, type FieldMetadata } from 'remult'
 
-	import { FF_Field, getFormTheme } from './'
+	import { FF_Field, getClasses } from './'
 	import type { FF_Repo, FieldTheme, FormTheme } from './'
 
 	const default_uid = $props.id()
@@ -20,9 +20,6 @@
 		onSaved?: (item: entityType) => void
 	}
 
-	// Get theme from context
-	const themeClasses = getFormTheme()
-
 	let {
 		uid = default_uid,
 		r,
@@ -31,12 +28,11 @@
 		show = {
 			title: true,
 		},
-		classes = {},
+		classes: localClasses = {},
 		onSaved,
 	}: Props<entityType> = $props()
 
-	// Merge provided classes with theme classes
-	classes = { ...themeClasses, ...classes }
+	let classes = $derived(getClasses('form', localClasses))
 
 	let errors = $state<Record<string, string>>({})
 	let globalError = $state<string | undefined>(undefined)
@@ -90,7 +86,7 @@
 				{field}
 				bind:value={valuesToUse[field.key as keyof entityType]}
 				error={errors[field.key]}
-				classes={classes?.fields}
+				classes={localClasses?.fields}
 			/>
 		{/each}
 	</div>

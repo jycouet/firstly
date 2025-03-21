@@ -18,11 +18,14 @@ export interface FieldTheme {
 	root?: string
 	label?: string
 	error?: string
+	container?: string
+	header?: string
+}
+
+export interface EditTheme {
 	select?: string
 	checkbox?: string
 	input?: string
-	container?: string
-	header?: string
 }
 
 export interface GridTheme {
@@ -48,65 +51,63 @@ export interface FormTheme {
 
 export interface Theme {
 	root?: string
-
 	field?: FieldTheme
+	edit?: EditTheme
 	grid?: GridTheme
 	form?: FormTheme
 }
 
-// Default themes for each component
-export const defaultFieldTheme: FieldTheme = {
-	checkbox: 'checkbox',
-	input: 'input',
-	select: 'select',
-	root: '',
-	label: '',
-	error: '',
-}
-
-export const defaultGridTheme: GridTheme = {
-	root: 'table',
-	actions: 'flex gap-2 justify-end',
-	actionButton: 'text-xs',
-	actionsColumn: 'text-right',
-	actionsHeader: 'text-right',
-}
-
-export const defaultFormTheme: FormTheme = {
-	root: '',
-	fields: '',
-	actions: 'flex justify-end gap-2 mt-4',
-	submitButton: 'btn btn-primary',
-	cancelButton: 'btn',
-}
-
+// Default theme with all components
 export const defaultTheme: Theme = {
-	field: defaultFieldTheme,
-	grid: defaultGridTheme,
-	form: defaultFormTheme,
+	field: {
+		root: '',
+		label: '',
+		error: '',
+	},
+	edit: {
+		checkbox: 'checkbox',
+		input: 'input',
+		select: 'select',
+	},
+	grid: {
+		root: 'table',
+		actions: 'flex gap-2 justify-end',
+		actionButton: 'text-xs',
+		actionsColumn: 'text-right',
+		actionsHeader: 'text-right',
+	},
+	form: {
+		root: '',
+		fields: '',
+		actions: 'flex justify-end gap-2 mt-4',
+		submitButton: 'btn btn-primary',
+		cancelButton: 'btn',
+	},
 }
 
-export function setTheme(theme: Theme): Theme {
-	return setContext(THEME_KEY, deepMerge(defaultTheme, theme))
+// Define a type with all required fields
+export type FullyDefinedTheme = {
+	root: string
+	field: Required<FieldTheme>
+	edit: Required<EditTheme>
+	grid: Required<GridTheme>
+	form: Required<FormTheme>
 }
 
-export function getTheme(): Theme {
-	return getContext(THEME_KEY) || defaultTheme
+export function setTheme(theme: Theme) {
+	return setContext(THEME_KEY, deepMerge(defaultTheme, theme)) as FullyDefinedTheme
 }
 
-export function getFieldTheme(): FieldTheme {
-	const theme = getTheme()
-	return theme.field || defaultFieldTheme
+export function getTheme() {
+	return deepMerge(defaultTheme, getContext(THEME_KEY) || {}) as FullyDefinedTheme
 }
 
-export function getGridTheme(): GridTheme {
-	const theme = getTheme()
-	return theme.grid || defaultGridTheme
-}
-
-export function getFormTheme(): FormTheme {
-	const theme = getTheme()
-	return theme.form || defaultFormTheme
+export function getClasses<K extends keyof FullyDefinedTheme>(
+	key: K,
+	classes: Partial<FullyDefinedTheme[K]>,
+) {
+	const lvl = getTheme()[key]
+	return deepMerge(lvl, classes)
 }
 
 /**

@@ -1,8 +1,6 @@
 import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
 
-import { FF_Role } from '../../lib/common.js'
 import { TaskTypeEnum } from './TaskTypeEnum'
-import Title from './ui/Title.svelte'
 
 @Entity('task', {
 	// allowApiCrud: Allow.authenticated,
@@ -29,7 +27,7 @@ export class Task {
 			},
 			customField: {
 				// edit: TextField,
-			}
+			},
 			// customField: { edit: true },
 			// customField: { edit: createCustomField(EditCustom) },
 		},

@@ -5,7 +5,7 @@
 	import Icon from '$lib/ui/Icon.svelte'
 	import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '$lib/ui/LibIcon'
 
-	import { FF_Display, FF_Repo, getGridTheme, type GridTheme } from './'
+	import { FF_Display, FF_Repo, getClasses, type GridTheme } from './'
 
 	interface Props<entityType> {
 		uid?: string
@@ -21,9 +21,6 @@
 		classes?: GridTheme
 	}
 
-	// Get theme from context
-	const themeClasses = getGridTheme()
-
 	let {
 		r,
 		fields = r.fields.toArray().filter((c) => c.apiUpdateAllowed()),
@@ -33,11 +30,10 @@
 		oncreate,
 		onedit,
 		ondelete,
-		classes = {},
+		classes: localClasses = {},
 	}: Props<entityType> = $props()
 
-	// Merge provided classes with theme classes
-	classes = { ...themeClasses, ...classes }
+	let classes = $derived(getClasses('grid', localClasses))
 
 	const showActions = $derived(showEdit || showDelete)
 </script>

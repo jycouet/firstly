@@ -13,8 +13,6 @@
 
 	import { Remult } from 'remult'
 
-	import EditCustom from '$modules/task/ui/EditCustom.svelte'
-	import Title from '$modules/task/ui/Title.svelte'
 	import { FF_Config } from '$lib/svelte'
 	import type { DynamicCustomField, Theme } from '$lib/svelte'
 

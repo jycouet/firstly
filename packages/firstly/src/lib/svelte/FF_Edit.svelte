@@ -1,8 +1,9 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
 	import { getValueList, type FieldMetadata } from 'remult'
 
-	import { getDynamicCustomField, getFieldTheme, type FieldTheme } from '.'
+	import { getClasses, getDynamicCustomField } from '.'
 	import { isComponentObject } from './customField'
+	import type { EditTheme } from './ff_Config'
 
 	const default_uid = $props.id()
 
@@ -11,10 +12,8 @@
 		field: FieldMetadata<valueType, entityType>
 		value: valueType
 		error?: string
-		classes?: FieldTheme
+		classes?: EditTheme
 	}
-
-	const themeClasses = getFieldTheme()
 
 	let {
 		uid = default_uid,
@@ -22,11 +21,10 @@
 		value = $bindable(),
 		error,
 		// customField,
-		classes = {},
+		classes: localClasses = {},
 	}: Props = $props()
 
-	// Merge provided classes with theme classes
-	classes = { ...themeClasses, ...classes }
+	let classes = $derived(getClasses('edit', localClasses))
 
 	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
 	const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })

@@ -1,7 +1,7 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
-	import { getValueList, type FieldMetadata } from 'remult'
+	import { type FieldMetadata } from 'remult'
 
-	import { FF_Edit, getDynamicCustomField, getFieldTheme, type FieldTheme } from './'
+	import { FF_Edit, getClasses, type FieldTheme } from './'
 
 	const default_uid = $props.id()
 
@@ -13,19 +13,22 @@
 		classes?: FieldTheme
 	}
 
-	const themeClasses = getFieldTheme()
+	let {
+		uid = default_uid,
+		field,
+		value = $bindable(),
+		error,
+		classes: localClasses = {},
+	}: Props = $props()
 
-	let { uid = default_uid, field, value = $bindable(), error, classes = {} }: Props = $props()
-
-	// Merge provided classes with theme classes
-	classes = { ...themeClasses, ...classes }
+	let classes = $derived(getClasses('field', localClasses))
 	// getDynamicCustom OPTIONS
 	// const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
 </script>
 
 <div
 	data-ff-field
-	class={classes?.root}
+	class={classes.root}
 	style:--ff-field-position-span={field.options.ui?.position?.span ?? 12}
 	style:--ff-field-position-start={field.options.ui?.position?.start}
 	style:--ff-field-position-end={field.options.ui?.position?.end}
@@ -35,14 +38,14 @@
 >
 	{#if !field.options.ui?.hide?.header}
 		<div data-ff-field-header class={classes?.header}>
-			<label data-ff-field-label for={uid} class={classes?.label}>{field.caption}</label>
+			<label data-ff-field-label for={uid} class={localClasses.label}>{field.caption}</label>
 			{#if error}
-				<span data-ff-field-error class={classes?.error}>{error}</span>
+				<span data-ff-field-error class={localClasses.error}>{error}</span>
 			{/if}
 		</div>
 	{/if}
 
-	<FF_Edit {field} bind:value {error} {classes} />
+	<FF_Edit {field} bind:value {error} />
 </div>
 
 <style>
