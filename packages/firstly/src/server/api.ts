@@ -6,6 +6,7 @@ import { FF_Role_Auth, FFAuthUser } from '$lib/auth'
 import { auth } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'
 import { firstly, Module } from '$lib/server'
+import { _AppUser } from '$modules/user/AppUser'
 
 const Role = {
 	...FF_Role,
@@ -13,18 +14,7 @@ const Role = {
 	Admin: 'admin',
 } as const
 
-@FF_Entity<_AppUser>('app_users', {
-	dbName: 'app_users',
-	// this overrides the default CRUD... So be carefull !
-	// allowApiCrud: true,
-	saved(e) {
-		console.info(`Yop ${e.identifier} 👋`)
-	},
-})
-export class _AppUser extends FFAuthUser {
-	@Fields.string()
-	jobTitle: string = 'CEO'
-}
+
 
 export const api = firstly({
 	modules: [
@@ -42,6 +32,19 @@ export const api = firstly({
 			uiStaticPath: './src/lib/auth/static/',
 			customEntities: {
 				User: _AppUser,
+			},
+
+			transformDbUserToClientUser(session, user) {
+				return {
+					id: user.id,
+					name: user.identifier,
+					roles: user.roles,
+					session: {
+						id: session.id,
+						expiresAt: session.expiresAt,
+					},
+					theme: user.theme ?? "daisy",
+				}
 			},
 			// ui: {
 			//   strings: {

@@ -1,8 +1,6 @@
-<!-- @migration-task Error while migrating Svelte code: Cannot use `export let` in runes mode — use `$props()` instead
-https://svelte.dev/e/legacy_export_invalid -->
 <script lang="ts">
 	// import { mdiHome } from '@mdi/js'
-	import { remult } from 'remult'
+	import { remult, repo } from 'remult'
 
 	import { page } from '$app/stores'
 
@@ -15,8 +13,22 @@ https://svelte.dev/e/legacy_export_invalid -->
 
 	import { Remult } from 'remult'
 
+	import { invalidateAll } from '$app/navigation'
+
+	import { _AppUser } from '$modules/user/AppUser'
+	import { AuthController } from '$lib/auth'
 	import { daisyTheme, emptyTheme, FF_Config, FF_Theme } from '$lib/svelte'
-	import type { DynamicCustomField } from '$lib/svelte'
+	import type { DynamicCustomField, Theme } from '$lib/svelte'
+
+	import type { LayoutData } from './$types'
+
+	interface Props {
+		data: LayoutData
+		children?: import('svelte').Snippet
+	}
+
+	let { children, data }: Props = $props()
+	remult.user = data.user
 
 	const links = [
 		{ path: route('/'), text: 'Home' },
@@ -78,8 +90,13 @@ https://svelte.dev/e/legacy_export_invalid -->
 		return undefined
 	}
 
-	// Create a reactive theme state
-	let currentTheme = $state(daisyTheme)
+	// Set the default theme
+	const themes: Record<_AppUser['theme'], Theme> = {
+		daisy: daisyTheme,
+		empty: emptyTheme,
+	} as const
+
+	let currentTheme: Theme = $state(themes[remult.user?.theme ?? 'daisy'])
 </script>
 
 <svelte:head>
@@ -179,13 +196,47 @@ https://svelte.dev/e/legacy_export_invalid -->
 					<!-- dropdown -->
 					<div class="dropdown dropdown-end z-10">
 						<div role="menu" tabindex="0" class="avatar btn btn-circle btn-ghost">
-							<div class="w-10 rounded-full">
-								<img src="https://avatars.githubusercontent.com/u/5312607?v=4" alt="avatar" />
-							</div>
+							{#if !remult.authenticated()}
+								<div class="w-10 rounded-full bg-red-700"></div>
+							{:else}
+								<div class="w-10 rounded-full">
+									<img src="https://avatars.githubusercontent.com/u/5312607?v=4" alt="avatar" />
+								</div>
+							{/if}
 						</div>
 						<ul class="menu dropdown-content rounded-box bg-base-100 mt-3 w-52 p-2 shadow-2xl">
 							<li>
-								<a href="/">Profile</a>
+								<a href={route('/auth')}>Auth</a>
+							</li>
+							<li>
+								<button
+									onclick={async () => {
+										const res = await AuthController.signInDemo('JYC')
+										remult.user = res.user
+									}}
+								>
+									Sign in JYC
+								</button>
+							</li>
+							<li>
+								<button
+									onclick={async () => {
+										const res = await AuthController.signInDemo('Ermin')
+										remult.user = res.user
+									}}
+								>
+									Sign in Ermin
+								</button>
+							</li>
+							<li>
+								<button
+									onclick={async () => {
+										const res = await AuthController.signOut()
+										remult.user = res.user
+									}}
+								>
+									Sign out
+								</button>
 							</li>
 							<!-- <li>
 								<a href="/">
@@ -195,22 +246,26 @@ https://svelte.dev/e/legacy_export_invalid -->
 							</li> -->
 							<li>
 								<button
-									class="btn btn-ghost"
-									onclick={() => {
-										currentTheme = daisyTheme
+									onclick={async () => {
+										currentTheme = emptyTheme
+										if (remult.user?.id) {
+											await repo(_AppUser).update(remult.user?.id, { theme: 'empty' })
+										}
 									}}
 								>
-									daisyTheme
+									Theme: Empty
 								</button>
 							</li>
 							<li>
 								<button
-									class="btn btn-ghost"
-									onclick={() => {
-										currentTheme = emptyTheme
+									onclick={async () => {
+										currentTheme = daisyTheme
+										if (remult.user?.id) {
+											await repo(_AppUser).update(remult.user?.id, { theme: 'daisy' })
+										}
 									}}
 								>
-									emptyTheme
+									Theme: Daisy
 								</button>
 							</li>
 						</ul>
@@ -220,7 +275,7 @@ https://svelte.dev/e/legacy_export_invalid -->
 				<!-- /header -->
 
 				<div class="col-span-12">
-					<slot />
+					{@render children?.()}
 				</div>
 			</div>
 		</main>

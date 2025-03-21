@@ -11,4 +11,10 @@ declare global {
 	}
 }
 
-export {}
+declare module 'remult' {
+	interface UserInfo {
+		theme: 'daisy' | 'empty'
+	}
+}
+
+export { }

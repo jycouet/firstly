@@ -23,6 +23,7 @@ export class FFAuthUser {
 	updatedAt?: Date
 
 	@Fields.string<FFAuthUser>({
+		allowApiUpdate: false,
 		validate: [
 			Validators.unique(),
 			Validators.required(),
@@ -41,9 +42,9 @@ export class FFAuthUser {
 			fromDb: (x) => {
 				return x
 					? x
-							.split(',')
-							.map((c: string) => c.replace('{', '').replace('}', ''))
-							.filter((c: string) => c !== '')
+						.split(',')
+						.map((c: string) => c.replace('{', '').replace('}', ''))
+						.filter((c: string) => c !== '')
 					: []
 			},
 		},
