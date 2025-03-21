@@ -21,7 +21,6 @@
 		classes: localClasses = {},
 	}: Props = $props()
 
-	// Get merged classes from the theme context
 	let classes = $derived(getClasses('field', localClasses))
 	// getDynamicCustom OPTIONS
 	// const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
@@ -37,18 +36,25 @@
 	style:--ff-field-position-mobile-start={field.options.ui?.position?.mobile?.start}
 	style:--ff-field-position-mobile-end={field.options.ui?.position?.mobile?.end}
 >
-	{#if !field.options.ui?.hide?.header}
+	{#if field.options.ui?.label === 'show'}
 		<div data-ff-field-header class={classes?.header}>
 			<label data-ff-field-label for={uid} class={classes.label}>{field.caption}</label>
 			{#if error}
-				<span data-ff-field-error class={classes.error}>{error}</span>
+				<div data-ff-field-error class={classes.error}>{error}</div>
 			{/if}
 		</div>
 	{/if}
 
-	<FF_Edit {field} bind:value {error} />
+	<FF_Edit {uid} {field} bind:value {error} />
+
+	<div>hint</div>
 </div>
 
+<!-- Question to Ermin: This should be in the css of the user ?
+ I think it's ok to keep it here. BUT
+ Can people then overwrite [data-ff-form-fields] for example ?
+ Of it could be our OWN OWN css inthe component ?
+-->
 <style>
 	:global {
 		[data-ff-form-fields] {

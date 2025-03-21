@@ -30,8 +30,8 @@
 	const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
 </script>
 
-{#if field.options.ui?.customField?.edit}
-	{@const customField = field.options.ui?.customField?.edit}
+{#if field.options.ui?.edit}
+	{@const customField = field.options.ui?.edit}
 	{#if isComponentObject(customField)}
 		{@const Component = customField.component}
 		<Component {field} bind:value {error} mode="edit" {...customField.props} />

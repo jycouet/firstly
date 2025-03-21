@@ -19,17 +19,10 @@ export class Task {
 	@Fields.string<Task>({
 		ui: {
 			placeholder: 'Enter a title',
-			hide: {
-				// header: true,
-			},
 			position: {
 				span: 6,
 			},
-			customField: {
-				// edit: TextField,
-			},
-			// customField: { edit: true },
-			// customField: { edit: createCustomField(EditCustom) },
+			// edit: TextField,
 		},
 		validate: (task) => {
 			if (task.title.length < 3) throw 'The title must be at least 3 characters long'

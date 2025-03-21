@@ -15,10 +15,11 @@ const userAdmin: UserInfo = {
 	name: 'plop',
 	roles: [FF_Role.FF_Role_Admin],
 	session: { id: '1', expiresAt: new Date(Date.now() + 10000) },
+	theme: 'daisy',
 }
 
 describe('demo', () => {
-	beforeEach(async () => {})
+	beforeEach(async () => { })
 
 	it('Invalid Demo User', async () => {
 		firstly({
