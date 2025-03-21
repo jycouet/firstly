@@ -121,45 +121,56 @@ export type FullyDefinedTheme = {
 	form: Required<FormTheme>
 }
 
-// export class FF_Theme {
-// 	#theme: Theme = $state(emptyTheme)
+export class FF_Theme {
+	#theme = $state(emptyTheme)
 
-// 	constructor() {
-// 	}
+	constructor(initialTheme: Theme = emptyTheme) {
+		this.setTheme(initialTheme)
+	}
 
-// 	setTheme(theme: Theme) {
-// 		setContext(THEME_KEY, deepMerge(emptyTheme, theme)) as FullyDefinedTheme
-// 		// this.#theme = theme //
-// 	}
+	setTheme(theme: Theme) {
+		this.#theme = deepMerge(emptyTheme, theme)
+		setContext(THEME_KEY, this)
+	}
 
-// 	getTheme() {
-// 		return deepMerge(theme, getContext(THEME_KEY) || {})
-// 	}
+	getTheme(): FullyDefinedTheme {
+		return deepMerge(emptyTheme, this.#theme) as FullyDefinedTheme
+	}
 
-// 	getClasses<K extends keyof FullyDefinedTheme>(
-// 		key: K,
-// 		classes: Partial<FullyDefinedTheme[K]>,
-// 	) {
-// 		const lvl = this.#theme[key]
-// 		return deepMerge(lvl, classes)
-// 	}
-// }
-// export let theme = new FF_Theme()
-
-export function setTheme(theme: Theme) {
-	setContext(THEME_KEY, deepMerge(emptyTheme, theme)) as FullyDefinedTheme
+	getClasses<K extends keyof FullyDefinedTheme>(
+		key: K,
+		classes: Partial<FullyDefinedTheme[K]>,
+	) {
+		const lvl = this.getTheme()[key]
+		return deepMerge(lvl, classes)
+	}
 }
 
-export function getTheme() {
-	return deepMerge(emptyTheme, getContext(THEME_KEY) || {}) as FullyDefinedTheme
+export function getThemeContext(): FF_Theme {
+	return getContext(THEME_KEY) || new FF_Theme()
+}
+
+export function setTheme(theme: Theme) {
+	const themeContext = getContext<FF_Theme>(THEME_KEY)
+	if (themeContext) {
+		themeContext.setTheme(theme)
+	} else {
+		const newTheme = new FF_Theme(theme)
+		setContext(THEME_KEY, newTheme)
+	}
+}
+
+export function getTheme(): FullyDefinedTheme {
+	const themeContext = getThemeContext()
+	return themeContext.getTheme()
 }
 
 export function getClasses<K extends keyof FullyDefinedTheme>(
 	key: K,
 	classes: Partial<FullyDefinedTheme[K]>,
 ) {
-	const lvl = getTheme()[key]
-	return deepMerge(lvl, classes)
+	const themeContext = getThemeContext()
+	return themeContext.getClasses(key, classes)
 }
 
 /**

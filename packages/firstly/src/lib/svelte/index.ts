@@ -14,7 +14,8 @@ export {
 	setTheme,
 	getClasses,
 	daisyTheme,
-	emptyTheme
+	emptyTheme,
+	FF_Theme
 } from './ff_Config.svelte.js'
 
 export { FF_Grid, FF_Form, FF_Field, FF_Edit, FF_Config, FF_Display }

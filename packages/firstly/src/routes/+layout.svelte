@@ -15,8 +15,8 @@ https://svelte.dev/e/legacy_export_invalid -->
 
 	import { Remult } from 'remult'
 
-	import { daisyTheme, emptyTheme, FF_Config } from '$lib/svelte'
-	import type { DynamicCustomField, Theme } from '$lib/svelte'
+	import { daisyTheme, emptyTheme, FF_Config, FF_Theme } from '$lib/svelte'
+	import type { DynamicCustomField } from '$lib/svelte'
 
 	const links = [
 		{ path: route('/'), text: 'Home' },
@@ -78,15 +78,15 @@ https://svelte.dev/e/legacy_export_invalid -->
 		return undefined
 	}
 
-	let theme: Theme = $state(daisyTheme)
-	// const theme = new FF_Theme()
+	// Create a reactive theme state
+	let currentTheme = $state(daisyTheme)
 </script>
 
 <svelte:head>
 	<title>Firstly</title>
 </svelte:head>
 
-<FF_Config {theme} {dynamicCustomField}>
+<FF_Config theme={currentTheme} {dynamicCustomField}>
 	<DialogManagement />
 
 	<div class="drawer bg-base-200 lg:drawer-open min-h-screen">
@@ -197,7 +197,7 @@ https://svelte.dev/e/legacy_export_invalid -->
 								<button
 									class="btn btn-ghost"
 									onclick={() => {
-										theme = daisyTheme
+										currentTheme = daisyTheme
 									}}
 								>
 									daisyTheme
@@ -207,7 +207,7 @@ https://svelte.dev/e/legacy_export_invalid -->
 								<button
 									class="btn btn-ghost"
 									onclick={() => {
-										theme = emptyTheme
+										currentTheme = emptyTheme
 									}}
 								>
 									emptyTheme

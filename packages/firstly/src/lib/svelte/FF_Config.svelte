@@ -1,22 +1,29 @@
 <script lang="ts">
+	import { FF_Theme, setDynamicCustomField } from './'
 	import type { DynamicCustomField, Theme } from './'
-	import { setDynamicCustomField, setTheme } from './'
 
 	interface Props {
-		theme?: Theme
+		theme: Theme
 		dynamicCustomField?: DynamicCustomField
 		children?: import('svelte').Snippet
 	}
 
-	let { theme = {}, dynamicCustomField, children }: Props = $props()
+	const { theme, dynamicCustomField, children }: Props = $props()
 
-	// Set the theme in the context
-	setTheme(theme)
+	// Create a reactive theme instance
+	const themeManager = $state(new FF_Theme(theme))
 
-	// Set the customField function in the context if provided
-	if (dynamicCustomField) {
-		setDynamicCustomField(dynamicCustomField)
-	}
+	// Update theme when prop changes
+	$effect(() => {
+		themeManager.setTheme(theme)
+	})
+
+	// Setup dynamic custom field
+	$effect(() => {
+		if (dynamicCustomField) {
+			setDynamicCustomField(dynamicCustomField)
+		}
+	})
 </script>
 
 {@render children?.()}

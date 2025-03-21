@@ -21,6 +21,7 @@
 		classes: localClasses = {},
 	}: Props = $props()
 
+	// Get merged classes from the theme context
 	let classes = $derived(getClasses('field', localClasses))
 	// getDynamicCustom OPTIONS
 	// const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
@@ -38,9 +39,9 @@
 >
 	{#if !field.options.ui?.hide?.header}
 		<div data-ff-field-header class={classes?.header}>
-			<label data-ff-field-label for={uid} class={localClasses.label}>{field.caption}</label>
+			<label data-ff-field-label for={uid} class={classes.label}>{field.caption}</label>
 			{#if error}
-				<span data-ff-field-error class={localClasses.error}>{error}</span>
+				<span data-ff-field-error class={classes.error}>{error}</span>
 			{/if}
 		</div>
 	{/if}
