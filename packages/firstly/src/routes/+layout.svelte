@@ -13,11 +13,9 @@
 
 	import { Remult } from 'remult'
 
-	import { invalidateAll } from '$app/navigation'
-
 	import { _AppUser } from '$modules/user/AppUser'
 	import { AuthController } from '$lib/auth'
-	import { daisyTheme, emptyTheme, FF_Config, FF_Theme } from '$lib/svelte'
+	import { daisyTheme, emptyTheme, FF_Config } from '$lib/svelte'
 	import type { DynamicCustomField, Theme } from '$lib/svelte'
 
 	import type { LayoutData } from './$types'

@@ -137,10 +137,7 @@ export class FF_Theme {
 		return deepMerge(emptyTheme, this.#theme) as FullyDefinedTheme
 	}
 
-	getClasses<K extends keyof FullyDefinedTheme>(
-		key: K,
-		classes: Partial<FullyDefinedTheme[K]>,
-	) {
+	getClasses<K extends keyof FullyDefinedTheme>(key: K, classes: Partial<FullyDefinedTheme[K]>) {
 		const lvl = this.getTheme()[key]
 		return deepMerge(lvl, classes)
 	}

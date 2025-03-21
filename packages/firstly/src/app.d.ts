@@ -17,4 +17,4 @@ declare module 'remult' {
 	}
 }
 
-export { }
+export {}

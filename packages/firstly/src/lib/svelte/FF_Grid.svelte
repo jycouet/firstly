@@ -53,9 +53,10 @@
 					oncreate()
 				} else {
 					const res = await dialog.fform(r, { defaults: {} })
-					if (res.success && r.items) {
-						r.items.unshift(res.item)
-					}
+					// Done already in FF_Form
+					// if (res.success && r.items) {
+					// 	r.items.unshift(res.item)
+					// }
 				}
 			}}
 		>

@@ -45,7 +45,10 @@
 
 	const onsubmit = async (e: Event) => {
 		e.preventDefault()
-		r.loading.saving = true
+		// r.loading.saving = true
+		// 		FF_Form.svelte:48 [svelte] ownership_invalid_mutation
+		// src/lib/svelte/FF_Form.svelte mutated a value owned by src/routes/demo/FF_Simple/+page.svelte. This is strongly discouraged. Consider passing values to child components with `bind:`, or use a callback instead
+		// https://svelte.dev/e/ownership_invalid_mutation
 		globalError = undefined
 		try {
 			// const ref = getEntityRef(valuesToUse)
@@ -71,7 +74,7 @@
 				globalError = error.message
 			}
 		}
-		r.loading.saving = false
+		// r.loading.saving = false
 	}
 </script>
 
