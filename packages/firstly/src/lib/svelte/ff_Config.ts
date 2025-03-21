@@ -1,8 +1,19 @@
 import { getContext, setContext } from 'svelte'
 
-import type { DynamicCustomField } from './customField'
+import type { DynamicCustomField } from './'
+import { deepMerge } from './'
 
-// Define individual component theme interfaces
+const THEME_KEY = 'firstly:theme'
+const DYNAMIC_CUSTOM_FIELD_KEY = 'firstly:dynamicCustomField'
+
+export interface Config {
+	theme: Theme
+	dynamicCustomField?: DynamicCustomField
+}
+
+/**
+ * Theme
+ */
 export interface FieldTheme {
 	root?: string
 	label?: string
@@ -35,21 +46,12 @@ export interface FormTheme {
 	cancelButton?: string
 }
 
-// Main theme interface with nested component themes
 export interface Theme {
-	// Common styles that apply to the app
 	root?: string
 
-	// Component-specific themes
 	field?: FieldTheme
 	grid?: GridTheme
 	form?: FormTheme
-}
-
-// Config interface that includes both theme and customField
-export interface Config {
-	theme: Theme
-	customField?: DynamicCustomField
 }
 
 // Default themes for each component
@@ -78,67 +80,20 @@ export const defaultFormTheme: FormTheme = {
 	cancelButton: 'btn',
 }
 
-// Default theme combining all component defaults
 export const defaultTheme: Theme = {
 	field: defaultFieldTheme,
 	grid: defaultGridTheme,
 	form: defaultFormTheme,
 }
 
-// Theme context key
-const THEME_KEY = 'firstly:theme'
-const CUSTOM_FIELD_KEY = 'firstly:customField'
-
-// Helper to deeply merge objects
-function deepMerge<T>(target: T, source: Partial<T>): T {
-	const result = { ...target }
-
-	if (source && typeof source === 'object' && !Array.isArray(source)) {
-		Object.keys(source).forEach((key) => {
-			const sourceValue = source[key as keyof typeof source]
-			const targetValue = target[key as keyof typeof target]
-
-			if (
-				sourceValue &&
-				typeof sourceValue === 'object' &&
-				!Array.isArray(sourceValue) &&
-				targetValue &&
-				typeof targetValue === 'object' &&
-				!Array.isArray(targetValue)
-			) {
-				// If both values are objects, recursively merge them
-				result[key as keyof typeof result] = deepMerge(targetValue, sourceValue as any) as any
-			} else if (sourceValue !== undefined) {
-				// Otherwise, just assign the source value
-				result[key as keyof typeof result] = sourceValue as any
-			}
-		})
-	}
-
-	return result
-}
-
-// Set theme context
 export function setTheme(theme: Theme): Theme {
 	return setContext(THEME_KEY, deepMerge(defaultTheme, theme))
 }
 
-// Get theme context
 export function getTheme(): Theme {
 	return getContext(THEME_KEY) || defaultTheme
 }
 
-// Set custom field function
-export function setDynamicCustomField(fn?: DynamicCustomField): void {
-	setContext(CUSTOM_FIELD_KEY, fn)
-}
-
-// Get custom field function
-export function getDynamicCustomField(): DynamicCustomField | undefined {
-	return getContext(CUSTOM_FIELD_KEY)
-}
-
-// Helper functions to get component-specific themes
 export function getFieldTheme(): FieldTheme {
 	const theme = getTheme()
 	return theme.field || defaultFieldTheme
@@ -152,4 +107,15 @@ export function getGridTheme(): GridTheme {
 export function getFormTheme(): FormTheme {
 	const theme = getTheme()
 	return theme.form || defaultFormTheme
+}
+
+/**
+ * Dynamic Custom Field
+ */
+export function setDynamicCustomField(fn?: DynamicCustomField): void {
+	setContext(DYNAMIC_CUSTOM_FIELD_KEY, fn)
+}
+
+export function getDynamicCustomField(): DynamicCustomField | undefined {
+	return getContext(DYNAMIC_CUSTOM_FIELD_KEY)
 }

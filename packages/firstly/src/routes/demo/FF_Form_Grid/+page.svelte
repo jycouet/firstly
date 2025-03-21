@@ -3,7 +3,7 @@
 
 	import { Task } from '$modules/task/Task'
 	import Title from '$modules/task/ui/Title.svelte'
-	import { FF_Form, FF_Grid, FF_Repo, mergeFieldMetadata } from '$lib/svelte'
+	import { FF_Form, FF_Grid, FF_Repo, mergeFieldMetadata, overwriteOptions } from '$lib/svelte'
 
 	const r = new FF_Repo(Task, {
 		queryOptions: {
@@ -17,15 +17,17 @@
 
 	// Set up fields with different widths
 	const fields = [
-		// header: "hello",
-		mergeFieldMetadata(r.fields.title, {
+		overwriteOptions(r.fields.title, {
 			ui: {
-				// customField: { edit: Title },
-				position: { span: 4, mobile: { span: 3 }, start: 2 },
+				position: {
+					span: 4,
+					start: 2,
+					mobile: { span: 3 },
+				},
 			},
 		}),
-		mergeFieldMetadata(r.fields.typeOfTask, { ui: { position: { span: 2, mobile: { span: 12 } } } }),
-	] as FieldMetadata<unknown, Task>[]
+		overwriteOptions(r.fields.typeOfTask, { ui: { position: { span: 2, mobile: { span: 12 } } } }),
+	]
 
 	function handleEdit(item: Task) {
 		console.info('Edit task:', item)
