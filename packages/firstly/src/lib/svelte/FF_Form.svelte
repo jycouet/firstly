@@ -51,8 +51,6 @@
 		// https://svelte.dev/e/ownership_invalid_mutation
 		globalError = undefined
 		try {
-			// const ref = getEntityRef(valuesToUse)
-			// const wasNew = ref.isNew()
 			if (ref.isNew()) {
 				const itemSaved = await ref.save()
 				r.items?.unshift(itemSaved)
