@@ -1,13 +1,15 @@
 import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
 
 import { TaskTypeEnum } from './TaskTypeEnum'
+import { FF_Role } from '$lib'
+
 
 @Entity('task', {
 	// allowApiCrud: Allow.authenticated,
 	allowApiRead: true,
 	allowApiInsert: Allow.authenticated,
 	allowApiUpdate: Allow.authenticated,
-	allowApiDelete: false,
+	allowApiDelete: FF_Role.FF_Role_Admin,
 })
 export class Task {
 	@Fields.cuid()

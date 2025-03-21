@@ -196,6 +196,8 @@
 						<div role="menu" tabindex="0" class="avatar btn btn-circle btn-ghost">
 							{#if !remult.authenticated()}
 								<div class="w-10 rounded-full bg-red-700"></div>
+							{:else if remult.user?.name === 'Ermin'}
+								<div class="w-10 rounded-full bg-green-700"></div>
 							{:else}
 								<div class="w-10 rounded-full">
 									<img src="https://avatars.githubusercontent.com/u/5312607?v=4" alt="avatar" />
@@ -206,6 +208,7 @@
 							<li>
 								<a href={route('/auth')}>Auth</a>
 							</li>
+							<li></li>
 							<li>
 								<button
 									onclick={async () => {
@@ -242,6 +245,7 @@
 									<span class="badge badge-success">12</span>
 								</a>
 							</li> -->
+							<li></li>
 							<li>
 								<button
 									onclick={async () => {

@@ -210,4 +210,22 @@
 	[data-ff-grid-action-create]:disabled {
 		opacity: 0.5;
 	}
+
+	[data-ff-grid-action-edit] {
+		opacity: 1;
+		color: inherit;
+	}
+
+	[data-ff-grid-action-edit]:disabled {
+		opacity: 0.5;
+	}
+
+	[data-ff-grid-action-delete] {
+		opacity: 1;
+		color: inherit;
+	}
+
+	[data-ff-grid-action-delete]:disabled {
+		opacity: 0.5;
+	}
 </style>
