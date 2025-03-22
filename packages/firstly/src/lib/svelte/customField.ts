@@ -37,3 +37,11 @@ type DynamicFieldDefaultProps<valueType = unknown, entityType = unknown> = Custo
 export type DynamicCustomField = <valueType = unknown, entityType = unknown>(
 	infos: DynamicFieldDefaultProps<valueType, entityType>,
 ) => CustomFieldComponent<valueType, entityType> | undefined
+
+export type FieldGroup<entityType = unknown> = {
+	key: string
+	fields: FieldMetadata<unknown, entityType>[]
+	caption?: string
+	hint?: string
+	class?: string
+}

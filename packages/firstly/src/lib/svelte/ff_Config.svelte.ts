@@ -53,6 +53,7 @@ export interface GridTheme {
 
 export interface FormTheme {
 	root?: string
+	columns?: string
 	fields?: string
 	actions?: string
 	submitButton?: string
@@ -128,6 +129,7 @@ export const daisyTheme: Theme = {
 	form: {
 		root: '',
 		fields: '',
+		columns: '', // grid grid-cols-1
 		actions: 'flex justify-end gap-2 mt-4',
 		submitButton: 'btn btn-primary',
 		cancelButton: 'btn',

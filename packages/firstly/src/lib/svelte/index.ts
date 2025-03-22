@@ -43,7 +43,7 @@ export {
 	FF_Layout,
 }
 
-export type { DynamicCustomField } from './customField'
+export type { DynamicCustomField, FieldGroup } from './customField'
 export { FF_Repo } from './FF_Repo.svelte.js'
 export { tryCatch, tryCatchSync } from './tryCatch'
 export { overwriteOptions, deepMerge } from './helpers'
@@ -52,7 +52,8 @@ export { overwriteOptions, deepMerge } from './helpers'
 //   - [ ] let's look at the data-ff-xxx story ?
 //   - [ ] how lib defaults should be configured ?
 //   - [ ] What deault css should be provided to the user ?
-// - [ ] Add Layouts (Column / accordion / tabs)
+// - [x] Add Layouts (Column / accordion / tabs)
+//   - [ ] In columns, would be nice to have 1 actions for all columns?!
 // - [ ] Add panels
 // - [ ] Add fform in readonly mode
 // - [ ] Add cancel button to form

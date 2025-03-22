@@ -37,7 +37,7 @@
 
 <div class="flex flex-col gap-2">
 	<h2 class="text-2xl">Form with defined fields</h2>
-	<FF_Form {r} {fields}></FF_Form>
+	<FF_Form {r} groups={[{ key: 'default', fields }]}></FF_Form>
 	<hr />
 	<h2 class="text-2xl">Default Grid (Edit and Delete)</h2>
 	<FF_Grid {r} />

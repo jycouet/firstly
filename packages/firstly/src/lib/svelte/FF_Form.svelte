@@ -1,8 +1,8 @@
 <script lang="ts" generics="entityType = unknown">
-	import { EntityError, getEntityRef, type FieldMetadata } from 'remult'
+	import { EntityError, getEntityRef } from 'remult'
 
 	import { FF_Field, getClasses } from './'
-	import type { FF_Repo, FieldTheme, FormTheme } from './'
+	import type { FF_Repo, FieldGroup, FormTheme } from './'
 
 	const default_uid = $props.id()
 
@@ -10,11 +10,9 @@
 		uid_prefix?: string
 		uid?: string
 		r: FF_Repo<entityType>
-		fields?: FieldMetadata<unknown, entityType>[]
+		groups?: FieldGroup<entityType>[]
 		defaults?: Partial<entityType>
-		classes?: FormTheme & {
-			fields?: FieldTheme
-		}
+		classes?: FormTheme
 		show?: {
 			title?: boolean
 		}
@@ -25,7 +23,7 @@
 		uid_prefix = '',
 		uid = default_uid,
 		r,
-		fields,
+		groups,
 		defaults,
 		show = {
 			title: true,
@@ -43,8 +41,10 @@
 
 	let valuesToUse = $state(r.item ? r.item : r.create(defaults))
 	let ref = $derived(getEntityRef(valuesToUse))
-	const fieldsToUse = $derived(
-		fields ?? r.fields.toArray().filter((c) => c.apiUpdateAllowed(r.item)),
+	const groupsToUse: FieldGroup<entityType>[] = $derived(
+		groups ?? [
+			{ key: 'defaults', fields: r.fields.toArray().filter((c) => c.apiUpdateAllowed(r.item)) },
+		],
 	)
 
 	const onsubmit = async (e: Event) => {
@@ -81,20 +81,30 @@
 </script>
 
 <form data-ff-form class="{classes?.root} {r.metadata.key}" {onsubmit}>
-	{#if show?.title}
-		<div data-ff-form-title>{ref.isNew() ? 'Add' : 'Save'} {r.metadata.caption}</div>
-	{/if}
-	<div data-ff-form-fields class={classes?.fields}>
-		{#each fieldsToUse as field}
-			<FF_Field
-				uid="{ToUse}-{field.key}"
-				{field}
-				bind:value={valuesToUse[field.key as keyof entityType]}
-				error={errors[field.key]}
-				classes={localClasses?.fields}
-			/>
+	<div data-ff-form-group class={classes?.columns}>
+		{#each groupsToUse ?? [] as group (group.key)}
+			{#if show?.title}
+				<div data-ff-form-title>
+					<!-- {ref.isNew() ? 'Add' : 'Save'} -->
+					{group?.caption ?? r.metadata.caption}
+				</div>
+			{/if}
+			{#if group?.hint}
+				<div data-ff-form-hint>{@html group?.hint}</div>
+			{/if}
+			<div data-ff-form-fields class="{classes?.fields} {group.class}">
+				{#each group.fields as field}
+					<FF_Field
+						uid="{ToUse}-{field.key}"
+						{field}
+						bind:value={valuesToUse[field.key as keyof entityType]}
+						error={errors[field.key]}
+					/>
+				{/each}
+			</div>
 		{/each}
 	</div>
+
 	<div data-ff-form-actions class={classes?.actions}>
 		<button
 			data-ff-form-button
