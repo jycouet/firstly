@@ -3,10 +3,10 @@
 
 	interface Props extends CustomFieldDefaultProps {}
 	// $bindable()
-	let { field, value, mode, error }: Props = $props()
+	let { field, value, error }: Props = $props()
 </script>
 
-{mode}{field.options}!!!
+{field.options}!!!
 <div>
 	I'm rendering this... {field.key}!
 </div>

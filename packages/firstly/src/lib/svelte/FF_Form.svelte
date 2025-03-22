@@ -7,6 +7,7 @@
 	const default_uid = $props.id()
 
 	interface Props<entityType> {
+		uid_prefix?: string
 		uid?: string
 		r: FF_Repo<entityType>
 		fields?: FieldMetadata<unknown, entityType>[]
@@ -21,6 +22,7 @@
 	}
 
 	let {
+		uid_prefix = '',
 		uid = default_uid,
 		r,
 		fields,
@@ -31,6 +33,8 @@
 		classes: localClasses = {},
 		onSaved,
 	}: Props<entityType> = $props()
+
+	const ToUse = uid_prefix ? `${uid_prefix}-${uid}` : uid
 
 	let classes = $derived(getClasses('form', localClasses))
 
@@ -83,7 +87,7 @@
 	<div data-ff-form-fields class={classes?.fields}>
 		{#each fieldsToUse as field}
 			<FF_Field
-				uid="{uid}-{field.key}"
+				uid="{ToUse}-{field.key}"
 				{field}
 				bind:value={valuesToUse[field.key as keyof entityType]}
 				error={errors[field.key]}

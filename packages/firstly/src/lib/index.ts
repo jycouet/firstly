@@ -151,8 +151,8 @@ declare module 'remult' {
 		// `findOptionsForEdit` is only for insert & update.
 		// 1-n impact with `findOptions`
 		findOptionsForEdit?:
-			| ((entity: entityType) => FindOptionsBase<valueType>)
-			| FindOptionsBase<valueType>
+		| ((entity: entityType) => FindOptionsBase<valueType>)
+		| FindOptionsBase<valueType>
 
 		findOptionsLimit?: number
 		createOptionWhenNoResult?: {
@@ -167,12 +167,17 @@ declare module 'remult' {
 		skipForDefaultField?: boolean
 
 		ui?: {
-			label?: 'show' | 'hide'
-			error?: 'show' | 'hide'
-			edit?: CustomFieldComponent<valueType, entityType>
-			hint?: 'show' | 'hide'
+			field?: {
+				label?: 'show' | 'hide' | 'remove'
+				error?: 'show' | 'hide' | 'remove'
+				edit?: CustomFieldComponent<valueType, entityType>
+				hint?: 'show' | 'hide' | 'remove'
+			}
 			display?: CustomFieldComponent<valueType, entityType>
+
 			placeholder?: string
+			hint?: string
+
 			position?: {
 				span?: number
 				start?: number

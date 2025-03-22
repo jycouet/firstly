@@ -30,22 +30,22 @@
 	const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
 </script>
 
-{#if field.options.ui?.edit}
-	{@const customField = field.options.ui?.edit}
+{#if field.options.ui?.field?.edit}
+	{@const customField = field.options.ui?.field?.edit}
 	{#if isComponentObject(customField)}
 		{@const Component = customField.component}
-		<Component {field} bind:value {error} mode="edit" {...customField.props} />
+		<Component {field} bind:value {error} {...customField.props} />
 	{:else}
 		{@const Component = customField}
-		<Component {field} bind:value {error} mode="edit" />
+		<Component {field} bind:value {error} />
 	{/if}
 {:else if globalCustomField}
 	{#if isComponentObject(globalCustomField)}
 		{@const Component = globalCustomField.component}
-		<Component {field} bind:value {error} mode="edit" {...globalCustomField.props} />
+		<Component {field} bind:value {error} {...globalCustomField.props} />
 	{:else}
 		{@const Component = globalCustomField}
-		<Component {field} bind:value {error} mode="edit" />
+		<Component {field} bind:value {error} />
 	{/if}
 {:else if valueList}
 	<select data-ff-field-select class={classes?.select} id={uid} bind:value>

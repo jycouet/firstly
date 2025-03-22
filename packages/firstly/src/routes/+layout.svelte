@@ -13,6 +13,8 @@
 
 	import { Remult } from 'remult'
 
+	import EditCustom from '$modules/task/ui/EditCustom.svelte'
+	import Title from '$modules/task/ui/Title.svelte'
 	import { _AppUser } from '$modules/user/AppUser'
 	import { AuthController } from '$lib/auth'
 	import { daisyTheme, emptyTheme, FF_Config } from '$lib/svelte'
@@ -79,12 +81,13 @@
 	initRemultSvelteReactivity()
 
 	const dynamicCustomField: DynamicCustomField = ({ field, value, error, mode }) => {
-		// if (field.inputType === 'number' && mode === 'display') {
-		// 	return Title
-		// }
-		// if (field.inputType === 'number' && mode === 'edit') {
-		// 	return EditCustom
-		// }
+		// console.log('dynamicCustomField')
+		if (field.inputType === 'number' && mode === 'display') {
+			return Title
+		}
+		if (field.inputType === 'number' && mode === 'edit') {
+			return EditCustom
+		}
 		return undefined
 	}
 

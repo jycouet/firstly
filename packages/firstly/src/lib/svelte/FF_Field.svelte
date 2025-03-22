@@ -1,15 +1,10 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
-	import { type FieldMetadata } from 'remult'
-
-	import { FF_Edit, getClasses, type FieldTheme } from './'
+	import { FF_Edit, FF_Error, FF_Hint, FF_Label, getClasses, type FieldTheme } from './'
+	import type { CustomFieldDefaultProps } from './customField'
 
 	const default_uid = $props.id()
 
-	interface Props {
-		uid?: string
-		field: FieldMetadata<valueType, entityType>
-		value: valueType
-		error?: string
+	interface Props extends CustomFieldDefaultProps {
 		classes?: FieldTheme
 	}
 
@@ -36,21 +31,13 @@
 	style:--ff-field-position-mobile-start={field.options.ui?.position?.mobile?.start}
 	style:--ff-field-position-mobile-end={field.options.ui?.position?.mobile?.end}
 >
-	{#if field.options.ui?.label === 'show'}
-		<div data-ff-field-header class={classes?.header}>
-			<label data-ff-field-label for={uid} class={classes.label}>{field.caption}</label>
-			{#if error}
-				<div data-ff-field-error class={classes.error}>{error}</div>
-			{/if}
-		</div>
-	{/if}
-
-	<FF_Edit {uid} {field} bind:value {error} />
-
-	<div>hint</div>
+	<FF_Label {uid} {field} {error} {value} />
+	<FF_Error {uid} {field} {error} {value} />
+	<FF_Edit {uid} {field} {error} bind:value />
+	<FF_Hint {uid} {field} {error} {value} />
 </div>
 
-<!-- Question to Ermin: This should be in the css of the user ?
+<!-- TODO Ermin Question: This should be in the css of the user ?
  I think it's ok to keep it here. BUT
  Can people then overwrite [data-ff-form-fields] for example ?
  Of it could be our OWN OWN css inthe component ?

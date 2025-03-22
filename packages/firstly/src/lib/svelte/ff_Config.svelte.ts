@@ -16,16 +16,26 @@ export interface Config {
  */
 export interface FieldTheme {
 	root?: string
-	label?: string
 	error?: string
 	container?: string
-	header?: string
+}
+
+export interface LabelTheme {
+	root?: string
+}
+
+export interface ErrorTheme {
+	root?: string
 }
 
 export interface EditTheme {
 	select?: string
 	checkbox?: string
 	input?: string
+}
+
+export interface HintTheme {
+	root?: string
 }
 
 export interface GridTheme {
@@ -52,6 +62,9 @@ export interface FormTheme {
 export interface Theme {
 	root?: string
 	field?: FieldTheme
+	label?: LabelTheme
+	error?: ErrorTheme
+	hint?: HintTheme
 	edit?: EditTheme
 	grid?: GridTheme
 	form?: FormTheme
@@ -60,36 +73,34 @@ export interface Theme {
 // Default theme with all components
 export const emptyTheme: Theme = {
 	field: {
-		root: '',
-		label: '',
-		error: '',
+	},
+	label: {
+	},
+	error: {
+	},
+	hint: {
 	},
 	edit: {
-		checkbox: '',
-		input: '',
-		select: '',
 	},
 	grid: {
-		root: '',
-		actions: '',
-		actionButton: '',
-		actionsColumn: '',
-		actionsHeader: '',
 	},
 	form: {
-		root: '',
-		fields: '',
-		actions: '',
-		submitButton: '',
-		cancelButton: '',
 	},
 }
 
 export const daisyTheme: Theme = {
 	field: {
 		root: '',
-		label: '',
 		error: '',
+	},
+	label: {
+		root: '',
+	},
+	error: {
+		root: '',
+	},
+	hint: {
+		root: '',
 	},
 	edit: {
 		checkbox: 'checkbox',
@@ -112,13 +123,15 @@ export const daisyTheme: Theme = {
 	},
 }
 
-// Define a type with all required fields
 export type FullyDefinedTheme = {
 	root: string
-	field: Required<FieldTheme>
-	edit: Required<EditTheme>
-	grid: Required<GridTheme>
-	form: Required<FormTheme>
+	field: FieldTheme
+	label: LabelTheme
+	error: ErrorTheme
+	hint: HintTheme
+	edit: EditTheme
+	grid: GridTheme
+	form: FormTheme
 }
 
 export class FF_Theme {

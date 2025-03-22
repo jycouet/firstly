@@ -6,7 +6,8 @@ import { isOfType } from './helpers'
 
 export type FieldMode = 'edit' | 'display'
 export type CustomFieldDefaultProps<valueType = unknown, entityType = unknown> = {
-	mode: FieldMode
+	uid?: string
+	// mode: FieldMode
 	field: FieldMetadata<valueType, entityType>
 	value: valueType
 	error?: string
@@ -26,6 +27,13 @@ export function isComponentObject<valueType = unknown, entityType = unknown>(
 	return isOfType<ComponentObject<valueType, entityType>>(value, 'component')
 }
 
+type DynamicFieldDefaultProps<valueType = unknown, entityType = unknown> = CustomFieldDefaultProps<
+	valueType,
+	entityType
+> & {
+	mode: FieldMode
+}
+
 export type DynamicCustomField = <valueType = unknown, entityType = unknown>(
-	infos: CustomFieldDefaultProps<valueType, entityType>,
+	infos: DynamicFieldDefaultProps<valueType, entityType>,
 ) => CustomFieldComponent<valueType, entityType> | undefined

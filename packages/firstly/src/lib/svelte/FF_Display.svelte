@@ -20,18 +20,18 @@
 	{@const customField = field.options.ui?.display}
 	{#if isComponentObject(customField)}
 		{@const Component = customField.component}
-		<Component {field} bind:value {error} mode="display" {...customField.props} />
+		<Component {field} bind:value {error} {...customField.props} />
 	{:else}
 		{@const Component = customField}
-		<Component {field} bind:value {error} mode="display" />
+		<Component {field} bind:value {error} />
 	{/if}
 {:else if globalCustomField}
 	{#if isComponentObject(globalCustomField)}
 		{@const Component = globalCustomField.component}
-		<Component {field} bind:value {error} mode="display" {...globalCustomField.props} />
+		<Component {field} bind:value {error} {...globalCustomField.props} />
 	{:else}
 		{@const Component = globalCustomField}
-		<Component {field} bind:value {error} mode="display" />
+		<Component {field} bind:value {error} />
 	{/if}
 {:else}
 	{field.displayValue({ [field.key]: value } as Partial<entityType>)}

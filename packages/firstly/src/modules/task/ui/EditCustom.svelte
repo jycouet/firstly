@@ -2,7 +2,7 @@
 	import type { CustomFieldDefaultProps } from '$lib/svelte/customField'
 
 	interface Props extends CustomFieldDefaultProps {}
-	let { field, value = $bindable(), mode, error }: Props = $props()
+	let { field, value = $bindable(), error }: Props = $props()
 </script>
 
 EditCustom 🚀
