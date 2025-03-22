@@ -107,3 +107,16 @@
 	</div>
 	{globalError}
 </form>
+
+<style>
+	:root {
+		--ff-form-gap: 1rem;
+	}
+	:global {
+		[data-ff-form-fields] {
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--ff-form-gap);
+		}
+	}
+</style>

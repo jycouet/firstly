@@ -14,16 +14,11 @@
 
 	// Set up fields with different widths
 	const fields = [
-		overwriteOptions(r.fields.title, {
-			ui: {
-				position: {
-					span: 4,
-					start: 2,
-					mobile: { span: 3 },
-				},
-			},
-		}),
-		overwriteOptions(r.fields.typeOfTask, { ui: { position: { span: 2, mobile: { span: 12 } } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }),
+		overwriteOptions(r.fields.typeOfTask, { ui: { style: {} } }),
 	]
 
 	function handleEdit(item: Task) {

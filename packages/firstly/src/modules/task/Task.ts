@@ -23,8 +23,11 @@ export class Task {
 		ui: {
 			placeholder: 'Enter a title',
 			hint: 'This is a hint more <a style="color: orange;" href="https://firstly.fun">here</a>!',
-			position: {
+			style: {
+				width: 60,
 				span: 6,
+				// start: 1,
+				// end: 3,
 			},
 			// field: {
 			// 	label: 'remove',
@@ -41,8 +44,10 @@ export class Task {
 	@Field(() => TaskTypeEnum, {
 		ui: {
 			// width: 20,
-			position: {
-				span: 3,
+			style: {
+				width: 40,
+				// span: 3,
+				// start: 2,
 			},
 		},
 	})
@@ -50,7 +55,7 @@ export class Task {
 
 	@Fields.number({
 		ui: {
-			position: {
+			style: {
 				span: 2,
 			},
 		},

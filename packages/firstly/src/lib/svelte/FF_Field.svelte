@@ -17,24 +17,18 @@
 	}: Props = $props()
 
 	let classes = $derived(getClasses('field', localClasses))
-	// getDynamicCustom OPTIONS
-	// const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
 </script>
 
 <div
 	data-ff-field
 	class={classes.root}
-	style:--ff-field-position-span={field.options.ui?.position?.span ?? 12}
-	style:--ff-field-position-start={field.options.ui?.position?.start}
-	style:--ff-field-position-end={field.options.ui?.position?.end}
-	style:--ff-field-position-mobile-span={field.options.ui?.position?.mobile?.span ?? 12}
-	style:--ff-field-position-mobile-start={field.options.ui?.position?.mobile?.start}
-	style:--ff-field-position-mobile-end={field.options.ui?.position?.mobile?.end}
+	style:--ff-field-style-width={field.options.ui?.style?.width}
 >
 	<FF_Label {uid} {field} {error} {value} />
 	<FF_Error {uid} {field} {error} {value} />
 	<FF_Edit {uid} {field} {error} bind:value />
 	<FF_Hint {uid} {field} {error} {value} />
+	{JSON.stringify(field.options.ui?.style)}
 </div>
 
 <!-- TODO Ermin Question: This should be in the css of the user ?
@@ -44,26 +38,17 @@
 -->
 <style>
 	:global {
-		[data-ff-form-fields] {
-			display: grid;
-			grid-template-columns: repeat(12, minmax(0, 1fr));
-			gap: 1rem;
-		}
-
 		[data-ff-field] {
-			grid-column-end: var(--ff-field-position-end);
-			grid-column: span var(--ff-field-position-span) / span var(--ff-field-position-span);
-			grid-column-start: var(--ff-field-position-start);
+			width: calc(var(--ff-field-style-width, 100) * 1%);
 		}
 
-		@media (max-width: 768px) {
+		/* @media (max-width: 768px) {
 			[data-ff-field] {
-				grid-column-end: var(--ff-field-position-mobile-end);
-				grid-column: span var(--ff-field-position-mobile-span) / span
-					var(--ff-field-position-mobile-span);
-				grid-column-start: var(--ff-field-position-mobile-start);
+				grid-column-end: var(--ff-field-style-end-mobile);
+				grid-column: span var(--ff-field-style-span-mobile) / span var(--ff-field-style-span-mobile);
+				grid-column-start: var(--ff-field-style-start-mobile);
 			}
-		}
+		} */
 
 		input[data-ff-field-input] {
 			width: 100%;
