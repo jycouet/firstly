@@ -12,6 +12,7 @@ const PAGES = {
   "/": `/`,
   "/auth": `/auth`,
   "/demo/FF_Form_Grid": `/demo/FF_Form_Grid`,
+  "/demo/FF_Layout/columns": `/demo/FF_Layout/columns`,
   "/demo/FF_Simple": `/demo/FF_Simple`,
   "/mail": `/mail`,
   "/ui/dialog": `/ui/dialog`,
@@ -153,7 +154,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 * ```
 */
 export type KIT_ROUTES = {
-  PAGES: { '/': never, '/auth': never, '/demo/FF_Form_Grid': never, '/demo/FF_Simple': never, '/mail': never, '/ui/dialog': never, '/ui/enum': never, '/ui/fieldGroup': never, '/ui/select': never }
+  PAGES: { '/': never, '/auth': never, '/demo/FF_Form_Grid': never, '/demo/FF_Layout/columns': never, '/demo/FF_Simple': never, '/mail': never, '/ui/dialog': never, '/ui/enum': never, '/ui/fieldGroup': never, '/ui/select': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
   LINKS: { 'firstly_sign_in': never, 'remult_admin': never, 'github': 'owner' | 'repo' }

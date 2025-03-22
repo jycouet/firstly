@@ -106,6 +106,7 @@
 		{globalError}
 	</div>
 	{globalError}
+	<!-- TODO: display errors of field not in the form -->
 </form>
 
 <style>

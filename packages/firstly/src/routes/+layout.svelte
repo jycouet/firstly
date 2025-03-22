@@ -40,6 +40,8 @@
 		{ path: route('/ui/select'), text: 'UI / Select' },
 		{ path: route('/demo/FF_Simple'), text: 'Demo Simple' },
 		{ path: route('/demo/FF_Form_Grid'), text: 'Demo Form Grid' },
+		{ path: route('/demo/FF_Layout/columns'), text: 'Demo Layout Columns' },
+
 		{ path: route('firstly_sign_in'), text: '🔑 Module Auth', target: '_blank' },
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
