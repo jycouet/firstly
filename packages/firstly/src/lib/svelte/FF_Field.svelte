@@ -52,13 +52,5 @@
 				grid-column-start: var(--ff-field-style-start-mobile);
 			}
 		}
-
-		input[data-ff-field-input] {
-			width: 100%;
-		}
-
-		select[data-ff-field-select] {
-			width: 100%;
-		}
 	}
 </style>

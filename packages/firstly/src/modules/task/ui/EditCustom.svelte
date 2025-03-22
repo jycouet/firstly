@@ -5,8 +5,8 @@
 	let { field, value = $bindable(), error }: Props = $props()
 </script>
 
-<span>EditCustom 🚀</span>
 <input bind:value />
+<span>🚀 EditCustom 🚀</span>
 
 <style>
 	input {

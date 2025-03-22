@@ -52,14 +52,14 @@
 		<Component {field} bind:value {error} />
 	{/if}
 {:else if valueList}
-	<select data-ff-field-select class={classes?.select} id={uid} bind:value>
+	<select data-ff-edit-select class={classes?.select} id={uid} bind:value>
 		{#each valueList as item (item.id)}
 			<option value={item}>{item.caption}</option>
 		{/each}
 	</select>
 {:else if field.inputType === 'checkbox'}
 	<input
-		data-ff-field-checkbox
+		data-ff-edit-checkbox
 		class={classes?.checkbox}
 		id={uid}
 		type="checkbox"
@@ -68,7 +68,7 @@
 {:else}
 	<input
 		autocomplete="off"
-		data-ff-field-input
+		data-ff-edit-input
 		class={classes?.input}
 		id={uid}
 		type={field.inputType}
@@ -77,3 +77,20 @@
 		(v) => (value = field.valueConverter.toInput(v) as valueType)}
 	/>
 {/if}
+
+<style>
+	:global {
+		input[data-ff-edit-input] {
+			width: 100%;
+		}
+
+		select[data-ff-edit-select] {
+			width: 100%;
+		}
+
+		input[data-ff-edit-checkbox] {
+			display: block;
+			transform: translateY(50%);
+		}
+	}
+</style>

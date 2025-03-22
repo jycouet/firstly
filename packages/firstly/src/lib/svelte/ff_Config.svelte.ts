@@ -59,6 +59,10 @@ export interface FormTheme {
 	cancelButton?: string
 }
 
+export interface DisplayTheme {
+	checkbox?: string
+}
+
 export interface Theme {
 	root?: string
 	field?: FieldTheme
@@ -68,6 +72,7 @@ export interface Theme {
 	edit?: EditTheme
 	grid?: GridTheme
 	form?: FormTheme
+	display?: DisplayTheme
 }
 
 export const defaultTheme: Theme = {
@@ -77,7 +82,10 @@ export const defaultTheme: Theme = {
 	hint: {},
 	edit: {},
 	grid: {},
-	form: {},
+	form: {
+		actions: 'ff-form-actions',
+	},
+	display: {},
 }
 
 export const emptyTheme: Theme = {
@@ -88,6 +96,7 @@ export const emptyTheme: Theme = {
 	edit: {},
 	grid: {},
 	form: {},
+	display: {},
 }
 
 export const daisyTheme: Theme = {
@@ -106,8 +115,8 @@ export const daisyTheme: Theme = {
 	},
 	edit: {
 		checkbox: 'checkbox',
-		input: 'input',
-		select: 'select',
+		input: 'input input-bordered',
+		select: 'select select-bordered',
 	},
 	grid: {
 		root: 'table',
@@ -123,6 +132,9 @@ export const daisyTheme: Theme = {
 		submitButton: 'btn btn-primary',
 		cancelButton: 'btn',
 	},
+	display: {
+		checkbox: 'checkbox',
+	},
 }
 
 export type FullyDefinedTheme = {
@@ -134,6 +146,7 @@ export type FullyDefinedTheme = {
 	edit: EditTheme
 	grid: GridTheme
 	form: FormTheme
+	display: DisplayTheme
 }
 
 export class FF_Theme {

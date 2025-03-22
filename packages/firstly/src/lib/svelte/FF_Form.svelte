@@ -119,6 +119,20 @@
 			gap: var(--ff-form-gap);
 		}
 
-		/* Ensure fields span the correct number of columns based on their width */
+		/* To distribute as default css ? */
+		.ff-form-actions {
+			display: flex;
+			justify-content: flex-end;
+			margin: 1rem;
+
+			button {
+				border-radius: 0.5rem;
+				padding: 0.5rem 1rem;
+				background-color: green;
+				color: #fff;
+				border: none;
+				cursor: pointer;
+			}
+		}
 	}
 </style>

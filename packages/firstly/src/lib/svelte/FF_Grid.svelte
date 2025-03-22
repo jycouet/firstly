@@ -69,7 +69,9 @@
 	<thead>
 		<tr data-ff-grid-header class={classes?.header}>
 			{#each fields ?? [] as item (item.key)}
-				<th data-ff-grid-header-cell class={classes?.headerCell}>{item.caption}</th>
+				<th data-ff-grid-header-cell class="{classes?.headerCell} th-{item.inputType}"
+					>{item.caption}</th
+				>
 			{/each}
 			{#if showActions}
 				<th data-ff-grid-header-cell class={classes?.actionsHeader} style="width: 1rem;"> Actions </th>
@@ -99,7 +101,7 @@
 		{#each r.items ?? [] as item (r.metadata.idMetadata.getId(item))}
 			<tr data-ff-grid-row class={classes?.row}>
 				{#each fields as f (f.key)}
-					<td data-ff-grid-row-cell class={classes?.rowCell}>
+					<td data-ff-grid-row-cell class="{classes?.rowCell} td-{f.inputType}">
 						<FF_Display field={f} value={item[f.key as keyof entityType]}></FF_Display>
 					</td>
 				{/each}
@@ -227,5 +229,31 @@
 
 	[data-ff-grid-action-delete]:disabled {
 		opacity: 0.5;
+	}
+
+	:global {
+		[data-ff-grid-header-cell] {
+			&.th-checkbox {
+				text-align: center;
+			}
+		}
+
+		[data-ff-grid-row-cell] {
+			&.td-checkbox {
+				text-align: center;
+			}
+		}
+
+		[data-ff-grid-header-cell] {
+			&.th-number {
+				text-align: right;
+			}
+		}
+
+		[data-ff-grid-row-cell] {
+			&.td-number {
+				text-align: right;
+			}
+		}
 	}
 </style>

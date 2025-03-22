@@ -27,7 +27,7 @@ export class Task {
 			},
 			field: {
 				// hint: "hide"
-			}
+			},
 			// display: Title,
 		},
 		validate: (task) => {
@@ -58,6 +58,11 @@ export class Task {
 		allowApiUpdate(entity) {
 			const isNew = entity ? getEntityRef(entity).isNew() : false
 			return !isNew
+		},
+		ui: {
+			style: {
+				span: 3,
+			},
 		},
 	})
 	completed: boolean = false

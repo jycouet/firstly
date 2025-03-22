@@ -8,7 +8,14 @@ import { default as FF_Grid } from './FF_Grid.svelte'
 import { default as FF_Hint } from './FF_Hint.svelte'
 import { default as FF_Label } from './FF_Label.svelte'
 
-export type { FieldTheme, FormTheme, GridTheme, Theme, EditTheme } from './ff_Config.svelte.js'
+export type {
+	FieldTheme,
+	FormTheme,
+	GridTheme,
+	Theme,
+	EditTheme,
+	DisplayTheme,
+} from './ff_Config.svelte.js'
 
 export {
 	getDynamicCustomField,

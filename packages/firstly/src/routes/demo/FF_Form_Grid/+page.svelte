@@ -21,6 +21,7 @@
 		overwriteOptions(r.fields.title, { ui: { style: { span: 3 } } }),
 		overwriteOptions(r.fields.title, { ui: { style: { span: 3 } } }),
 		overwriteOptions(r.fields.typeOfTask, { ui: {} }),
+		overwriteOptions(r.fields.completed, { ui: {} }),
 	]
 
 	function handleEdit(item: Task) {
