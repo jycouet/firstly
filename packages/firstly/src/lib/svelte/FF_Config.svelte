@@ -18,12 +18,9 @@
 		themeManager.setTheme(theme)
 	})
 
-	// Setup dynamic custom field
-	$effect(() => {
-		if (dynamicCustomField) {
-			setDynamicCustomField(dynamicCustomField)
-		}
-	})
+	if (dynamicCustomField) {
+		setDynamicCustomField(dynamicCustomField)
+	}
 </script>
 
 {@render children?.()}

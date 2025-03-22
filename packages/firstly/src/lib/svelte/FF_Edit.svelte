@@ -27,7 +27,11 @@
 	let classes = $derived(getClasses('edit', localClasses))
 
 	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
-	const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
+
+	// Get the dynamic custom field function and call it with the current field
+	const dynamic = getDynamicCustomField()
+
+	const customComponent = dynamic ? dynamic({ field, value, error, mode: 'edit' }) : undefined
 </script>
 
 {#if field.options.ui?.field?.edit}
@@ -39,12 +43,12 @@
 		{@const Component = customField}
 		<Component {field} bind:value {error} />
 	{/if}
-{:else if globalCustomField}
-	{#if isComponentObject(globalCustomField)}
-		{@const Component = globalCustomField.component}
-		<Component {field} bind:value {error} {...globalCustomField.props} />
+{:else if customComponent}
+	{#if isComponentObject(customComponent)}
+		{@const Component = customComponent.component}
+		<Component {field} bind:value {error} {...customComponent.props} />
 	{:else}
-		{@const Component = globalCustomField}
+		{@const Component = customComponent}
 		<Component {field} bind:value {error} />
 	{/if}
 {:else if valueList}

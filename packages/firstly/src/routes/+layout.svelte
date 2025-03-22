@@ -81,10 +81,9 @@
 	initRemultSvelteReactivity()
 
 	const dynamicCustomField: DynamicCustomField = ({ field, value, error, mode }) => {
-		// console.log('dynamicCustomField')
-		if (field.inputType === 'number' && mode === 'display') {
-			return Title
-		}
+		// if (field.inputType === 'number' && mode === 'display') {
+		// 	return Title
+		// }
 		if (field.inputType === 'number' && mode === 'edit') {
 			return EditCustom
 		}

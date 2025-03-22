@@ -72,20 +72,13 @@ export interface Theme {
 
 // Default theme with all components
 export const emptyTheme: Theme = {
-	field: {
-	},
-	label: {
-	},
-	error: {
-	},
-	hint: {
-	},
-	edit: {
-	},
-	grid: {
-	},
-	form: {
-	},
+	field: {},
+	label: {},
+	error: {},
+	hint: {},
+	edit: {},
+	grid: {},
+	form: {},
 }
 
 export const daisyTheme: Theme = {
@@ -97,10 +90,10 @@ export const daisyTheme: Theme = {
 		root: '',
 	},
 	error: {
-		root: '',
+		root: 'text-error',
 	},
 	hint: {
-		root: '',
+		root: 'italic text-sm',
 	},
 	edit: {
 		checkbox: 'checkbox',
@@ -191,5 +184,5 @@ export function setDynamicCustomField(fn?: DynamicCustomField): void {
 }
 
 export function getDynamicCustomField(): DynamicCustomField | undefined {
-	return getContext(DYNAMIC_CUSTOM_FIELD_KEY)
+	return getContext<DynamicCustomField>(DYNAMIC_CUSTOM_FIELD_KEY)
 }
