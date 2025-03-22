@@ -14,10 +14,10 @@
 	let classes = $derived(getClasses('label', localClasses))
 </script>
 
-{#if field.options.ui?.field?.label === 'remove'}
+{#if field.options.ui?.field?.label === undefined || field.options.ui?.field?.label === 'show'}
+	<label data-ff-field-label for={uid} class={classes.root}>{@html field.caption}</label>
+{:else if field.options.ui?.field?.label === 'remove'}
 	<!-- Nothing -->
 {:else if field.options.ui?.field?.label === 'hide'}
 	<span class={classes.root}></span>
-{:else}
-	<label data-ff-field-label for={uid} class={classes.root}>{@html field.caption}</label>
 {/if}

@@ -25,11 +25,10 @@ export class Task {
 			style: {
 				span: 6,
 			},
-			// field: {
-			// 	label: 'remove',
-			// },
+			field: {
+				// hint: "hide"
+			}
 			// display: Title,
-			// edit: TextField,
 		},
 		validate: (task) => {
 			if (task.title.length < 3) throw 'The title must be at least 3 characters long'

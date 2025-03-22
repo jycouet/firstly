@@ -12,10 +12,10 @@
 	let classes = $derived(getClasses('hint', localClasses))
 </script>
 
-{#if field.options.ui?.field?.hint === 'remove'}
+{#if field.options.ui?.field?.hint === undefined || field.options.ui?.field?.hint === 'show'}
+	<div data-ff-field-hint class={classes.root}>{@html field.options.ui?.hint}</div>
+{:else if field.options.ui?.field?.hint === 'remove'}
 	<!-- Nothing -->
 {:else if field.options.ui?.field?.hint === 'hide'}
 	<div class={classes.root}></div>
-{:else}
-	<div data-ff-field-hint class={classes.root}>{@html field.options.ui?.hint}</div>
 {/if}
