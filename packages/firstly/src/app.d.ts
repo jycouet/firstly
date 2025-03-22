@@ -1,4 +1,7 @@
 // See https://kit.svelte.dev/docs/types#app
+
+import type { _AppUser } from '$modules/user/AppUser'
+
 // for information about these interfaces
 declare global {
 	namespace App {
@@ -13,7 +16,7 @@ declare global {
 
 declare module 'remult' {
 	interface UserInfo {
-		theme: 'daisy' | 'empty'
+		theme: _AppUser['theme']
 	}
 }
 

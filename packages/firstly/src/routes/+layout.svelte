@@ -17,7 +17,7 @@
 	import Title from '$modules/task/ui/Title.svelte'
 	import { _AppUser } from '$modules/user/AppUser'
 	import { AuthController } from '$lib/auth'
-	import { daisyTheme, emptyTheme, FF_Config } from '$lib/svelte'
+	import { daisyTheme, defaultTheme, emptyTheme, FF_Config } from '$lib/svelte'
 	import type { DynamicCustomField, Theme } from '$lib/svelte'
 
 	import type { LayoutData } from './$types'
@@ -81,9 +81,9 @@
 	initRemultSvelteReactivity()
 
 	const dynamicCustomField: DynamicCustomField = ({ field, value, error, mode }) => {
-		// if (field.inputType === 'number' && mode === 'display') {
-		// 	return Title
-		// }
+		if (field.inputType === 'number' && mode === 'display') {
+			return Title
+		}
 		if (field.inputType === 'number' && mode === 'edit') {
 			return EditCustom
 		}
@@ -92,6 +92,7 @@
 
 	// Set the default theme
 	const themes: Record<_AppUser['theme'], Theme> = {
+		default: defaultTheme,
 		daisy: daisyTheme,
 		empty: emptyTheme,
 	} as const
@@ -251,13 +252,13 @@
 							<li>
 								<button
 									onclick={async () => {
-										currentTheme = emptyTheme
+										currentTheme = defaultTheme
 										if (remult.user?.id) {
-											await repo(_AppUser).update(remult.user?.id, { theme: 'empty' })
+											await repo(_AppUser).update(remult.user?.id, { theme: 'default' })
 										}
 									}}
 								>
-									Theme: Empty
+									Theme: Default
 								</button>
 							</li>
 							<li>
@@ -270,6 +271,18 @@
 									}}
 								>
 									Theme: Daisy
+								</button>
+							</li>
+							<li>
+								<button
+									onclick={async () => {
+										currentTheme = emptyTheme
+										if (remult.user?.id) {
+											await repo(_AppUser).update(remult.user?.id, { theme: 'empty' })
+										}
+									}}
+								>
+									Theme: Empty
 								</button>
 							</li>
 						</ul>

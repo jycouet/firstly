@@ -22,5 +22,5 @@ export class _AppUser extends FFAuthUser {
 	jobTitle: string = 'CEO'
 
 	@Fields.string()
-	theme: 'daisy' | 'empty' = 'daisy'
+	theme: 'default' | 'daisy' | 'empty' = 'daisy'
 }

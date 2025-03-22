@@ -70,7 +70,16 @@ export interface Theme {
 	form?: FormTheme
 }
 
-// Default theme with all components
+export const defaultTheme: Theme = {
+	field: {},
+	label: {},
+	error: {},
+	hint: {},
+	edit: {},
+	grid: {},
+	form: {},
+}
+
 export const emptyTheme: Theme = {
 	field: {},
 	label: {},

@@ -12,13 +12,15 @@
 		},
 	})
 
-	// Set up fields with different widths
+	// Set up fields with different widths that will fit in one row (4 columns grid)
 	const fields = [
-		overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }),
-		overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }),
-		overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }),
-		overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }),
-		overwriteOptions(r.fields.typeOfTask, { ui: { style: {} } }),
+		overwriteOptions(r.fields.title, { ui: { style: { start: 2, span: 4 } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { start: 8, span: 4 } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { span: 3 } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { span: 3 } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { span: 3 } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { span: 3 } } }),
+		overwriteOptions(r.fields.typeOfTask, { ui: {} }),
 	]
 
 	function handleEdit(item: Task) {

@@ -114,9 +114,11 @@
 	}
 	:global {
 		[data-ff-form-fields] {
-			display: flex;
-			flex-wrap: wrap;
+			display: grid;
+			grid-template-columns: repeat(12, 1fr);
 			gap: var(--ff-form-gap);
 		}
+
+		/* Ensure fields span the correct number of columns based on their width */
 	}
 </style>

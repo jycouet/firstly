@@ -3,7 +3,6 @@ import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
 import { FF_Role } from '$lib'
 
 import { TaskTypeEnum } from './TaskTypeEnum'
-import Title from './ui/Title.svelte'
 
 @Entity('task', {
 	// allowApiCrud: Allow.authenticated,
@@ -24,10 +23,7 @@ export class Task {
 			placeholder: 'Enter a title',
 			hint: 'This is a hint more <a style="color: orange;" href="https://firstly.fun">here</a>!',
 			style: {
-				width: 60,
 				span: 6,
-				// start: 1,
-				// end: 3,
 			},
 			// field: {
 			// 	label: 'remove',
@@ -43,11 +39,8 @@ export class Task {
 
 	@Field(() => TaskTypeEnum, {
 		ui: {
-			// width: 20,
 			style: {
-				width: 40,
-				// span: 3,
-				// start: 2,
+				span: 3,
 			},
 		},
 	})
@@ -56,7 +49,7 @@ export class Task {
 	@Fields.number({
 		ui: {
 			style: {
-				span: 2,
+				span: 3,
 			},
 		},
 	})

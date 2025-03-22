@@ -5,5 +5,12 @@
 	let { field, value = $bindable(), error }: Props = $props()
 </script>
 
-EditCustom 🚀
+<span>EditCustom 🚀</span>
 <input bind:value />
+
+<style>
+	input {
+		width: 100%;
+		background-color: blue;
+	}
+</style>

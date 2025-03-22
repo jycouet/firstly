@@ -151,8 +151,8 @@ declare module 'remult' {
 		// `findOptionsForEdit` is only for insert & update.
 		// 1-n impact with `findOptions`
 		findOptionsForEdit?:
-		| ((entity: entityType) => FindOptionsBase<valueType>)
-		| FindOptionsBase<valueType>
+			| ((entity: entityType) => FindOptionsBase<valueType>)
+			| FindOptionsBase<valueType>
 
 		findOptionsLimit?: number
 		createOptionWhenNoResult?: {
@@ -179,14 +179,11 @@ declare module 'remult' {
 			hint?: string
 
 			style?: {
-				width?: number
 				span?: number
 				start?: number
-				end?: number
 				mobile?: {
 					span?: number
 					start?: number
-					end?: number
 				}
 			}
 		}

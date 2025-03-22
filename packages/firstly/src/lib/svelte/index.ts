@@ -17,6 +17,7 @@ export {
 	setTheme,
 	getClasses,
 	daisyTheme,
+	defaultTheme,
 	emptyTheme,
 	FF_Theme,
 } from './ff_Config.svelte.js'

@@ -22,13 +22,15 @@
 <div
 	data-ff-field
 	class={classes.root}
-	style:--ff-field-style-width={field.options.ui?.style?.width}
+	style:--ff-field-style-span={field.options.ui?.style?.span}
+	style:--ff-field-style-start={field.options.ui?.style?.start}
+	style:--ff-field-style-span-mobile={field.options.ui?.style?.mobile?.span}
+	style:--ff-field-style-start-mobile={field.options.ui?.style?.mobile?.start}
 >
 	<FF_Label {uid} {field} {error} {value} />
 	<FF_Error {uid} {field} {error} {value} />
 	<FF_Edit {uid} {field} {error} bind:value />
 	<FF_Hint {uid} {field} {error} {value} />
-	{JSON.stringify(field.options.ui?.style)}
 </div>
 
 <!-- TODO Ermin Question: This should be in the css of the user ?
@@ -39,16 +41,17 @@
 <style>
 	:global {
 		[data-ff-field] {
-			width: calc(var(--ff-field-style-width, 100) * 1%);
+			grid-column: span var(--ff-field-style-span, 12) / span var(--ff-field-style-span, 12);
+			grid-column-start: var(--ff-field-style-start);
 		}
 
-		/* @media (max-width: 768px) {
+		@media (max-width: 768px) {
 			[data-ff-field] {
-				grid-column-end: var(--ff-field-style-end-mobile);
-				grid-column: span var(--ff-field-style-span-mobile) / span var(--ff-field-style-span-mobile);
+				grid-column: span var(--ff-field-style-span-mobile, 12) / span
+					var(--ff-field-style-span-mobile, 12);
 				grid-column-start: var(--ff-field-style-start-mobile);
 			}
-		} */
+		}
 
 		input[data-ff-field-input] {
 			width: 100%;
