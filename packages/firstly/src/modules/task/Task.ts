@@ -1,8 +1,8 @@
 import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
 
-import { TaskTypeEnum } from './TaskTypeEnum'
 import { FF_Role } from '$lib'
 
+import { TaskTypeEnum } from './TaskTypeEnum'
 
 @Entity('task', {
 	// allowApiCrud: Allow.authenticated,

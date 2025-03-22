@@ -40,3 +40,16 @@ export function overwriteOptions<valueType = unknown, entityType = unknown>(
 		options: deepMerge(field.options, options),
 	}
 }
+
+type NoInfer<T> = [T][T extends any ? 0 : never]
+/** You MUST add the T type to the function call
+ *
+ * @example
+ * isOfType<ComponentObject>(obj, 'component')
+ */
+export function isOfType<T, U = unknown>(
+	value: T | U,
+	property: keyof NoInfer<T> & string,
+): value is T {
+	return typeof value === 'object' && value !== null && property in value
+}

@@ -19,7 +19,7 @@ const userAdmin: UserInfo = {
 }
 
 describe('demo', () => {
-	beforeEach(async () => { })
+	beforeEach(async () => {})
 
 	it('Invalid Demo User', async () => {
 		firstly({
