@@ -1,10 +1,9 @@
 <script lang="ts" generics="entityType = unknown">
 	import { getEntityRef, type FieldMetadata } from 'remult'
 
-	import { dialog } from '$lib/ui/dialog/dialog'
-	import Icon from '$lib/ui/Icon.svelte'
-	import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '$lib/ui/LibIcon'
-
+	import { dialog } from '../ui/dialog/dialog'
+	import Icon from '../ui/Icon.svelte'
+	import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '../ui/LibIcon'
 	import { FF_Display, FF_Repo, getClasses, type GridTheme } from './'
 
 	interface Props<entityType> {

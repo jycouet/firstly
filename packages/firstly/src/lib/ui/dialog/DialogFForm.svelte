@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { FF_Form } from '$lib/svelte'
-
+	import { FF_Form } from '../../svelte'
 	import { dialog, type DialogMetaDataInternal } from './dialog'
 	import DialogPrimitive from './DialogPrimitive.svelte'
 
