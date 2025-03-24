@@ -29,7 +29,7 @@ export type FormGrid =
 	| 'grid-cols-4'
 	| 'grid-cols-1 lg:grid-cols-4'
 
-export type DialogMetaData<entityType = any> = {
+export type DialogMetaData<entityType = unknown> = {
 	detail?: BaseItemLight
 
 	repo?: Repository<entityType>
@@ -49,7 +49,7 @@ export type DialogMetaData<entityType = any> = {
 	r?: FF_Repo<entityType>
 }
 
-type ResultClose<entityType = any> = {
+type ResultClose<entityType = unknown> = {
 	success: boolean
 	item?: entityType
 	// createRequest?: entityType
@@ -72,7 +72,7 @@ export type DialogFormType<entityType> = {
 	topicPrefixText?: string
 	focusKey?: string
 }
-export type DialogMetaDataInternal<entityType = any> = DialogMetaData<entityType> & {
+export type DialogMetaDataInternal<entityType = unknown> = DialogMetaData<entityType> & {
 	id: number
 	type: DialogType
 	resolve: (result: ResultClose) => void
@@ -81,14 +81,22 @@ const createDialogManagement = () => {
 	const { subscribe, update } = writable<DialogMetaDataInternal[]>([])
 
 	// internal...
-	const show = (dialog: DialogMetaData, type: DialogType) => {
+	const show = <T>(dialog: DialogMetaData<T>, type: DialogType) => {
 		let resolve: any
 		const promise = new Promise<ResultClose>((res) => {
 			resolve = res
 		})
 
 		update((dialogs) => {
-			return [...dialogs, { ...dialog, id: dialogs.length + 1, resolve, type }]
+			// Use type assertion to ensure proper typing
+			const newDialog = {
+				...dialog,
+				id: dialogs.length + 1,
+				resolve,
+				type
+			} as DialogMetaDataInternal
+
+			return [...dialogs, newDialog]
 		})
 
 		return promise
@@ -153,7 +161,7 @@ const createDialogManagement = () => {
 				focusKey: settings?.focusKey,
 				topicPrefixText,
 			}
-			return show(detail, type)
+			return show<entityType>(detail, type)
 		},
 		fform: <entityType>(r: FF_Repo<entityType>, settings: DialogFormType<entityType>) => {
 			// const topicPrefixText = settings?.topicPrefixText
@@ -183,11 +191,11 @@ const createDialogManagement = () => {
 				r,
 				// topicPrefixText,
 			}
-			return show(detail, 'fform')
+			return show<entityType>(detail, 'fform')
 		},
 
-		show: (dialog: DialogMetaData) => {
-			return show(dialog, 'custom')
+		show: <T>(dialog: DialogMetaData<T>) => {
+			return show<T>(dialog, 'custom')
 		},
 
 		// next step, give a result typed!
