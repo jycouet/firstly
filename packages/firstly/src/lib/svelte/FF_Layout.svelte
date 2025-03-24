@@ -8,10 +8,10 @@
 		r: FF_Repo<entityType>
 		type: 'columns' | 'tabs' | 'accordions'
 		groups?: FieldGroup<entityType>[]
-		classes_columns?: string
+		classes_goups?: string // TODO: Make a themeLayout
 	}
 
-	let { r, type, groups, classes_columns }: Props<entityType> = $props()
+	let { r, type, groups, classes_goups }: Props<entityType> = $props()
 
 	let selectedTab: string | undefined = $state(undefined)
 	$effect(() => {
@@ -22,7 +22,7 @@
 </script>
 
 {#if type === 'columns'}
-	<FF_Form {r} {groups} classes={{ columns: classes_columns }}></FF_Form>
+	<FF_Form {r} {groups} classes={{ groups: classes_goups }}></FF_Form>
 {:else if type === 'tabs'}
 	<div role="tablist" class="tabs tabs-lifted">
 		{#each groups ?? [] as group (group.key)}

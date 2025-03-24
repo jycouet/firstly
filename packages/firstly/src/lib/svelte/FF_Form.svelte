@@ -81,26 +81,28 @@
 </script>
 
 <form data-ff-form class="{classes?.root} {r.metadata.key}" {onsubmit}>
-	<div data-ff-form-group class={classes?.columns}>
+	<div data-ff-form-groups class={classes?.groups}>
 		{#each groupsToUse ?? [] as group (group.key)}
-			{#if show?.title}
-				<div data-ff-form-title>
-					<!-- {ref.isNew() ? 'Add' : 'Save'} -->
-					{group?.caption ?? r.metadata.caption}
+			<div data-ff-form-group>
+				{#if show?.title}
+					<div data-ff-form-title>
+						<!-- {ref.isNew() ? 'Add' : 'Save'} -->
+						{group?.caption ?? r.metadata.caption}
+					</div>
+				{/if}
+				{#if group?.hint}
+					<div data-ff-form-hint>{@html group?.hint}</div>
+				{/if}
+				<div data-ff-form-fields class="{classes?.fields} {group.class}">
+					{#each group.fields as field}
+						<FF_Field
+							uid="{ToUse}-{field.key}"
+							{field}
+							bind:value={valuesToUse[field.key as keyof entityType]}
+							error={errors[field.key]}
+						/>
+					{/each}
 				</div>
-			{/if}
-			{#if group?.hint}
-				<div data-ff-form-hint>{@html group?.hint}</div>
-			{/if}
-			<div data-ff-form-fields class="{classes?.fields} {group.class}">
-				{#each group.fields as field}
-					<FF_Field
-						uid="{ToUse}-{field.key}"
-						{field}
-						bind:value={valuesToUse[field.key as keyof entityType]}
-						error={errors[field.key]}
-					/>
-				{/each}
 			</div>
 		{/each}
 	</div>
