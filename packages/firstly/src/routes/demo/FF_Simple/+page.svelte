@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { Task } from '$modules/task/Task'
 
-	import { FF_Form, FF_Grid, FF_Repo } from '../../../lib/svelte'
+	import { FF_Form, FF_Grid, FF_Layout, FF_Repo } from '../../../lib/svelte'
 
 	const r = new FF_Repo(Task, {
-		queryOptions: { orderBy: { createdAt: 'asc' } },
+		queryOptions: { orderBy: { createdAt: 'asc' }, pageSize: 5 },
 	})
 </script>
 
@@ -12,8 +12,13 @@
 	<h2 class="text-2xl">Default Form</h2>
 	<FF_Form {r} />
 
-	<hr />
+	<div class="divider"></div>
 
 	<h2 class="text-2xl">Default Grid</h2>
 	<FF_Grid {r} />
+
+	<div class="divider"></div>
+
+	<h2 class="text-2xl">Default Layout</h2>
+	<FF_Layout {r} />
 </div>

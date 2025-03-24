@@ -22,7 +22,7 @@
 
 	let {
 		r,
-		fields = r.fields.toArray().filter((c) => c.apiUpdateAllowed()),
+		fields = r.getLayout()?.groups?.[0]?.fields ?? [],
 		showCreate = true,
 		showEdit = true,
 		showDelete = true,

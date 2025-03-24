@@ -1,3 +1,4 @@
+
 import { default as FF_Config } from './FF_Config.svelte'
 import { default as FF_Display } from './FF_Display.svelte'
 import { default as FF_Edit } from './FF_Edit.svelte'
@@ -8,6 +9,7 @@ import { default as FF_Grid } from './FF_Grid.svelte'
 import { default as FF_Hint } from './FF_Hint.svelte'
 import { default as FF_Label } from './FF_Label.svelte'
 import { default as FF_Layout } from './FF_Layout.svelte'
+import type { CustomFieldComponent, getLayout } from './customField'
 
 export type {
 	FieldTheme,
@@ -48,16 +50,47 @@ export { FF_Repo } from './FF_Repo.svelte.js'
 export { tryCatch, tryCatchSync } from './tryCatch'
 export { overwriteOptions, deepMerge } from './helpers'
 
-// - [ ] Move index extends stuff
+// ******************************
+// Additions to Remult
+// ******************************
+declare module 'remult' {
+	export interface FieldOptions<entityType, valueType> {
+		ui?: {
+			field?: {
+				label?: 'show' | 'hide' | 'remove'
+				error?: 'show' | 'hide' | 'remove'
+				edit?: CustomFieldComponent<valueType, entityType>
+				hint?: 'show' | 'hide' | 'remove'
+			}
+			display?: CustomFieldComponent<valueType, entityType>
+
+			placeholder?: string
+			hint?: string
+
+			style?: {
+				span?: number
+				start?: number
+				mobile?: {
+					span?: number
+					start?: number
+				}
+			}
+		}
+	}
+
+	export interface EntityOptions<entityType> {
+		ui?: {
+			getLayout?: getLayout<entityType>
+		}
+	}
+}
+
 // - [ ] Try to pnpm pack to see what css is needed.
 //   - [ ] let's look at the data-ff-xxx story ?
 //   - [ ] how lib defaults should be configured ?
 //   - [ ] What deault css should be provided to the user ?
-// - [x] Add Layouts (Column / accordion / tabs)
-//   - [ ] In columns, would be nice to have 1 actions for all columns?!
-// - [ ] Add panels
-// - [ ] Add fform in readonly mode
+// - [ ] Add fform in readonly mode (readonly / edit / insert ?)
+// - [ ] Filter Fields
 // - [ ] Add cancel button to form
 // - [ ] Create a dedicated FF_Dialog
 // - [ ] Create a [crud] demo ? a [crud]/[detail] demo ?
-// - [ ] Filter Fields

@@ -10,12 +10,25 @@ import { TaskTypeEnum } from './TaskTypeEnum'
 	allowApiInsert: Allow.authenticated,
 	allowApiUpdate: Allow.authenticated,
 	allowApiDelete: FF_Role.FF_Role_Admin,
+
+	ui: {
+		// layout: ({ key, type } = {}) => {
+		// 	return {
+		// 		key: key ?? 'default',
+		// 		type: type ?? 'grid',
+		// 		groups: [{
+		// 			key: key ?? 'default',
+		// 			fields: repo(Task).fields.toArray().filter((c) => c.apiUpdateAllowed()),
+		// 		}]
+		// 	}
+		// },
+	}
 })
 export class Task {
 	@Fields.cuid()
 	id!: string
 
-	@Fields.createdAt({ inputType: 'coucou' })
+	@Fields.createdAt()
 	createdAt?: Date
 
 	@Fields.string<Task>({

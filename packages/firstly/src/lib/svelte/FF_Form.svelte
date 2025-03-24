@@ -41,11 +41,7 @@
 
 	let valuesToUse = $state(r.item ? r.item : r.create(defaults))
 	let ref = $derived(getEntityRef(valuesToUse))
-	const groupsToUse: FieldGroup<entityType>[] = $derived(
-		groups ?? [
-			{ key: 'defaults', fields: r.fields.toArray().filter((c) => c.apiUpdateAllowed(r.item)) },
-		],
-	)
+	const groupsToUse: FieldGroup<entityType>[] = $derived(groups ?? r.getLayout()?.groups ?? [])
 
 	const onsubmit = async (e: Event) => {
 		e.preventDefault()

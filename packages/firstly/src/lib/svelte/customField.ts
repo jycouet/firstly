@@ -38,6 +38,22 @@ export type DynamicCustomField = <valueType = unknown, entityType = unknown>(
 	infos: DynamicFieldDefaultProps<valueType, entityType>,
 ) => CustomFieldComponent<valueType, entityType> | undefined
 
+export type getLayout<entityType = unknown> = (o?: {
+	key?: string
+	type?: Layout['type']
+}) => Layout<entityType> | undefined
+
+export type getLayoutStrict<entityType = unknown> = (o?: {
+	key?: string
+	type?: Layout['type']
+}) => Layout<entityType>
+
+export type Layout<entityType = unknown> = {
+	key: string
+	type: 'grid' | 'detail' | 'tab' | 'accordion'
+	groups: FieldGroup<entityType>[]
+}
+
 export type FieldGroup<entityType = unknown> = {
 	key: string
 	fields: FieldMetadata<unknown, entityType>[]
