@@ -6,7 +6,6 @@ import type { ColumnDeciderArgs } from './changeLog/index.js'
 import { ff_Log, FF_Role } from './common.js'
 import { storeItem } from './storeItem.js'
 import { storeList } from './storeList.js'
-import type { CustomFieldComponent } from './svelte/customField.js'
 import { default as Button } from './ui/Button.svelte'
 import { default as Clipboardable } from './ui/Clipboardable.svelte'
 import type { dialog } from './ui/dialog/dialog.js'
@@ -151,8 +150,8 @@ declare module 'remult' {
 		// `findOptionsForEdit` is only for insert & update.
 		// 1-n impact with `findOptions`
 		findOptionsForEdit?:
-		| ((entity: entityType) => FindOptionsBase<valueType>)
-		| FindOptionsBase<valueType>
+			| ((entity: entityType) => FindOptionsBase<valueType>)
+			| FindOptionsBase<valueType>
 
 		findOptionsLimit?: number
 		createOptionWhenNoResult?: {

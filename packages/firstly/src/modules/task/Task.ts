@@ -22,7 +22,7 @@ import { TaskTypeEnum } from './TaskTypeEnum'
 		// 		}]
 		// 	}
 		// },
-	}
+	},
 })
 export class Task {
 	@Fields.cuid()

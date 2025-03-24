@@ -48,18 +48,18 @@ type ExtractAggregateResult<Entity, Options extends QueryOptionsHelper<Entity>> 
 	aggregate: infer A
 }
 	? GroupByResult<
-		Entity,
-		never,
-		A extends { sum?: infer S } ? (S extends NumericKeys<Entity>[] ? S : never) : never,
-		A extends { avg?: infer V } ? (V extends NumericKeys<Entity>[] ? V : never) : never,
-		A extends { min?: infer M } ? (M extends (keyof MembersOnly<Entity>)[] ? M : never) : never,
-		A extends { max?: infer X } ? (X extends (keyof MembersOnly<Entity>)[] ? X : never) : never,
-		A extends { distinctCount?: infer D }
-		? D extends (keyof MembersOnly<Entity>)[]
-		? D
-		: never
-		: never
-	>
+			Entity,
+			never,
+			A extends { sum?: infer S } ? (S extends NumericKeys<Entity>[] ? S : never) : never,
+			A extends { avg?: infer V } ? (V extends NumericKeys<Entity>[] ? V : never) : never,
+			A extends { min?: infer M } ? (M extends (keyof MembersOnly<Entity>)[] ? M : never) : never,
+			A extends { max?: infer X } ? (X extends (keyof MembersOnly<Entity>)[] ? X : never) : never,
+			A extends { distinctCount?: infer D }
+				? D extends (keyof MembersOnly<Entity>)[]
+					? D
+					: never
+				: never
+		>
 	: EmptyAggregateResult
 
 // Define a type for the paginator based on the query options
@@ -111,13 +111,13 @@ export class FF_Repo<
 		public ent: ClassType<Entity>,
 		o?: (
 			| {
-				findOptions?: FindOptions<Entity> & { skipAutoFetch?: boolean }
-				queryOptions?: never
-			}
+					findOptions?: FindOptions<Entity> & { skipAutoFetch?: boolean }
+					queryOptions?: never
+			  }
 			| {
-				findOptions?: never
-				queryOptions?: QueryOptions & { skipAutoFetch?: boolean }
-			}
+					findOptions?: never
+					queryOptions?: QueryOptions & { skipAutoFetch?: boolean }
+			  }
 		) & { item?: Entity },
 	) {
 		this.#repo = remultRepo(ent)
@@ -254,10 +254,12 @@ export class FF_Repo<
 		return {
 			key: o?.key ?? 'default',
 			type: o?.type ?? 'grid',
-			groups: [{
-				key: o?.key ?? 'default',
-				fields: this.#repo.fields.toArray().filter((c) => c.apiUpdateAllowed()),
-			}]
+			groups: [
+				{
+					key: o?.key ?? 'default',
+					fields: this.#repo.fields.toArray().filter((c) => c.apiUpdateAllowed()),
+				},
+			],
 		}
 	}
 }
