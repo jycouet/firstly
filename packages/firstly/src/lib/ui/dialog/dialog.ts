@@ -153,6 +153,7 @@ const createDialogManagement = () => {
 				focusKey: settings?.focusKey,
 				topicPrefixText,
 			}
+			// @ts-ignore
 			return show(detail, type)
 		},
 		fform: <entityType>(r: FF_Repo<entityType>, settings: DialogFormType<entityType>) => {
@@ -183,6 +184,7 @@ const createDialogManagement = () => {
 				r,
 				// topicPrefixText,
 			}
+			// @ts-ignore
 			return show(detail, 'fform')
 		},
 
