@@ -48,6 +48,7 @@ export { FF_Repo } from './FF_Repo.svelte.js'
 export { tryCatch, tryCatchSync } from './tryCatch'
 export { overwriteOptions, deepMerge } from './helpers'
 
+// - [ ] Move index extends stuff
 // - [ ] Try to pnpm pack to see what css is needed.
 //   - [ ] let's look at the data-ff-xxx story ?
 //   - [ ] how lib defaults should be configured ?

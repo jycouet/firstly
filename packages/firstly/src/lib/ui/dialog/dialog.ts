@@ -3,8 +3,6 @@ import { writable } from 'svelte/store'
 
 import { type Repository } from 'remult'
 
-import type { FF_Repo } from '../../svelte'
-
 import {
 	LibIcon_Add,
 	LibIcon_Delete,
@@ -14,6 +12,7 @@ import {
 	type CellsInput,
 	type StoreItem,
 } from '../../'
+import type { FF_Repo } from '../../svelte'
 
 export type DialogClasses = {
 	/**
