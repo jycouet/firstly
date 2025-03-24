@@ -3,7 +3,7 @@ import { writable } from 'svelte/store'
 
 import { type Repository } from 'remult'
 
-import type { FF_Repo } from '$lib/svelte'
+import type { FF_Repo } from '../../svelte'
 
 import {
 	LibIcon_Add,

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Task } from '$modules/task/Task'
-	import { FF_Form, FF_Grid, FF_Repo, overwriteOptions } from '$lib/svelte'
+
+	import { FF_Form, FF_Grid, FF_Repo, overwriteOptions } from '../../../lib/svelte'
 
 	const r = new FF_Repo(Task, {
 		queryOptions: {

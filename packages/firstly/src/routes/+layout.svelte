@@ -17,9 +17,9 @@
 	import Title from '$modules/task/ui/Title.svelte'
 	import { _AppUser } from '$modules/user/AppUser'
 	import { AuthController } from '$lib/auth'
-	import { daisyTheme, defaultTheme, emptyTheme, FF_Config } from '$lib/svelte'
-	import type { DynamicCustomField, Theme } from '$lib/svelte'
 
+	import { daisyTheme, defaultTheme, emptyTheme, FF_Config } from '../lib/svelte'
+	import type { DynamicCustomField, Theme } from '../lib/svelte'
 	import type { LayoutData } from './$types'
 
 	interface Props {
