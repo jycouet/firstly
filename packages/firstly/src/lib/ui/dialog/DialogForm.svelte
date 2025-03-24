@@ -1,18 +1,18 @@
-<script lang="ts">
+<script lang="ts" generics="T extends Record<any, any>">
 	import { FieldGroup, storeItem } from '../..'
 	import { cellsBuildor } from '../../cellsBuildor'
 	import { dialog, type DialogMetaDataInternal } from './dialog'
 	import DialogPrimitive from './DialogPrimitive.svelte'
 	import FormEditAction from './FormEditAction.svelte'
 
-	export let toShow: DialogMetaDataInternal
+	export let toShow: DialogMetaDataInternal<T>
 
 	$: cells = cellsBuildor(toShow.repo!, toShow.cells!)
 	$: store = toShow.store ?? storeItem(toShow.repo!)
 
 	$: {
 		if (toShow.type === 'update' || toShow.type === 'view') {
-			store.set({ item: toShow.defaults, errors: {}, loading: false, globalError: undefined })
+			store.set({ item: toShow.defaults as T, errors: {}, loading: false, globalError: undefined })
 		} else {
 			store.create(toShow.defaults ?? {})
 		}

@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
 	import Button from '../Button.svelte'
 	import { dialog } from './dialog'
+	import type { DialogMetaDataInternal } from './dialog'
 	import DialogFForm from './DialogFForm.svelte'
 	import DialogForm from './DialogForm.svelte'
 	import DialogPrimitive from './DialogPrimitive.svelte'
@@ -39,9 +40,9 @@
 			</svelte:fragment>
 		</DialogPrimitive>
 	{:else if toShow.type === 'insert' || toShow.type === 'update' || toShow.type === 'view'}
-		<DialogForm {toShow}></DialogForm>
+		<DialogForm toShow={toShow as DialogMetaDataInternal<Record<string, any>>} />
 	{:else if toShow.type === 'fform'}
-		<DialogFForm {toShow}></DialogFForm>
+		<DialogFForm toShow={toShow as DialogMetaDataInternal<unknown>} />
 	{:else if toShow.component && toShow.children}
 		<DialogPrimitive
 			detail={toShow.detail}

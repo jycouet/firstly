@@ -75,7 +75,7 @@ export type DialogFormType<entityType> = {
 export type DialogMetaDataInternal<entityType = unknown> = DialogMetaData<entityType> & {
 	id: number
 	type: DialogType
-	resolve: (result: ResultClose) => void
+	resolve: (result: ResultClose<entityType>) => void
 }
 const createDialogManagement = () => {
 	const { subscribe, update } = writable<DialogMetaDataInternal[]>([])
@@ -199,7 +199,7 @@ const createDialogManagement = () => {
 		},
 
 		// next step, give a result typed!
-		close: (id: number, result: ResultClose) => {
+		close: <T>(id: number, result: ResultClose<T>) => {
 			update((dialogs) => {
 				dialogs.forEach((dialog) => {
 					if (dialog.id === id) {

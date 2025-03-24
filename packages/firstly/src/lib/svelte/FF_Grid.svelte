@@ -121,8 +121,10 @@
 											const res = await dialog.fform(newR, {})
 											if (res.success) {
 												if (r.items) {
+													// @ts-ignore
 													r.items[
 														r.items.findIndex(
+															// @ts-ignore
 															(i) => r.metadata.idMetadata.getId(i) === r.metadata.idMetadata.getId(res.item),
 														)
 													] = res.item
