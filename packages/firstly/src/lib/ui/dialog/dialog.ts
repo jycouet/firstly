@@ -54,13 +54,7 @@ type ResultClose<entityType = any> = {
 	// createRequest?: entityType
 }
 
-export type DialogType =
-	| 'custom'
-	| 'confirm'
-	| 'confirmDelete'
-	| 'insert'
-	| 'update'
-	| 'view'
+export type DialogType = 'custom' | 'confirm' | 'confirmDelete' | 'insert' | 'update' | 'view'
 export type DialogFormType<entityType> = {
 	cells?: CellsInput<entityType>
 	defaults?: Partial<entityType>
