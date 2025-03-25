@@ -1,4 +1,5 @@
-import type { CellMetadata, CustomFieldComponent, getLayout } from './customField'
+import type { CellMetadata, getLayout } from './customField'
+import { default as FF_Cell } from './FF_Cell.svelte'
 import { default as FF_Config } from './FF_Config.svelte'
 import { default as FF_Display } from './FF_Display.svelte'
 import { default as FF_Edit } from './FF_Edit.svelte'
@@ -9,7 +10,7 @@ import { default as FF_Grid } from './FF_Grid.svelte'
 import { default as FF_Hint } from './FF_Hint.svelte'
 import { default as FF_Label } from './FF_Label.svelte'
 import { default as FF_Layout } from './FF_Layout.svelte'
-import { default as FF_Cell } from './FF_Cell.svelte'
+
 export type {
 	FieldTheme,
 	FormTheme,
@@ -65,7 +66,6 @@ declare module 'remult' {
 		}
 	}
 }
-
 
 // - [ ] Try to pnpm pack to see what css is needed.
 //   - [ ] let's look at the data-ff-xxx story ?

@@ -16,22 +16,18 @@
 	// Set up fields with different widths that will fit in one row (4 columns grid)
 	const fields = [
 		overwriteOptions(r.fields.title, {
-			ui: { width: 50, widthLeft: 25, widthRight: 25 },
+			ui: { width: 50, marginLeft: 25, marginRight: 25 },
 		}),
-		overwriteOptions(r.fields.title, { ui: { width: 25, widthLeft: 25, widthRight: 25 } }),
-		overwriteOptions(r.fields.title, { ui: { width: 25, widthLeft: 25, widthRight: 25 } }),
-		overwriteOptions(r.fields.title, { ui: { width: 25, widthLeft: 25, widthRight: 25 } }),
-		overwriteOptions(r.fields.title, { ui: { width: 25, widthLeft: 25, widthRight: 25 } }),
-		overwriteOptions(r.fields.title, { ui: { width: 25, widthLeft: 25, widthRight: 25 } }),
-		overwriteOptions(r.fields.completed, {
-			ui: { width: 25, widthLeft: 25, widthRight: 25 },
-		}),
-		overwriteOptions(r.fields.typeOfTask, {}),
+		overwriteOptions(r.fields.title, { ui: { width: 50 } }),
+		overwriteOptions(r.fields.title, { ui: { width: 25 } }),
+		overwriteOptions(r.fields.title, { ui: { width: 25 } }),
+		r.fields.typeOfTask,
+		overwriteOptions(r.fields.completed, { ui: { width: 25, marginLeft: 50 } }),
 		overwriteOptions(r.fields.completed, {
 			ui: {
 				width: 25,
-				widthLeft: 75,
-				mobile: { width: 25, widthLeft: 75 },
+				marginLeft: 75,
+				mobile: { width: 25, marginLeft: 75 },
 				hint: 'Yeah, try checking this!',
 			},
 		}),

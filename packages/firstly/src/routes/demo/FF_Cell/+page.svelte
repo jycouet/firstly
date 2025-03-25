@@ -8,7 +8,7 @@
 
 	const cell: CellMetadata<unknown, Task> = {
 		caption: 'Add a Task',
-		type: 'form',
+		// type: 'form',
 		cells: [
 			{
 				caption: 'left',
@@ -39,13 +39,13 @@
 			{ field: overwriteOptions(r.fields.title, { ui: { width: 25 } }) },
 			{ field: overwriteOptions(r.fields.title, { ui: { width: 25 } }) },
 			{ field: overwriteOptions(r.fields.completed, { ui: { width: 25 } }) },
-			{ field: overwriteOptions(r.fields.typeOfTask, {}) },
+			{ field: r.fields.typeOfTask },
 			{
 				field: overwriteOptions(r.fields.completed, {
 					ui: {
 						width: 25,
-						widthLeft: 75,
-						mobile: { width: 25, widthLeft: 75 },
+						marginLeft: 75,
+						mobile: { width: 25, marginLeft: 75 },
 						hint: 'Yeah, try checking this!',
 					},
 				}),

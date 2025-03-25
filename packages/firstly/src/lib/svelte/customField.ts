@@ -70,6 +70,7 @@ export type CellMetadata<valueType = unknown, entityType = unknown> = {
 
 	/** if nothing, it's just a "group" */
 	type?: 'form'
+	mode?: 'display' | 'edit'
 
 	field?: FieldMetadata<valueType, entityType>
 
@@ -97,6 +98,6 @@ export type CellMetadata<valueType = unknown, entityType = unknown> = {
 
 type Style = {
 	width?: number
-	widthLeft?: number
-	widthRight?: number
+	marginLeft?: number
+	marginRight?: number
 }

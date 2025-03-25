@@ -1,17 +1,8 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
-	import {
-		deepMerge,
-		FF_Cell,
-		FF_Edit,
-		FF_Error,
-		FF_Hint,
-		FF_Label,
-		FF_Repo,
-		getClasses,
-		type FieldTheme,
-	} from './'
-	import type { CellMetadata, CustomFieldDefaultProps } from './customField'
+	import { deepMerge, FF_Cell, FF_Repo } from './'
+	import type { CellMetadata } from './customField'
 	import FF_Cell_Caption from './FF_Cell_Caption.svelte'
+	import FF_Cell_Display from './FF_Cell_Display.svelte'
 	import FF_Cell_Edit from './FF_Cell_Edit.svelte'
 	import FF_Cell_Error from './FF_Cell_Error.svelte'
 	import FF_Cell_Hint from './FF_Cell_Hint.svelte'
@@ -38,32 +29,45 @@
 	let value: any = $state('')
 </script>
 
-<div
-	data-ff-cell
-	data-ff-cells={props.cell.cells}
-	style:--width={ui?.width ?? 100}
-	style:--width-left={ui?.widthLeft ?? 0}
-	style:--width-right={ui?.widthRight ?? 0}
-	style:--width-mobile={ui?.mobile?.width ?? 100}
-	style:--width-left-mobile={ui?.mobile?.widthLeft ?? 0}
-	style:--width-right-mobile={ui?.mobile?.widthRight ?? 0}
-	class={[key, props.class]}
->
-	<FF_Cell_Caption {ui} {caption} {key} />
-	<FF_Cell_Error {ui} {error} {key} />
-	{#if props.cell.field}
-		<FF_Cell_Edit field={props.cell.field} {error} bind:value />
-	{/if}
-	<FF_Cell_Hint {ui} {hint} {key} />
-
+<!-- Snippets sections -->
+{#snippet cellsChildren(isForm: boolean = false)}
 	<div data-ff-cells>
 		{#each props.cell.cells ?? [] as children}
 			<FF_Cell cell={children} />
 		{/each}
 	</div>
+{/snippet}
+
+<!-- Main section -->
+<div
+	data-ff-cell
+	data-ff-cells={props.cell.cells}
+	style:--width={ui?.width ?? 100}
+	style:--margin-left={ui?.marginLeft ?? 0}
+	style:--margin-right={ui?.marginRight ?? 0}
+	style:--width-mobile={ui?.mobile?.width ?? 100}
+	style:--margin-left-mobile={ui?.mobile?.marginLeft ?? 0}
+	style:--margin-right-mobile={ui?.mobile?.marginRight ?? 0}
+	class={[key, props.class]}
+>
+	<FF_Cell_Caption {ui} {caption} {key} />
+	<FF_Cell_Error {ui} {error} {key} />
+	{#if props.cell.field}
+		{#if props.cell.mode === 'edit'}
+			<FF_Cell_Edit field={props.cell.field} {error} bind:value />
+		{:else}
+			<FF_Cell_Display field={props.cell.field} {error} {value} />
+		{/if}
+	{/if}
+	<FF_Cell_Hint {ui} {hint} {key} />
 
 	{#if props.cell.type === 'form'}
-		actions...
+		<form>
+			{@render cellsChildren(true)}
+			<button type="submit">Submit</button>
+		</form>
+	{:else}
+		{@render cellsChildren()}
 	{/if}
 </div>
 
@@ -81,8 +85,8 @@
 		padding: var(--ff-spacing);
 		flex: 1 1 calc(var(--width, 100) * 1%);
 		max-width: calc(var(--width, 100) * 1%);
-		margin-left: calc(var(--width-left, 0) * 1%);
-		margin-right: calc(var(--width-right, 0) * 1%);
+		margin-left: calc(var(--margin-left, 0) * 1%);
+		margin-right: calc(var(--margin-right, 0) * 1%);
 
 		/* For debugging purposes - outline that doesn't affect layout */
 		outline: 1px solid rgba(255, 0, 0, 0.5);
@@ -93,8 +97,8 @@
 		[data-ff-cell] {
 			flex: 1 1 calc(var(--width-mobile, 100) * 1%);
 			max-width: calc(var(--width-mobile, 100) * 1%);
-			margin-left: calc(var(--width-left-mobile, 0) * 1%);
-			margin-right: calc(var(--width-right-mobile, 0) * 1%);
+			margin-left: calc(var(--margin-left-mobile, 0) * 1%);
+			margin-right: calc(var(--margin-right-mobile, 0) * 1%);
 		}
 	}
 </style>

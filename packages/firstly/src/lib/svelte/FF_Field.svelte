@@ -23,11 +23,11 @@
 	data-ff-field
 	class={classes.root}
 	style:--width={field.options.ui?.width}
-	style:--width-left={field.options.ui?.widthLeft}
-	style:--width-right={field.options.ui?.widthRight}
+	style:--margin-left={field.options.ui?.marginLeft}
+	style:--margin-right={field.options.ui?.marginRight}
 	style:--width-mobile={field.options.ui?.mobile?.width}
-	style:--width-mobile-left={field.options.ui?.mobile?.widthLeft}
-	style:--width-mobile-right={field.options.ui?.mobile?.widthRight}
+	style:--margin-left-mobile={field.options.ui?.mobile?.marginLeft}
+	style:--margin-right-mobile={field.options.ui?.mobile?.marginRight}
 >
 	<FF_Label {uid} {field} {error} {value} />
 	<FF_Error {uid} {field} {error} {value} />
@@ -43,29 +43,20 @@
 		flex: 1 1 calc(var(--width, 100) * 1%);
 		max-width: calc(var(--width, 100) * 1%);
 		padding: var(--ff-spacing);
-		margin-left: calc(var(--width-left, 0) * 1%);
-		margin-right: calc(var(--width-right, 0) * 1%);
+		margin-left: calc(var(--margin-left, 0) * 1%);
+		margin-right: calc(var(--margin-right, 0) * 1%);
 
 		/* For debugging purposes - outline that doesn't affect layout */
 		/* outline: 1px solid rgba(255, 0, 0, 0.5);
 		outline-offset: -1px; */
 	}
 
-	@media screen and (max-width: 64rem) {
-		[data-ff-field] {
-			flex: 1 1 calc(var(--width-tablet, 100) * 1%);
-			max-width: calc(var(--width-tablet, 100) * 1%);
-			margin-left: calc(var(--width-tablet-left, 0) * 1%);
-			margin-right: calc(var(--width-tablet-right, 0) * 1%);
-		}
-	}
-
 	@media screen and (max-width: 40rem) {
 		[data-ff-field] {
 			flex: 1 1 calc(var(--width-mobile, 100) * 1%);
 			max-width: calc(var(--width-mobile, 100) * 1%);
-			margin-left: calc(var(--width-mobile-left, 0) * 1%);
-			margin-right: calc(var(--width-mobile-right, 0) * 1%);
+			margin-left: calc(var(--margin-left-mobile, 0) * 1%);
+			margin-right: calc(var(--margin-right-mobile, 0) * 1%);
 		}
 	}
 </style>

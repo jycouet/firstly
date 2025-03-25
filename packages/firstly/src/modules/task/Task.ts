@@ -53,7 +53,6 @@ export class Task {
 	@Field(() => TaskTypeEnum, {
 		ui: {
 			width: 25,
-
 		},
 	})
 	typeOfTask = TaskTypeEnum.EASY
@@ -61,7 +60,6 @@ export class Task {
 	@Fields.number({
 		ui: {
 			width: 25,
-
 		},
 	})
 	size = 0
@@ -73,12 +71,11 @@ export class Task {
 		},
 		ui: {
 			width: 25,
-			widthLeft: 75,
+			marginLeft: 75,
 			mobile: {
 				width: 25,
-				widthLeft: 75,
+				marginLeft: 75,
 			},
-
 		},
 	})
 	completed: boolean = false
