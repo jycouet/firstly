@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { FF_Form } from '../'
 	import Button from '../../ui/Button.svelte'
 	import { dialog } from './dialog'
@@ -47,7 +47,7 @@
 			on:change={() => dialog.close(toShow.id, { success: false })}
 		>
 			<FF_Form
-				r={toShow.r}
+				r={toShow.r!}
 				show={{ title: false }}
 				defaults={toShow.defaults}
 				onSaved={(item) => dialog.close(toShow.id, { success: true, item })}
