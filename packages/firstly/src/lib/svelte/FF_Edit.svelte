@@ -20,7 +20,6 @@
 		field,
 		value = $bindable(),
 		error,
-		// customField,
 		classes: localClasses = {},
 	}: Props = $props()
 
@@ -30,20 +29,20 @@
 	const dynamicCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
 
 	const fromInput = (val: any) => {
-		console.log(`fromInput`, val)
-		const res = field.valueConverter.fromInput(val) as string
-		if (res && field.inputType === 'datetime-local') {
-			const date = new Date(res)
-			date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
-			return date.toISOString().slice(0, 16)
-		}
+		// console.log(`fromInput`, val)
+		const res = field.valueConverter.fromInput(val)
+		// if (res && field.inputType === 'datetime-local') {
+		// 	const date = new Date(res)
+		// 	date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
+		// 	return date.toISOString().slice(0, 16)
+		// }
 		return res
 	}
 
 	const toInput = (val: any) => {
-		console.log(`toInput1`, val)
+		// console.log(`toInput1`, val)
 		const res = field.valueConverter.toInput(val)
-		console.log(`toInput2`, res)
+		// console.log(`toInput2`, res)
 		return res
 	}
 </script>

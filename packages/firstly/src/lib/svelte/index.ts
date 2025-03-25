@@ -93,7 +93,9 @@ type Style = {
 //   - [ ] how lib defaults should be configured ?
 //   - [ ] What deault css should be provided to the user ?
 // - [ ] Add fform in readonly mode (readonly / edit / insert ?)
-// - [ ] Filter Fields
-// - [ ] Add cancel button to form
-// - [ ] Create a dedicated FF_Dialog
+// - [ ] Add Filter Fields
+// - [ ] Add actions form (cancel button to form, global error, ...)
+// - [x] Create a dedicated FF_Dialog
+//   - [ ] switch to data-ff-dialog (https://www.melt-ui.com/docs/builders/dialog example with non tailwind)
 // - [ ] Create a [crud] demo ? a [crud]/[detail] demo ?
+// - [ ] Add Toast ?
