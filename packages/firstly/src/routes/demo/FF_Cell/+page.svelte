@@ -12,17 +12,17 @@
 		cells: [
 			{
 				caption: 'left',
-				ui: { style: { width: 75 } },
+				ui: { width: 75 },
 				// type: "form",
 				cells: [
-					{ caption: 'Title', ui: { style: { width: 50 } } },
-					{ caption: 'Size', ui: { style: { width: 50 } } },
+					{ caption: 'Title', ui: { width: 50 } },
+					{ caption: 'Size', ui: { width: 50 } },
 					{ caption: 'Age' },
 				],
 			},
 			{
 				caption: 'right',
-				ui: { style: { width: 25 } },
+				ui: { width: 25 },
 				cells: [{ caption: 'second part' }],
 			},
 		],
@@ -33,17 +33,19 @@
 		type: 'form',
 		cells: [
 			{ field: r.fields.title },
-			{ field: overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }) },
-			{ field: overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }) },
-			{ field: overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }) },
-			{ field: overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }) },
-			{ field: overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }) },
-			{ field: overwriteOptions(r.fields.completed, { ui: { style: { width: 25 } } }) },
+			{ field: overwriteOptions(r.fields.title, { ui: { width: 25 } }) },
+			{ field: overwriteOptions(r.fields.title, { ui: { width: 25 } }) },
+			{ field: overwriteOptions(r.fields.title, { ui: { width: 25 } }) },
+			{ field: overwriteOptions(r.fields.title, { ui: { width: 25 } }) },
+			{ field: overwriteOptions(r.fields.title, { ui: { width: 25 } }) },
+			{ field: overwriteOptions(r.fields.completed, { ui: { width: 25 } }) },
 			{ field: overwriteOptions(r.fields.typeOfTask, {}) },
 			{
 				field: overwriteOptions(r.fields.completed, {
 					ui: {
-						style: { width: 25, widthLeft: 75, mobile: { width: 25, widthLeft: 75 } },
+						width: 25,
+						widthLeft: 75,
+						mobile: { width: 25, widthLeft: 75 },
 						hint: 'Yeah, try checking this!',
 					},
 				}),

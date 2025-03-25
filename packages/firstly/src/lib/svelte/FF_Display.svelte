@@ -14,8 +14,8 @@
 	const dynamicCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'display' })
 </script>
 
-{#if field.options.ui?.display}
-	{@const customField = field.options.ui?.display}
+{#if field.options.ui?.component?.display}
+	{@const customField = field.options.ui?.component?.display}
 	{#if isComponentObject(customField)}
 		{@const Component = customField.component}
 		<Component {field} bind:value {error} {...customField.props} />

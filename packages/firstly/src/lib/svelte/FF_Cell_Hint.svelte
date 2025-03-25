@@ -11,10 +11,10 @@
 	let { ui, key, class: localClass, hint }: Props<valueType, entityType> = $props()
 </script>
 
-{#if ui?.field?.hint === undefined || ui?.field?.hint === 'show'}
+{#if ui?.component?.hint === undefined || ui?.component?.hint === 'show'}
 	<label data-ff-cell-hint for={key} class={localClass}>{@html hint}</label>
-{:else if ui?.field?.hint === 'remove'}
+{:else if ui?.component?.hint === 'remove'}
 	<!-- Nothing -->
-{:else if ui?.field?.hint === 'hide'}
+{:else if ui?.component?.hint === 'hide'}
 	<span data-ff-cell-hint class={localClass}></span>
 {/if}

@@ -14,10 +14,10 @@
 	let classes = $derived(getClasses('error', localClasses))
 </script>
 
-{#if field.options.ui?.field?.error === undefined || field.options.ui?.field?.error === 'show'}
+{#if field.options.ui?.component?.error === undefined || field.options.ui?.component?.error === 'show'}
 	<div data-ff-field-error class={classes.root}>{@html error}</div>
-{:else if field.options.ui?.field?.error === 'remove'}
+{:else if field.options.ui?.component?.error === 'remove'}
 	<!-- Nothing -->
-{:else if field.options.ui?.field?.error === 'hide'}
+{:else if field.options.ui?.component?.error === 'hide'}
 	<span class={classes.root}></span>
 {/if}

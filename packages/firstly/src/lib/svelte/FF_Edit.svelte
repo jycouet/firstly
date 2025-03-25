@@ -47,8 +47,8 @@
 	}
 </script>
 
-{#if field.options.ui?.field?.edit}
-	{@const customField = field.options.ui?.field?.edit}
+{#if field.options.ui?.component?.edit}
+	{@const customField = field.options.ui?.component?.edit}
 	{#if isComponentObject(customField)}
 		{@const Component = customField.component}
 		<Component {field} bind:value {error} {...customField.props} />

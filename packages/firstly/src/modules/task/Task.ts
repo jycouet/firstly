@@ -37,10 +37,9 @@ export class Task {
 		ui: {
 			placeholder: 'Enter a title',
 			hint: 'This is a hint more <a style="color: orange;" href="https://firstly.fun">here</a>!',
-			style: {
-				width: 50,
-			},
-			field: {
+			width: 50,
+
+			component: {
 				// hint: "hide"
 			},
 			// display: Title,
@@ -53,18 +52,16 @@ export class Task {
 
 	@Field(() => TaskTypeEnum, {
 		ui: {
-			style: {
-				width: 25,
-			},
+			width: 25,
+
 		},
 	})
 	typeOfTask = TaskTypeEnum.EASY
 
 	@Fields.number({
 		ui: {
-			style: {
-				width: 25,
-			},
+			width: 25,
+
 		},
 	})
 	size = 0
@@ -75,14 +72,13 @@ export class Task {
 			return !isNew
 		},
 		ui: {
-			style: {
+			width: 25,
+			widthLeft: 75,
+			mobile: {
 				width: 25,
 				widthLeft: 75,
-				mobile: {
-					width: 25,
-					widthLeft: 75,
-				},
 			},
+
 		},
 	})
 	completed: boolean = false

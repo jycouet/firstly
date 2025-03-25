@@ -11,7 +11,7 @@
 			caption: 'ONE',
 			hint: 'This is part 1',
 			fields: [
-				overwriteOptions(r.fields.title, { ui: { style: { width: 25 } } }),
+				overwriteOptions(r.fields.title, { ui: { width: 25 } }),
 				overwriteOptions(r.fields.typeOfTask, { ui: {} }),
 				overwriteOptions(r.fields.size, { ui: {} }),
 			],

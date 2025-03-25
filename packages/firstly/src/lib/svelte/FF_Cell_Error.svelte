@@ -11,10 +11,10 @@
 	let { ui, key, class: localClass, error }: Props<valueType, entityType> = $props()
 </script>
 
-{#if ui?.field?.error === undefined || ui?.field?.error === 'show'}
+{#if ui?.component?.error === undefined || ui?.component?.error === 'show'}
 	<label data-ff-cell-error for={key} class={localClass}>{@html error}</label>
-{:else if ui?.field?.error === 'remove'}
+{:else if ui?.component?.error === 'remove'}
 	<!-- Nothing -->
-{:else if ui?.field?.error === 'hide'}
+{:else if ui?.component?.error === 'hide'}
 	<span data-ff-cell-error class={localClass}></span>
 {/if}

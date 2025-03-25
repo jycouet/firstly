@@ -76,26 +76,21 @@ export type CellMetadata<valueType = unknown, entityType = unknown> = {
 	value?: valueType
 
 	ui?: {
-
-
-		field?: {
+		component?: {
 			caption?: 'show' | 'hide' | 'remove'
 			label?: 'show' | 'hide' | 'remove'
 			error?: 'show' | 'hide' | 'remove'
 			edit?: CustomFieldComponent<valueType, entityType>
 			hint?: 'show' | 'hide' | 'remove'
+			display?: CustomFieldComponent<valueType, entityType>
 		}
-		display?: CustomFieldComponent<valueType, entityType>
 
 		placeholder?: string
 		step?: string | number | undefined
 		hint?: string
 
-		style?: Style & {
-			mobile?: Style
-			// tablet?: Style
-		}
-	}
+		mobile?: Style
+	} & Style
 
 	cells?: CellMetadata<valueType, entityType>[]
 }

@@ -41,12 +41,12 @@
 <div
 	data-ff-cell
 	data-ff-cells={props.cell.cells}
-	style:--width={ui?.style?.width ?? 100}
-	style:--width-left={ui?.style?.widthLeft ?? 0}
-	style:--width-right={ui?.style?.widthRight ?? 0}
-	style:--width-mobile={ui?.style?.mobile?.width ?? 100}
-	style:--width-mobile-left={ui?.style?.mobile?.widthLeft ?? 0}
-	style:--width-mobile-right={ui?.style?.mobile?.widthRight ?? 0}
+	style:--width={ui?.width ?? 100}
+	style:--width-left={ui?.widthLeft ?? 0}
+	style:--width-right={ui?.widthRight ?? 0}
+	style:--width-mobile={ui?.mobile?.width ?? 100}
+	style:--width-left-mobile={ui?.mobile?.widthLeft ?? 0}
+	style:--width-right-mobile={ui?.mobile?.widthRight ?? 0}
 	class={[key, props.class]}
 >
 	<FF_Cell_Caption {ui} {caption} {key} />
@@ -93,8 +93,8 @@
 		[data-ff-cell] {
 			flex: 1 1 calc(var(--width-mobile, 100) * 1%);
 			max-width: calc(var(--width-mobile, 100) * 1%);
-			margin-left: calc(var(--width-mobile-left, 0) * 1%);
-			margin-right: calc(var(--width-mobile-right, 0) * 1%);
+			margin-left: calc(var(--width-left-mobile, 0) * 1%);
+			margin-right: calc(var(--width-right-mobile, 0) * 1%);
 		}
 	}
 </style>

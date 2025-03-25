@@ -11,10 +11,10 @@
 	let { ui, key, class: localClass, caption }: Props<valueType, entityType> = $props()
 </script>
 
-{#if ui?.field?.caption === undefined || ui?.field?.caption === 'show'}
+{#if ui?.component?.caption === undefined || ui?.component?.caption === 'show'}
 	<label data-ff-cell-caption for={key} class={localClass}>{@html caption}</label>
-{:else if ui?.field?.caption === 'remove'}
+{:else if ui?.component?.caption === 'remove'}
 	<!-- Nothing -->
-{:else if ui?.field?.caption === 'hide'}
+{:else if ui?.component?.caption === 'hide'}
 	<span data-ff-cell-caption class={localClass}></span>
 {/if}

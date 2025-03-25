@@ -22,12 +22,12 @@
 <div
 	data-ff-field
 	class={classes.root}
-	style:--width={field.options.ui?.style?.width}
-	style:--width-left={field.options.ui?.style?.widthLeft}
-	style:--width-right={field.options.ui?.style?.widthRight}
-	style:--width-mobile={field.options.ui?.style?.mobile?.width}
-	style:--width-mobile-left={field.options.ui?.style?.mobile?.widthLeft}
-	style:--width-mobile-right={field.options.ui?.style?.mobile?.widthRight}
+	style:--width={field.options.ui?.width}
+	style:--width-left={field.options.ui?.widthLeft}
+	style:--width-right={field.options.ui?.widthRight}
+	style:--width-mobile={field.options.ui?.mobile?.width}
+	style:--width-mobile-left={field.options.ui?.mobile?.widthLeft}
+	style:--width-mobile-right={field.options.ui?.mobile?.widthRight}
 >
 	<FF_Label {uid} {field} {error} {value} />
 	<FF_Error {uid} {field} {error} {value} />
