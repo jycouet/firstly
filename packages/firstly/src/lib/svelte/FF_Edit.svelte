@@ -28,6 +28,24 @@
 
 	let classes = $derived(getClasses('edit', localClasses))
 	const dynamicCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
+
+	const fromInput = (val: any) => {
+		console.log(`fromInput`, val)
+		const res = field.valueConverter.fromInput(val) as string
+		if (res && field.inputType === 'datetime-local') {
+			const date = new Date(res)
+			date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
+			return date.toISOString().slice(0, 16)
+		}
+		return res
+	}
+
+	const toInput = (val: any) => {
+		console.log(`toInput1`, val)
+		const res = field.valueConverter.toInput(val)
+		console.log(`toInput2`, res)
+		return res
+	}
 </script>
 
 {#if field.options.ui?.field?.edit}
@@ -69,10 +87,10 @@
 		data-ff-edit-input
 		class={classes?.input}
 		id={uid}
-		type={field.inputType}
+		type={field.options.inputType}
 		placeholder={field.options.ui?.placeholder}
-		bind:value={() => field.valueConverter.fromInput(value as any),
-		(v) => (value = field.valueConverter.toInput(v) as valueType)}
+		bind:value={() => fromInput(value as any), (v) => (value = toInput(v) as valueType)}
+		step={field.options.ui?.step}
 	/>
 {/if}
 

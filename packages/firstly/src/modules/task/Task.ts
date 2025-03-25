@@ -28,7 +28,9 @@ export class Task {
 	@Fields.cuid()
 	id!: string
 
-	@Fields.createdAt()
+	@Fields.createdAt({
+		// inputType: 'datetime-local'
+	})
 	createdAt?: Date
 
 	@Fields.string<Task>({

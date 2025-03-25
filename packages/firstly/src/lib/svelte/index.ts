@@ -65,6 +65,7 @@ declare module 'remult' {
 			display?: CustomFieldComponent<valueType, entityType>
 
 			placeholder?: string
+			step?: string | number | undefined
 			hint?: string
 
 			style?: Style & {

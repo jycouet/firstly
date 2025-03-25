@@ -20,7 +20,10 @@
 			key: 'part2',
 			caption: 'TWO',
 			hint: 'This is part 2',
-			fields: [overwriteOptions(r.fields.completed, { ui: {} })],
+			fields: [
+				// overwriteOptions(r.fields.createdAt, { ui: { style: {} } }),
+				overwriteOptions(r.fields.completed, { ui: {} }),
+			],
 		},
 	]
 </script>
