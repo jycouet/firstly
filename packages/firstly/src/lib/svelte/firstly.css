@@ -4,11 +4,11 @@
 	--ff-dialog-overlay: red;
 	--ff-dialog-content: blue;
 
-	@media screen and (max-width: 64rem) {
-		--ff-spacing: 0.3rem;
-	}
-
 	@media screen and (max-width: 40rem) {
 		--ff-spacing: 0.15rem;
 	}
 }
+
+/* [data-ff-cells] > [data-ff-cell][data-ff-cells] {
+	padding: var(--ff-spacing) 0;
+} */

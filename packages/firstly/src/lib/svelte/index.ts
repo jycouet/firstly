@@ -1,4 +1,4 @@
-import type { CustomFieldComponent, getLayout } from './customField'
+import type { CellMetadata, CustomFieldComponent, getLayout } from './customField'
 import { default as FF_Config } from './FF_Config.svelte'
 import { default as FF_Display } from './FF_Display.svelte'
 import { default as FF_Edit } from './FF_Edit.svelte'
@@ -9,7 +9,7 @@ import { default as FF_Grid } from './FF_Grid.svelte'
 import { default as FF_Hint } from './FF_Hint.svelte'
 import { default as FF_Label } from './FF_Label.svelte'
 import { default as FF_Layout } from './FF_Layout.svelte'
-
+import { default as FF_Cell } from './FF_Cell.svelte'
 export type {
 	FieldTheme,
 	FormTheme,
@@ -42,6 +42,7 @@ export {
 	FF_Error,
 	FF_Hint,
 	FF_Layout,
+	FF_Cell,
 }
 
 export type { DynamicCustomField, FieldGroup } from './customField'
@@ -54,25 +55,8 @@ export { dialog } from './dialog/dialog'
 // Additions to Remult
 // ******************************
 declare module 'remult' {
-	export interface FieldOptions<entityType, valueType> {
-		ui?: {
-			field?: {
-				label?: 'show' | 'hide' | 'remove'
-				error?: 'show' | 'hide' | 'remove'
-				edit?: CustomFieldComponent<valueType, entityType>
-				hint?: 'show' | 'hide' | 'remove'
-			}
-			display?: CustomFieldComponent<valueType, entityType>
-
-			placeholder?: string
-			step?: string | number | undefined
-			hint?: string
-
-			style?: Style & {
-				mobile?: Style
-				tablet?: Style
-			}
-		}
+	export interface FieldOptions<entityType = unknown, valueType = unknown> {
+		ui?: CellMetadata<valueType, entityType>['ui']
 	}
 
 	export interface EntityOptions<entityType> {
@@ -82,11 +66,6 @@ declare module 'remult' {
 	}
 }
 
-type Style = {
-	width?: number
-	widthLeft?: number
-	widthRight?: number
-}
 
 // - [ ] Try to pnpm pack to see what css is needed.
 //   - [ ] let's look at the data-ff-xxx story ?

@@ -63,3 +63,45 @@ export type FieldGroup<entityType = unknown> = {
 
 	// layout?: Layout<entityType>
 }
+
+export type CellMetadata<valueType = unknown, entityType = unknown> = {
+	key?: string
+	caption?: string
+
+	/** if nothing, it's just a "group" */
+	type?: 'form'
+
+	field?: FieldMetadata<valueType, entityType>
+
+	value?: valueType
+
+	ui?: {
+
+
+		field?: {
+			caption?: 'show' | 'hide' | 'remove'
+			label?: 'show' | 'hide' | 'remove'
+			error?: 'show' | 'hide' | 'remove'
+			edit?: CustomFieldComponent<valueType, entityType>
+			hint?: 'show' | 'hide' | 'remove'
+		}
+		display?: CustomFieldComponent<valueType, entityType>
+
+		placeholder?: string
+		step?: string | number | undefined
+		hint?: string
+
+		style?: Style & {
+			mobile?: Style
+			// tablet?: Style
+		}
+	}
+
+	cells?: CellMetadata<valueType, entityType>[]
+}
+
+type Style = {
+	width?: number
+	widthLeft?: number
+	widthRight?: number
+}

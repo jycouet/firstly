@@ -25,11 +25,6 @@
 	style:--width={field.options.ui?.style?.width}
 	style:--width-left={field.options.ui?.style?.widthLeft}
 	style:--width-right={field.options.ui?.style?.widthRight}
-	style:--width-tablet={field.options.ui?.style?.tablet?.width ?? field.options.ui?.style?.width}
-	style:--width-tablet-left={field.options.ui?.style?.tablet?.widthLeft ??
-		field.options.ui?.style?.widthLeft}
-	style:--width-tablet-right={field.options.ui?.style?.tablet?.widthRight ??
-		field.options.ui?.style?.widthRight}
 	style:--width-mobile={field.options.ui?.style?.mobile?.width}
 	style:--width-mobile-left={field.options.ui?.style?.mobile?.widthLeft}
 	style:--width-mobile-right={field.options.ui?.style?.mobile?.widthRight}

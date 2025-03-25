@@ -43,6 +43,7 @@
 		{ path: route('/demo/FF_Form_Grid'), text: 'Demo Form Grid' },
 		{ path: route('/demo/FF_Layout'), text: 'Demo Layout' },
 		{ path: route('/demo/FF_Layout/grid'), text: 'Demo Layout Grid' },
+		{ path: route('/demo/FF_Cell'), text: 'Demo Cell' },
 
 		{ path: route('firstly_sign_in'), text: '🔑 Module Auth', target: '_blank' },
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
@@ -108,9 +109,10 @@
 	<title>Firstly</title>
 </svelte:head>
 
-<FF_Config theme={currentTheme} {dynamicCustomField}>
-	<DialogManagement />
+<!-- Old stuff -->
+<DialogManagement />
 
+<FF_Config theme={currentTheme} {dynamicCustomField}>
 	<div class="drawer bg-base-200 lg:drawer-open min-h-screen">
 		<input id="my-drawer" type="checkbox" class="drawer-toggle" />
 		<!-- content -->
