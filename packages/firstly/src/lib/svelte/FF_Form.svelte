@@ -118,18 +118,6 @@
 </form>
 
 <style>
-	:root {
-		--ff-spacing: 0.5rem;
-
-		@media screen and (max-width: 64rem) {
-			--ff-spacing: 0.3rem;
-		}
-
-		@media screen and (max-width: 40rem) {
-			--ff-spacing: 0.15rem;
-		}
-	}
-
 	[data-ff-form-title] {
 		width: 100%;
 		display: flex;

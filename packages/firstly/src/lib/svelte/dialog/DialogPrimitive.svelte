@@ -3,7 +3,7 @@
 	import { createEventDispatcher } from 'svelte'
 	import { fade } from 'svelte/transition'
 
-	import { LibIcon_Cross, tw, type BaseItemLight } from '../../'
+	import { LibIcon_Cross, type BaseItemLight } from '../../'
 	import Icon from '../../ui/Icon.svelte'
 	import LinkPlus from '../../ui/link/LinkPlus.svelte'
 	import { flyAndScale } from '../../utils/transition'
@@ -11,7 +11,6 @@
 	export let detail: BaseItemLight | undefined = undefined
 	export let open: boolean = false
 	export let classes: { root?: string } = {}
-	// export let onChange: () => void = () => {}
 
 	const {
 		elements: { trigger, overlay, content, title: localTitle, description, close, portalled },
@@ -22,7 +21,6 @@
 		closeOnOutsideClick: false,
 		onOpenChange: (open) => {
 			dispatchChange('yop there')
-			// onChange()
 			return open.next
 		},
 	})
@@ -34,23 +32,16 @@
 	}
 </script>
 
-<div
-	{...$portalled}
-	use:$portalled.action
-	class="fixed top-0 z-50 flex h-full w-full items-center justify-center"
->
+<div {...$portalled} use:$portalled.action data-ff-dialog-root class={classes.root}>
 	{#if $localOpen}
 		<div
 			{...$overlay}
 			use:$overlay.action
-			class="bg-base-300/80 fixed inset-0 z-40 blur-sm"
+			data-ff-dialog-overlay
 			transition:fade={{ duration: 150 }}
 		></div>
 		<div
-			class={tw(
-				`border-base-content/60 bg-base-100 relative z-40 max-h-[90vh] overflow-auto rounded-xl border p-6 shadow-lg`,
-				classes.root,
-			)}
+			data-ff-dialog-content
 			transition:flyAndScale={{
 				duration: 150,
 				y: 8,
@@ -59,34 +50,107 @@
 			{...$content}
 			use:$content.action
 		>
-			<div class="left-0 top-0 mb-4 w-full">
-				<h2 {...$localTitle} use:$localTitle.action class="m-0 text-lg font-medium">
-					<div class="flex items-center justify-between gap-4">
+			<div data-ff-dialog-header>
+				<h2 {...$localTitle} use:$localTitle.action data-ff-dialog-title>
+					<div data-ff-dialog-header-content>
 						<LinkPlus item={detail}></LinkPlus>
-						<button
-							{...$close}
-							use:$close.action
-							aria-label="close"
-							class="btn btn-circle btn-outline btn-lg
-            h-max min-h-0 w-max border-none"
-						>
+						<button {...$close} use:$close.action aria-label="close" data-ff-dialog-close>
 							<Icon data={LibIcon_Cross}></Icon>
 						</button>
 					</div>
 				</h2>
 			</div>
 
-			<div class="flex h-full min-w-[25rem] flex-col gap-4">
-				<!-- <div class="overflow-y-auto"> -->
+			<div data-ff-dialog-body>
 				<slot />
 
 				{#if $$slots.actions}
-					<div class="mt-2 flex items-end justify-end">
+					<div data-ff-dialog-actions>
 						<slot name="actions" />
 					</div>
 				{/if}
-				<!-- </div> -->
 			</div>
 		</div>
 	{/if}
 </div>
+
+<style>
+	[data-ff-dialog-root] {
+		position: fixed;
+		top: 0;
+		z-index: 50;
+		display: flex;
+		height: 100%;
+		width: 100%;
+		align-items: center;
+		justify-content: center;
+	}
+
+	[data-ff-dialog-overlay] {
+		position: fixed;
+		inset: 0;
+		z-index: 40;
+		background-color: var(--ff-dialog-overlay);
+		backdrop-filter: blur(2px);
+	}
+
+	[data-ff-dialog-content] {
+		position: relative;
+		z-index: 40;
+		max-height: 90vh;
+		overflow: auto;
+		border-radius: 0.75rem;
+		border: 1px solid rgb(20 20 20 / 0.6);
+		background-color: var(--ff-dialog-content);
+		padding: 1.5rem;
+		box-shadow:
+			0 10px 15px -3px rgb(0 0 0 / 0.1),
+			0 4px 6px -4px rgb(0 0 0 / 0.1);
+	}
+
+	[data-ff-dialog-header] {
+		width: 100%;
+		margin-bottom: 1rem;
+	}
+
+	[data-ff-dialog-title] {
+		margin: 0;
+		font-size: 1.125rem;
+		line-height: 1.75rem;
+		font-weight: 500;
+	}
+
+	[data-ff-dialog-header-content] {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	[data-ff-dialog-close] {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		height: 2.5rem;
+		width: 2.5rem;
+		min-height: 0;
+		border-radius: 9999px;
+		border: none;
+		background-color: transparent;
+	}
+
+	[data-ff-dialog-body] {
+		display: flex;
+		height: 100%;
+		min-width: 25rem;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	[data-ff-dialog-actions] {
+		margin-top: 0.5rem;
+		display: flex;
+		align-items: flex-end;
+		justify-content: flex-end;
+	}
+</style>

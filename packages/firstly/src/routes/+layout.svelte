@@ -8,6 +8,7 @@
 	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
 
 	import '../app.pcss'
+	import '../lib/svelte/firstly.css'
 
 	import { createSubscriber } from 'svelte/reactivity'
 
