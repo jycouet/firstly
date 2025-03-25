@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { FF_Theme, setDynamicCustomField } from './'
 	import type { DynamicCustomField, Theme } from './'
+	import DialogManagement from './dialog/DialogManagement.svelte'
 
 	interface Props {
 		theme: Theme
@@ -22,5 +23,7 @@
 		setDynamicCustomField(dynamicCustomField)
 	}
 </script>
+
+<DialogManagement />
 
 {@render children?.()}

@@ -47,7 +47,8 @@ export {
 export type { DynamicCustomField, FieldGroup } from './customField'
 export { FF_Repo } from './FF_Repo.svelte.js'
 export { tryCatch, tryCatchSync } from './tryCatch'
-export { overwriteOptions, deepMerge } from './helpers'
+export { overwriteOptions, deepMerge, isOfType } from './helpers'
+export { dialog } from './dialog/dialog'
 
 // ******************************
 // Additions to Remult

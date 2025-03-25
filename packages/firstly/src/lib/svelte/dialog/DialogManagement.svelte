@@ -1,7 +1,7 @@
 <script>
-	import Button from '../Button.svelte'
+	import { FF_Form } from '../'
+	import Button from '../../ui/Button.svelte'
 	import { dialog } from './dialog'
-	import DialogForm from './DialogForm.svelte'
 	import DialogPrimitive from './DialogPrimitive.svelte'
 
 	$: dialogSorted = $dialog.sort((a, b) => a.id - b.id)
@@ -37,8 +37,22 @@
 				</Button>
 			</svelte:fragment>
 		</DialogPrimitive>
-	{:else if toShow.type === 'insert' || toShow.type === 'update' || toShow.type === 'view'}
-		<DialogForm {toShow}></DialogForm>
+		<!-- {:else if toShow.type === 'insert' || toShow.type === 'update' || toShow.type === 'view'}
+		<DialogForm {toShow}></DialogForm> -->
+	{:else if toShow.type === 'fform'}
+		<DialogPrimitive
+			detail={toShow.detail}
+			open
+			classes={{ root: toShow.classes?.root }}
+			on:change={() => dialog.close(toShow.id, { success: false })}
+		>
+			<FF_Form
+				r={toShow.r}
+				show={{ title: false }}
+				defaults={toShow.defaults}
+				onSaved={(item) => dialog.close(toShow.id, { success: true, item })}
+			></FF_Form>
+		</DialogPrimitive>
 	{:else if toShow.component && toShow.children}
 		<DialogPrimitive
 			detail={toShow.detail}
