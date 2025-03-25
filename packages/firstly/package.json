@@ -62,6 +62,7 @@
   "dependencies": {
     "@clack/prompts": "catalog:tooling",
     "@kitql/internals": "catalog:kitql",
+    "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
     "@melt-ui/svelte": "catalog:ui",
     "@oslojs/crypto": "catalog:prod",
