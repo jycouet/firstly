@@ -119,29 +119,50 @@
 
 <style>
 	:root {
-		--ff-form-gap: 1rem;
-	}
-	:global {
-		[data-ff-form-fields] {
-			display: grid;
-			grid-template-columns: repeat(12, 1fr);
-			gap: var(--ff-form-gap);
+		--ff-spacing: 0.5rem;
+
+		@media screen and (max-width: 64rem) {
+			--ff-spacing: 0.3rem;
 		}
 
-		/* To distribute as default css ? */
-		.ff-form-actions {
-			display: flex;
-			justify-content: flex-end;
-			margin: 1rem;
+		@media screen and (max-width: 40rem) {
+			--ff-spacing: 0.15rem;
+		}
+	}
 
-			button {
-				border-radius: 0.5rem;
-				padding: 0.5rem 1rem;
-				background-color: green;
-				color: #fff;
-				border: none;
-				cursor: pointer;
-			}
+	[data-ff-form-title] {
+		width: 100%;
+		display: flex;
+		flex-wrap: wrap;
+		padding: var(--ff-spacing);
+	}
+
+	[data-ff-form-hint] {
+		width: 100%;
+		display: flex;
+		flex-wrap: wrap;
+		padding: var(--ff-spacing);
+	}
+
+	[data-ff-form-fields] {
+		width: 100%;
+		display: flex;
+		flex-wrap: wrap;
+	}
+
+	/* To distribute as default css ? */
+	.ff-form-actions {
+		display: flex;
+		justify-content: flex-end;
+		margin: 1rem;
+
+		button {
+			border-radius: 0.5rem;
+			padding: 0.5rem 1rem;
+			background-color: green;
+			color: #fff;
+			border: none;
+			cursor: pointer;
 		}
 	}
 </style>

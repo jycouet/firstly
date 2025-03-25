@@ -66,13 +66,9 @@ declare module 'remult' {
 			placeholder?: string
 			hint?: string
 
-			style?: {
-				span?: number
-				start?: number
-				mobile?: {
-					span?: number
-					start?: number
-				}
+			style?: Style & {
+				mobile?: Style
+				tablet?: Style
 			}
 		}
 	}
@@ -82,6 +78,12 @@ declare module 'remult' {
 			getLayout?: getLayout<entityType>
 		}
 	}
+}
+
+type Style = {
+	width?: number
+	widthLeft?: number
+	widthRight?: number
 }
 
 // - [ ] Try to pnpm pack to see what css is needed.

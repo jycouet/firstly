@@ -24,14 +24,10 @@
 		classes: localClasses = {},
 	}: Props = $props()
 
-	let classes = $derived(getClasses('edit', localClasses))
-
 	let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
 
-	// Get the dynamic custom field function and call it with the current field
-	const dynamic = getDynamicCustomField()
-
-	const customComponent = dynamic ? dynamic({ field, value, error, mode: 'edit' }) : undefined
+	let classes = $derived(getClasses('edit', localClasses))
+	const dynamicCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'edit' })
 </script>
 
 {#if field.options.ui?.field?.edit}
@@ -43,12 +39,12 @@
 		{@const Component = customField}
 		<Component {field} bind:value {error} />
 	{/if}
-{:else if customComponent}
-	{#if isComponentObject(customComponent)}
-		{@const Component = customComponent.component}
-		<Component {field} bind:value {error} {...customComponent.props} />
+{:else if dynamicCustomField}
+	{#if isComponentObject(dynamicCustomField)}
+		{@const Component = dynamicCustomField.component}
+		<Component {field} bind:value {error} {...dynamicCustomField.props} />
 	{:else}
-		{@const Component = customComponent}
+		{@const Component = dynamicCustomField}
 		<Component {field} bind:value {error} />
 	{/if}
 {:else if valueList}
@@ -58,13 +54,15 @@
 		{/each}
 	</select>
 {:else if field.inputType === 'checkbox'}
-	<input
-		data-ff-edit-checkbox
-		class={classes?.checkbox}
-		id={uid}
-		type="checkbox"
-		bind:checked={value as boolean}
-	/>
+	<div style="display: flex; align-items: center; height: 3rem;">
+		<input
+			data-ff-edit-checkbox
+			class={classes?.checkbox}
+			id={uid}
+			type="checkbox"
+			bind:checked={value as boolean}
+		/>
+	</div>
 {:else}
 	<input
 		autocomplete="off"
@@ -79,18 +77,11 @@
 {/if}
 
 <style>
-	:global {
-		input[data-ff-edit-input] {
-			width: 100%;
-		}
+	input[data-ff-edit-input] {
+		width: 100%;
+	}
 
-		select[data-ff-edit-select] {
-			width: 100%;
-		}
-
-		input[data-ff-edit-checkbox] {
-			display: block;
-			transform: translateY(50%);
-		}
+	select[data-ff-edit-select] {
+		width: 100%;
 	}
 </style>

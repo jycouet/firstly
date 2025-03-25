@@ -36,7 +36,7 @@ export class Task {
 			placeholder: 'Enter a title',
 			hint: 'This is a hint more <a style="color: orange;" href="https://firstly.fun">here</a>!',
 			style: {
-				span: 6,
+				width: 50,
 			},
 			field: {
 				// hint: "hide"
@@ -52,7 +52,7 @@ export class Task {
 	@Field(() => TaskTypeEnum, {
 		ui: {
 			style: {
-				span: 3,
+				width: 25,
 			},
 		},
 	})
@@ -61,7 +61,7 @@ export class Task {
 	@Fields.number({
 		ui: {
 			style: {
-				span: 3,
+				width: 25,
 			},
 		},
 	})
@@ -74,7 +74,12 @@ export class Task {
 		},
 		ui: {
 			style: {
-				span: 3,
+				width: 25,
+				widthLeft: 75,
+				mobile: {
+					width: 25,
+					widthLeft: 75,
+				},
 			},
 		},
 	})

@@ -22,10 +22,17 @@
 <div
 	data-ff-field
 	class={classes.root}
-	style:--ff-field-style-span={field.options.ui?.style?.span}
-	style:--ff-field-style-start={field.options.ui?.style?.start}
-	style:--ff-field-style-span-mobile={field.options.ui?.style?.mobile?.span}
-	style:--ff-field-style-start-mobile={field.options.ui?.style?.mobile?.start}
+	style:--width={field.options.ui?.style?.width}
+	style:--width-left={field.options.ui?.style?.widthLeft}
+	style:--width-right={field.options.ui?.style?.widthRight}
+	style:--width-tablet={field.options.ui?.style?.tablet?.width ?? field.options.ui?.style?.width}
+	style:--width-tablet-left={field.options.ui?.style?.tablet?.widthLeft ??
+		field.options.ui?.style?.widthLeft}
+	style:--width-tablet-right={field.options.ui?.style?.tablet?.widthRight ??
+		field.options.ui?.style?.widthRight}
+	style:--width-mobile={field.options.ui?.style?.mobile?.width}
+	style:--width-mobile-left={field.options.ui?.style?.mobile?.widthLeft}
+	style:--width-mobile-right={field.options.ui?.style?.mobile?.widthRight}
 >
 	<FF_Label {uid} {field} {error} {value} />
 	<FF_Error {uid} {field} {error} {value} />
@@ -33,24 +40,37 @@
 	<FF_Hint {uid} {field} {error} {value} />
 </div>
 
-<!-- TODO Ermin Question: This should be in the css of the user ?
- I think it's ok to keep it here. BUT
- Can people then overwrite [data-ff-form-fields] for example ?
- Of it could be our OWN OWN css inthe component ?
--->
 <style>
-	:global {
-		[data-ff-field] {
-			grid-column: span var(--ff-field-style-span, 12) / span var(--ff-field-style-span, 12);
-			grid-column-start: var(--ff-field-style-start);
-		}
+	[data-ff-field] {
+		display: flex;
+		flex-direction: column;
+		box-sizing: border-box;
+		flex: 1 1 calc(var(--width, 100) * 1%);
+		max-width: calc(var(--width, 100) * 1%);
+		padding: var(--ff-spacing);
+		margin-left: calc(var(--width-left, 0) * 1%);
+		margin-right: calc(var(--width-right, 0) * 1%);
 
-		@media (max-width: 768px) {
-			[data-ff-field] {
-				grid-column: span var(--ff-field-style-span-mobile, 12) / span
-					var(--ff-field-style-span-mobile, 12);
-				grid-column-start: var(--ff-field-style-start-mobile);
-			}
+		/* For debugging purposes - outline that doesn't affect layout */
+		/* outline: 1px solid rgba(255, 0, 0, 0.5);
+		outline-offset: -1px; */
+	}
+
+	@media screen and (max-width: 64rem) {
+		[data-ff-field] {
+			flex: 1 1 calc(var(--width-tablet, 100) * 1%);
+			max-width: calc(var(--width-tablet, 100) * 1%);
+			margin-left: calc(var(--width-tablet-left, 0) * 1%);
+			margin-right: calc(var(--width-tablet-right, 0) * 1%);
+		}
+	}
+
+	@media screen and (max-width: 40rem) {
+		[data-ff-field] {
+			flex: 1 1 calc(var(--width-mobile, 100) * 1%);
+			max-width: calc(var(--width-mobile, 100) * 1%);
+			margin-left: calc(var(--width-mobile-left, 0) * 1%);
+			margin-right: calc(var(--width-mobile-right, 0) * 1%);
 		}
 	}
 </style>

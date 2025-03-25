@@ -60,4 +60,6 @@ export type FieldGroup<entityType = unknown> = {
 	caption?: string
 	hint?: string
 	class?: string
+
+	// layout?: Layout<entityType>
 }

@@ -15,14 +15,22 @@
 
 	// Set up fields with different widths that will fit in one row (4 columns grid)
 	const fields = [
-		overwriteOptions(r.fields.title, { ui: { style: { start: 2, span: 4 } } }),
-		overwriteOptions(r.fields.title, { ui: { style: { start: 8, span: 4 } } }),
-		overwriteOptions(r.fields.title, { ui: { style: { span: 3 } } }),
-		overwriteOptions(r.fields.title, { ui: { style: { span: 3 } } }),
-		overwriteOptions(r.fields.title, { ui: { style: { span: 3 } } }),
-		overwriteOptions(r.fields.title, { ui: { style: { span: 3 } } }),
-		overwriteOptions(r.fields.typeOfTask, { ui: {} }),
-		overwriteOptions(r.fields.completed, { ui: {} }),
+		overwriteOptions(r.fields.title, {
+			ui: { style: { width: 50, widthLeft: 25, widthRight: 25, tablet: { width: 50 } } },
+		}),
+		overwriteOptions(r.fields.title, { ui: { style: { width: 25, tablet: { width: 50 } } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { width: 25, tablet: { width: 50 } } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { width: 25, tablet: { width: 50 } } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { width: 25, tablet: { width: 50 } } } }),
+		overwriteOptions(r.fields.title, { ui: { style: { width: 25, tablet: { width: 50 } } } }),
+		overwriteOptions(r.fields.completed, { ui: { style: { width: 25, tablet: { width: 50 } } } }),
+		overwriteOptions(r.fields.typeOfTask, {}),
+		overwriteOptions(r.fields.completed, {
+			ui: {
+				style: { width: 25, widthLeft: 75, mobile: { width: 25, widthLeft: 75 } },
+				hint: 'Yeah, try checking this!',
+			},
+		}),
 	]
 
 	function handleEdit(item: Task) {
@@ -52,71 +60,3 @@
 	<h2 class="text-2xl">No Actions</h2>
 	<FF_Grid {r} showEdit={false} showDelete={false} showCreate={false} />
 </div>
-
-<!-- <style>
-	:root {
-		--bg-base: gray;
-	}
-
-	:global {
-		[data-ff-form-fields] {
-			display: grid;
-			grid-template-columns: repeat(12, minmax(0, 1fr));
-			gap: 1rem;
-		}
-
-		[data-ff-field] {
-			grid-column-end: var(--ff-field-position-end);
-			grid-column: span var(--ff-field-position-span) / span var(--ff-field-position-span);
-			grid-column-start: var(--ff-field-position-start);
-		}
-
-		@media (max-width: 768px) {
-			[data-ff-field] {
-				grid-column-end: var(--ff-field-position-mobile-end);
-				grid-column: span var(--ff-field-position-mobile-span) / span
-					var(--ff-field-position-mobile-span);
-				grid-column-start: var(--ff-field-position-mobile-start);
-			}
-		}
-
-		[data-ff-field-header] {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-		}
-
-		[data-ff-form-button] {
-			margin-top: 1rem;
-		}
-
-		[data-ff-field-error] {
-			color: red;
-			font-size: 0.8rem;
-		}
-
-		input[data-ff-field-input] {
-			background-color: var(--bg-base);
-			width: 100%;
-		}
-
-		select[data-ff-field-select] {
-			background-color: var(--bg-base);
-			width: 100%;
-		}
-
-		/* Styles for disabled action buttons in FGrid */
-		[data-ff-grid-action-edit]:disabled,
-		[data-ff-grid-action-delete]:disabled {
-			opacity: 0.5;
-			cursor: not-allowed;
-			pointer-events: all;
-		}
-
-		[data-ff-grid-action-edit]:not(:disabled),
-		[data-ff-grid-action-delete]:not(:disabled) {
-			cursor: pointer;
-		}
-	} 
-</style>
--->

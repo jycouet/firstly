@@ -9,8 +9,9 @@
 	let { field, value, error, classes: localClasses = {} }: Props = $props()
 
 	// let valueList = getValueList(field) as { id: string; caption: string }[] | undefined
+
 	let classes = $derived(getClasses('display', localClasses))
-	const globalCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'display' })
+	const dynamicCustomField = getDynamicCustomField()?.({ field, value, error, mode: 'display' })
 </script>
 
 {#if field.options.ui?.display}
@@ -22,12 +23,12 @@
 		{@const Component = customField}
 		<Component {field} bind:value {error} />
 	{/if}
-{:else if globalCustomField}
-	{#if isComponentObject(globalCustomField)}
-		{@const Component = globalCustomField.component}
-		<Component {field} bind:value {error} {...globalCustomField.props} />
+{:else if dynamicCustomField}
+	{#if isComponentObject(dynamicCustomField)}
+		{@const Component = dynamicCustomField.component}
+		<Component {field} bind:value {error} {...dynamicCustomField.props} />
 	{:else}
-		{@const Component = globalCustomField}
+		{@const Component = dynamicCustomField}
 		<Component {field} bind:value {error} />
 	{/if}
 {:else if field.inputType === 'checkbox'}
@@ -43,10 +44,8 @@
 {/if}
 
 <style>
-	:global {
-		[data-ff-display-checkbox] {
-			display: block;
-			margin: 0 auto;
-		}
+	[data-ff-display-checkbox] {
+		display: block;
+		margin: 0 auto;
 	}
 </style>

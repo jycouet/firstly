@@ -1,5 +1,3 @@
-// isComponentObject
-
 import type { FieldMetadata, FieldOptions } from 'remult'
 
 export function deepMerge<T>(target: T, source: Partial<T>): T {
