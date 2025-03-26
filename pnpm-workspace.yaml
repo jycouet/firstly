@@ -52,7 +52,7 @@ catalogs:
   '@sveltejs/package': 2.3.2
 
  ui:
-  mermaid: 11.5.0
+  mermaid: 11.6.0
   '@mdi/js': 7.4.47
   '@melt-ui/svelte': 0.86.3
   autoprefixer: 10.4.19
