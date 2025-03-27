@@ -68,7 +68,7 @@ catalogs:
   '@oslojs/otp': 1.1.0
   '@types/nodemailer': 6.4.14
   nodemailer: 6.10.0
-  arctic: 3.5.0
+  arctic: 3.6.0
   bcryptjs: 3.0.2
   cron: 4.1.0
   svelty-email: 0.0.11
