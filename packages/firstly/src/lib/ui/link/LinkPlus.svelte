@@ -22,13 +22,15 @@
 <div class="flex items-center gap-4">
 	{#if item}
 		{#if item.icon?.data && !noIcon}
-			{#if item.icon.caption}
-				<Tooltip text={item.icon.caption}>
+			<div>
+				{#if item.icon.caption}
+					<Tooltip text={item.icon.caption}>
+						<Icon {...item.icon} />
+					</Tooltip>
+				{:else}
 					<Icon {...item.icon} />
-				</Tooltip>
-			{:else}
-				<Icon {...item.icon} />
-			{/if}
+				{/if}
+			</div>
 		{/if}
 
 		{#if hasSomethingToDisplay(item)}
