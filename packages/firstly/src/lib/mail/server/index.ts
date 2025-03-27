@@ -8,8 +8,8 @@ import type SMTPPool from 'nodemailer/lib/smtp-pool'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import type StreamTransport from 'nodemailer/lib/stream-transport'
 import type { ComponentProps, ComponentType, SvelteComponent } from 'svelte'
+import { asClassComponent } from 'svelte/legacy'
 import { render } from 'svelty-email'
-import { asClassComponent } from 'svelte/legacy';
 
 import { remult } from 'remult'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
@@ -124,13 +124,13 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
 			mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
                  We are still nice and generated you an email preview link: 
                  👉 ${cyan(
-				String(
-					nodemailer.getTestMessageUrl(
-						// @ts-ignore
-						info,
-					),
-				),
-			)}
+																		String(
+																			nodemailer.getTestMessageUrl(
+																				// @ts-ignore
+																				info,
+																			),
+																		),
+																	)}
 
                  To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
       `)
