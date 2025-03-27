@@ -51,6 +51,7 @@ export { FF_Repo } from './FF_Repo.svelte.js'
 export { tryCatch, tryCatchSync } from './tryCatch'
 export { overwriteOptions, deepMerge, isOfType } from './helpers'
 export { dialog } from './dialog/dialog'
+export { SP } from './class/SP.svelte'
 
 // ******************************
 // Additions to Remult
