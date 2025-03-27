@@ -22,7 +22,7 @@
 	let key = $derived(props.cell.key ?? props.cell.field?.key ?? default_uid)
 	let caption = $derived(props.cell.caption ?? props.cell.field?.caption)
 	let hint = $derived(props.cell.field?.options.ui?.hint ?? props.cell.ui?.hint)
-	// @ts-expect-error
+	// @ts-ignore
 	let ui = $derived(deepMerge(props.cell.field?.options.ui ?? {}, props.cell.ui ?? {}))
 
 	let error = ''
