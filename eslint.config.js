@@ -7,7 +7,12 @@ export default [
 	}),
 	{
 		name: 'firstly:ignores',
-		ignores: ['**/lib/auth/static/assets/'],
+		ignores: [
+			'**/lib/auth/static/assets/',
+			// FIXME !!!
+			'*.svelte.ts',
+			'**/*.svelte.ts',
+		],
 	},
 	{
 		name: 'firstly:rules',

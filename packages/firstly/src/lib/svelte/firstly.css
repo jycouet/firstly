@@ -1,0 +1,14 @@
+* {
+	--ff-spacing: 0.5rem;
+
+	--ff-dialog-overlay: red;
+	--ff-dialog-content: blue;
+
+	@media screen and (max-width: 40rem) {
+		--ff-spacing: 0.15rem;
+	}
+}
+
+/* [data-ff-cells] > [data-ff-cell][data-ff-cells] {
+	padding: var(--ff-spacing) 0;
+} */

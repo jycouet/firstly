@@ -47,7 +47,7 @@
 		value = _data
 		dispatch('selected', _data)
 	}
-	$: metaType = getFieldMetaType(cell.field!)
+	$: metaType = getFieldMetaType(cell.field!, mode === 'filtre')
 
 	const isViewMode = (_mode: 'edit' | 'view' | 'filtre', _field?: FieldMetadata<any, any>) => {
 		return _mode === 'view' || _field?.dbReadOnly || _field?.options.allowApiUpdate === false
