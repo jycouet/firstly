@@ -85,7 +85,10 @@ type MetaTypeSlot = { kind: 'slot'; subKind: '???' }
 export type FieldMetaType = MetaTypeRelation | MetaTypeEnum | MetaTypePrimitive | MetaTypeSlot
 
 // or it's a slot or it will return the field
-export const getFieldMetaType = (field?: FieldMetadata, withHidden: boolean = false): FieldMetaType => {
+export const getFieldMetaType = (
+	field?: FieldMetadata,
+	withHidden: boolean = false,
+): FieldMetaType => {
 	if (field === undefined) {
 		return { kind: 'slot', subKind: '???' }
 	}
