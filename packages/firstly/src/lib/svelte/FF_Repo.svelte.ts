@@ -160,13 +160,16 @@ export class FF_Repo<
 	async query(options: Pick<QueryOptionsHelper<Entity>, 'where' | 'orderBy'>) {
 		this.loading.fetching = true
 
+		// REMULT P1: add test for dynamic orderBy in remult
+		//            Looks like only the default orderby of the entity is working
+
 		const { data: queryResult, error: queryResultError } = tryCatchSync(() =>
 			this.#repo.query({
-				pageSize: 25,
+				pageSize: 2,
 				...this.#queryOptions,
 				...options,
 				// Yes, we always want to aggregate to get at least the $count!
-				// End empty object is giving us that
+				// And empty object is giving us that
 				aggregate: {
 					...this.#queryOptions?.aggregate,
 				},
@@ -201,6 +204,12 @@ export class FF_Repo<
 			new Log('FF_Repo').error('No paginator found')
 			return undefined
 		}
+
+		if (this.loading.more) {
+			// already in progress...
+			return undefined
+		}
+
 		this.loading = {
 			...this.loading,
 			fetching: true,
@@ -212,6 +221,9 @@ export class FF_Repo<
 			this.globalError = nextPageError.message
 			return this.loadingEnd()
 		}
+
+		console.log(`nextPage`, nextPage)
+
 
 		this.#paginator = nextPage as PaginatorWithAggregate<Entity, QueryOptions>
 		this.items?.push(...nextPage.items)
