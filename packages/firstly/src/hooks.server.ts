@@ -12,9 +12,9 @@ export const handle = sequence(
 	handleAuth,
 	handleGuard({
 		authenticated: ['/ui/dialog*'],
-		redirectToLogin: route('/'),
+		redirectToLogin: route('/auth'),
 		// redirectToLogin: route('login'),
-		redirectAuthenticated: route('/ui/dialog'),
+		redirectAuthenticated: route('/'),
 		redirect,
 	}),
 )

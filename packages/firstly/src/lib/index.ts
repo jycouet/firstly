@@ -14,7 +14,9 @@ import { default as FormEditAction } from './ui/dialog/FormEditAction.svelte'
 import { default as Field } from './ui/Field.svelte'
 import { default as FieldGroup } from './ui/FieldGroup.svelte'
 import { default as Grid } from './ui/Grid.svelte'
+import { default as Grid2 } from './ui/Grid2.svelte'
 import { default as GridPaginate } from './ui/GridPaginate.svelte'
+import { default as GridPaginate2 } from './ui/GridPaginate2.svelte'
 import { default as Icon } from './ui/Icon.svelte'
 import { default as FieldContainer } from './ui/internals/FieldContainer.svelte'
 import { default as SelectMelt } from './ui/internals/select/SelectMelt.svelte'
@@ -30,7 +32,9 @@ export {
 	Field,
 	FormEditAction,
 	Grid,
+	Grid2,
 	GridPaginate,
+	GridPaginate2,
 	FieldGroup,
 	Icon,
 	Link,
@@ -150,8 +154,8 @@ declare module 'remult' {
 		// `findOptionsForEdit` is only for insert & update.
 		// 1-n impact with `findOptions`
 		findOptionsForEdit?:
-			| ((entity: entityType) => FindOptionsBase<valueType>)
-			| FindOptionsBase<valueType>
+		| ((entity: entityType) => FindOptionsBase<valueType>)
+		| FindOptionsBase<valueType>
 
 		findOptionsLimit?: number
 		createOptionWhenNoResult?: {
