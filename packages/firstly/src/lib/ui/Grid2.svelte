@@ -336,9 +336,10 @@
 		<div
 			use:intersection={{ rootMargin: '177px' }}
 			onintersecting={() => {
-				if (r.hasNextPage) {
-					r.queryMore()
-				}
+				// console.info('intersecting')
+				// if (r.hasNextPage) {
+				// 	r.queryMore()
+				// }
 			}}
 			class="mt-2 flex justify-end"
 		>
@@ -346,7 +347,7 @@
 				class={r.loading.more ? 'btn-disabled' : 'btn-primary'}
 				on:click={() => {
 					r.queryMore()
-				}}>More</Button
+				}}>Plus</Button
 			>
 		</div>
 	{/if}
