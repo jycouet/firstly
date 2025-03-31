@@ -332,20 +332,22 @@
 		</tbody>
 	</table>
 
-	<div
-		use:intersection={{ rootMargin: '177px' }}
-		onintersecting={() => {
-			if (r.hasNextPage) {
-				r.queryMore()
-			}
-		}}
-		class="mt-2 flex justify-end"
-	>
-		<Button
-			class={r.hasNextPage || r.loading.more ? 'btn-primary' : 'btn-disabled'}
-			on:click={() => {
-				r.queryMore()
-			}}>More</Button
+	{#if r.hasNextPage}
+		<div
+			use:intersection={{ rootMargin: '177px' }}
+			onintersecting={() => {
+				if (r.hasNextPage) {
+					r.queryMore()
+				}
+			}}
+			class="mt-2 flex justify-end"
 		>
-	</div>
+			<Button
+				class={r.loading.more ? 'btn-disabled' : 'btn-primary'}
+				on:click={() => {
+					r.queryMore()
+				}}>More</Button
+			>
+		</div>
+	{/if}
 </div>

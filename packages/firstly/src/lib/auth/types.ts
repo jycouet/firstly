@@ -33,6 +33,7 @@ export type FirstlyDataAuth = {
 		images: {
 			main: string
 		}
+		customHtmlHead: string
 	}
 }
 
