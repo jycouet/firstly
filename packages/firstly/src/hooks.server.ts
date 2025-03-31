@@ -11,10 +11,8 @@ export const handle = sequence(
 	handleRemult,
 	handleAuth,
 	handleGuard({
-		authenticated: ['/ui/dialog*'],
-		redirectToLogin: route('/auth'),
-		// redirectToLogin: route('login'),
-		redirectAuthenticated: route('/'),
+		guard: [{ path: '/ui*' }],
+		login: route('/auth'),
 		redirect,
 	}),
 )
