@@ -13,7 +13,7 @@
 		getFieldLinkDisplayValue,
 		getFieldMetaType,
 	} from '../helper.js'
-	import { LibIcon_Delete, LibIcon_Edit, type StoreList } from '../index.js'
+	import { LibIcon_Delete, LibIcon_Edit } from '../index.js'
 	import Button from './Button.svelte'
 	import Clipboardable from './Clipboardable.svelte'
 	import GridLoading from './GridLoading.svelte'
@@ -333,7 +333,7 @@
 	</table>
 
 	<div
-		use:intersection={{}}
+		use:intersection={{ rootMargin: '177px' }}
 		onintersecting={() => {
 			if (r.hasNextPage) {
 				r.queryMore()
@@ -345,7 +345,7 @@
 			class={r.hasNextPage || r.loading.more ? 'btn-primary' : 'btn-disabled'}
 			on:click={() => {
 				r.queryMore()
-			}}>Plus</Button
+			}}>More</Button
 		>
 	</div>
 </div>

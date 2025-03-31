@@ -5,6 +5,10 @@ settings:
   excludeLinksFromLockfile: false
 
 catalogs:
+  default:
+    '@layerstack/svelte-actions':
+      specifier: 1.0.0
+      version: 1.0.0
   docs:
     '@astrojs/starlight':
       specifier: 0.32.2
@@ -225,7 +229,7 @@ importers:
         specifier: catalog:kitql
         version: 0.10.4
       '@layerstack/svelte-actions':
-        specifier: 1.0.0
+        specifier: 'catalog:'
         version: 1.0.0
       '@layerstack/utils':
         specifier: catalog:prod

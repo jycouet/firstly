@@ -62,7 +62,7 @@
   "dependencies": {
     "@clack/prompts": "catalog:tooling",
     "@kitql/internals": "catalog:kitql",
-    "@layerstack/svelte-actions": "1.0.0",
+    "@layerstack/svelte-actions": "catalog:",
     "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
     "@melt-ui/svelte": "catalog:ui",
