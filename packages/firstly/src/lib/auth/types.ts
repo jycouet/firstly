@@ -6,7 +6,9 @@ export type FirstlyData = {
 	props: FirstlyDataAuth
 }
 
-export type FirstlyDataAuth = {
+export type FirstlyDataAuth = FirstlyDataAuthUserLand & FirstlyDataAuthModuleLand
+
+export type FirstlyDataAuthUserLand = {
 	ui?: {
 		paths: {
 			base: string
@@ -35,6 +37,10 @@ export type FirstlyDataAuth = {
 		}
 		customHtmlHead: string
 	}
+}
+
+export type FirstlyDataAuthModuleLand = {
+	providers: { name: string; label: string; raw_svg?: string }[]
 }
 
 export type ProviderConfigured = Record<string, ProviderAuthorizationURLOptions>

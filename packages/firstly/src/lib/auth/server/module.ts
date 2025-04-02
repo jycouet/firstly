@@ -29,6 +29,8 @@ export type OAuth2UserInfo = {
 // TODO revalidate token?
 export type FFOAuth2Provider<T = any, LitName extends string = string> = {
 	name: LitName
+	caption: string
+	raw_svg?: string
 	getArcticProvider: () => T
 	authorizationURLOptions: () => ProviderAuthorizationURLOptions
 	getUserInfo(tokens: OAuth2Tokens): Promise<OAuth2UserInfo>
@@ -75,7 +77,7 @@ type AuthOptions<
 	/**
 	 * To be able to sign in user needs to be verified or not?
 	 * ```
-	 *  `Auto` =>  noting will be checked
+	 *  `Auto` => noting will be checked
 	 *  `Email` => users needs to click a link in an email
 	 *  `Manual` => an admin needs to verify the user and set verifiedAt in the database
 	 * ```
@@ -231,6 +233,12 @@ export const getSafeOptions = <
 		debug: AUTH_OPTIONS.debug,
 		props: {
 			ui,
+			providers:
+				AUTH_OPTIONS.providers?.oAuths?.map((o) => ({
+					name: o.name,
+					label: o.caption,
+					raw_svg: o.raw_svg,
+				})) ?? [],
 		},
 	}
 

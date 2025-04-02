@@ -31,10 +31,6 @@
 			loading = false
 		}
 	}
-
-	const handlePin = () => {
-		throw new Error('Not impl yet')
-	}
 </script>
 
 {#if view == 'login'}
@@ -64,17 +60,6 @@
 		>
 	</form>
 {/if}
-
-<!-- {#if view == 'pin'}
-  <form on:submit|preventDefault={handlePin}>
-    <p>{msgError}{msgSuccess}</p>
-    <label>
-      PIN
-      <input bind:value={pincode} use:autofocus type="number" placeholder="556775" />
-    </label>
-    <button>Confirm</button>
-  </form>
-{/if} -->
 
 <style>
 	form {

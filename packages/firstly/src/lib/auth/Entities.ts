@@ -100,6 +100,9 @@ export class FFAuthAccount {
 
 	@Fields.date({ includeInApi: false, allowNull: true })
 	lastVerifiedAt?: Date
+
+	@Fields.json({ allowNull: true })
+	metadata?: Record<string, any>
 }
 
 @FF_Entity('ff_auth.users_sessions', {

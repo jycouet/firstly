@@ -55,6 +55,7 @@ export function github(options?: {
 
 	return {
 		name,
+		caption: 'GitHub',
 		getArcticProvider: () => {
 			const redirectURI =
 				options?.GITHUB_REDIRECT_URI ??

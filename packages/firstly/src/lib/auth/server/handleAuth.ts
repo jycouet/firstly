@@ -156,6 +156,7 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 				account.token = tokens.accessToken()
 				account.userId = user.id
 				account.lastVerifiedAt = new Date()
+				account.metadata = info
 
 				await repo(oSafe.User).save(user)
 				await repo(oSafe.Account).save(account)
