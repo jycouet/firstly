@@ -149,21 +149,18 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 
 				const user = repo(oSafe.User).create()
 				user.identifier = nameToUse
+				await repo(oSafe.User).save(user)
 
 				account = repo(oSafe.Account).create()
 				account.provider = keyState
 				account.providerUserId = info.providerUserId
-				account.token = tokens.accessToken()
 				account.userId = user.id
-				account.lastVerifiedAt = new Date()
-				account.metadata = info
-
-				await repo(oSafe.User).save(user)
-				await repo(oSafe.Account).save(account)
-			} else {
-				account.token = tokens.accessToken()
-				await repo(oSafe.Account).save(account)
 			}
+
+			account.lastVerifiedAt = new Date()
+			account.token = tokens.accessToken()
+			account.metadata = { ...info, tokens_data: tokens.data }
+			await repo(oSafe.Account).save(account)
 
 			await ff_createSession(account.userId)
 

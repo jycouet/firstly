@@ -1,7 +1,10 @@
+import type { OAuth2Tokens } from 'arctic'
+
 import { Fields, Relations, Validators, ValueListFieldType } from 'remult'
 
 import { BaseEnum, FF_Entity, FF_Role } from '..'
 import type { BaseEnumOptions } from '..'
+import type { OAuth2UserInfo } from './server/module'
 
 export const FF_Role_Auth = {
 	FF_Role_Auth_Admin: 'FF_Role_Auth.Admin',
@@ -101,8 +104,8 @@ export class FFAuthAccount {
 	@Fields.date({ includeInApi: false, allowNull: true })
 	lastVerifiedAt?: Date
 
-	@Fields.json({ allowNull: true })
-	metadata?: Record<string, any>
+	@Fields.json({ includeInApi: false, allowNull: true })
+	metadata?: OAuth2UserInfo & { tokens_data: OAuth2Tokens['data'] }
 }
 
 @FF_Entity('ff_auth.users_sessions', {
