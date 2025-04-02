@@ -261,7 +261,13 @@
 									{/if}
 								{:else if metaType.subKind === 'checkbox'}
 									{@const t = metaType.field.displayValue(row)}
-									{t === 'true' ? 'Oui' : 'Non'}
+									{#if t === 'true'}
+										Oui
+									{:else if t === 'false'}
+										Non
+									{:else}
+										{t}
+									{/if}
 								{:else}
 									{@const t = displayWithDefaultAndSuffix(metaType.field, row[metaType.field.key])}
 									{#if b.clipboardable}
