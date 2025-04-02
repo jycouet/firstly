@@ -3,8 +3,6 @@
 
 	import type { EntityOrderBy } from 'remult'
 
-	import { intersection } from '../../lib/svelte/actions/intersection.js'
-	import type { FF_Repo } from '../../lib/svelte/FF_Repo.svelte.js'
 	import type { Cell } from '../cellsBuildor.js'
 	import {
 		displayWithDefaultAndSuffix,
@@ -14,6 +12,8 @@
 		getFieldMetaType,
 	} from '../helper.js'
 	import { LibIcon_Delete, LibIcon_Edit } from '../index.js'
+	import { intersection } from '../svelte/actions/intersection.js'
+	import type { FF_Repo } from '../svelte/FF_Repo.svelte.js'
 	import Button from './Button.svelte'
 	import Clipboardable from './Clipboardable.svelte'
 	import GridLoading from './GridLoading.svelte'
