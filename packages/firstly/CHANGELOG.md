@@ -1,5 +1,13 @@
 # firstly
 
+## 0.0.16-next.1
+
+### Patch Changes
+
+- [#108](https://github.com/jycouet/firstly/pull/108)
+  [`cf100f4`](https://github.com/jycouet/firstly/commit/cf100f40a8462eca51acff3ac5d8779da78816ec)
+  Thanks [@jycouet](https://github.com/jycouet)! - fix import paths
+
 ## 0.0.16-next.0
 
 ### Patch Changes
