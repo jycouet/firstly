@@ -67,3 +67,10 @@ export interface AuthServerAbstraction {
 		redirect?: string
 	}) => Promise<string>
 }
+
+export type OAuth2UserInfo = {
+	raw?: any
+	providerUserId: string
+	/** Will take the first option available */
+	nameOptions: string[]
+}
