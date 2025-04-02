@@ -1,5 +1,13 @@
 # firstly
 
+## 0.0.16-next.0
+
+### Patch Changes
+
+- [#102](https://github.com/jycouet/firstly/pull/102)
+  [`f0effb9`](https://github.com/jycouet/firstly/commit/f0effb9e2dfa3f1c3070bc27c498d7f1e1ed877d)
+  Thanks [@jycouet](https://github.com/jycouet)! - Prepare JYC 016
+
 ## 0.0.15
 
 ### Patch Changes
