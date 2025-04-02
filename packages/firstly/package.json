@@ -37,6 +37,14 @@
     "remult": ">=2.7.32",
     "svelte": ">=5"
   },
+  "peerDependenciesMeta": {
+    "@sveltejs/kit": {
+      "optional": true
+    },
+    "svelte": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@kitql/helpers": "catalog:kitql",
     "@sveltejs/adapter-node": "catalog:sveltekit",
@@ -54,6 +62,8 @@
   "dependencies": {
     "@clack/prompts": "catalog:tooling",
     "@kitql/internals": "catalog:kitql",
+    "@layerstack/svelte-actions": "catalog:",
+    "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
     "@melt-ui/svelte": "catalog:ui",
     "@oslojs/crypto": "catalog:prod",
@@ -89,6 +99,11 @@
     "./server": {
       "types": "./esm/server/index.d.ts",
       "default": "./esm/server/index.js"
+    },
+    "./svelte": {
+      "types": "./esm/svelte/index.d.ts",
+      "svelte": "./esm/svelte/index.js",
+      "default": "./esm/svelte/index.js"
     },
     "./vite": {
       "types": "./esm/vite/index.d.ts",

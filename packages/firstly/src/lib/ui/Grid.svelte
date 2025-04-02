@@ -111,7 +111,7 @@
 </script>
 
 <div class="overflow-x-auto">
-	<table class="table {classes.table}">
+	<table class="table {classes.table} bg-base-200">
 		<thead>
 			<tr>
 				{#if settingsLeft && (withEdit || withDelete || withAdd)}

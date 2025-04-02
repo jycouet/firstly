@@ -26,7 +26,7 @@ export default defineConfig({
 				github: 'https://github.com/jycouet/firstly',
 			},
 			editLink: {
-				baseUrl: 'https://github.com/jycouet/firstly/edit/main/',
+				baseUrl: 'https://github.com/jycouet/firstly/edit/main/docs',
 			},
 			components: {
 				Head: './src/components/Head.astro',

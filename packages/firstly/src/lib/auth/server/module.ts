@@ -217,6 +217,9 @@ export const getSafeOptions = <
 					images: {
 						main: AUTH_OPTIONS.ui?.images?.main ?? '',
 					},
+					customHtmlHead:
+						AUTH_OPTIONS.ui?.customHtmlHead ??
+						'<title>Auth</title><link rel="icon" href="https://firstly.fun/favicon.svg" />',
 				} as const)
 
 	if (AUTH_OPTIONS.debug && !building) {
@@ -326,6 +329,8 @@ export const getSafeOptions = <
 				AUTH_OPTIONS.strings?.cannotSignUp ??
 				"You can't signup by yourself! Contact the administrator.",
 		},
+
+		ui,
 	}
 }
 

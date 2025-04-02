@@ -72,3 +72,7 @@ catalogs:
   bcryptjs: 3.0.2
   cron: 4.1.0
   svelty-email: 0.0.11
+  '@layerstack/utils': 1.0.0
+
+catalog:
+ '@layerstack/svelte-actions': 1.0.0

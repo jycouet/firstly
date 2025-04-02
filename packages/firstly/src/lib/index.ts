@@ -3,6 +3,7 @@ import type { FindOptionsBase } from 'remult'
 import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
 import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
 import type { ColumnDeciderArgs } from './changeLog/index.js'
+import { ff_Log, FF_Role } from './common.js'
 import { storeItem } from './storeItem.js'
 import { storeList } from './storeList.js'
 import { default as Button } from './ui/Button.svelte'
@@ -13,7 +14,9 @@ import { default as FormEditAction } from './ui/dialog/FormEditAction.svelte'
 import { default as Field } from './ui/Field.svelte'
 import { default as FieldGroup } from './ui/FieldGroup.svelte'
 import { default as Grid } from './ui/Grid.svelte'
+import { default as Grid2 } from './ui/Grid2.svelte'
 import { default as GridPaginate } from './ui/GridPaginate.svelte'
+import { default as GridPaginate2 } from './ui/GridPaginate2.svelte'
 import { default as Icon } from './ui/Icon.svelte'
 import { default as FieldContainer } from './ui/internals/FieldContainer.svelte'
 import { default as SelectMelt } from './ui/internals/select/SelectMelt.svelte'
@@ -29,7 +32,9 @@ export {
 	Field,
 	FormEditAction,
 	Grid,
+	Grid2,
 	GridPaginate,
+	GridPaginate2,
 	FieldGroup,
 	Icon,
 	Link,
@@ -43,8 +48,7 @@ export {
 	Clipboardable,
 }
 
-export { FF_Role } from './common.js'
-export { ff_Log } from './common.js'
+export { FF_Role, ff_Log }
 
 // ******************************
 // Helpers types

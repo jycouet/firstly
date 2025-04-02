@@ -3,14 +3,15 @@ import { type Handle } from '@sveltejs/kit'
 import { remult } from 'remult'
 
 export type RouteGuardConfig = {
-	// Routes that don't require authentication (optional)
-	anonymous?: string[]
-	// Routes that require authentication
-	authenticated: string[]
-	// Where to redirect when authentication is required but user is not logged in
-	redirectToLogin: string
-	// Where to redirect when user is logged in but accessing a public-only route
-	redirectAuthenticated: string
+	/**
+	 * Routes that require authentication (e.g. `{ path: '/app*' }`)
+	 */
+	guard: { path: string }[]
+
+	/**
+	 * Where to redirect when authentication is required but user is not logged in
+	 */
+	login: string
 
 	/**
 	 * We need this import
@@ -19,11 +20,6 @@ export type RouteGuardConfig = {
 	redirect: (status: number, url: string) => void
 }
 
-/**
- * Checks if a path matches a pattern that may include wildcards
- * @param path The actual path to check
- * @param pattern The pattern that may include wildcards (*)
- */
 function pathMatchesPattern(path: string, pattern: string): boolean {
 	// Convert the pattern to a regex
 	const regexPattern = pattern.replace(/\//g, '\\/').replace(/\*/g, '.*')
@@ -32,11 +28,8 @@ function pathMatchesPattern(path: string, pattern: string): boolean {
 	return regex.test(path)
 }
 
-/**
- * Checks if a path matches any of the patterns in the array
- */
-function pathMatchesAnyPattern(path: string, patterns: string[]): boolean {
-	return patterns.some((pattern) => pathMatchesPattern(path, pattern))
+function pathMatchesAnyPattern(path: string, patterns: { path: string }[]): boolean {
+	return patterns.some((pattern) => pathMatchesPattern(path, pattern.path))
 }
 
 /**
@@ -44,52 +37,23 @@ function pathMatchesAnyPattern(path: string, patterns: string[]): boolean {
  */
 export function handleGuard(config: RouteGuardConfig): Handle {
 	return async ({ event, resolve }) => {
-		const path = event.url.pathname
-		const fullUrl = event.url.pathname + event.url.search
+		const pathname = event.url.pathname
 		const isAuthenticated = !!remult.user
 
-		// Check if the path is in the anonymous routes
-		const isAnonymousRoute = config.anonymous ? pathMatchesAnyPattern(path, config.anonymous) : false
-
-		// Check if the path is in the authenticated routes
-		const isAuthenticatedRoute = pathMatchesAnyPattern(path, config.authenticated)
-
-		// Check if the current path is the login page
-		const isLoginPage =
-			path === config.redirectToLogin || path === config.redirectToLogin.replace(/\/$/, '')
-
-		// Create login URL with redirect parameter
-		const createLoginUrl = (returnUrl: string) => {
-			const encodedReturnUrl = encodeURIComponent(returnUrl)
-			const separator = config.redirectToLogin.includes('?') ? '&' : '?'
-			return `${config.redirectToLogin}${separator}redirect=${encodedReturnUrl}`
-		}
-
-		// Handle root path
-		if (path === config.redirectToLogin) {
-			if (isAuthenticated) {
-				config.redirect(302, config.redirectAuthenticated)
-			} else {
-				// Only redirect if we're not already on the login page
-				if (!isLoginPage) {
-					config.redirect(302, config.redirectToLogin)
-				}
-			}
-		}
+		const isAuthenticatedRoute = pathMatchesAnyPattern(pathname, config.guard)
 
 		// If user is not authenticated and tries to access an authenticated route
 		if (!isAuthenticated && isAuthenticatedRoute) {
 			// Redirect to login with the current URL as the redirect target
 			// Only redirect if we're not already on the login page
+			const isLoginPage = pathname === config.login || pathname === config.login.replace(/\/$/, '')
 			if (!isLoginPage) {
-				config.redirect(302, createLoginUrl(fullUrl))
-			}
-		}
+				const encodedReturnUrl = encodeURIComponent(pathname + event.url.search)
+				const separator = config.login.includes('?') ? '&' : '?'
+				const loginUrl = `${config.login}${separator}redirect=${encodedReturnUrl}`
 
-		// If user is authenticated and tries to access an anonymous-only route
-		// Only check if anonymous routes are defined
-		if (config.anonymous && isAuthenticated && isAnonymousRoute) {
-			config.redirect(302, config.redirectAuthenticated)
+				config.redirect(302, loginUrl)
+			}
 		}
 
 		return resolve(event)

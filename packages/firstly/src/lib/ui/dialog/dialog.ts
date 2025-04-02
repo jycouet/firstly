@@ -1,7 +1,7 @@
 import type { SvelteComponent } from 'svelte'
 import { writable } from 'svelte/store'
 
-import type { Repository } from 'remult'
+import { type Repository } from 'remult'
 
 import {
 	LibIcon_Add,
@@ -12,6 +12,7 @@ import {
 	type CellsInput,
 	type StoreItem,
 } from '../../'
+import type { FF_Repo } from '../../svelte'
 
 export type DialogClasses = {
 	/**
@@ -44,6 +45,7 @@ export type DialogMetaData<entityType = any> = {
 	focusKey?: string
 
 	topicPrefixText?: string
+	r?: FF_Repo<entityType>
 }
 
 type ResultClose<entityType = any> = {
@@ -143,6 +145,7 @@ const createDialogManagement = () => {
 				focusKey: settings?.focusKey,
 				topicPrefixText,
 			}
+			// @ts-ignore
 			return show(detail, type)
 		},
 

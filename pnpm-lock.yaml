@@ -5,6 +5,10 @@ settings:
   excludeLinksFromLockfile: false
 
 catalogs:
+  default:
+    '@layerstack/svelte-actions':
+      specifier: 1.0.0
+      version: 1.0.0
   docs:
     '@astrojs/starlight':
       specifier: 0.32.2
@@ -42,6 +46,9 @@ catalogs:
       specifier: 2.28.1
       version: 2.28.1
   prod:
+    '@layerstack/utils':
+      specifier: 1.0.0
+      version: 1.0.0
     '@oslojs/crypto':
       specifier: 1.0.1
       version: 1.0.1
@@ -221,6 +228,12 @@ importers:
       '@kitql/internals':
         specifier: catalog:kitql
         version: 0.10.4
+      '@layerstack/svelte-actions':
+        specifier: 'catalog:'
+        version: 1.0.0
+      '@layerstack/utils':
+        specifier: catalog:prod
+        version: 1.0.0
       '@mdi/js':
         specifier: catalog:ui
         version: 7.4.47
@@ -897,11 +910,17 @@ packages:
   '@floating-ui/core@1.6.3':
     resolution: {integrity: sha512-1ZpCvYf788/ZXOhRQGFxnYQOVgeU+pi0i+d0Ow34La7qjIXETi6RNswGVKkA6KcDO8/+Ysu2E/CeUmmeEBDvTg==}
 
+  '@floating-ui/dom@1.6.13':
+    resolution: {integrity: sha512-umqzocjDgNRGTuO7Q8CU32dkHkECqI8ZdMZ5Swb6QAM0t5rnlrN3lGo1hdpscRd3WS8T6DKYK4ephgIH9iRh3w==}
+
   '@floating-ui/dom@1.6.6':
     resolution: {integrity: sha512-qiTYajAnh3P+38kECeffMSQgbvXty2VB6rS+42iWR4FPIlZjLK84E9qtLnMTLIpPz2znD/TaFqaiavMUrS+Hcw==}
 
   '@floating-ui/utils@0.2.3':
     resolution: {integrity: sha512-XGndio0l5/Gvd6CLIABvsav9HHezgDFFhDfHk1bvLfr9ni8dojqLSvBbotJEjmIwNHL7vK4QzBJTdBRoB+c1ww==}
+
+  '@floating-ui/utils@0.2.9':
+    resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -1099,6 +1118,12 @@ packages:
   '@kitql/internals@0.10.4':
     resolution: {integrity: sha512-F/DYyAeyLTbqOG9kGiEve2vQUvPllH4nEOFAE9/COBcNcrsJB4zExkK1a1LiS3qIi5Bq78flMyivvOlQ2TGGdQ==}
     engines: {node: ^16.14 || >=18}
+
+  '@layerstack/svelte-actions@1.0.0':
+    resolution: {integrity: sha512-cnVxMbcc+xYta9hwHnLja4a7bR7cfX/QW9jDY4ZCI8RIt+3lKNRE+u2XzWoGp4Qsx7A0/nGUIiLWpDBgO1ihsQ==}
+
+  '@layerstack/utils@1.0.0':
+    resolution: {integrity: sha512-kIH8lo4MEzPGtdxQRacy8RsSVhMQwe62ckuev62xQDE5QcUJ4wB9EMaRWaQK8CfEOpUERGPgkMPMbMqPhdp0gw==}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -2271,6 +2296,9 @@ packages:
 
   dataloader@1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
+
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   dayjs@1.11.13:
     resolution: {integrity: sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==}
@@ -5443,12 +5471,19 @@ snapshots:
     dependencies:
       '@floating-ui/utils': 0.2.3
 
+  '@floating-ui/dom@1.6.13':
+    dependencies:
+      '@floating-ui/core': 1.6.3
+      '@floating-ui/utils': 0.2.9
+
   '@floating-ui/dom@1.6.6':
     dependencies:
       '@floating-ui/core': 1.6.3
       '@floating-ui/utils': 0.2.3
 
   '@floating-ui/utils@0.2.3': {}
+
+  '@floating-ui/utils@0.2.9': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -5689,6 +5724,21 @@ snapshots:
       '@kitql/helpers': 0.8.12
       recast: 0.23.9
       svelte: 5.23.0
+
+  '@layerstack/svelte-actions@1.0.0':
+    dependencies:
+      '@floating-ui/dom': 1.6.13
+      '@layerstack/utils': 1.0.0
+      d3-array: 3.2.4
+      d3-scale: 4.0.2
+      date-fns: 4.1.0
+      lodash-es: 4.17.21
+
+  '@layerstack/utils@1.0.0':
+    dependencies:
+      d3-array: 3.2.4
+      date-fns: 4.1.0
+      lodash-es: 4.17.21
 
   '@manypkg/find-root@1.1.0':
     dependencies:
@@ -7099,6 +7149,8 @@ snapshots:
       - postcss
 
   dataloader@1.4.0: {}
+
+  date-fns@4.1.0: {}
 
   dayjs@1.11.13: {}
 

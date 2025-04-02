@@ -46,7 +46,9 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 		oSafe.firstlyData.props.ui?.paths?.base &&
 		event.url.pathname.startsWith(oSafe.firstlyData.props.ui.paths.base)
 	) {
-		const content = read(`${oSafe.uiStaticPath}index.html`)
+		let content = read(`${oSafe.uiStaticPath}index.html`) ?? ''
+
+		content = content?.replaceAll('<!--PLACE_HERE_HEAD-->', oSafe.ui?.customHtmlHead ?? '')
 
 		return new Response(
 			content + `<script>const firstlyData = ${JSON.stringify(oSafe.firstlyData)}</script>`,

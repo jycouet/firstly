@@ -8,6 +8,7 @@ import type SMTPPool from 'nodemailer/lib/smtp-pool'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import type StreamTransport from 'nodemailer/lib/stream-transport'
 import type { ComponentProps, ComponentType, SvelteComponent } from 'svelte'
+import { asClassComponent } from 'svelte/legacy'
 import { render } from 'svelty-email'
 
 import { remult } from 'remult'
@@ -105,7 +106,7 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
 	}
 	try {
 		if (!mailOptions.html) {
-			const template = globalOptions?.template?.component ?? (DefaultMail as any)
+			const template = asClassComponent(globalOptions?.template?.component ?? (DefaultMail as any))
 			const props = {
 				brandColor: globalOptions?.template?.brandColor ?? '#5B68DF',
 				...mailOptions.templateProps,

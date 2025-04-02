@@ -85,7 +85,10 @@ type MetaTypeSlot = { kind: 'slot'; subKind: '???' }
 export type FieldMetaType = MetaTypeRelation | MetaTypeEnum | MetaTypePrimitive | MetaTypeSlot
 
 // or it's a slot or it will return the field
-export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
+export const getFieldMetaType = (
+	field?: FieldMetadata,
+	withHidden: boolean = false,
+): FieldMetaType => {
 	if (field === undefined) {
 		return { kind: 'slot', subKind: '???' }
 	}
@@ -120,11 +123,13 @@ export const getFieldMetaType = (field?: FieldMetadata): FieldMetaType => {
 	if (field.options?.valueConverter?.values) {
 		// console.log(`field.options.valueConverter.values`, field.options.valueConverter.values)
 
+		// @ts-ignore
+		const values = field.options.valueConverter.values as BaseItem[]
+
 		return {
 			kind: 'enum',
 			subKind: 'single',
-			// @ts-ignore
-			values: (field.options.valueConverter.values as BaseItem[]).filter((v) => !v.hide),
+			values: withHidden ? values : values.filter((v) => !v.hide),
 			field,
 		}
 	}

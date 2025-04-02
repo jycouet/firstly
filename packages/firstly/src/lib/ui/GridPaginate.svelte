@@ -1,9 +1,6 @@
 <script lang="ts">
 	import Icon from './Icon.svelte'
 	import FieldContainer from './internals/FieldContainer.svelte'
-
-	import './LibIcon'
-
 	import { LibIcon_ChevronLeft, LibIcon_ChevronRight } from './LibIcon'
 	import Loading from './Loading.svelte'
 

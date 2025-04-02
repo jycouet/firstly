@@ -23,6 +23,7 @@ export class FFAuthUser {
 	updatedAt?: Date
 
 	@Fields.string<FFAuthUser>({
+		allowApiUpdate: false,
 		validate: [
 			Validators.unique(),
 			Validators.required(),
