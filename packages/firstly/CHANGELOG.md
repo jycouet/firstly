@@ -1,5 +1,13 @@
 # firstly
 
+## 0.0.16-next.2
+
+### Patch Changes
+
+- [#110](https://github.com/jycouet/firstly/pull/110)
+  [`0c66f11`](https://github.com/jycouet/firstly/commit/0c66f114dd95f65c0407abddbd647a66769142eb)
+  Thanks [@jycouet](https://github.com/jycouet)! - add github in default ui (if configured)
+
 ## 0.0.16-next.1
 
 ### Patch Changes
