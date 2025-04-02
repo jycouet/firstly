@@ -5,8 +5,9 @@ import { repo } from 'remult'
 import { read } from '@kitql/internals'
 
 import { FFAuthProvider } from '../Entities'
+import type { OAuth2UserInfo } from '../types'
 import { ff_createSession } from './helperFirstly'
-import { getSafeOptions, type OAuth2UserInfo } from './module'
+import { getSafeOptions } from './module'
 
 export const handleAuth: Handle = async ({ event, resolve }) => {
 	const oSafe = getSafeOptions()
