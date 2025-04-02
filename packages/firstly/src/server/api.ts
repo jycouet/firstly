@@ -2,7 +2,7 @@ import { task } from '$modules/task/server'
 import { _AppUser } from '$modules/user/AppUser'
 import { FF_Role } from '$lib'
 import { FF_Role_Auth } from '$lib/auth'
-import { auth } from '$lib/auth/server'
+import { auth, github } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'
 import { firstly, Module } from '$lib/server'
 
@@ -84,10 +84,10 @@ export const api = firstly({
 				},
 
 				oAuths: [
-					// github({
-					//   authorizationURLOptions: ['user:email'],
-					//   log: true,
-					// }),
+					github({
+						authorizationURLOptions: ['user:email'],
+						log: true,
+					}),
 				],
 			},
 		}),

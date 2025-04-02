@@ -6,7 +6,9 @@ export type FirstlyData = {
 	props: FirstlyDataAuth
 }
 
-export type FirstlyDataAuth = {
+export type FirstlyDataAuth = FirstlyDataAuthUserLand & FirstlyDataAuthModuleLand
+
+export type FirstlyDataAuthUserLand = {
 	ui?: {
 		paths: {
 			base: string
@@ -37,6 +39,10 @@ export type FirstlyDataAuth = {
 	}
 }
 
+export type FirstlyDataAuthModuleLand = {
+	providers: { name: string; label: string; raw_svg?: string }[]
+}
+
 export type ProviderConfigured = Record<string, ProviderAuthorizationURLOptions>
 export type ProviderAuthorizationURLOptions = string[]
 
@@ -60,4 +66,11 @@ export interface AuthServerAbstraction {
 		options?: ProviderConfigured[keyof ProviderConfigured]
 		redirect?: string
 	}) => Promise<string>
+}
+
+export type OAuth2UserInfo = {
+	raw?: any
+	providerUserId: string
+	/** Will take the first option available */
+	nameOptions: string[]
 }

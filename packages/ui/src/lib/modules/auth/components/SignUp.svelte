@@ -23,17 +23,15 @@
 		try {
 			const res = await AuthController.signUpPassword(email, password)
 			msgSuccess = res.message ?? ''
-			window.location.href = '/'
+			// Wait 3 seconds before redirecting
+			await new Promise((resolve) => setTimeout(resolve, 5000))
+			window.location.href = new URL(window.location.href).searchParams.get('redirect') ?? '/'
 		} catch (error) {
 			if (isError(error)) {
 				msgError = error.message ?? ''
 			}
 			loading = false
 		}
-	}
-
-	const handlePin = () => {
-		throw new Error('Not impl yet')
 	}
 </script>
 
@@ -64,17 +62,6 @@
 		>
 	</form>
 {/if}
-
-<!-- {#if view == 'pin'}
-  <form on:submit|preventDefault={handlePin}>
-    <p>{msgError}{msgSuccess}</p>
-    <label>
-      PIN
-      <input bind:value={pincode} use:autofocus type="number" placeholder="556775" />
-    </label>
-    <button>Confirm</button>
-  </form>
-{/if} -->
 
 <style>
 	form {

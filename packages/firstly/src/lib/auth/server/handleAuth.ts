@@ -5,8 +5,9 @@ import { repo } from 'remult'
 import { read } from '@kitql/internals'
 
 import { FFAuthProvider } from '../Entities'
+import type { OAuth2UserInfo } from '../types'
 import { ff_createSession } from './helperFirstly'
-import { getSafeOptions, type OAuth2UserInfo } from './module'
+import { getSafeOptions } from './module'
 
 export const handleAuth: Handle = async ({ event, resolve }) => {
 	const oSafe = getSafeOptions()
@@ -149,20 +150,18 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 
 				const user = repo(oSafe.User).create()
 				user.identifier = nameToUse
+				await repo(oSafe.User).save(user)
 
 				account = repo(oSafe.Account).create()
 				account.provider = keyState
 				account.providerUserId = info.providerUserId
-				account.token = tokens.accessToken()
 				account.userId = user.id
-				account.lastVerifiedAt = new Date()
-
-				await repo(oSafe.User).save(user)
-				await repo(oSafe.Account).save(account)
-			} else {
-				account.token = tokens.accessToken()
-				await repo(oSafe.Account).save(account)
 			}
+
+			account.lastVerifiedAt = new Date()
+			account.token = tokens.accessToken()
+			account.metadata = { ...info, tokens_data: tokens.data }
+			await repo(oSafe.Account).save(account)
 
 			await ff_createSession(account.userId)
 

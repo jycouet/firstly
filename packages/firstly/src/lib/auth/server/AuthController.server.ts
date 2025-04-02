@@ -201,23 +201,25 @@ export class AuthControllerServer {
 
 		const token = generateAndEncodeToken()
 
-		await remult.dataProvider.transaction(async () => {
-			const user = await repo(oSafe.User).insert({
-				identifier: email,
-			})
-			await repo(oSafe.Account).insert({
-				provider: FFAuthProvider.PASSWORD.id,
-				providerUserId: email,
-				userId: user.id,
-				hashPassword: await oSafe.password.hash(password),
-				token: oSafe.verifiedMethod === 'auto' ? undefined : token,
-				expiresAt:
-					oSafe.verifiedMethod === 'auto'
-						? undefined
-						: createDate(AUTH_OPTIONS.providers?.password?.mail?.verify?.expiresIn ?? 5 * 60),
-				lastVerifiedAt: oSafe.verifiedMethod === 'auto' ? new Date() : undefined,
-			})
+		// REMULT: Do not put it in a transaction, as it will be called from a backendmethod that is already in a transaction! And nested transactions not allowed.
+		// await remult.dataProvider.transaction(async () => {
+		const user = await repo(oSafe.User).insert({
+			identifier: email,
 		})
+		await repo(oSafe.Account).insert({
+			provider: FFAuthProvider.PASSWORD.id,
+			providerUserId: email,
+			userId: user.id,
+			hashPassword: await oSafe.password.hash(password),
+			token: oSafe.verifiedMethod === 'auto' ? undefined : token,
+			expiresAt:
+				oSafe.verifiedMethod === 'auto'
+					? undefined
+					: createDate(AUTH_OPTIONS.providers?.password?.mail?.verify?.expiresIn ?? 5 * 60),
+			lastVerifiedAt: oSafe.verifiedMethod === 'auto' ? new Date() : undefined,
+		})
+
+		// })
 
 		if (oSafe.verifiedMethod === 'auto') {
 			const user = await repo(oSafe.User).findFirst({
@@ -230,7 +232,7 @@ export class AuthControllerServer {
 					user: oSafe.transformDbUserToClientUser(session, user),
 				} satisfies AuthResponse
 			}
-		} else {
+		} else if (oSafe.verifiedMethod === 'email') {
 			const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.verify_email}?token=${token}`
 			if (AUTH_OPTIONS.providers?.password?.mail?.verify?.send) {
 				await AUTH_OPTIONS.providers?.password.mail.verify.send({ email, url })
@@ -258,11 +260,14 @@ export class AuthControllerServer {
 
 				authModuleRaw.log.success(`${magenta('[verifyMailSend]')} (${yellow(url)})`)
 			}
+			return {
+				message: 'We sent you a mail to verify your account.',
+				user: undefined,
+			} satisfies AuthResponse
 		}
-
 		return {
-			message: 'ok',
-			user: remult.user,
+			message: 'Someone needs to validate your account.',
+			user: undefined,
 		} satisfies AuthResponse
 	}
 
@@ -582,7 +587,9 @@ export class AuthControllerServer {
 			} catch (error) {
 				// display error for the server only
 				authModuleRaw.log.error(error)
-				throw new EntityError({ message: `${selectedOAuth.name} not well configured!` })
+				throw new EntityError({
+					message: `${selectedOAuth.name} not well configured! Check server logs for more details.`,
+				})
 			}
 		}
 
