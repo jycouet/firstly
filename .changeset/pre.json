@@ -7,6 +7,7 @@
     "ui": "0.0.0"
   },
   "changesets": [
-    "gentle-flowers-allow"
+    "gentle-flowers-allow",
+    "thin-planes-grow"
   ]
 }
