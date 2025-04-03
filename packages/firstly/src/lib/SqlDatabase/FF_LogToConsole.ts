@@ -127,8 +127,8 @@ export const FF_LogToConsole = (
 		['information_Schema.tables'],
 		['information_schema.columns'],
 		// ['__remult_migrations_version'],
-		['ff_auth.accounts'],
-		['ff_auth.users'],
+		// ['ff_auth.accounts'],
+		// ['ff_auth.users'],
 		['ff_auth.users_sessions'],
 		['_ff_change_logs'],
 	]

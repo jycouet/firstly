@@ -9,10 +9,9 @@ import { getRelativePackagePath } from '@kitql/internals'
 import { building } from '$app/environment'
 
 import { AuthController } from '..'
-import { FF_Role } from '../..'
 import { Module } from '../../server'
 import type { RecursivePartial } from '../../utils/types'
-import { FF_Role_Auth, FFAuthAccount, FFAuthUser, FFAuthUserSession } from '../Entities'
+import { FFAuthAccount, FFAuthUser, FFAuthUserSession } from '../Entities'
 import type {
 	FirstlyData,
 	FirstlyDataAuth,
@@ -22,7 +21,6 @@ import type {
 import { AuthControllerServer } from './AuthController.server'
 import { validateSessionToken } from './helperDb'
 import { setSessionTokenCookie } from './helperRemultServer'
-import { initRoleFromEnv } from './helperRole'
 
 // TODO revalidate token?
 export type FFOAuth2Provider<T = any, LitName extends string = string> = {
@@ -432,18 +430,18 @@ export const auth = <
 		}
 	}
 	authModuleRaw.initApi = async () => {
-		await initRoleFromEnv(authModuleRaw.log, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.FF_Role_Admin)
-		await initRoleFromEnv(
-			authModuleRaw.log,
-			oSafe.User,
-			'FF_ROLE_AUTH_ADMIN',
-			FF_Role_Auth.FF_Role_Auth_Admin,
-		)
+		// await initRoleFromEnv(authModuleRaw.log, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.FF_Role_Admin)
+		// await initRoleFromEnv(
+		// 	authModuleRaw.log,
+		// 	oSafe.User,
+		// 	'FF_ROLE_AUTH_ADMIN',
+		// 	FF_Role_Auth.FF_Role_Auth_Admin,
+		// )
 	}
 	return authModuleRaw
 }
 
-export { initRoleFromEnv }
+// export { initRoleFromEnv }
 
 declare module 'remult' {
 	export interface UserInfo {

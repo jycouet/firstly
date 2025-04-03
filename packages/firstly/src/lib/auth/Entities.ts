@@ -38,6 +38,7 @@ export class FFAuthUser {
 	identifier!: string
 
 	@Fields.json<FFAuthUser, string[]>(() => [], {
+		includeInApi: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
 		inputType: 'selectEnum',
 		valueConverter: {
 			toDb: (x) => (x ? x.join(',') : []),
@@ -45,9 +46,9 @@ export class FFAuthUser {
 			fromDb: (x) => {
 				return x
 					? x
-						.split(',')
-						.map((c: string) => c.replace('{', '').replace('}', ''))
-						.filter((c: string) => c !== '')
+							.split(',')
+							.map((c: string) => c.replace('{', '').replace('}', ''))
+							.filter((c: string) => c !== '')
 					: []
 			},
 		},
