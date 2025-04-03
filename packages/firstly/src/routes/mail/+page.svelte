@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { data } = $props()
+	const { data } = $props()
 </script>
 
 <section>
