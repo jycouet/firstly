@@ -5,38 +5,39 @@ import {
 import { kitRoutes, type Options, type RouteMappings } from 'vite-plugin-kit-routes'
 import { stripper } from 'vite-plugin-stripper'
 
-// const toRemove = ['async_hooks', 'join', 'fs', 'path']
-
 export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 	stripper?: Parameters<typeof stripper>[0]
 	kitRoutes?: Options<KIT_ROUTES>
 }): PluginOption {
-	// @ts-ignore
-	return [
-		// {
-		// 	name: 'vite-plugin-firstly',
-		// 	enforce: 'pre',
+	const p: PluginOption[] = []
 
-		// 	config: async (a) => {
-		// 		return mergeConfig(a, {
-		// 			build: {
-		// 				// THE ERROR:
-		// 				// RollupError: Unexpected character '�' or Unexpected character '\u{7f}'
-		// 				// This code (A) is to fix in `build` mode
-		// 				rollupOptions: {
-		// 					external: toRemove,
-		// 				},
-		// 			},
-		// 			// This code (B) is to fix in `dev` mode
-		// 			optimizeDeps: {
-		// 				exclude: toRemove,
-		// 			},
-		// 		})
-		// 	},
-		// },
+	// const toRemove = ['terser']
+	// const toRemove: string[] = []
 
-		// @ts-ignore
-		...kitRoutes<KIT_ROUTES>({
+	// p.push({
+	// 	name: 'vite-plugin-firstly',
+	// 	enforce: 'pre',
+
+	// 	config: async (a) => {
+	// 		return mergeConfig(a, {
+	// 			build: {
+	// 				// THE ERROR:
+	// 				// RollupError: Unexpected character '�' or Unexpected character '\u{7f}'
+	// 				// This code (A) is to fix in `build` mode
+	// 				rollupOptions: {
+	// 					external: toRemove,
+	// 				},
+	// 			},
+	// 			// This code (B) is to fix in `dev` mode
+	// 			optimizeDeps: {
+	// 				exclude: toRemove,
+	// 			},
+	// 		})
+	// 	},
+	// })
+
+	p.push(
+		kitRoutes<KIT_ROUTES>({
 			...(options?.kitRoutes ?? {}),
 			...{
 				format_page_route_id: true,
@@ -47,9 +48,10 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 				},
 			},
 		}),
+	)
 
-		// @ts-ignore
-		...stripper({
+	p.push(
+		stripper({
 			strip: options?.stripper?.strip ?? [
 				{ decorator: 'BackendMethod' },
 				{
@@ -65,5 +67,7 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 			debug: options?.stripper?.debug ?? false,
 			nullify: options?.stripper?.nullify ?? ['$env/static/private', '$env/dynamic/private'],
 		}),
-	]
+	)
+
+	return p
 }
