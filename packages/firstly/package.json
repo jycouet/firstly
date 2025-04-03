@@ -64,6 +64,7 @@
     "svelte-check": "catalog:svelte",
     "tslib": "catalog:tooling",
     "typescript": "catalog:tooling",
+    "vite": "catalog:tooling",
     "vitest": "catalog:testing"
   },
   "dependencies": {
@@ -88,7 +89,6 @@
     "sailkit": "catalog:prod",
     "tailwind-merge": "catalog:ui",
     "tailwindcss": "catalog:ui",
-    "vite": "catalog:tooling",
     "vite-plugin-kit-routes": "catalog:tooling",
     "vite-plugin-stripper": "catalog:tooling"
   },
