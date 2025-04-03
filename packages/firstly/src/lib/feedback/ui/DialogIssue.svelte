@@ -99,7 +99,7 @@
 						).toLocaleTimeString()}</time
 					>
 				</div>
-				<div class="prose chat-bubble">{@html item.bodyHTML}</div>
+				<div class="chat-bubble prose">{@html item.bodyHTML}</div>
 				<!-- <div class="chat-footer opacity-50">Delivered</div> -->
 			</div>
 		{/each}
