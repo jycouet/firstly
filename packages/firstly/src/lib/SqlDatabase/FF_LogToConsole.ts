@@ -23,6 +23,14 @@ const typeQueryKey = Array.from(typeQuery.keys())
 
 const log = new Log('')
 
+/**
+ * @example
+ * SqlDatabase.LogToConsole = (...a) => FF_LogToConsole(...a, {
+ *   type: {
+ *     exclude: ['SELECT', 'SELECT_COUNT']
+ *   }
+ * })
+ */
 export const FF_LogToConsole = (
 	duration: number,
 	query: string,
@@ -40,6 +48,7 @@ export const FF_LogToConsole = (
 	if (duration < SqlDatabase.durationThreshold) return
 
 	const rawSql = query
+		.replace(/--.*?(?=\r\n|\n|$)/g, '') // Remove SQL comments
 		.replace(/(\r\n|\n|\r|\t)/gm, ' ')
 		.replace(/  +/g, ' ')
 		.trim()
