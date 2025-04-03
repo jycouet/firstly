@@ -19,7 +19,7 @@
     "dev": "vite dev",
     "//// ---- BEST PRACTICES ---- ////": "",
     "format": "kitql-lint -f",
-    "lint": "prettier --list-different --ignore-path ../../.prettierignore --config ../../.prettierrc.mjs .",
+    "lint": "kitql-lint -d",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:w": "svelte-check --tsconfig ./tsconfig.json --watch",
     "//// ---- TEST ---- ////": "",
