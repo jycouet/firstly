@@ -1,11 +1,12 @@
 import { SqlDatabase } from 'remult'
 import { bgCyan, cyan, green, Log, magenta, yellow } from '@kitql/helpers'
 
-const typeQuery = new Map<string, string>([
+type TypeQuery = 'INSERT' | 'SELECT' | 'SELECT_COUNT' | 'UPDATE' | 'DELETE' | 'CREATE' | 'ALTER' | 'DROP' | 'TRUNCATE' | 'GRANT' | 'REVOKE'
+const typeQuery = new Map<TypeQuery, string>([
 	// CRUD
 	['INSERT', '⚪'], // Used to insert new data into a database.
 	['SELECT', '🔵'], // Used to select data from a database and retrieve it.
-	['COUNT ', '🟦'], // Used to count data from a database and retrieve it.
+	['SELECT_COUNT', '🟦'], // Used to count data from a database and retrieve it.
 	['UPDATE', '🟣'], // Used to update existing data within a database.
 	['DELETE', '🟤'], // Used to delete existing data from a database.
 	// Additional
@@ -27,6 +28,10 @@ export const FF_LogToConsole = (
 	query: string,
 	args: Record<string, any>,
 	options?: {
+		type?: {
+			include?: TypeQuery[]
+			exclude?: TypeQuery[]
+		}
 		withDetails?: boolean
 		tablesToHide?: string[][]
 		ending?: (duration: number, query: string, args: Record<string, any>, tables: string[]) => void
@@ -40,9 +45,21 @@ export const FF_LogToConsole = (
 		.trim()
 	const s = rawSql.split(' ')
 
-	let first = s[0].toUpperCase()
-	if (s.includes('count(*)')) {
-		first = 'COUNT '
+	let first = s[0].toUpperCase() as TypeQuery
+	if (s.length > 1 && s[1].toLowerCase() === ('count(*)')) {
+		first = 'SELECT_COUNT'
+	}
+
+	if (options?.type?.include) {
+		if (!options.type.include.includes(first)) {
+			return
+		}
+	}
+
+	if (options?.type?.exclude) {
+		if (options.type.exclude.includes(first)) {
+			return
+		}
 	}
 
 	const tables: string[] = []
@@ -52,7 +69,7 @@ export const FF_LogToConsole = (
 
 		if (keys.includes(up)) {
 			s[i] = magenta(up)
-		} else if (typeQueryKey.includes(up)) {
+		} else if (typeQueryKey.includes(up as TypeQuery)) {
 			s[i] = cyan(up)
 		}
 
