@@ -53,11 +53,5 @@
 		padding: 0.5rem 1rem;
 		font-size: 0.875rem;
 		font-weight: 500;
-		color: #374151;
-		background-color: white;
-		border: 1px solid #d1d5db;
-		border-radius: 0.375rem;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-		text-decoration: none;
 	}
 </style>

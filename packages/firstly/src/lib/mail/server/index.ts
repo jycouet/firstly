@@ -8,7 +8,6 @@ import type SMTPPool from 'nodemailer/lib/smtp-pool'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import type StreamTransport from 'nodemailer/lib/stream-transport'
 import type { Component, ComponentProps, ComponentType, SvelteComponent } from 'svelte'
-import { asClassComponent } from 'svelte/legacy'
 
 import { remult } from 'remult'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'

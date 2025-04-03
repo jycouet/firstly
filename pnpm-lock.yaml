@@ -69,9 +69,15 @@ catalogs:
     cron:
       specifier: 4.1.0
       version: 4.1.0
+    mjml:
+      specifier: 4.15.3
+      version: 4.15.3
     nodemailer:
       specifier: 6.10.0
       version: 6.10.0
+    sailkit:
+      specifier: 0.2.2
+      version: 0.2.2
   svelte:
     svelte:
       specifier: 5.25.6
@@ -242,6 +248,9 @@ importers:
       '@oslojs/otp':
         specifier: catalog:prod
         version: 1.1.0
+      '@sveltejs/kit':
+        specifier: catalog:sveltekit
+        version: 2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))
       '@types/nodemailer':
         specifier: catalog:prod
         version: 6.4.14
@@ -264,7 +273,7 @@ importers:
         specifier: catalog:tooling
         version: 1.2.2
       mjml:
-        specifier: 4.15.3
+        specifier: catalog:prod
         version: 4.15.3
       nodemailer:
         specifier: catalog:prod
@@ -273,7 +282,7 @@ importers:
         specifier: '>=2.7.32'
         version: 2.7.32
       sailkit:
-        specifier: 0.2.2
+        specifier: catalog:prod
         version: 0.2.2(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(mjml@4.15.3)(svelte@5.25.6)
       tailwind-merge:
         specifier: catalog:ui
@@ -297,9 +306,6 @@ importers:
       '@sveltejs/adapter-node':
         specifier: catalog:sveltekit
         version: 5.2.2(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))
-      '@sveltejs/kit':
-        specifier: catalog:sveltekit
-        version: 2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))
       '@sveltejs/package':
         specifier: catalog:sveltekit
         version: 2.3.2(svelte@5.25.6)(typescript@5.8.2)
@@ -377,9 +383,6 @@ packages:
 
   '@antfu/utils@8.1.0':
     resolution: {integrity: sha512-XPR7Jfwp0FFl/dFYPX8ZjpmU4/1mIXTjnZ1ba48BLMyKOV62/tiRjdsFcPs2hsYcSud4tzk7w3a3LjX8Fu3huA==}
-
-  '@astrojs/compiler@2.10.4':
-    resolution: {integrity: sha512-86B3QGagP99MvSNwuJGiYSBHnh8nLvm2Q1IFI15wIUJJsPeQTO3eb2uwBmrqRsXykeR/mBzH8XCgz5AAt1BJrQ==}
 
   '@astrojs/compiler@2.11.0':
     resolution: {integrity: sha512-zZOO7i+JhojO8qmlyR/URui6LyfHJY6m+L9nwyX5GiKD78YoRaZ5tzz6X0fkl+5bD3uwlDHayf6Oe8Fu36RKNg==}
@@ -512,9 +515,6 @@ packages:
 
   '@changesets/types@4.1.0':
     resolution: {integrity: sha512-LDQvVDv5Kb50ny2s25Fhm3d9QSZimsoUGBsUioj6MC3qbMUCuC8GPIvk/M6IvXx3lYhAs0lwWUQLb+VIEUCECw==}
-
-  '@changesets/types@6.0.0':
-    resolution: {integrity: sha512-b1UkfNulgKoWfqyHtzKS5fOZYSJO+77adgL7DLRDr+/7jhChN+QcHnbjiQVOz/U+Ts3PGNySq7diAItzDgugfQ==}
 
   '@changesets/types@6.1.0':
     resolution: {integrity: sha512-rKQcJ+o1nKNgeoYRHKOS07tAMNd3YSN0uHaJOZYjBAgxfV7TUE7JE+z4BzZdQwb5hKaYbayKN5KrYV7ODb2rAA==}
@@ -1727,11 +1727,6 @@ packages:
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
 
-  acorn@8.14.0:
-    resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
-    engines: {node: '>=0.4.0'}
-    hasBin: true
-
   acorn@8.14.1:
     resolution: {integrity: sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg==}
     engines: {node: '>=0.4.0'}
@@ -2871,10 +2866,6 @@ packages:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
 
-  has-symbols@1.0.3:
-    resolution: {integrity: sha512-l3LCuF6MgDNwTDKkdYGEihYjt5pRPbEg46rtlmnSPlUbgmB8LOIrKJbYYFBSbnPaJexMKtiPO8hmeRjRz2Td+A==}
-    engines: {node: '>= 0.4'}
-
   has-symbols@1.1.0:
     resolution: {integrity: sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==}
     engines: {node: '>= 0.4'}
@@ -3299,10 +3290,6 @@ packages:
 
   lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
-
-  lru-cache@10.2.2:
-    resolution: {integrity: sha512-9hp3Vp2/hFQUiIwKo8XCeFVnrg8Pk3TYNPIR7tJADKi5YfcF7vEaK7avFHTlSy3kOKYaJQaalfEo6YuXdceBOQ==}
-    engines: {node: 14 || >=16.14}
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
@@ -3895,9 +3882,6 @@ packages:
 
   pathe@1.1.2:
     resolution: {integrity: sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==}
-
-  pathe@2.0.1:
-    resolution: {integrity: sha512-6jpjMpOth5S9ITVu5clZ7NOgHNsv5vRQdheL9ztp2vZmM6fRbLvyua1tiBIL4lk8SAe3ARzeXEly6siXCjDHDw==}
 
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
@@ -4826,46 +4810,6 @@ packages:
     resolution: {integrity: sha512-JgL2hi7hN5ZRR2gmmLthTU8vn6CBSQPpaBisUyh5Sy3j2LT1Y6HWFVdsH300465Tk5bRY/1Aks6dPpeUW9mhYw==}
     engines: {node: ^16.14 || >=18}
 
-  vite@6.2.1:
-    resolution: {integrity: sha512-n2GnqDb6XPhlt9B8olZPrgMD/es/Nd1RdChF6CBD/fHW6pUyUTt2sQW2fPRX5GiD9XEa6+8A6A4f2vT6pSsE7Q==}
-    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^18.0.0 || ^20.0.0 || >=22.0.0
-      jiti: '>=1.21.0'
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      sass-embedded: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.16.0
-      tsx: ^4.8.1
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      jiti:
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      sass-embedded:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
-        optional: true
-
   vite@6.2.2:
     resolution: {integrity: sha512-yW7PeMM+LkDzc7CgJuRLMW2Jz0FxMOsVJ8Lv3gpgW9WLcb9cTW+121UEr1hvmfR7w3SegR5ItvYyzVz1vxNJgQ==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
@@ -5106,8 +5050,6 @@ snapshots:
 
   '@antfu/utils@8.1.0': {}
 
-  '@astrojs/compiler@2.10.4': {}
-
   '@astrojs/compiler@2.11.0': {}
 
   '@astrojs/internal-helpers@0.6.0': {}
@@ -5169,8 +5111,8 @@ snapshots:
   '@astrojs/mdx@4.1.0(astro@5.5.2(@types/node@22.5.1)(jiti@1.21.6)(rollup@4.30.1)(terser@5.31.1)(tsx@4.17.0)(typescript@5.8.2)(yaml@2.7.0))':
     dependencies:
       '@astrojs/markdown-remark': 6.2.0
-      '@mdx-js/mdx': 3.1.0(acorn@8.14.0)
-      acorn: 8.14.0
+      '@mdx-js/mdx': 3.1.0(acorn@8.14.1)
+      acorn: 8.14.1
       astro: 5.5.2(@types/node@22.5.1)(jiti@1.21.6)(rollup@4.30.1)(terser@5.31.1)(tsx@4.17.0)(typescript@5.8.2)(yaml@2.7.0)
       es-module-lexer: 1.6.0
       estree-util-visit: 2.0.0
@@ -5321,7 +5263,7 @@ snapshots:
   '@changesets/changelog-github@0.5.0':
     dependencies:
       '@changesets/get-github-info': 0.6.0
-      '@changesets/types': 6.0.0
+      '@changesets/types': 6.1.0
       dotenv: 8.6.0
     transitivePeerDependencies:
       - encoding
@@ -5436,8 +5378,6 @@ snapshots:
       '@manypkg/get-packages': 1.1.3
 
   '@changesets/types@4.1.0': {}
-
-  '@changesets/types@6.0.0': {}
 
   '@changesets/types@6.1.0': {}
 
@@ -5993,7 +5933,7 @@ snapshots:
 
   '@mdi/js@7.4.47': {}
 
-  '@mdx-js/mdx@3.1.0(acorn@8.14.0)':
+  '@mdx-js/mdx@3.1.0(acorn@8.14.1)':
     dependencies:
       '@types/estree': 1.0.6
       '@types/estree-jsx': 1.0.5
@@ -6007,7 +5947,7 @@ snapshots:
       hast-util-to-jsx-runtime: 2.3.6
       markdown-extensions: 2.0.0
       recma-build-jsx: 1.0.0
-      recma-jsx: 1.0.0(acorn@8.14.0)
+      recma-jsx: 1.0.0(acorn@8.14.1)
       recma-stringify: 1.0.0
       rehype-recma: 1.0.0
       remark-mdx: 3.1.0
@@ -6693,15 +6633,9 @@ snapshots:
 
   accessible-astro-components@4.1.0: {}
 
-  acorn-jsx@5.3.2(acorn@8.14.0):
-    dependencies:
-      acorn: 8.14.0
-
   acorn-jsx@5.3.2(acorn@8.14.1):
     dependencies:
       acorn: 8.14.1
-
-  acorn@8.14.0: {}
 
   acorn@8.14.1: {}
 
@@ -6829,8 +6763,8 @@ snapshots:
       unist-util-visit: 5.0.0
       unstorage: 1.15.0
       vfile: 6.0.3
-      vite: 6.2.1(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)
-      vitefu: 1.0.6(vite@6.2.1(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))
+      vite: 6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)
+      vitefu: 1.0.6(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))
       xxhash-wasm: 1.1.0
       yargs-parser: 21.1.1
       yocto-spinner: 0.2.1
@@ -8050,13 +7984,11 @@ snapshots:
 
   has-flag@4.0.0: {}
 
-  has-symbols@1.0.3: {}
-
   has-symbols@1.1.0: {}
 
   has-tostringtag@1.0.2:
     dependencies:
-      has-symbols: 1.0.3
+      has-symbols: 1.1.0
 
   hasown@2.0.2:
     dependencies:
@@ -8573,8 +8505,6 @@ snapshots:
   lower-case@2.0.2:
     dependencies:
       tslib: 2.8.0
-
-  lru-cache@10.2.2: {}
 
   lru-cache@10.4.3: {}
 
@@ -9434,7 +9364,7 @@ snapshots:
   mlly@1.7.4:
     dependencies:
       acorn: 8.14.1
-      pathe: 2.0.1
+      pathe: 2.0.3
       pkg-types: 1.3.1
       ufo: 1.5.4
 
@@ -9660,14 +9590,12 @@ snapshots:
 
   path-scurry@1.11.1:
     dependencies:
-      lru-cache: 10.2.2
+      lru-cache: 10.4.3
       minipass: 7.1.2
 
   path-type@4.0.0: {}
 
   pathe@1.1.2: {}
-
-  pathe@2.0.1: {}
 
   pathe@2.0.3: {}
 
@@ -9775,7 +9703,7 @@ snapshots:
 
   prettier-plugin-astro@0.14.1:
     dependencies:
-      '@astrojs/compiler': 2.10.4
+      '@astrojs/compiler': 2.11.0
       prettier: 3.5.3
       sass-formatter: 0.7.9
 
@@ -9869,9 +9797,9 @@ snapshots:
       estree-util-build-jsx: 3.0.1
       vfile: 6.0.3
 
-  recma-jsx@1.0.0(acorn@8.14.0):
+  recma-jsx@1.0.0(acorn@8.14.1):
     dependencies:
-      acorn-jsx: 5.3.2(acorn@8.14.0)
+      acorn-jsx: 5.3.2(acorn@8.14.1)
       estree-util-to-js: 2.0.0
       recma-parse: 1.0.0
       recma-stringify: 1.0.0
@@ -10654,19 +10582,6 @@ snapshots:
       '@kitql/helpers': 0.8.12
       micromatch: 4.0.8
 
-  vite@6.2.1(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0):
-    dependencies:
-      esbuild: 0.25.1
-      postcss: 8.5.3
-      rollup: 4.30.1
-    optionalDependencies:
-      '@types/node': 22.5.1
-      fsevents: 2.3.3
-      jiti: 1.21.6
-      terser: 5.31.1
-      tsx: 4.17.0
-      yaml: 2.7.0
-
   vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0):
     dependencies:
       esbuild: 0.25.1
@@ -10679,10 +10594,6 @@ snapshots:
       terser: 5.31.1
       tsx: 4.17.0
       yaml: 2.7.0
-
-  vitefu@1.0.6(vite@6.2.1(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)):
-    optionalDependencies:
-      vite: 6.2.1(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)
 
   vitefu@1.0.6(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)):
     optionalDependencies:

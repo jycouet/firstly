@@ -33,12 +33,14 @@
     "//// ---- THE END ---- ////": ""
   },
   "peerDependencies": {
-    "@sveltejs/kit": ">=1.0.0 <3.0.0",
     "remult": ">=2.7.32",
     "svelte": ">=5"
   },
   "peerDependenciesMeta": {
     "@sveltejs/kit": {
+      "optional": true
+    },
+    "remult": {
       "optional": true
     },
     "svelte": {
@@ -48,7 +50,6 @@
   "devDependencies": {
     "@kitql/helpers": "catalog:kitql",
     "@sveltejs/adapter-node": "catalog:sveltekit",
-    "@sveltejs/kit": "catalog:sveltekit",
     "@sveltejs/package": "catalog:sveltekit",
     "@sveltejs/vite-plugin-svelte": "catalog:sveltekit",
     "autoprefixer": "catalog:ui",
@@ -69,6 +70,7 @@
     "@oslojs/crypto": "catalog:prod",
     "@oslojs/encoding": "catalog:prod",
     "@oslojs/otp": "catalog:prod",
+    "@sveltejs/kit": "catalog:sveltekit",
     "@types/nodemailer": "catalog:prod",
     "arctic": "catalog:prod",
     "bcryptjs": "catalog:prod",
@@ -76,9 +78,9 @@
     "cron": "catalog:prod",
     "daisyui": "catalog:ui",
     "esm-env": "catalog:tooling",
-    "mjml": "4.15.3",
+    "mjml": "catalog:prod",
     "nodemailer": "catalog:prod",
-    "sailkit": "0.2.2",
+    "sailkit": "catalog:prod",
     "tailwind-merge": "catalog:ui",
     "tailwindcss": "catalog:ui",
     "vite": "catalog:tooling",
