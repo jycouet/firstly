@@ -34,7 +34,7 @@
 	const links = [
 		{ path: route('/'), text: 'Home' },
 		{ path: route('/auth'), text: 'Manual Auth' },
-		// { path: route('/mail'), text: 'Mail' },
+		{ path: route('/mail'), text: 'Mail' },
 		{ path: route('/ui/dialog'), text: 'UI / Dialog' },
 		{ path: route('/ui/enum'), text: 'UI / Enum' },
 		{ path: route('/ui/fieldGroup'), text: 'UI / FieldGroup' },
