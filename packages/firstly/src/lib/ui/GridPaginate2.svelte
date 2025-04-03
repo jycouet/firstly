@@ -17,7 +17,7 @@
 			<Loading class="mx-2 h-4 w-1/2"></Loading>
 			<Loading class="mx-2 h-3 w-1/6"></Loading>
 		{:else}
-			<span class="text-primary justify-end px-2 font-bold">
+			<span class="justify-end px-2 font-bold text-primary">
 				{totalCount}
 			</span>
 		{/if}

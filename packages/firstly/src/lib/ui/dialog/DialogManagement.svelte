@@ -71,10 +71,10 @@
 				<p>Hey 🫵 developer, you are missing a few things 🤡!</p>
 				<p>Or use use one of the custom built in dialog like</p>
 
-				<pre class="bg-base-300 mt-2 p-2 text-xs">await dialog.confirmDelete('The Car')</pre>
+				<pre class="mt-2 bg-base-300 p-2 text-xs">await dialog.confirmDelete('The Car')</pre>
 
 				<p>Or pass you own component</p>
-				<pre class="bg-base-300 mt-2 p-2 text-xs">{`await dialog.show({
+				<pre class="mt-2 bg-base-300 p-2 text-xs">{`await dialog.show({
   detail: { caption: 'Interlocuteur' },
   component: CreateCarForm,
   props: { isEdit: false },

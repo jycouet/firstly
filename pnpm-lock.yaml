@@ -166,14 +166,6 @@ catalogs:
       specifier: 3.4.4
       version: 3.4.4
 
-patchedDependencies:
-  '@melt-ui/svelte@0.86.3':
-    hash: 58c0728ce4d4ab5c745fdea92197d9b9e17284cb1b0170aaf800d21a3b83f05b
-    path: patches/@melt-ui__svelte@0.86.3.patch
-  svelty-email@0.0.11:
-    hash: 2e83214e4eba195fe1adb809a0207a613334a432a826a88db7da2b5c04b50cfe
-    path: patches/svelty-email@0.0.11.patch
-
 importers:
 
   .:
@@ -239,7 +231,7 @@ importers:
         version: 7.4.47
       '@melt-ui/svelte':
         specifier: catalog:ui
-        version: 0.86.3(patch_hash=58c0728ce4d4ab5c745fdea92197d9b9e17284cb1b0170aaf800d21a3b83f05b)(svelte@5.25.6)
+        version: 0.86.3(svelte@5.25.6)
       '@oslojs/crypto':
         specifier: catalog:prod
         version: 1.0.1
@@ -278,7 +270,7 @@ importers:
         version: 2.7.32
       svelty-email:
         specifier: catalog:prod
-        version: 0.0.11(patch_hash=2e83214e4eba195fe1adb809a0207a613334a432a826a88db7da2b5c04b50cfe)(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))
+        version: 0.0.11(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))
       tailwind-merge:
         specifier: catalog:ui
         version: 2.6.0
@@ -5794,7 +5786,7 @@ snapshots:
       - acorn
       - supports-color
 
-  '@melt-ui/svelte@0.86.3(patch_hash=58c0728ce4d4ab5c745fdea92197d9b9e17284cb1b0170aaf800d21a3b83f05b)(svelte@5.25.6)':
+  '@melt-ui/svelte@0.86.3(svelte@5.25.6)':
     dependencies:
       '@floating-ui/core': 1.6.3
       '@floating-ui/dom': 1.6.6
@@ -9689,7 +9681,7 @@ snapshots:
       magic-string: 0.30.17
       zimmerframe: 1.1.2
 
-  svelty-email@0.0.11(patch_hash=2e83214e4eba195fe1adb809a0207a613334a432a826a88db7da2b5c04b50cfe)(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))):
+  svelty-email@0.0.11(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))):
     dependencies:
       '@sveltejs/kit': 2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.25.6)(vite@6.2.2(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))
       html-to-text: 9.0.5

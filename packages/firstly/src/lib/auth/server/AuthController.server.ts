@@ -299,8 +299,13 @@ export class AuthControllerServer {
 
 				const user = await repo(oSafe.User).findId(existingAccount.userId)
 
+				if (!user) {
+					authModuleRaw.log.error('User not found for this arround:', existingAccount)
+					throw new EntityError({ message: 'User not found, please contact support.' })
+				}
+
 				return {
-					message: 'ok',
+					message: 'Signing in progress...',
 					user: oSafe.transformDbUserToClientUser(session, user!),
 				} satisfies AuthResponse
 			}

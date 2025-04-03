@@ -19,10 +19,10 @@ export class FFAuthUser {
 	@Fields.cuid()
 	id!: string
 
-	@Fields.createdAt()
+	@Fields.createdAt({ includeInApi: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin] })
 	createdAt!: Date
 
-	@Fields.updatedAt()
+	@Fields.updatedAt({ includeInApi: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin] })
 	updatedAt?: Date
 
 	@Fields.string<FFAuthUser>({

@@ -205,21 +205,21 @@
 
 {#if $open}
 	<ul
-		class="border-base-content/20 z-50 flex max-h-[300px] flex-col overflow-hidden rounded-lg border"
+		class="z-50 flex max-h-[300px] flex-col overflow-hidden rounded-lg border border-base-content/20"
 		{...$menu}
 		use:$menu.action
 		transition:fly={{ duration: 150, y: -5 }}
 	>
 		<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-		<div class="bg-base-100 flex max-h-full flex-col gap-0 overflow-y-auto py-2" tabindex="0">
+		<div class="flex max-h-full flex-col gap-0 overflow-y-auto bg-base-100 py-2" tabindex="0">
 			{#each filteredItems as item, index (index)}
 				<li
 					{...$option(toOption(item))}
 					use:$option.action
-					class="data-[highlighted]:bg-primary data-[highlighted]:text-primary-content relative flex cursor-pointer scroll-my-2 items-center
-          rounded-md
-          px-1
+					class="relative flex cursor-pointer scroll-my-2 items-center rounded-md px-1
           py-2
+          data-[highlighted]:bg-primary
+          data-[highlighted]:text-primary-content
 					data-[disabled]:opacity-50"
 				>
 					{#if isChecked($localSelected, item)}
@@ -245,7 +245,7 @@
 			{/each}
 		</div>
 		{#if totalCount}
-			<div class="bg-base-300 z-50 text-center text-xs">
+			<div class="z-50 bg-base-300 text-center text-xs">
 				{#if items.length < totalCount}
 					({items.length} / {totalCount})
 				{:else}

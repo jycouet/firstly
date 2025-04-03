@@ -301,7 +301,7 @@
 				{...common(cell.field)}
 				autocomplete="off"
 				class={tw(
-					`join-item placeholder:text-base-content/30 w-full bg-transparent`,
+					`join-item w-full bg-transparent placeholder:text-base-content/30`,
 					metaType.subKind === 'number' && 'text-end',
 				)}
 				type={metaType.subKind.replaceAll('dateOnly', 'date')}
@@ -328,6 +328,6 @@
 		/>
 	{:else}
 		<!-- This shoud NEVER be displayed -->
-		<span class="text-error flex items-center pl-2">Type "{cell.field?.inputType}" not managed!</span>
+		<span class="flex items-center pl-2 text-error">Type "{cell.field?.inputType}" not managed!</span>
 	{/if}
 </FieldContainer>

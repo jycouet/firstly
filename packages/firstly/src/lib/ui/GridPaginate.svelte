@@ -34,7 +34,7 @@
 			<Loading class="mx-2 h-4 w-1/2"></Loading>
 			<Loading class="mx-2 h-3 w-1/6"></Loading>
 		{:else if !needPaginate}
-			<span class="text-primary justify-end px-2 font-bold">
+			<span class="justify-end px-2 font-bold text-primary">
 				{totalCount}
 			</span>
 		{:else}
@@ -48,7 +48,7 @@
 				</button>
 				{#if isValidValue}
 					<button aria-label="current" class="btn join-item px-0">
-						<span class="text-primary font-bold">{totalCount}</span>
+						<span class="font-bold text-primary">{totalCount}</span>
 						<span class="text-[0.55rem] italic"
 							>({pageDisplayed} / {Math.ceil((totalCount ?? 0) / pageSize)})</span
 						>

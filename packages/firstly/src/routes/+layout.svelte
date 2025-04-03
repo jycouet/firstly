@@ -113,7 +113,7 @@
 <DialogManagement />
 
 <FF_Config theme={currentTheme} {dynamicCustomField}>
-	<div class="drawer bg-base-200 lg:drawer-open min-h-screen">
+	<div class="drawer min-h-screen bg-base-200 lg:drawer-open">
 		<input id="my-drawer" type="checkbox" class="drawer-toggle" />
 		<!-- content -->
 		<main class="drawer-content">
@@ -140,7 +140,7 @@
 								<svg data-src="https://unpkg.com/heroicons/20/solid/bell.svg" class="h-5 w-5"></svg>
 							</div>
 						</div>
-						<ul class="menu dropdown-content rounded-box bg-base-100 mt-3 w-80 p-2 shadow-2xl">
+						<ul class="menu dropdown-content mt-3 w-80 rounded-box bg-base-100 p-2 shadow-2xl">
 							<li>
 								<a href="/" class="gap-4">
 									<div class="avatar">
@@ -213,7 +213,7 @@
 								</div>
 							{/if}
 						</div>
-						<ul class="menu dropdown-content rounded-box bg-base-100 mt-3 w-52 p-2 shadow-2xl">
+						<ul class="menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow-2xl">
 							<li>
 								<a href={route('/auth')}>Auth</a>
 							</li>
@@ -306,7 +306,7 @@
 		<aside class="drawer-side z-10">
 			<label for="my-drawer" class="drawer-overlay"></label>
 			<!-- sidebar menu -->
-			<nav class="bg-base-100 flex min-h-screen w-72 flex-col gap-2 overflow-y-auto px-6 py-10">
+			<nav class="flex min-h-screen w-72 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
 				<div class="mx-4 flex items-center gap-2 font-black">
 					<svg
 						width="32"

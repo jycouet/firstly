@@ -36,7 +36,7 @@
 
 			<div>
 				{#if $store.globalError}
-					<span class="text-error text-xs">{$store.globalError}</span>
+					<span class="text-xs text-error">{$store.globalError}</span>
 				{/if}
 			</div>
 		</div>
@@ -50,7 +50,7 @@
 	{#if type === 'insert'}
 		<div>
 			{#if $store.globalError}
-				<span class="text-error text-xs">{$store.globalError}</span>
+				<span class="text-xs text-error">{$store.globalError}</span>
 			{/if}
 		</div>
 

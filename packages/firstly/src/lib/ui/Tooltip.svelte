@@ -31,7 +31,7 @@
 		{...$content}
 		use:content
 		transition:fade={{ duration: 100 }}
-		class="bg-base-300 z-30 rounded-lg ring-1 ring-black"
+		class="z-30 rounded-lg bg-base-300 ring-1 ring-black"
 	>
 		<div {...$arrow} use:arrow></div>
 		<div class="px-4 py-1">

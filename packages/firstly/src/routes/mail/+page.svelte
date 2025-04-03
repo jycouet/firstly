@@ -2,7 +2,7 @@
 	import DefaultMail from '$lib/mail/templates/DefaultMail.svelte'
 </script>
 
-<div class="border-primary border">
+<div class="border border-primary">
 	<DefaultMail
 		title="firstly 👋"
 		previewText="This is the mail you were waiting for"
