@@ -382,12 +382,15 @@ export class AuthControllerServer {
 
 				authModuleRaw.log.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
 				return {
-					message: `Demo | ${oSafe.strings.resetPasswordSend}`,
+					message: `${oSafe.strings.resetPasswordSend} (DEMO)`,
 					user: remult.user,
 				}
 			}
 		}
-		throw new EntityError({ message: oSafe.strings.anErrorOccurred })
+		return {
+			message: oSafe.strings.resetPasswordUnknownUser,
+			user: remult.user,
+		}
 	}
 
 	/**

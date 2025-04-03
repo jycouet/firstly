@@ -1,0 +1,1 @@
+import{D as r,E as l,ak as o,S as m,T as p,U as u,V as d,W as f,Y as g}from"./index-LRDptjak.js";d();a[f]="src/lib/modules/storage/Page.svelte";function a(e,s){r(new.target),l(s,!1,a);var t=o("Hello from files");return m(e,t),p({...u()})}g(a);export{a as default};

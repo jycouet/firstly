@@ -4,7 +4,6 @@ packages:
 
 patchedDependencies:
  '@melt-ui/svelte@0.86.3': patches/@melt-ui__svelte@0.86.3.patch
- svelty-email@0.0.11: patches/svelty-email@0.0.11.patch
 
 catalogs:
  docs:
@@ -71,8 +70,7 @@ catalogs:
   arctic: 3.6.0
   bcryptjs: 3.0.2
   cron: 4.1.0
-  svelty-email: 0.0.11
   '@layerstack/utils': 1.0.0
-
-catalog:
- '@layerstack/svelte-actions': 1.0.0
+  '@layerstack/svelte-actions': 1.0.0
+  mjml: 4.15.3
+  sailkit: 0.2.2

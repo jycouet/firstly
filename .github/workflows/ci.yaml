@@ -35,21 +35,20 @@ jobs:
       pnpmVersion: 10.5.2
       withCaching: false
 
-   - name: 🧑‍💻 Install playwright
-     run: npx playwright install
-
-     # we need to build before linting as Houdini is generating some types
-   - name: 🚀 compile firstly
-     run: pnpm -F firstly compile
-
    - name: 🧹 lint
      run: pnpm -r lint
+
+   - name: 🚀 compile firstly
+     run: pnpm -F firstly compile
 
    - name: 💪 ts
      run: pnpm -r check
 
    - name: 🕹️ test:unit
      run: pnpm -r test:unit:ci
+
+   - name: 🧑‍💻 Install playwright
+     run: npx playwright install
 
    - name: 🎢 test:e2e
      run: pnpm -r test:e2e

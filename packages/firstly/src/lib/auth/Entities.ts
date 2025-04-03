@@ -26,7 +26,7 @@ export class FFAuthUser {
 	updatedAt?: Date
 
 	@Fields.string<FFAuthUser>({
-		allowApiUpdate: false,
+		includeInApi: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
 		validate: [
 			Validators.unique(),
 			Validators.required(),
@@ -38,6 +38,7 @@ export class FFAuthUser {
 	identifier!: string
 
 	@Fields.json<FFAuthUser, string[]>(() => [], {
+		includeInApi: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
 		inputType: 'selectEnum',
 		valueConverter: {
 			toDb: (x) => (x ? x.join(',') : []),

@@ -7,9 +7,8 @@ import type SESTransport from 'nodemailer/lib/ses-transport'
 import type SMTPPool from 'nodemailer/lib/smtp-pool'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import type StreamTransport from 'nodemailer/lib/stream-transport'
-import type { ComponentProps, ComponentType, SvelteComponent } from 'svelte'
-import { asClassComponent } from 'svelte/legacy'
-import { render } from 'svelty-email'
+import { renderEmail } from 'sailkit'
+import type { Component, ComponentProps, ComponentType, SvelteComponent } from 'svelte'
 
 import { remult } from 'remult'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
@@ -90,11 +89,13 @@ declare module 'remult' {
 
 export type SendMail = typeof sendMail
 
-export const sendMail: <ComponentTemplateDefault extends SvelteComponent = DefaultMail>(
+// SvelteComponent = DefaultMail to improve typing ?
+export const sendMail: <ComponentTemplateDefault extends Component>(
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,
 	mailOptions: Parameters<typeof transporter.sendMail>[0] & {
-		templateProps?: ComponentProps<ComponentTemplateDefault> | undefined
+		template?: ComponentTemplateDefault
+		templateProps?: ComponentProps<ComponentTemplateDefault>
 	},
 ) => ReturnType<typeof transporter.sendMail> = async (topic, mailOptions) => {
 	// if the transporter is not ready, wait for it! (it can happen only if nothing is set...)
@@ -106,14 +107,15 @@ export const sendMail: <ComponentTemplateDefault extends SvelteComponent = Defau
 	}
 	try {
 		if (!mailOptions.html) {
-			const template = asClassComponent(globalOptions?.template?.component ?? (DefaultMail as any))
-			const props = {
-				brandColor: globalOptions?.template?.brandColor ?? '#5B68DF',
+			const templateProps = {
+				subject: mailOptions.subject,
 				...mailOptions.templateProps,
 			}
+			// @ts-ignore
+			const { html, plainText } = await renderEmail(mailOptions.template ?? DefaultMail, templateProps)
 
-			mailOptions.text = render({ template, props, options: { plainText: true, pretty: true } })
-			mailOptions.html = render({ template, props, options: { plainText: false, pretty: true } })
+			mailOptions.text = plainText
+			mailOptions.html = html
 		}
 
 		const info = await transporter.sendMail({

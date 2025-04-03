@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { auth } from '$lib/auth/server'
-
 import { Module, modulesFlatAndOrdered } from '.'
+import { auth } from '../auth/server'
 
 describe('api', () => {
 	it('flatten modules', () => {

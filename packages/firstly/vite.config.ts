@@ -18,6 +18,15 @@ const config = defineConfig(({ mode }) => {
 			host: env.HOST ?? '127.0.0.1',
 			port: parseInt(env.PORT ?? '3132'),
 		},
+		build: {
+			rollupOptions: {
+				output: {
+					manualChunks: (id) => {
+						if (id.includes('src/lib')) return 'firstly'
+					},
+				},
+			},
+		},
 		plugins: [
 			firstly<KIT_ROUTES>({
 				kitRoutes: {

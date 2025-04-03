@@ -9,10 +9,9 @@ import { getRelativePackagePath } from '@kitql/internals'
 import { building } from '$app/environment'
 
 import { AuthController } from '..'
-import { FF_Role } from '../..'
 import { Module } from '../../server'
 import type { RecursivePartial } from '../../utils/types'
-import { FF_Role_Auth, FFAuthAccount, FFAuthUser, FFAuthUserSession } from '../Entities'
+import { FFAuthAccount, FFAuthUser, FFAuthUserSession } from '../Entities'
 import type {
 	FirstlyData,
 	FirstlyDataAuth,
@@ -22,7 +21,6 @@ import type {
 import { AuthControllerServer } from './AuthController.server'
 import { validateSessionToken } from './helperDb'
 import { setSessionTokenCookie } from './helperRemultServer'
-import { initRoleFromEnv } from './helperRole'
 
 // TODO revalidate token?
 export type FFOAuth2Provider<T = any, LitName extends string = string> = {
@@ -50,6 +48,7 @@ type AuthOptions<
 
 	strings?: {
 		resetPasswordSend?: string
+		resetPasswordUnknownUser?: string
 		anErrorOccurred?: string
 		cannotSignUp?: string
 	}
@@ -85,6 +84,25 @@ type AuthOptions<
 
 	invitationSend?: (args: { email: string; url: string }) => Promise<void>
 
+	/**
+	 * When defining this, you need to return a "manually constructed object" that will be used to send to the client.
+	 * This is useful if you want to add some extra properties to the user object.
+	 *
+	 * @example
+	 * ```ts
+	 * transformDbUserToClientUser(session, user) {
+	 * 	return {
+	 * 		id: user.id,
+	 * 		name: user.name,
+	 * 		image: user.image ?? undefined,
+	 * 		session: {
+	 * 			id: session.id,
+	 * 			expiresAt: session.expiresAt,
+	 * 		},
+	 * 	}
+	 * }
+	 * ```
+	 */
 	transformDbUserToClientUser?: (session: TSessionEntity, user: TUserEntity) => UserInfo
 
 	providers?: {
@@ -342,6 +360,9 @@ export const getSafeOptions = <
 		strings: {
 			resetPasswordSend:
 				AUTH_OPTIONS.strings?.resetPasswordSend ?? 'Mail sent ! You can now close this window.',
+			resetPasswordUnknownUser:
+				AUTH_OPTIONS.strings?.resetPasswordUnknownUser ??
+				'If your email is registered, you will receive an email with a link to reset your password.',
 			anErrorOccurred:
 				AUTH_OPTIONS.strings?.anErrorOccurred ?? 'An error occurred, contact the administrator.',
 			cannotSignUp:
@@ -409,18 +430,18 @@ export const auth = <
 		}
 	}
 	authModuleRaw.initApi = async () => {
-		await initRoleFromEnv(authModuleRaw.log, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.FF_Role_Admin)
-		await initRoleFromEnv(
-			authModuleRaw.log,
-			oSafe.User,
-			'FF_ROLE_AUTH_ADMIN',
-			FF_Role_Auth.FF_Role_Auth_Admin,
-		)
+		// await initRoleFromEnv(authModuleRaw.log, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.FF_Role_Admin)
+		// await initRoleFromEnv(
+		// 	authModuleRaw.log,
+		// 	oSafe.User,
+		// 	'FF_ROLE_AUTH_ADMIN',
+		// 	FF_Role_Auth.FF_Role_Auth_Admin,
+		// )
 	}
 	return authModuleRaw
 }
 
-export { initRoleFromEnv }
+// export { initRoleFromEnv }
 
 declare module 'remult' {
 	export interface UserInfo {
