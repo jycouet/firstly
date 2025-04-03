@@ -73,27 +73,27 @@ export function github(options?: {
 		getUserInfo: options?.getUserInfo
 			? options.getUserInfo
 			: async (tokens) => {
-					const res = await fetch('https://api.github.com/user', {
+				const res = await fetch('https://api.github.com/user', {
+					headers: {
+						Authorization: `Bearer ${tokens.accessToken()}`,
+					},
+				})
+				const user = await res.json()
+
+				if ((options?.authorizationURLOptions ?? []).includes('user:email')) {
+					const res = await fetch('https://api.github.com/user/emails', {
 						headers: {
 							Authorization: `Bearer ${tokens.accessToken()}`,
 						},
 					})
-					const user = await res.json()
+					user.emails = await res.json()
+				}
 
-					if ((options?.authorizationURLOptions ?? []).includes('user:email')) {
-						const res = await fetch('https://api.github.com/user/emails', {
-							headers: {
-								Authorization: `Bearer ${tokens.accessToken()}`,
-							},
-						})
-						user.emails = await res.json()
-					}
+				if (options?.log) {
+					authModuleRaw.log.info(`user`, user)
+				}
 
-					if (options?.log) {
-						authModuleRaw.log.info(`user`, user)
-					}
-
-					return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
-				},
+				return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
+			},
 	}
 }

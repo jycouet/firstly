@@ -169,6 +169,7 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 			event.cookies.delete(`code_verifier`, { path: '/' })
 		}
 
+		console.log("coucou")
 		redirect(302, redirectUrl)
 	}
 

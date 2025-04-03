@@ -1,86 +1,85 @@
 <script lang="ts">
-	import { Button, Container, Head, Heading, Html, Preview, Section, Text } from 'svelty-email'
+	import { Body, Button, Column, Head, Html, Section, Text } from 'sailkit'
 
-	export let previewText: string | undefined
-	export let title: string | undefined
-	export let sections: {
-		text: string
-		highlighted?: boolean
-		cta?: { text: string; link: string } | undefined
-	}[] = []
-	export let brandColor = '#5B68DF'
+	interface Props {
+		primaryColor?: string
+		secondaryColor?: string
 
-	const fontFamily =
-		'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif'
+		subject: string
+		preview: string
 
-	const main = {
-		backgroundColor: '#ffffff',
+		title: string
+
+		sections: {
+			text: string
+			cta?: { text: string; link: string } | undefined
+		}[]
 	}
 
-	const container = {
-		margin: '0 auto',
-		padding: '20px 0 48px',
-		width: '580px',
-	}
+	const {
+		primaryColor = '#5B68DF',
+		secondaryColor = '#ecedee',
 
-	// const userImage = {
-	//   margin: '0 auto',
-	//   marginBottom: '16px',
-	//   borderRadius: '50%',
-	// }
-
-	const heading = {
-		fontFamily,
-		fontSize: '32px',
-		lineHeight: '1.3',
-		fontWeight: '700',
-		color: '#484848',
-	}
-
-	const paragraph = {
-		fontFamily,
-		fontSize: '18px',
-		lineHeight: '1.4',
-		color: '#484848',
-	}
-
-	const highlighted = {
-		...paragraph,
-		padding: '24px',
-		backgroundColor: '#f2f3f3',
-		borderRadius: '4px',
-	}
-
-	const button = {
-		fontFamily,
-		backgroundColor: brandColor,
-		borderRadius: '5px',
-		color: '#fff',
-		fontSize: '18px',
-		textDecoration: 'none',
-		textAlign: 'center' as const,
-		display: 'block',
-		width: '100%',
-	}
+		subject = 'Welcome',
+		preview = 'Firstly, Hello!',
+		title,
+		sections,
+	}: Props = $props()
 </script>
 
 <Html>
-	<Head />
-	<Preview preview={previewText ?? title + '...'} />
-	<Section style={main}>
-		<Container style={container}>
-			{#if title}
-				<Heading style={heading}>{title}</Heading>
-			{/if}
+	<Head {subject} {preview} styles={{}} />
+	<Body backgroundColor="#ffffff">
+		<Section padding="0px">
+			<Column>
+				<Column.Spacer />
+			</Column>
+		</Section>
 
-			{#each sections as s}
-				<Text style={s.highlighted ? highlighted : paragraph}>
-					{s.text}
+		<Section backgroundColor={primaryColor} paddingBottom="0px" paddingTop="0px" borderRadius="10px">
+			<Column verticalAlign="top" width="100%">
+				<Text
+					align="left"
+					color="#ffffff"
+					fontSize="30px"
+					fontWeight="bold"
+					fontFamily="open Sans Helvetica, Arial, sans-serif"
+					paddingLeft="25px"
+					paddingRight="25px"
+					paddingBottom="30px"
+					paddingTop="30px"
+				>
+					{title}
 				</Text>
-				{#if s.cta}
-					<Button pY={19} style={button} href={s.cta.link}>{s.cta.text}</Button>
-				{/if}
-			{/each}
-		</Container>
-	</Section>
+			</Column>
+		</Section>
+
+		<Section padding="0px">
+			<Column>
+				<Column.Spacer />
+			</Column>
+		</Section>
+
+		{#each sections as section}
+			<Section backgroundColor={section.cta ? secondaryColor : ''} borderRadius="10px">
+				<Column verticalAlign="middle" width="100%">
+					<Text align="left" color="#000000">
+						{section.text}
+					</Text>
+
+					{#if section.cta}
+						<Button backgroundColor={primaryColor} borderRadius="5px" href={section.cta.link}>
+							{section.cta.text}</Button
+						>
+					{/if}
+				</Column>
+			</Section>
+
+			<Section padding="0px">
+				<Column>
+					<Column.Spacer />
+				</Column>
+			</Section>
+		{/each}
+	</Body>
 </Html>

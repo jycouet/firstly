@@ -1,20 +1,17 @@
-<script>
-	import DefaultMail from '$lib/mail/templates/DefaultMail.svelte'
+<script lang="ts">
+	let { data } = $props()
 </script>
 
-<div class="border border-primary">
-	<DefaultMail
-		title="firstly 👋"
-		previewText="This is the mail you were waiting for"
-		sections={[
-			{
-				text: 'Then, How are you today ?',
-				highlighted: true,
-			},
-			{
-				text: 'Did you star the repo ?',
-				cta: { text: 'Check it out', link: 'https:github.com/jycouet/firstly' },
-			},
-		]}
-	></DefaultMail>
-</div>
+<section>
+	<h2 class="text-2xl font-bold">HTML</h2>
+	<div class="border border-primary">
+		{@html data.html}
+	</div>
+</section>
+
+<section class="mt-4">
+	<h2 class="text-2xl font-bold">PLAIN TEXT</h2>
+	<div class="border border-primary">
+		<p>{data.plainText}</p>
+	</div>
+</section>

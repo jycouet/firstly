@@ -8,37 +8,27 @@
 
 	let { firstlyDataAuth }: Props = $props()
 
-	let providers: { name: string; label: string; url: string; raw_svg?: string }[] = $state([])
-
-	$effect(() => {
-		Promise.all(
-			(firstlyDataAuth?.providers ?? []).map(async (provider) => {
-				return {
-					...provider,
-					url: await AuthController.signInOAuthGetUrl({
-						provider: provider.name,
-						redirect: new URL(window.location.href).searchParams.get('redirect') ?? '/',
-					}),
-				}
-			}),
-		).then((results) => {
-			providers = results
+	const click = async (name: string) => {
+		const url = await AuthController.signInOAuthGetUrl({
+			provider: name,
+			redirect: new URL(window.location.href).searchParams.get('redirect') ?? '/',
 		})
-	})
+		window.location.href = url
+	}
 </script>
 
-{#if providers.length !== 0}
+{#if firstlyDataAuth?.providers ?? [].length !== 0}
 	<hr style="margin: 1rem" />
 	<div class="oauth-container">
-		{#each providers as provider (provider.name)}
-			<a href={provider.url} class="oauth-button">
+		{#each firstlyDataAuth?.providers ?? [] as provider (provider.name)}
+			<button onclick={() => click(provider.name)} class="oauth-button">
 				{#if provider.raw_svg}
 					<div class="oauth-button-icon">
 						{@html provider.raw_svg}
 					</div>
 				{/if}
 				<span>{provider.label}</span>
-			</a>
+			</button>
 		{/each}
 	</div>
 {/if}
