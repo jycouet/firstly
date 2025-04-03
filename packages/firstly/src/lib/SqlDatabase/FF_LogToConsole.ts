@@ -1,7 +1,18 @@
 import { SqlDatabase } from 'remult'
 import { bgCyan, cyan, green, Log, magenta, yellow } from '@kitql/helpers'
 
-type TypeQuery = 'INSERT' | 'SELECT' | 'SELECT_COUNT' | 'UPDATE' | 'DELETE' | 'CREATE' | 'ALTER' | 'DROP' | 'TRUNCATE' | 'GRANT' | 'REVOKE'
+type TypeQuery =
+	| 'INSERT'
+	| 'SELECT'
+	| 'SELECT_COUNT'
+	| 'UPDATE'
+	| 'DELETE'
+	| 'CREATE'
+	| 'ALTER'
+	| 'DROP'
+	| 'TRUNCATE'
+	| 'GRANT'
+	| 'REVOKE'
 const typeQuery = new Map<TypeQuery, string>([
 	// CRUD
 	['INSERT', '⚪'], // Used to insert new data into a database.
@@ -55,7 +66,7 @@ export const FF_LogToConsole = (
 	const s = rawSql.split(' ')
 
 	let first = s[0].toUpperCase() as TypeQuery
-	if (s.length > 1 && s[1].toLowerCase() === ('count(*)')) {
+	if (s.length > 1 && s[1].toLowerCase() === 'count(*)') {
 		first = 'SELECT_COUNT'
 	}
 

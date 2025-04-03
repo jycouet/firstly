@@ -1,4 +1,5 @@
 import { renderEmail } from 'sailkit'
+
 import DefaultMail from '$lib/mail/templates/DefaultMail.svelte'
 
 export const load = async () => {
@@ -14,11 +15,11 @@ export const load = async () => {
 				text: 'Did you star the repo ?',
 				cta: { text: 'Check it out', link: 'https:github.com/jycouet/firstly' },
 			},
-		]
+		],
 	})
 
 	return {
 		html,
-		plainText
+		plainText,
 	}
 }

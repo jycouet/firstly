@@ -7,6 +7,7 @@ import type SESTransport from 'nodemailer/lib/ses-transport'
 import type SMTPPool from 'nodemailer/lib/smtp-pool'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import type StreamTransport from 'nodemailer/lib/stream-transport'
+import { renderEmail } from 'sailkit'
 import type { Component, ComponentProps, ComponentType, SvelteComponent } from 'svelte'
 
 import { remult } from 'remult'
@@ -14,7 +15,6 @@ import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
 import { Module } from '../../server'
 import { default as DefaultMail } from '../templates/DefaultMail.svelte'
-import { renderEmail } from 'sailkit'
 
 export type TransportTypes =
 	| SMTPTransport
@@ -94,7 +94,7 @@ export const sendMail: <ComponentTemplateDefault extends Component>(
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,
 	mailOptions: Parameters<typeof transporter.sendMail>[0] & {
-		template?: ComponentTemplateDefault,
+		template?: ComponentTemplateDefault
 		templateProps?: ComponentProps<ComponentTemplateDefault>
 	},
 ) => ReturnType<typeof transporter.sendMail> = async (topic, mailOptions) => {
@@ -109,7 +109,7 @@ export const sendMail: <ComponentTemplateDefault extends Component>(
 		if (!mailOptions.html) {
 			const templateProps = {
 				subject: mailOptions.subject,
-				...mailOptions.templateProps
+				...mailOptions.templateProps,
 			}
 			// @ts-ignore
 			const { html, plainText } = await renderEmail(mailOptions.template ?? DefaultMail, templateProps)
@@ -126,13 +126,13 @@ export const sendMail: <ComponentTemplateDefault extends Component>(
 			mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
                  We are still nice and generated you an email preview link: 
                  👉 ${cyan(
-				String(
-					nodemailer.getTestMessageUrl(
-						// @ts-ignore
-						info,
-					),
-				),
-			)}
+																		String(
+																			nodemailer.getTestMessageUrl(
+																				// @ts-ignore
+																				info,
+																			),
+																		),
+																	)}
 
                  To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
       `)
