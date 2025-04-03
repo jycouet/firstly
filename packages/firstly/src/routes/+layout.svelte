@@ -13,14 +13,14 @@
 	import { createSubscriber } from 'svelte/reactivity'
 
 	import { Remult } from 'remult'
+	import { daisyTheme, defaultTheme, emptyTheme, FF_Config } from 'firstly/svelte'
+	import type { DynamicCustomField, Theme } from 'firstly/svelte'
 
 	import EditCustom from '$modules/task/ui/EditCustom.svelte'
 	import Title from '$modules/task/ui/Title.svelte'
 	import { _AppUser } from '$modules/user/AppUser'
 	import { AuthController } from '$lib/auth'
 
-	import { daisyTheme, defaultTheme, emptyTheme, FF_Config } from 'firstly/svelte'
-	import type { DynamicCustomField, Theme } from 'firstly/svelte'
 	import type { LayoutData } from './$types'
 
 	interface Props {

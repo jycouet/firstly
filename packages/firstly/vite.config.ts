@@ -24,8 +24,8 @@ const config = defineConfig(({ mode }) => {
 					manualChunks: (id) => {
 						if (id.includes('src/lib')) return 'firstly'
 					},
-				}
-			}
+				},
+			},
 		},
 		plugins: [
 			firstly<KIT_ROUTES>({

@@ -25,5 +25,6 @@ packages/firstly/db
 packages/firstly/src/app.html
 packages/firstly/src/lib/auth/static
 packages/firstly/static/favicon.svg
+packages/firstly/src/routes/mail/+page.svelte
 .astro
 .devbox

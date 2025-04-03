@@ -15,7 +15,7 @@ const config = {
 			$modules: './src/modules',
 			$server: './src/server',
 
-			firstly: "./src/lib"
+			firstly: './src/lib',
 		},
 	},
 	compilerOptions: {},
