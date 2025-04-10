@@ -1,7 +1,5 @@
 import { repo, type UserInfo } from 'remult'
-import { nameify } from 'firstly/formats'
 
-import { FFAuthProvider } from '../Entities'
 import { encodeToken } from './helperOslo'
 import { getSafeOptions } from './module'
 
@@ -69,6 +67,5 @@ export async function invalidateSession(sessionId: string) {
 	try {
 		// silent error. If the session is already deleted, it will throw an error
 		await repo(oSafe.Session).delete(sessionId)
-	} catch (error) { }
+	} catch (error) {}
 }
-

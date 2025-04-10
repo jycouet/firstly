@@ -71,7 +71,7 @@ export class AuthControllerServer {
 
 		const oSafe = getSafeOptions()
 
-		let user = await repo(oSafe.User).upsert({ where: { name } })
+		const user = await repo(oSafe.User).upsert({ where: { name } })
 		await repo(oSafe.Account).upsert({
 			where: {
 				provider: FFAuthProvider.DEMO.id,
@@ -456,7 +456,7 @@ export class AuthControllerServer {
 			const uri = createTOTPKeyURI(issuer, email, key, intervalInSeconds, digits)
 			const oSafe = getSafeOptions()
 
-			let account = await repo(oSafe.Account).upsert({
+			const account = await repo(oSafe.Account).upsert({
 				where: {
 					provider: FFAuthProvider.OTP.id,
 					providerUserId: email,

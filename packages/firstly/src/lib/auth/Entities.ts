@@ -27,10 +27,7 @@ export class FFAuthUser {
 
 	@Fields.string<FFAuthUser>({
 		required: true,
-		validate: [
-			Validators.unique(),
-			Validators.required(),
-		],
+		validate: [Validators.unique(), Validators.required()],
 	})
 	name!: string
 
@@ -43,9 +40,9 @@ export class FFAuthUser {
 			fromDb: (x) => {
 				return x
 					? x
-						.split(',')
-						.map((c: string) => c.replace('{', '').replace('}', ''))
-						.filter((c: string) => c !== '')
+							.split(',')
+							.map((c: string) => c.replace('{', '').replace('}', ''))
+							.filter((c: string) => c !== '')
 					: []
 			},
 		},
