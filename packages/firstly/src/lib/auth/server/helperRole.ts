@@ -1,10 +1,9 @@
-// import { repo } from 'remult'
-// import type { ClassType } from 'remult'
-// import { cyan, green, Log, yellow } from '@kitql/helpers'
+import { repo, type ClassType } from 'remult'
+import { nameify } from 'firstly/formats'
+import { cyan, green, yellow } from '@kitql/helpers'
+import type { Log } from '@kitql/helpers'
 
-// import { env } from '$env/dynamic/private'
-
-// import { FFAuthUser } from '../Entities'
+import { FFAuthProvider, type FFAuthAccount, type FFAuthUser } from '../Entities'
 
 /**
  * will merge the roles and remove duplicates
@@ -22,35 +21,46 @@ export const mergeRoles = (existing: string[], newOnes: string[] | undefined) =>
 	return { roles: Array.from(result), changed }
 }
 
-// export const initRoleFromEnv = async (
-// 	log: Log,
-// 	userEntity: ClassType<FFAuthUser>,
-// 	envKey: string,
-// 	role: string,
-// ) => {
-// 	const envValue = envKey ? env[envKey] : ''
-
-// 	const identifiers = envValue === undefined ? [] : (envValue ?? '').split(',').map((c) => c.trim())
-// 	for (let i = 0; i < identifiers.length; i++) {
-// 		const identifier = identifiers[i].trim()
-// 		if (identifier !== '') {
-// 			let user = await repo(userEntity).findFirst({ identifier })
-// 			if (!user) {
-// 				user = repo(userEntity).create({ identifier, roles: [role] })
-// 				await repo(userEntity).save(user)
-// 			} else {
-// 				if (!user.roles.includes(role)) {
-// 					user.roles.push(role)
-// 					await repo(userEntity).save(user)
-// 				}
-// 			}
-// 		}
-// 	}
-// 	if (identifiers.length > 0) {
-// 		log.info(
-// 			`${cyan(envKey)}: ${identifiers.map((c: any) => green(c.trim())).join(', ')} added via ${yellow(`.env`)}.`,
-// 		)
-// 	} else {
-// 		log.info(`${cyan(envKey)}: No users added via ${yellow(`.env`)}.`)
-// 	}
-// }
+export const linkRoleToUsersFromEnv = async (o: {
+	log: Log
+	accountEntity: ClassType<FFAuthAccount>
+	userEntity: ClassType<FFAuthUser>
+	envKey: string
+	envValue: string
+	roles: string[]
+}) => {
+	const { log, accountEntity, userEntity, envKey, envValue, roles } = o
+	const providersInfo =
+		envValue === undefined
+			? []
+			: (envValue ?? '')
+					.split(',')
+					.map((c) => c.trim())
+					.filter(Boolean)
+	for (let i = 0; i < providersInfo.length; i++) {
+		const [providerUserId, provider] = providersInfo[i].split('|')
+		let a = await repo(accountEntity).findFirst({ providerUserId })
+		if (!a) {
+			const user = await repo(userEntity).insert({ roles, name: nameify(providerUserId) })
+			a = await repo(accountEntity).insert({
+				providerUserId,
+				provider: provider ?? FFAuthProvider.PASSWORD.id,
+				userId: user.id,
+			})
+		} else {
+			let user = await repo(userEntity).findFirst({ id: a.userId })
+			if (!user) {
+				user = repo(userEntity).create({ id: a.userId, name: nameify(providerUserId) })
+			}
+			user.roles = [...new Set([...user.roles, ...roles].sort())]
+			await repo(userEntity).save(user)
+		}
+	}
+	if (providersInfo.length > 0) {
+		log.info(
+			`${cyan(envKey)}: ${providersInfo.map((c: any) => green(c.trim())).join(', ')} added via ${yellow(`.env`)}.`,
+		)
+	} else {
+		log.info(`${cyan(envKey)}: No users added via ${yellow(`.env`)}.`)
+	}
+}

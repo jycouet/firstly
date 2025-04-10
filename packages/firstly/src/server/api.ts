@@ -21,6 +21,8 @@ export const api = firstly({
 		}),
 
 		auth({
+			// rolesToInitFromEnv: Role,
+
 			session: {
 				// expiresIn: 1000 * 30,
 				COOKIE_NAME: 'my_fancy_cookie_name',

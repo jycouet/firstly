@@ -3,9 +3,10 @@ import bcrypt from 'bcryptjs'
 
 import { EntityError, remult } from 'remult'
 import type { ClassType, UserInfo } from 'remult'
-import { red } from '@kitql/helpers'
+import { red, yellow } from '@kitql/helpers'
 import { getRelativePackagePath } from '@kitql/internals'
 
+import { env } from '$env/dynamic/private'
 import { building } from '$app/environment'
 
 import { AuthController } from '..'
@@ -21,6 +22,7 @@ import type {
 import { AuthControllerServer } from './AuthController.server'
 import { validateSessionToken } from './helperDb'
 import { setSessionTokenCookie } from './helperRemultServer'
+import { linkRoleToUsersFromEnv } from './helperRole'
 
 // TODO revalidate token?
 export type FFOAuth2Provider<T = any, LitName extends string = string> = {
@@ -169,6 +171,8 @@ type AuthOptions<
 
 		oAuths?: FFOAuth2Provider[]
 	}
+
+	envRoles_AssignUsers?: Record<string, string>
 }
 
 export let AUTH_OPTIONS: AuthOptions = { ui: {} }
@@ -371,6 +375,8 @@ export const getSafeOptions = <
 		},
 
 		ui,
+
+		envRoles_AssignUsers: AUTH_OPTIONS.envRoles_AssignUsers ?? {},
 	}
 }
 
@@ -429,19 +435,29 @@ export const auth = <
 			}
 		}
 	}
+
 	authModuleRaw.initApi = async () => {
-		// await initRoleFromEnv(authModuleRaw.log, oSafe.User, 'FF_ROLE_ADMIN', FF_Role.FF_Role_Admin)
-		// await initRoleFromEnv(
-		// 	authModuleRaw.log,
-		// 	oSafe.User,
-		// 	'FF_ROLE_AUTH_ADMIN',
-		// 	FF_Role_Auth.FF_Role_Auth_Admin,
-		// )
+		const oSafe = getSafeOptions()
+		for (const [key, value] of Object.entries(oSafe.envRoles_AssignUsers)) {
+			await linkRoleToUsersFromEnv({
+				log: authModuleRaw.log,
+				accountEntity: oSafe.Account,
+				userEntity: oSafe.User,
+				envKey: key.toUpperCase(),
+				envValue: env[key.toUpperCase()] ?? '',
+				roles: [value],
+			})
+		}
+
+		if (Object.entries(oSafe.envRoles_AssignUsers).length === 0 && AUTH_OPTIONS.debug) {
+			authModuleRaw.log.info(
+				`set ${yellow('auth: { linkRoleToUsersFromEnv: ... }')} to assign roles to users via ${yellow('.env')}.`,
+			)
+		}
 	}
+
 	return authModuleRaw
 }
-
-// export { initRoleFromEnv }
 
 declare module 'remult' {
 	export interface UserInfo {
