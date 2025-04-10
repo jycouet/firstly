@@ -3,6 +3,7 @@ import { createTOTPKeyURI, generateTOTP, verifyTOTPWithGracePeriod } from '@oslo
 import { generateState } from 'arctic'
 
 import { EntityError, remult, repo } from 'remult'
+import { nameify } from 'firstly/formats/strings.js'
 import { gray, green, magenta, red, yellow } from '@kitql/helpers'
 
 import { FFAuthProvider } from '../Entities.js'
@@ -63,22 +64,27 @@ export class AuthControllerServer {
 			throw new EntityError({ message: `Demo accounts are not enabled!` })
 		}
 
-		const account = accounts.find((a) => a.name === name)
-		if (!account) {
+		const accountConf = accounts.find((a) => a.name === name)
+		if (!accountConf) {
 			throw new EntityError({ message: `${name} not found as demo account!` })
 		}
 
 		const oSafe = getSafeOptions()
-		let user = await repo(oSafe.User).findFirst({ identifier: name })
 
-		if (!user) {
-			user = repo(oSafe.User).create()
+		let user = await repo(oSafe.User).upsert({ where: { name } })
+		await repo(oSafe.Account).upsert({
+			where: {
+				provider: FFAuthProvider.DEMO.id,
+				providerUserId: name,
+				userId: user.id,
+			},
+		})
+
+		const r = mergeRoles(user.roles, accountConf.roles)
+		if (r.changed) {
+			user.roles = r.roles
+			await repo(oSafe.User).save(user)
 		}
-		user.identifier = name
-		const r = mergeRoles(user.roles, account.roles)
-		user.roles = r.roles
-
-		await repo(oSafe.User).save(user)
 
 		const session = await ff_createSession(user.id)
 
@@ -107,18 +113,11 @@ export class AuthControllerServer {
 		} else {
 			const token = generateAndEncodeToken()
 
-			// TODO: Do we create the user or just the account ?!
-			// TODO 2: Invite is by mail... But the invitee can log with another provider... So what do we do?! maybe not checking the provider... and updating?
-			// const user = await repo(oSafe.User).insert({
-			//   identifier: email,
-			// })
-
 			await repo(oSafe.Account).insert({
 				provider: FFAuthProvider.PASSWORD.id,
 				providerUserId: email,
-				// userId: user.id,
-				// hashPassword: await passwordHash(password),
-				token: token,
+				email,
+				token,
 				expiresAt: createDate(AUTH_OPTIONS.providers?.password?.mail?.verify?.expiresIn ?? 5 * 60),
 				lastVerifiedAt: undefined,
 			})
@@ -204,11 +203,12 @@ export class AuthControllerServer {
 		// REMULT: Do not put it in a transaction, as it will be called from a backendmethod that is already in a transaction! And nested transactions not allowed.
 		// await remult.dataProvider.transaction(async () => {
 		const user = await repo(oSafe.User).insert({
-			identifier: email,
+			name: nameify(email),
 		})
 		await repo(oSafe.Account).insert({
 			provider: FFAuthProvider.PASSWORD.id,
 			providerUserId: email,
+			email,
 			userId: user.id,
 			hashPassword: await oSafe.password.hash(password),
 			token: oSafe.verifiedMethod === 'auto' ? undefined : token,
@@ -218,13 +218,9 @@ export class AuthControllerServer {
 					: createDate(AUTH_OPTIONS.providers?.password?.mail?.verify?.expiresIn ?? 5 * 60),
 			lastVerifiedAt: oSafe.verifiedMethod === 'auto' ? new Date() : undefined,
 		})
-
 		// })
 
 		if (oSafe.verifiedMethod === 'auto') {
-			const user = await repo(oSafe.User).findFirst({
-				identifier: email,
-			})
 			if (user) {
 				const session = await ff_createSession(user.id)
 				return {
@@ -310,11 +306,11 @@ export class AuthControllerServer {
 				} satisfies AuthResponse
 			}
 
-			authModuleRaw.log.error({ email, passwordLength: password.length })
+			authModuleRaw.log.error({ email, passwordLengthInfo: password.length })
 			throw new EntityError({ message: 'Incorrect username or password' })
 		}
 
-		authModuleRaw.log.error({ email, passwordLength: password.length })
+		authModuleRaw.log.error({ email, passwordLengthInfo: password.length })
 		throw new EntityError({ message: 'Incorrect username or password.' })
 	}
 
@@ -416,7 +412,7 @@ export class AuthControllerServer {
 		}
 
 		if (account.userId === undefined) {
-			const user = await repo(oSafe.User).insert({ identifier: account.providerUserId })
+			const user = await repo(oSafe.User).insert({ name: nameify(account.providerUserId) })
 			account.userId = user.id
 		}
 
@@ -459,22 +455,17 @@ export class AuthControllerServer {
 
 			const uri = createTOTPKeyURI(issuer, email, key, intervalInSeconds, digits)
 			const oSafe = getSafeOptions()
-			let user = await repo(oSafe.User).findFirst({ identifier: email })
-			if (!user) {
-				user = repo(oSafe.User).create()
-			}
-			user.identifier = email
 
-			user = await repo(oSafe.User).save(user)
-
-			let account = await remult
-				.repo(oSafe.Account)
-				.findFirst({ userId: user.id, provider: FFAuthProvider.OTP.id })
-			if (!account) {
-				account = repo(oSafe.Account).create()
+			let account = await repo(oSafe.Account).upsert({
+				where: {
+					provider: FFAuthProvider.OTP.id,
+					providerUserId: email,
+				},
+			})
+			if (account.userId === '' || account.userId === undefined) {
+				const user = await repo(oSafe.User).insert({ name: nameify(email) })
+				account.userId = user.id
 			}
-			account.userId = user.id
-			account.provider = FFAuthProvider.OTP.id
 			account.token = otp
 			account.hashPassword = keyEncoded
 
@@ -514,9 +505,8 @@ export class AuthControllerServer {
 			throw new EntityError({ message: 'Invalid otp' })
 		}
 		const account = accounts[0]
-		const user = await repo(oSafe.User).findId(account.userId)
 
-		if (user?.identifier !== email) {
+		if (account?.providerUserId !== email) {
 			throw new EntityError({ message: 'Invalid otp.' })
 		}
 
@@ -539,6 +529,12 @@ export class AuthControllerServer {
 		await repo(oSafe.Account).save(account)
 
 		const session = await ff_createSession(account.userId)
+
+		const user = await repo(oSafe.User).findId(account.userId)
+		if (!user) {
+			authModuleRaw.log.error('User not found for this arround:', account)
+			throw new EntityError({ message: 'User not found, please contact support.' })
+		}
 
 		return {
 			message: 'verified',

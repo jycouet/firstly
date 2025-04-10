@@ -92,8 +92,6 @@ export {
 } from './cellsBuildor.js'
 export { storeItem }
 export { storeList }
-export { displayPhone, arrToStr } from './formats/strings.js'
-export { displayCurrency } from './formats/numbers.js'
 export { tw } from './utils/tailwind.js'
 
 // Hummm... I don't know if we should keep it...
@@ -154,8 +152,8 @@ declare module 'remult' {
 		// `findOptionsForEdit` is only for insert & update.
 		// 1-n impact with `findOptions`
 		findOptionsForEdit?:
-			| ((entity: entityType) => FindOptionsBase<valueType>)
-			| FindOptionsBase<valueType>
+		| ((entity: entityType) => FindOptionsBase<valueType>)
+		| FindOptionsBase<valueType>
 
 		findOptionsLimit?: number
 		createOptionWhenNoResult?: {

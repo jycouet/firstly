@@ -33,7 +33,7 @@ export const api = firstly({
 			transformDbUserToClientUser(session, user) {
 				return {
 					id: user.id,
-					name: user.identifier,
+					name: user.name,
 					roles: user.roles,
 					session: {
 						id: session.id,

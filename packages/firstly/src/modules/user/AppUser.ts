@@ -8,7 +8,7 @@ import { FFAuthUser } from '$lib/auth'
 	// this overrides the default CRUD... So be carefull !
 	// allowApiCrud: true,
 	saved(e) {
-		console.info(`Yop ${e.identifier} 👋`)
+		console.info(`Yop ${e.name} 👋`)
 	},
 	allowApiUpdate: (item, r) => {
 		if (item && r?.user?.id) {

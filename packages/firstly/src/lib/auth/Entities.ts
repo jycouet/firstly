@@ -26,16 +26,13 @@ export class FFAuthUser {
 	updatedAt?: Date
 
 	@Fields.string<FFAuthUser>({
-		includeInApi: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
+		required: true,
 		validate: [
 			Validators.unique(),
 			Validators.required(),
-			(e) => {
-				if (e.identifier?.length < 2) throw 'Must be at least 2 characters long'
-			},
 		],
 	})
-	identifier!: string
+	name!: string
 
 	@Fields.json<FFAuthUser, string[]>(() => [], {
 		includeInApi: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
@@ -46,9 +43,9 @@ export class FFAuthUser {
 			fromDb: (x) => {
 				return x
 					? x
-							.split(',')
-							.map((c: string) => c.replace('{', '').replace('}', ''))
-							.filter((c: string) => c !== '')
+						.split(',')
+						.map((c: string) => c.replace('{', '').replace('}', ''))
+						.filter((c: string) => c !== '')
 					: []
 			},
 		},
@@ -92,6 +89,9 @@ export class FFAuthAccount {
 
 	@Fields.string()
 	providerUserId = ''
+
+	@Fields.string({ allowNull: true })
+	email?: string | null = null
 
 	@Fields.string({ includeInApi: false, allowNull: true })
 	hashPassword?: string

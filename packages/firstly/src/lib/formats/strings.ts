@@ -108,3 +108,25 @@ export const extractMailInfo = (mail: string, withThrow = true) => {
 		email: '',
 	}
 }
+
+export function slugify(str: string | undefined): string | undefined {
+	if (str === undefined) return undefined
+	return str
+		.toLowerCase()
+		.trim()
+		.replace(/[^\w.-]+/g, '-')
+		.replace(/[\s_-]+/g, '-')
+		.replace(/^-+|-+$/g, '')
+}
+
+export function nameify(str: string | undefined): string | undefined {
+	if (str === undefined) return undefined
+	return str
+		.toLowerCase()
+		.trim()
+		.replace(/\./g, ' ')
+		.replace(/\s+/g, ' ')
+		.replace(/(?:^|\s|-)\S/g, (match) => match.toUpperCase())
+		.trim()
+		.split('@')[0]
+}

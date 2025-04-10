@@ -73,4 +73,5 @@ export type OAuth2UserInfo = {
 	providerUserId: string
 	/** Will take the first option available */
 	nameOptions: string[]
+	emailOptions: string[]
 }

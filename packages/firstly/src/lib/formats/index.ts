@@ -5,7 +5,7 @@ export {
 	displayCurrencyWOSuffix,
 } from './numbers.js'
 
-export { formatNumber, extractMailInfo } from './strings.js'
+export { formatNumber, extractMailInfo, slugify, nameify } from './strings.js'
 
 export { offsetedToPlainDate, plainDateCompare, isBetween, dateISOToPlainDate } from './dates.js'
 
