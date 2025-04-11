@@ -21,10 +21,10 @@ export default defineConfig({
 				dark: './src/assets/logo.svg',
 				// replacesTitle: true,
 			},
-			social: {
-				blueSky: 'https://bsky.app/profile/jyc.dev',
-				github: 'https://github.com/jycouet/firstly',
-			},
+			social: [
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/jycouet/firstly' },
+				{ icon: 'blueSky', label: 'blueSky', href: 'https://bsky.app/profile/jyc.dev' },
+			],
 			editLink: {
 				baseUrl: 'https://github.com/jycouet/firstly/edit/main/docs',
 			},
