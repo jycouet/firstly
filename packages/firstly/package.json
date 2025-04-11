@@ -34,11 +34,18 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
+    "mjml": ">=4",
     "remult": ">=2.7.32",
     "svelte": ">=5"
   },
   "peerDependenciesMeta": {
     "@sveltejs/kit": {
+      "optional": true
+    },
+    "mjml": {
+      "optional": true
+    },
+    "remult": {
       "optional": true
     },
     "svelte": {
@@ -57,12 +64,13 @@
     "svelte-check": "catalog:svelte",
     "tslib": "catalog:tooling",
     "typescript": "catalog:tooling",
+    "vite": "catalog:tooling",
     "vitest": "catalog:testing"
   },
   "dependencies": {
     "@clack/prompts": "catalog:tooling",
     "@kitql/internals": "catalog:kitql",
-    "@layerstack/svelte-actions": "catalog:",
+    "@layerstack/svelte-actions": "catalog:prod",
     "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
     "@melt-ui/svelte": "catalog:ui",
@@ -76,11 +84,11 @@
     "cron": "catalog:prod",
     "daisyui": "catalog:ui",
     "esm-env": "catalog:tooling",
+    "mjml": "catalog:prod",
     "nodemailer": "catalog:prod",
-    "svelty-email": "catalog:prod",
+    "sailkit": "catalog:prod",
     "tailwind-merge": "catalog:ui",
     "tailwindcss": "catalog:ui",
-    "vite": "catalog:tooling",
     "vite-plugin-kit-routes": "catalog:tooling",
     "vite-plugin-stripper": "catalog:tooling"
   },

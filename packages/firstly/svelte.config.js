@@ -14,6 +14,8 @@ const config = {
 		alias: {
 			$modules: './src/modules',
 			$server: './src/server',
+
+			firstly: './src/lib',
 		},
 	},
 	compilerOptions: {},

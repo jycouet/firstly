@@ -79,21 +79,33 @@ export function github(options?: {
 						},
 					})
 					const user = await res.json()
-
-					if ((options?.authorizationURLOptions ?? []).includes('user:email')) {
+					const nameOptions = [user.login]
+					const emailOptions: string[] = []
+					if ((options?.authorizationURLOptions ?? ['user:email']).includes('user:email')) {
 						const res = await fetch('https://api.github.com/user/emails', {
 							headers: {
 								Authorization: `Bearer ${tokens.accessToken()}`,
 							},
 						})
 						user.emails = await res.json()
+						if (Array.isArray(user.emails)) {
+							const primaryEmails = user.emails.filter(
+								(email: { primary: boolean }) => email.primary === true,
+							)
+							primaryEmails.forEach((email: { email: string }) => {
+								if (email.email) {
+									nameOptions.unshift(email.email)
+									emailOptions.unshift(email.email)
+								}
+							})
+						}
 					}
 
 					if (options?.log) {
 						authModuleRaw.log.info(`user`, user)
 					}
 
-					return { raw: user, providerUserId: String(user.id), nameOptions: [user.login] }
+					return { raw: user, providerUserId: String(user.id), nameOptions, emailOptions }
 				},
 	}
 }

@@ -53,6 +53,7 @@ export { overwriteOptions, deepMerge, isOfType } from './helpers'
 export { dialog } from './dialog/dialog'
 export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
+export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
 
 // ******************************
 // Additions to Remult

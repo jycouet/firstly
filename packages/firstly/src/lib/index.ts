@@ -92,8 +92,6 @@ export {
 } from './cellsBuildor.js'
 export { storeItem }
 export { storeList }
-export { displayPhone, arrToStr } from './formats/strings.js'
-export { displayCurrency } from './formats/numbers.js'
 export { tw } from './utils/tailwind.js'
 
 // Hummm... I don't know if we should keep it...

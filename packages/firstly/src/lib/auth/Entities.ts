@@ -26,21 +26,20 @@ export class FFAuthUser {
 	updatedAt?: Date
 
 	@Fields.string<FFAuthUser>({
-		allowApiUpdate: false,
-		validate: [
-			Validators.unique(),
-			Validators.required(),
-			(e) => {
-				if (e.identifier?.length < 2) throw 'Must be at least 2 characters long'
-			},
-		],
+		required: true,
+		validate: [Validators.unique(), Validators.required()],
 	})
-	identifier!: string
+	name!: string
 
 	@Fields.json<FFAuthUser, string[]>(() => [], {
+		includeInApi: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
 		inputType: 'selectEnum',
 		valueConverter: {
-			toDb: (x) => (x ? x.join(',') : []),
+			toDb: (x) => {
+				if (x === null) return null
+				if (Array.isArray(x)) return x.join(',')
+				return x
+			},
 			//FIXME: refacto this + remove "permissions" & add a disable user!
 			fromDb: (x) => {
 				return x
@@ -91,6 +90,9 @@ export class FFAuthAccount {
 
 	@Fields.string()
 	providerUserId = ''
+
+	@Fields.string({ allowNull: true })
+	email?: string | null = null
 
 	@Fields.string({ includeInApi: false, allowNull: true })
 	hashPassword?: string

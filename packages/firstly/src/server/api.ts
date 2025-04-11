@@ -21,6 +21,8 @@ export const api = firstly({
 		}),
 
 		auth({
+			// rolesToInitFromEnv: Role,
+
 			session: {
 				// expiresIn: 1000 * 30,
 				COOKIE_NAME: 'my_fancy_cookie_name',
@@ -33,7 +35,7 @@ export const api = firstly({
 			transformDbUserToClientUser(session, user) {
 				return {
 					id: user.id,
-					name: user.identifier,
+					name: user.name,
 					roles: user.roles,
 					session: {
 						id: session.id,
