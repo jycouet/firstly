@@ -7,7 +7,6 @@ import type SESTransport from 'nodemailer/lib/ses-transport'
 import type SMTPPool from 'nodemailer/lib/smtp-pool'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import type StreamTransport from 'nodemailer/lib/stream-transport'
-import { renderEmail } from 'sailkit'
 import type { Component, ComponentProps, ComponentType, SvelteComponent } from 'svelte'
 
 import { remult } from 'remult'
@@ -111,39 +110,58 @@ export const sendMail: <ComponentTemplateDefault extends Component>(
 				subject: mailOptions.subject,
 				...mailOptions.templateProps,
 			}
-			// @ts-ignore
-			const { html, plainText } = await renderEmail(mailOptions.template ?? DefaultMail, templateProps)
+			try {
+				const { renderEmail } = await import('sailkit')
+				const { html, plainText } = await renderEmail(
+					// @ts-ignore
+					mailOptions.template ?? DefaultMail,
+					templateProps,
+				)
 
-			mailOptions.text = plainText
-			mailOptions.html = html
+				mailOptions.text = plainText
+				mailOptions.html = html
+			} catch (error) {
+				mailModule.log.error(`${magenta(`[${topic}]`)}`, error)
+				mailModule.log.error(
+					`${magenta(`[${topic}]`)}`,
+					`missing ${red('mjml')} as dependency?! (it's a peer dependency of sailkit)`,
+				)
+			}
 		}
 
-		const info = await transporter.sendMail({
-			...mailOptions,
-			...{ from: mailOptions.from ?? globalOptions?.from },
-		})
 		if (!globalOptions?.transport) {
 			mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
-                 We are still nice and generated you an email preview link: 
-                 👉 ${cyan(
-																		String(
-																			nodemailer.getTestMessageUrl(
-																				// @ts-ignore
-																				info,
-																			),
-																		),
-																	)}
-
-                 To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
+			We are still nice and generated you an email preview link: 
+			👉 ${cyan(
+				String(
+					nodemailer.getTestMessageUrl(
+						// @ts-ignore
+						info,
+					),
+				),
+			)}
+			
+			To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
       `)
 		} else {
+			const info = await transporter.sendMail({
+				...mailOptions,
+				...{ from: mailOptions.from ?? globalOptions?.from },
+			})
 			mailModule.log.success(
 				`${magenta(`[${topic}]`)} - Sent to ${typeof mailOptions.to === 'string' ? green(mailOptions.to) : mailOptions.to}`,
 			)
+			return info
 		}
-		return info
 	} catch (error) {
-		mailModule.log.error(`${magenta(`[${topic}]`)} - Error`, error)
+		if (error instanceof Error && error.message.includes('Missing credentials for "PLAIN"')) {
+			mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not well configured`)} ⚠️ 
+👉 transport used:
+${cyan(JSON.stringify(globalOptions?.transport, null, 2))}
+			`)
+		} else {
+			mailModule.log.error(`${magenta(`[${topic}]`)} - Error`, error)
+		}
 	}
 }
 
