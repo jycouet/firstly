@@ -37,11 +37,12 @@ export const linkRoleToUsersFromEnv = async (o: {
 					.split(',')
 					.map((c) => c.trim())
 					.filter(Boolean)
+
 	for (let i = 0; i < providersInfo.length; i++) {
 		const [providerUserId, provider] = providersInfo[i].split('|')
 		let a = await repo(accountEntity).findFirst({ providerUserId })
 		if (!a) {
-			const user = await repo(userEntity).insert({ roles, name: nameify(providerUserId) })
+			const user = await repo(userEntity).upsert({ where: { roles, name: nameify(providerUserId) } })
 			a = await repo(accountEntity).insert({
 				providerUserId,
 				provider: provider ?? FFAuthProvider.PASSWORD.id,

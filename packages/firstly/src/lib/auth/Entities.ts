@@ -35,7 +35,11 @@ export class FFAuthUser {
 		includeInApi: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin],
 		inputType: 'selectEnum',
 		valueConverter: {
-			toDb: (x) => (x ? x.join(',') : []),
+			toDb: (x) => {
+				if (x === null) return null
+				if (Array.isArray(x)) return x.join(',')
+				return x
+			},
 			//FIXME: refacto this + remove "permissions" & add a disable user!
 			fromDb: (x) => {
 				return x
