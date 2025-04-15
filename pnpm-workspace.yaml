@@ -69,7 +69,7 @@ catalogs:
   nodemailer: 6.10.0
   arctic: 3.6.0
   bcryptjs: 3.0.2
-  cron: 4.1.0
+  cron: 4.3.0
   '@layerstack/utils': 1.0.0
   '@layerstack/svelte-actions': 1.0.0
   mjml: 4.15.3
