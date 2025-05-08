@@ -73,8 +73,8 @@ catalogs:
       specifier: 4.15.3
       version: 4.15.3
     nodemailer:
-      specifier: 6.10.0
-      version: 6.10.0
+      specifier: 7.0.3
+      version: 7.0.3
     sailkit:
       specifier: 0.2.2
       version: 0.2.2
@@ -274,7 +274,7 @@ importers:
         version: 4.15.3
       nodemailer:
         specifier: catalog:prod
-        version: 6.10.0
+        version: 7.0.3
       remult:
         specifier: '>=2.7.32'
         version: 2.7.32
@@ -3801,6 +3801,7 @@ packages:
 
   mvdan-sh@0.10.1:
     resolution: {integrity: sha512-kMbrH0EObaKmK3nVRKUIIya1dpASHIEusM13S4V1ViHFuxuNxCo+arxoa6j/dbV22YBGjl7UKJm9QQKJ2Crzhg==}
+    deprecated: See https://github.com/mvdan/sh/issues/1145
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
@@ -3849,8 +3850,8 @@ packages:
   node-releases@2.0.14:
     resolution: {integrity: sha512-y10wOWt8yZpqXmOgRo77WaHEmhYQYGNA6y421PKsKYWEK8aW+cqAphborZDhqfyKrbZEN92CN1X2KbafY2s7Yw==}
 
-  nodemailer@6.10.0:
-    resolution: {integrity: sha512-SQ3wZCExjeSatLE/HBaXS5vqUOQk6GtBdIIKxiFdmm01mOQZX/POJkO3SUX1wDiYcwUOJwT23scFSC9fY2H8IA==}
+  nodemailer@7.0.3:
+    resolution: {integrity: sha512-Ajq6Sz1x7cIK3pN6KesGTah+1gnwMnx5gKl3piQlQQE/PwyJ4Mbc8is2psWYxK3RJTVeqsDaCv8ZzXLCDHMTZw==}
     engines: {node: '>=6.0.0'}
 
   nopt@7.2.1:
@@ -9716,7 +9717,7 @@ snapshots:
 
   node-releases@2.0.14: {}
 
-  nodemailer@6.10.0: {}
+  nodemailer@7.0.3: {}
 
   nopt@7.2.1:
     dependencies:
