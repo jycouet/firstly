@@ -35,7 +35,7 @@
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
     "mjml": ">=4",
-    "remult": ">=2.7.32",
+    "remult": ">=3.0.0",
     "svelte": ">=5"
   },
   "peerDependenciesMeta": {
