@@ -76,8 +76,8 @@ catalogs:
       specifier: 7.0.3
       version: 7.0.3
     sailkit:
-      specifier: 0.2.2
-      version: 0.2.2
+      specifier: 0.3.0
+      version: 0.3.0
   svelte:
     svelte:
       specifier: 5.33.1
@@ -280,7 +280,7 @@ importers:
         version: 3.0.2
       sailkit:
         specifier: catalog:prod
-        version: 0.2.2(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(mjml@4.15.3)(svelte@5.33.1)
+        version: 0.3.0(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(mjml@4.15.3)(svelte@5.33.1)
       tailwind-merge:
         specifier: catalog:ui
         version: 2.6.0
@@ -2167,6 +2167,10 @@ packages:
 
   chalk@5.3.0:
     resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
+  chalk@5.4.1:
+    resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   character-entities-html4@2.1.0:
@@ -4592,8 +4596,8 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  sailkit@0.2.2:
-    resolution: {integrity: sha512-G5mTPbKlfdaL901J+zi0bQsZZULLtPyYMcB8GHCDT7mVvQlgkzy6hdeFPVLK6mzXOP/KvQw4//n5pFmdnoTc6A==}
+  sailkit@0.3.0:
+    resolution: {integrity: sha512-bPA2TCO/1V54Mlr4kztMG0OjWmwzojEFspDVNIHPh/WOHn0PdGU41pDKDQ8xxOtTghX+jfkCu+NePLPKypuyXw==}
     peerDependencies:
       '@sveltejs/kit': ^2.0.0
       mjml: ^4.0.0
@@ -7417,6 +7421,8 @@ snapshots:
       supports-color: 7.2.0
 
   chalk@5.3.0: {}
+
+  chalk@5.4.1: {}
 
   character-entities-html4@2.1.0: {}
 
@@ -10607,9 +10613,10 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sailkit@0.2.2(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(mjml@4.15.3)(svelte@5.33.1):
+  sailkit@0.3.0(@sveltejs/kit@2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(mjml@4.15.3)(svelte@5.33.1):
     dependencies:
       '@sveltejs/kit': 2.20.0(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))
+      chalk: 5.4.1
       html-minifier-terser: 7.2.0
       html-to-text: 9.0.5
       mjml: 4.15.3
