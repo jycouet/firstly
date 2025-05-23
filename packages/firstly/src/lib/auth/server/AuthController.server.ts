@@ -98,7 +98,7 @@ export class AuthControllerServer {
 	 * This is for login / password authentication invite
 	 */
 	static async invite(emailParam: string): Promise<AuthResponse> {
-		const email = emailParam.toLowerCase()
+		const email = emailParam?.toLowerCase()
 
 		const oSafe = getSafeOptions()
 
@@ -185,7 +185,7 @@ export class AuthControllerServer {
 			throw new EntityError({ message: 'Password is not enabled!' })
 		}
 
-		const email = emailParam.toLowerCase()
+		const email = emailParam?.toLowerCase()
 		oSafe.password.validateInput({ identifier: email, password })
 
 		const existingAccount = await repo(oSafe.Account).findOne({
@@ -272,7 +272,7 @@ export class AuthControllerServer {
 	 * _(The first param `email` can be "anything")_
 	 */
 	static async signInPassword(emailParam: string, password: string): Promise<AuthResponse> {
-		const email = emailParam.toLowerCase()
+		const email = emailParam?.toLowerCase()
 
 		const oSafe = getSafeOptions()
 		oSafe.password.validateInput({ identifier: email, password })
@@ -318,7 +318,7 @@ export class AuthControllerServer {
 	 * Forgot your password ? Send a mail to reset it.
 	 */
 	static async forgotPassword(emailParam: string): Promise<AuthResponse> {
-		const email = emailParam.toLowerCase()
+		const email = emailParam?.toLowerCase()
 		const oSafe = getSafeOptions()
 
 		if (!oSafe.password.enabled) {
@@ -436,7 +436,7 @@ export class AuthControllerServer {
 
 	/** OTP */
 	static async signInOTP(emailParam: string): Promise<AuthResponse> {
-		const email = emailParam.toLowerCase()
+		const email = emailParam?.toLowerCase()
 		const oSafe = getSafeOptions()
 
 		if (!oSafe.otp.enabled) {
@@ -490,7 +490,7 @@ export class AuthControllerServer {
 	 * Verify the OTP code
 	 */
 	static async verifyOtp(emailParam: string, otp: string): Promise<AuthResponse> {
-		const email = emailParam.toLowerCase()
+		const email = emailParam?.toLowerCase()
 		const oSafe = getSafeOptions()
 
 		if (!oSafe.otp.enabled) {
