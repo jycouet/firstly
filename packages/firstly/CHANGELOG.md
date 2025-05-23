@@ -1,5 +1,22 @@
 # firstly
 
+## 0.0.16-next.3
+
+### Patch Changes
+
+- [#117](https://github.com/jycouet/firstly/pull/117)
+  [`407ed4d`](https://github.com/jycouet/firstly/commit/407ed4db8f4b99f234932965b870d51f6a9c07ca)
+  Thanks [@jycouet](https://github.com/jycouet)! - need to pass `redirect` to handleAuth manually
+
+- [#117](https://github.com/jycouet/firstly/pull/117)
+  [`f30c737`](https://github.com/jycouet/firstly/commit/f30c73781d8f50da08fcdc25f1f7611133ea8b0c)
+  Thanks [@jycouet](https://github.com/jycouet)! - switch mail engine to sailkit
+
+- [#117](https://github.com/jycouet/firstly/pull/117)
+  [`5e1d67e`](https://github.com/jycouet/firstly/commit/5e1d67eb8f75127c3d729945e20b22c40184ee20)
+  Thanks [@jycouet](https://github.com/jycouet)! - [BREAKING] - Auth Identifier got removed in favor
+  of name in User table.
+
 ## 0.0.16-next.2
 
 ### Patch Changes
