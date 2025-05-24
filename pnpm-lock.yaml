@@ -83,8 +83,8 @@ catalogs:
       specifier: 5.33.1
       version: 5.33.1
     svelte-check:
-      specifier: 4.1.5
-      version: 4.1.5
+      specifier: 4.2.1
+      version: 4.2.1
     svelte-micro:
       specifier: 2.5.7
       version: 2.5.7
@@ -320,7 +320,7 @@ importers:
         version: 5.33.1
       svelte-check:
         specifier: catalog:svelte
-        version: 4.1.5(picomatch@4.0.2)(svelte@5.33.1)(typescript@5.8.2)
+        version: 4.2.1(picomatch@4.0.2)(svelte@5.33.1)(typescript@5.8.2)
       tslib:
         specifier: catalog:tooling
         version: 2.8.0
@@ -351,7 +351,7 @@ importers:
         version: 5.33.1
       svelte-check:
         specifier: catalog:svelte
-        version: 4.1.5(picomatch@4.0.2)(svelte@5.33.1)(typescript@5.8.2)
+        version: 4.2.1(picomatch@4.0.2)(svelte@5.33.1)(typescript@5.8.2)
       svelte-micro:
         specifier: catalog:svelte
         version: 2.5.7(svelte@5.33.1)
@@ -4769,8 +4769,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte-check@4.1.5:
-    resolution: {integrity: sha512-Gb0T2IqBNe1tLB9EB1Qh+LOe+JB8wt2/rNBDGvkxQVvk8vNeAoG+vZgFB/3P5+zC7RWlyBlzm9dVjZFph/maIg==}
+  svelte-check@4.2.1:
+    resolution: {integrity: sha512-e49SU1RStvQhoipkQ/aonDhHnG3qxHSBtNfBRb9pxVXoa+N7qybAo32KgA9wEb2PCYFNaDg7bZCdhLD1vHpdYA==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
     peerDependencies:
@@ -10834,11 +10834,11 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-check@4.1.5(picomatch@4.0.2)(svelte@5.33.1)(typescript@5.8.2):
+  svelte-check@4.2.1(picomatch@4.0.2)(svelte@5.33.1)(typescript@5.8.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       chokidar: 4.0.3
-      fdir: 6.4.3(picomatch@4.0.2)
+      fdir: 6.4.4(picomatch@4.0.2)
       picocolors: 1.1.1
       sade: 1.8.1
       svelte: 5.33.1
