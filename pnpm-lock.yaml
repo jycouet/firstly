@@ -32,8 +32,8 @@ catalogs:
       specifier: 0.8.11
       version: 0.8.11
     '@kitql/internals':
-      specifier: 0.10.4
-      version: 0.10.4
+      specifier: 0.10.5
+      version: 0.10.5
   lib-author-helper:
     '@changesets/changelog-github':
       specifier: 0.5.0
@@ -226,7 +226,7 @@ importers:
         version: 0.10.0
       '@kitql/internals':
         specifier: catalog:kitql
-        version: 0.10.4
+        version: 0.10.5
       '@layerstack/svelte-actions':
         specifier: catalog:prod
         version: 1.0.0
@@ -443,6 +443,11 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
+  '@babel/parser@7.27.0':
+    resolution: {integrity: sha512-iaepho73/2Pz7w2eMS0Q5f83+0RKI7i4xmiYeBmDzfRVbQtTOG7Ts0S4HzJVsTMGI9keU8rNfuZr8DKfSt7Yyg==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
   '@babel/runtime@7.24.7':
     resolution: {integrity: sha512-UwgBRMjJP+xv857DCngvqXI3Iq6J4v0wXmwc6sapg+zyhbwmQX67LUEFrkK5tbyJ30jGuG3ZvWpBiB9LCy1kWw==}
     engines: {node: '>=6.9.0'}
@@ -457,6 +462,10 @@ packages:
 
   '@babel/types@7.26.10':
     resolution: {integrity: sha512-emqcG3vHrpxUKTrxcblR36dcrcoRDvKmnL/dCL6ZsHaShW80qxCAcNhzQZrpeM765VzEos+xOi4s+r4IXzTwdQ==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/types@7.27.0':
+    resolution: {integrity: sha512-H45s8fVLYjbhFH62dIJ3WtmJ6RSPt/3DRO0ZcT2SUiYiQyz3BLVb9ADEnLl91m74aQPS3AzzeajZHYOalWe3bg==}
     engines: {node: '>=6.9.0'}
 
   '@braintree/sanitize-url@7.1.1':
@@ -1225,12 +1234,20 @@ packages:
     resolution: {integrity: sha512-aAihk32Ym8XFtwP1mwpuvG5J0Ov2LTnIVItJZI31bTnmlQ5tYSaYgvnD44lNiAjHQw0/tUstqIYRPK8C6wlLoA==}
     engines: {node: ^16.14 || >=18}
 
+  '@kitql/helpers@0.8.13':
+    resolution: {integrity: sha512-8Om4jxF3XLTrpCkrZ8q6kHco4o6u/zKisA7XjLdiUDeSX7VSprlq6fnG2xayrbrc1He+pHQkgj2cHqqUvEHTGg==}
+    engines: {node: ^16.14 || >=18}
+
   '@kitql/helpers@0.8.13-next.0':
     resolution: {integrity: sha512-49BEOhgb7AeXUSukppnw+3oD+wooxL16RJA6PuGxYCklDHiqGU3pIbUVWhc7eQyzvfDekr8ssIhVDW4zq5M8pA==}
     engines: {node: ^16.14 || >=18}
 
   '@kitql/internals@0.10.4':
     resolution: {integrity: sha512-F/DYyAeyLTbqOG9kGiEve2vQUvPllH4nEOFAE9/COBcNcrsJB4zExkK1a1LiS3qIi5Bq78flMyivvOlQ2TGGdQ==}
+    engines: {node: ^16.14 || >=18}
+
+  '@kitql/internals@0.10.5':
+    resolution: {integrity: sha512-2v75bu2vJB0xf7+qSAu0xcUyCYqzc7KeRE1RcKSpOGQTV9UpCqCs/xCsFWLUGnZRWb1VU6XYf+l6GJsDUW9pRQ==}
     engines: {node: ^16.14 || >=18}
 
   '@layerstack/svelte-actions@1.0.0':
@@ -5522,6 +5539,10 @@ snapshots:
     dependencies:
       '@babel/types': 7.26.10
 
+  '@babel/parser@7.27.0':
+    dependencies:
+      '@babel/types': 7.27.0
+
   '@babel/runtime@7.24.7':
     dependencies:
       regenerator-runtime: 0.14.1
@@ -5545,6 +5566,11 @@ snapshots:
       - supports-color
 
   '@babel/types@7.26.10':
+    dependencies:
+      '@babel/helper-string-parser': 7.25.9
+      '@babel/helper-validator-identifier': 7.25.9
+
+  '@babel/types@7.27.0':
     dependencies:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
@@ -6298,6 +6324,10 @@ snapshots:
     dependencies:
       esm-env: 1.2.2
 
+  '@kitql/helpers@0.8.13':
+    dependencies:
+      esm-env: 1.2.2
+
   '@kitql/helpers@0.8.13-next.0':
     dependencies:
       esm-env: 1.2.2
@@ -6307,6 +6337,14 @@ snapshots:
       '@babel/parser': 7.26.10
       '@babel/types': 7.26.10
       '@kitql/helpers': 0.8.12
+      recast: 0.23.9
+      svelte: 5.33.1
+
+  '@kitql/internals@0.10.5':
+    dependencies:
+      '@babel/parser': 7.27.0
+      '@babel/types': 7.27.0
+      '@kitql/helpers': 0.8.13
       recast: 0.23.9
       svelte: 5.33.1
 
