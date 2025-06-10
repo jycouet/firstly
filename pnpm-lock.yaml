@@ -131,8 +131,8 @@ catalogs:
       specifier: 6.3.5
       version: 6.3.5
     vite-plugin-kit-routes:
-      specifier: 0.8.4
-      version: 0.8.4
+      specifier: 0.8.5
+      version: 0.8.5
     vite-plugin-stripper:
       specifier: 0.9.0
       version: 0.9.0
@@ -289,7 +289,7 @@ importers:
         version: 3.4.4
       vite-plugin-kit-routes:
         specifier: catalog:tooling
-        version: 0.8.4(@sveltejs/kit@2.21.3(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))
+        version: 0.8.5(@sveltejs/kit@2.21.3(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))
       vite-plugin-stripper:
         specifier: catalog:tooling
         version: 0.9.0
@@ -4981,9 +4981,10 @@ packages:
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
-  vite-plugin-kit-routes@0.8.4:
-    resolution: {integrity: sha512-2LPfh3udvhGwHXJMnA52HelstB51DWrwcOgxogj20q0/etQXMPFvackzdoNyKdGo1JYWMzPvDk8HSW3X5E+mhw==}
+  vite-plugin-kit-routes@0.8.5:
+    resolution: {integrity: sha512-YZdKsPvR7OroKelspJJncs2/8yCkNrihDXROtBDGemRdUFp14JGtkzjUbyh/fYRgE5E2auF8dPVNLn6wMS2xXw==}
     engines: {node: ^16.14 || >=18}
+    hasBin: true
     peerDependencies:
       '@sveltejs/kit': ^2.4.0
 
@@ -4997,6 +4998,10 @@ packages:
 
   vite-plugin-watch-and-run@1.7.4:
     resolution: {integrity: sha512-JgL2hi7hN5ZRR2gmmLthTU8vn6CBSQPpaBisUyh5Sy3j2LT1Y6HWFVdsH300465Tk5bRY/1Aks6dPpeUW9mhYw==}
+    engines: {node: ^16.14 || >=18}
+
+  vite-plugin-watch-and-run@1.7.5:
+    resolution: {integrity: sha512-IISx6Cw+w/9HhxaovnJlXaEAnPlA5wLY8lk0CMrFkBgdJdhKElH0jGSjf6gCPti/Z9F4kMM8WUMGx8CQm1BpHQ==}
     engines: {node: ^16.14 || >=18}
 
   vite@6.3.5:
@@ -10936,12 +10941,13 @@ snapshots:
       - tsx
       - yaml
 
-  vite-plugin-kit-routes@0.8.4(@sveltejs/kit@2.21.3(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))):
+  vite-plugin-kit-routes@0.8.5(@sveltejs/kit@2.21.3(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))):
     dependencies:
-      '@kitql/helpers': 0.8.12
-      '@kitql/internals': 0.10.4
+      '@kitql/helpers': 0.8.13
+      '@kitql/internals': 0.10.5
       '@sveltejs/kit': 2.21.3(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))
-      vite-plugin-watch-and-run: 1.7.4
+      commander: 14.0.0
+      vite-plugin-watch-and-run: 1.7.5
 
   vite-plugin-stripper@0.9.0:
     dependencies:
@@ -10957,6 +10963,11 @@ snapshots:
   vite-plugin-watch-and-run@1.7.4:
     dependencies:
       '@kitql/helpers': 0.8.12
+      micromatch: 4.0.8
+
+  vite-plugin-watch-and-run@1.7.5:
+    dependencies:
+      '@kitql/helpers': 0.8.13
       micromatch: 4.0.8
 
   vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0):
