@@ -134,8 +134,8 @@ catalogs:
       specifier: 0.8.4
       version: 0.8.4
     vite-plugin-stripper:
-      specifier: 0.9.0
-      version: 0.9.0
+      specifier: 0.9.2
+      version: 0.9.2
     vite-plugin-watch-and-run:
       specifier: 1.7.1
       version: 1.7.1
@@ -292,7 +292,7 @@ importers:
         version: 0.8.4(@sveltejs/kit@2.21.3(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))
       vite-plugin-stripper:
         specifier: catalog:tooling
-        version: 0.9.0
+        version: 0.9.2
     devDependencies:
       '@kitql/helpers':
         specifier: catalog:kitql
@@ -4987,8 +4987,8 @@ packages:
     peerDependencies:
       '@sveltejs/kit': ^2.4.0
 
-  vite-plugin-stripper@0.9.0:
-    resolution: {integrity: sha512-i3ceh8XctbxOgWfIgdpDOLN7e9to+/nl6MIMw6pYGfwxPYjlZ7t/Y46PC65uYXkhYBpAnnr1xTdInA7ulyd9CA==}
+  vite-plugin-stripper@0.9.2:
+    resolution: {integrity: sha512-zNhtayPdRCUOQaAxrLRb0xSLroWpldISs7RJ+wjoBLluGIudIm9hxZEinZRqbAcC3euPL2zSa5Ws7f+JOz2ZAg==}
     engines: {node: ^16.14 || >=18}
 
   vite-plugin-watch-and-run@1.7.1:
@@ -4997,6 +4997,10 @@ packages:
 
   vite-plugin-watch-and-run@1.7.4:
     resolution: {integrity: sha512-JgL2hi7hN5ZRR2gmmLthTU8vn6CBSQPpaBisUyh5Sy3j2LT1Y6HWFVdsH300465Tk5bRY/1Aks6dPpeUW9mhYw==}
+    engines: {node: ^16.14 || >=18}
+
+  vite-plugin-watch-and-run@1.7.5:
+    resolution: {integrity: sha512-IISx6Cw+w/9HhxaovnJlXaEAnPlA5wLY8lk0CMrFkBgdJdhKElH0jGSjf6gCPti/Z9F4kMM8WUMGx8CQm1BpHQ==}
     engines: {node: ^16.14 || >=18}
 
   vite@6.3.5:
@@ -10943,11 +10947,11 @@ snapshots:
       '@sveltejs/kit': 2.21.3(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.33.1)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0))
       vite-plugin-watch-and-run: 1.7.4
 
-  vite-plugin-stripper@0.9.0:
+  vite-plugin-stripper@0.9.2:
     dependencies:
-      '@kitql/helpers': 0.8.12
-      '@kitql/internals': 0.10.4
-      vite-plugin-watch-and-run: 1.7.4
+      '@kitql/helpers': 0.8.13
+      '@kitql/internals': 0.10.5
+      vite-plugin-watch-and-run: 1.7.5
 
   vite-plugin-watch-and-run@1.7.1:
     dependencies:
@@ -10957,6 +10961,11 @@ snapshots:
   vite-plugin-watch-and-run@1.7.4:
     dependencies:
       '@kitql/helpers': 0.8.12
+      micromatch: 4.0.8
+
+  vite-plugin-watch-and-run@1.7.5:
+    dependencies:
+      '@kitql/helpers': 0.8.13
       micromatch: 4.0.8
 
   vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0):
