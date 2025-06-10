@@ -23,17 +23,17 @@ catalogs:
   vite-plugin-kit-routes: 0.8.4
   vite-plugin-stripper: 0.9.0
   esm-env: 1.2.2
-  '@clack/prompts': 0.10.0
+  '@clack/prompts': 0.11.0
   prettier: 3.5.3
 
  kitql:
-  '@kitql/helpers': 0.8.11
-  '@kitql/eslint-config': 0.7.0-next.2
-  '@kitql/internals': 0.10.4
+  '@kitql/helpers': 0.8.13
+  '@kitql/eslint-config': 0.7.0
+  '@kitql/internals': 0.10.5
 
  testing:
   '@playwright/test': 1.52.0
-  vitest: 3.1.1
+  vitest: 3.2.3
 
  lib-author-helper:
   '@changesets/changelog-github': 0.5.0
@@ -41,13 +41,13 @@ catalogs:
 
  svelte:
   'svelte': 5.33.1
-  svelte-check: 4.1.5
+  svelte-check: 4.2.1
   svelte-micro: 2.5.7
 
  sveltekit:
   '@sveltejs/adapter-node': 5.2.2
-  '@sveltejs/kit': 2.20.0
-  '@sveltejs/vite-plugin-svelte': 5.0.3
+  '@sveltejs/kit': 2.21.3
+  '@sveltejs/vite-plugin-svelte': 5.1.0
   '@sveltejs/package': 2.3.2
 
  ui:
@@ -67,7 +67,7 @@ catalogs:
   '@oslojs/otp': 1.1.0
   '@types/nodemailer': 6.4.14
   nodemailer: 7.0.3
-  arctic: 3.6.0
+  arctic: 3.7.0
   bcryptjs: 3.0.2
   cron: 4.3.0
   '@layerstack/utils': 1.0.0
