@@ -137,8 +137,8 @@ catalogs:
       specifier: 0.9.0
       version: 0.9.0
     vite-plugin-watch-and-run:
-      specifier: 1.7.1
-      version: 1.7.1
+      specifier: 1.7.5
+      version: 1.7.5
   ui:
     '@mdi/js':
       specifier: 7.4.47
@@ -366,7 +366,7 @@ importers:
         version: 6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)
       vite-plugin-watch-and-run:
         specifier: catalog:tooling
-        version: 1.7.1
+        version: 1.7.5
 
 packages:
 
@@ -1204,10 +1204,6 @@ packages:
     hasBin: true
     peerDependencies:
       prettier: ^3.5.3
-
-  '@kitql/helpers@0.8.10':
-    resolution: {integrity: sha512-r9m0eQyjy3Z2sdeXA8wRGl2tgKtZ9puPuZ3vm9Cv3WMMWVmbKVzUJvF+4UucsHzT9xECFbO9lcQu7lIb774PPQ==}
-    engines: {node: ^16.14 || >=18}
 
   '@kitql/helpers@0.8.12':
     resolution: {integrity: sha512-aAihk32Ym8XFtwP1mwpuvG5J0Ov2LTnIVItJZI31bTnmlQ5tYSaYgvnD44lNiAjHQw0/tUstqIYRPK8C6wlLoA==}
@@ -4991,12 +4987,12 @@ packages:
     resolution: {integrity: sha512-i3ceh8XctbxOgWfIgdpDOLN7e9to+/nl6MIMw6pYGfwxPYjlZ7t/Y46PC65uYXkhYBpAnnr1xTdInA7ulyd9CA==}
     engines: {node: ^16.14 || >=18}
 
-  vite-plugin-watch-and-run@1.7.1:
-    resolution: {integrity: sha512-knLbovXBUwVrm0q4+LcpIhqTAZRoWVv5m8xRn42dy8hrF3rgJ7ucxm1d99KecED87NZI7v5oH3Pc2sPDcwJKEQ==}
-    engines: {node: ^16.14 || >=18}
-
   vite-plugin-watch-and-run@1.7.4:
     resolution: {integrity: sha512-JgL2hi7hN5ZRR2gmmLthTU8vn6CBSQPpaBisUyh5Sy3j2LT1Y6HWFVdsH300465Tk5bRY/1Aks6dPpeUW9mhYw==}
+    engines: {node: ^16.14 || >=18}
+
+  vite-plugin-watch-and-run@1.7.5:
+    resolution: {integrity: sha512-IISx6Cw+w/9HhxaovnJlXaEAnPlA5wLY8lk0CMrFkBgdJdhKElH0jGSjf6gCPti/Z9F4kMM8WUMGx8CQm1BpHQ==}
     engines: {node: ^16.14 || >=18}
 
   vite@6.3.5:
@@ -6124,10 +6120,6 @@ snapshots:
       - svelte
       - ts-node
       - typescript
-
-  '@kitql/helpers@0.8.10':
-    dependencies:
-      esm-env: 1.2.2
 
   '@kitql/helpers@0.8.12':
     dependencies:
@@ -10949,14 +10941,14 @@ snapshots:
       '@kitql/internals': 0.10.4
       vite-plugin-watch-and-run: 1.7.4
 
-  vite-plugin-watch-and-run@1.7.1:
-    dependencies:
-      '@kitql/helpers': 0.8.10
-      micromatch: 4.0.8
-
   vite-plugin-watch-and-run@1.7.4:
     dependencies:
       '@kitql/helpers': 0.8.12
+      micromatch: 4.0.8
+
+  vite-plugin-watch-and-run@1.7.5:
+    dependencies:
+      '@kitql/helpers': 0.8.13
       micromatch: 4.0.8
 
   vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0):
