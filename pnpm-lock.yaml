@@ -137,8 +137,8 @@ catalogs:
       specifier: 0.9.2
       version: 0.9.2
     vite-plugin-watch-and-run:
-      specifier: 1.7.1
-      version: 1.7.1
+      specifier: 1.7.5
+      version: 1.7.5
   ui:
     '@mdi/js':
       specifier: 7.4.47
@@ -366,7 +366,7 @@ importers:
         version: 6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)
       vite-plugin-watch-and-run:
         specifier: catalog:tooling
-        version: 1.7.1
+        version: 1.7.5
 
 packages:
 
@@ -1195,10 +1195,6 @@ packages:
     hasBin: true
     peerDependencies:
       prettier: ^3.5.3
-
-  '@kitql/helpers@0.8.10':
-    resolution: {integrity: sha512-r9m0eQyjy3Z2sdeXA8wRGl2tgKtZ9puPuZ3vm9Cv3WMMWVmbKVzUJvF+4UucsHzT9xECFbO9lcQu7lIb774PPQ==}
-    engines: {node: ^16.14 || >=18}
 
   '@kitql/helpers@0.8.13':
     resolution: {integrity: sha512-8Om4jxF3XLTrpCkrZ8q6kHco4o6u/zKisA7XjLdiUDeSX7VSprlq6fnG2xayrbrc1He+pHQkgj2cHqqUvEHTGg==}
@@ -4975,10 +4971,6 @@ packages:
     resolution: {integrity: sha512-zNhtayPdRCUOQaAxrLRb0xSLroWpldISs7RJ+wjoBLluGIudIm9hxZEinZRqbAcC3euPL2zSa5Ws7f+JOz2ZAg==}
     engines: {node: ^16.14 || >=18}
 
-  vite-plugin-watch-and-run@1.7.1:
-    resolution: {integrity: sha512-knLbovXBUwVrm0q4+LcpIhqTAZRoWVv5m8xRn42dy8hrF3rgJ7ucxm1d99KecED87NZI7v5oH3Pc2sPDcwJKEQ==}
-    engines: {node: ^16.14 || >=18}
-
   vite-plugin-watch-and-run@1.7.5:
     resolution: {integrity: sha512-IISx6Cw+w/9HhxaovnJlXaEAnPlA5wLY8lk0CMrFkBgdJdhKElH0jGSjf6gCPti/Z9F4kMM8WUMGx8CQm1BpHQ==}
     engines: {node: ^16.14 || >=18}
@@ -6099,10 +6091,6 @@ snapshots:
       - svelte
       - ts-node
       - typescript
-
-  '@kitql/helpers@0.8.10':
-    dependencies:
-      esm-env: 1.2.2
 
   '@kitql/helpers@0.8.13':
     dependencies:
@@ -10912,11 +10900,6 @@ snapshots:
       '@kitql/helpers': 0.8.13
       '@kitql/internals': 0.10.5
       vite-plugin-watch-and-run: 1.7.5
-
-  vite-plugin-watch-and-run@1.7.1:
-    dependencies:
-      '@kitql/helpers': 0.8.10
-      micromatch: 4.0.8
 
   vite-plugin-watch-and-run@1.7.5:
     dependencies:
