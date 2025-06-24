@@ -41,7 +41,7 @@
 			const result = await FeedbackController.createIssue(milestoneId, title, content, p)
 			issueNumber = result.number
 		} else {
-			await FeedbackController.addCommentOnIssue(issue.id, content, p, issue.labels)
+			await FeedbackController.addCommentOnIssue(issue.id, issueNumber!, issue.title, content, p, issue.labels)
 		}
 
 		content = ''

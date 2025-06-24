@@ -184,6 +184,7 @@ export class FeedbackController {
 						createdAt
 						bodyHTML
 						state
+						title
             labels(first: 25){
               nodes{
                 id
@@ -216,12 +217,13 @@ export class FeedbackController {
 			},
 		)
 
-		type Item = { bodyHTML: string; who?: string; createdAt: Date; public: boolean }
+		type Item = { bodyHTML: string; who?: string; createdAt: Date; public: boolean; title: string }
 		const items: Item[] = []
 		const firstItem: Item = {
 			bodyHTML: data.repository.issue.bodyHTML,
 			createdAt: data.repository.issue.createdAt,
 			public: true,
+			title: data.repository.issue.title,
 		}
 		items.push(firstItem)
 
@@ -255,6 +257,7 @@ export class FeedbackController {
 					bodyHTML: comments[i].bodyHTML,
 					createdAt: new Date(comments[i].createdAt),
 					public: nbEye && nbEye > 0 ? true : false,
+					title: data.repository.issue.title,
 				})
 			}
 		}
@@ -271,6 +274,7 @@ export class FeedbackController {
 			items: items.filter((c) => c.public),
 			labels: data.repository.issue.labels.nodes,
 			highlight: hasWaitingForAnswerLabel,
+			title: data.repository.issue.title,
 		}
 		return toRet
 	}
@@ -332,12 +336,24 @@ export class FeedbackController {
 
 		await addMetaData(toRet.id, remult.user?.name, page)
 
+		remult.context.feedbackOptions.saved?.({
+			number: toRet.number,
+			title: title,
+			body,
+			metadata: {
+				author: JSON.stringify(remult.user?.name),
+				page,
+			},
+		})
+
 		return toRet
 	}
 
 	@BackendMethod({ allowed: Allow.authenticated })
 	static async addCommentOnIssue(
 		issueId: string,
+		issueNumber: number,
+		title: string,
 		body: string,
 		page: string,
 		labels: { id: string; name: string }[],
@@ -378,6 +394,16 @@ export class FeedbackController {
 		)
 
 		await addMetaData(issueId, remult.user?.name, page)
+
+		remult.context.feedbackOptions.saved?.({
+			number: issueNumber,
+			title,
+			body,
+			metadata: {
+				author: JSON.stringify(remult.user?.name),
+				page,
+			},
+		})
 
 		return 'done'
 	}
