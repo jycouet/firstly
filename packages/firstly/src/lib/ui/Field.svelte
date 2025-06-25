@@ -250,6 +250,7 @@
 				}}
 				createOptionWhenNoResult={!!cell.field?.options.createOptionWhenNoResult}
 				{createRequest}
+				default_select_if_one_item={!!cell.field?.options.default_select_if_one_item}
 			/>
 		{/if}
 	{:else if metaType.kind === 'enum'}
