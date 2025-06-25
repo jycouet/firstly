@@ -17,7 +17,9 @@
 	export let store: StoreItem<T>
 
 	export let focusKey: string | null | undefined = null
-	export let createRequest: ((args:{input: string, id: string}) => Promise<BaseItem| undefined>)| undefined = undefined
+	export let createRequest:
+		| ((args: { input: string; id: string }) => Promise<BaseItem | undefined>)
+		| undefined = undefined
 
 	const getError = (errors: any, field: FieldMetadata<any, any>) => {
 		const fo = getRelationFieldInfo(field)

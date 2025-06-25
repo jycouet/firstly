@@ -40,7 +40,9 @@
 
 	export let clearable: boolean | undefined = undefined
 	export let disabled = false
-	export let createRequest: ((args:{input: string, id: string}) => Promise<BaseItem| undefined>)| undefined = undefined
+	export let createRequest:
+		| ((args: { input: string; id: string }) => Promise<BaseItem | undefined>)
+		| undefined = undefined
 
 	const dispatch = createEventDispatcher()
 
