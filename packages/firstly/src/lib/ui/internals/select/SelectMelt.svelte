@@ -5,6 +5,7 @@
 
 	import {
 		Button,
+		LibIcon_Add,
 		LibIcon_Check,
 		LibIcon_Cross,
 		LibIcon_Search,
@@ -36,6 +37,7 @@
 	export let clearable = false
 	export let createOptionWhenNoResult = false
 	export let default_select_if_one_item = false
+	export let createRequest: ((args:{input: string, id: string}) => Promise<BaseItem | undefined>)| undefined = undefined
 
 	const dispatch = createEventDispatcher()
 
@@ -45,11 +47,6 @@
 
 	function dispatchIssue(msg: 'VALUE_NOT_IN_ITEMS') {
 		dispatch('issue', msg)
-	}
-
-	function dispatchCreateRequest(e: any, input: string) {
-		e.preventDefault()
-		dispatch('createRequest', input)
 	}
 
 	let lastSearch: string | undefined = undefined
@@ -245,9 +242,24 @@
 					<div class="p-4">
 						<Button
 							class="w-full"
-							on:click={(e) => {
-								dispatchCreateRequest(e, $inputValue)
-							}}>Créer "{$inputValue}"</Button
+							on:click={async () => {
+								const newValue = await createRequest?.({input: $inputValue, id})
+								if(newValue){
+									items.push(newValue)			
+									filteredItems.push(newValue)						
+									sync.selected(toOption(newValue))
+									$open = false
+								}
+							}}>
+								<div class="flex items-center gap-2">
+									<Icon data={LibIcon_Add}></Icon>
+									{#if $inputValue}
+										Créer "{$inputValue}"
+									{:else}
+										Créer
+									{/if}
+								</div>
+							</Button
 						>
 					</div>
 				{:else}

@@ -40,6 +40,7 @@
 
 	export let clearable: boolean | undefined = undefined
 	export let disabled = false
+	export let createRequest: ((args:{input: string, id: string}) => Promise<BaseItem| undefined>)| undefined = undefined
 
 	const dispatch = createEventDispatcher()
 
@@ -246,7 +247,7 @@
 					error = e.detail
 				}}
 				createOptionWhenNoResult={!!cell.field?.options.createOptionWhenNoResult}
-				on:createRequest
+				{createRequest}
 			/>
 		{/if}
 	{:else if metaType.kind === 'enum'}

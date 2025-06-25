@@ -18,8 +18,12 @@
 		}
 	}
 
-	const onCreate = (e: CustomEvent) => {
-		dialog.close(toShow.id, { success: true, item: e.detail })
+	const onCreate = async (args: { input: string; id: string }) => {
+		const res = await store.save()
+		if (res) {
+			dialog.close(toShow.id, { success: true, item: res })
+		}
+		return res
 	}
 
 	let isLoading = false
@@ -61,7 +65,7 @@
 				{cells}
 				{store}
 				mode={toShow.type === 'view' ? 'view' : 'edit'}
-				on:createRequest={onCreate}
+				createRequest={onCreate}
 			/>
 		</div>
 
