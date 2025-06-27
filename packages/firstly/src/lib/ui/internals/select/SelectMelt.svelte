@@ -37,9 +37,7 @@
 	export let clearable = false
 	export let createOptionWhenNoResult = false
 	export let default_select_if_one_item = false
-	export let createRequest:
-		| ((args: { input: string; id: string }) => Promise<BaseItem | undefined>)
-		| undefined = undefined
+	export let createRequest: ((args: { input: string; id: string }) => void) | undefined = undefined
 
 	const dispatch = createEventDispatcher()
 
@@ -245,13 +243,15 @@
 						<Button
 							class="w-full"
 							on:click={async () => {
-								const newValue = await createRequest?.({ input: $inputValue, id })
-								if (newValue) {
-									items.push(newValue)
-									filteredItems.push(newValue)
-									sync.selected(toOption(newValue))
-									$open = false
-								}
+								await createRequest?.({ input: $inputValue, id })
+								// const newValue = await createRequest?.({ input: $inputValue, id })
+								// if (newValue) {
+								// 	items.push(newValue)
+								// 	filteredItems.push(newValue)
+								// 	sync.selected(toOption(newValue))
+								// 	$open = false
+								// }
+								$open = false
 							}}
 						>
 							<div class="flex items-center gap-2">

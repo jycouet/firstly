@@ -22,7 +22,6 @@
 		dialog.close(toShow.id, { success: true, item: args.input })
 	}
 
-
 	let isLoading = false
 	const onInsert = async () => {
 		isLoading = true

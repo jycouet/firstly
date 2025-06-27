@@ -4,7 +4,7 @@
 	import type { FieldMetadata } from 'remult'
 	import { getRelationFieldInfo } from 'remult/internals'
 
-	import { tw, type BaseItem, type StoreItem } from '../'
+	import { tw, type StoreItem } from '../'
 	import type { Cell } from '../cellsBuildor'
 	import Field from './Field.svelte'
 	import FieldContainer from './internals/FieldContainer.svelte'
@@ -17,9 +17,7 @@
 	export let store: StoreItem<T>
 
 	export let focusKey: string | null | undefined = null
-	export let createRequest:
-		| ((args: { input: string; id: string }) => Promise<BaseItem | undefined>)
-		| undefined = undefined
+	export let createRequest: ((args: { input: string; id: string }) => void) | undefined = undefined
 
 	const getError = (errors: any, field: FieldMetadata<any, any>) => {
 		const fo = getRelationFieldInfo(field)
