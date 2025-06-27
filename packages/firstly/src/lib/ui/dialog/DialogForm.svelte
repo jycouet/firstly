@@ -18,13 +18,10 @@
 		}
 	}
 
-	const onCreate = async (args: { input: string; id: string }) => {
-		const res = await store.save()
-		if (res) {
-			dialog.close(toShow.id, { success: true, item: res })
-		}
-		return res
+	const onCreate = (args: { input: string; id: string }) => {
+		dialog.close(toShow.id, { success: true, item: args.input })
 	}
+
 
 	let isLoading = false
 	const onInsert = async () => {
