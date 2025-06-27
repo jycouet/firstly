@@ -162,6 +162,7 @@ declare module 'remult' {
 			onSuccess: (entity: entityType, newItem: any) => Promise<void>
 			onError?: () => void
 		}
+		default_select_if_one_item?: boolean
 
 		multiSelect?: boolean
 

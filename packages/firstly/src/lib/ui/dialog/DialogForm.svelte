@@ -18,8 +18,8 @@
 		}
 	}
 
-	const onCreate = (e: CustomEvent) => {
-		dialog.close(toShow.id, { success: true, item: e.detail })
+	const onCreate = (args: { input: string; id: string }) => {
+		dialog.close(toShow.id, { success: true, item: args.input })
 	}
 
 	let isLoading = false
@@ -61,7 +61,7 @@
 				{cells}
 				{store}
 				mode={toShow.type === 'view' ? 'view' : 'edit'}
-				on:createRequest={onCreate}
+				createRequest={onCreate}
 			/>
 		</div>
 
