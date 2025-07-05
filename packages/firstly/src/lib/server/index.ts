@@ -1,11 +1,9 @@
 import type { RequestEvent } from '@sveltejs/kit'
 
 import { type ClassType } from 'remult'
-import { remultSveltekit } from 'remult/remult-sveltekit'
-import type { RemultServerOptions } from 'remult/server'
+import { remultApi } from 'remult/remult-sveltekit'
+import { Module, type RemultServerOptions } from 'remult/server'
 import { Log } from '@kitql/helpers'
-
-import { building } from '$app/environment'
 
 import { sveltekit } from '../sveltekit/server'
 
@@ -68,19 +66,22 @@ export let entities: ClassType<any>[] = []
  * @deprecated will be done directly in remult when modules will be in 😉
  */
 export const firstly = (o: Options) => {
-	const modulesSorted = modulesFlatAndOrdered([
-		...[...(o.modulesFF ?? []), sveltekit()],
-		new ModuleFF({
-			name: 'default',
-			entities: o.entities ?? [],
-			controllers: o.controllers ?? [],
-			initRequest: o.initRequest,
-			initApi: o.initApi,
-		}),
-	])
-	entities = modulesSorted.flatMap((m) => m.entities ?? [])
+	const modulesSorted = modulesFlatAndOrdered([...[...(o.modulesFF ?? []), sveltekit()]])
 
-	return remultSveltekit({
+	const ffModulesToRemult = modulesSorted.map((m) => {
+		return new Module({
+			key: m.name,
+			entities: m.entities ?? [],
+			controllers: m.controllers ?? [],
+			initApi: m.initApi,
+			initRequest: m.initRequest,
+		})
+	})
+
+	// REMULT P1: With Generate Migrations it's a bit hard to get all entities from all modules.
+	entities = [...modulesSorted.flatMap((m) => m.entities ?? []), ...(o.entities ?? [])]
+
+	return remultApi({
 		// Changing the default default of remult
 		logApiEndPoints: false,
 		admin: true,
@@ -97,35 +98,8 @@ export const firstly = (o: Options) => {
 		// Add user configuration
 		...o,
 
-		// Module part
-		entities,
-		controllers: modulesSorted.flatMap((m) => m.controllers ?? []),
-		initRequest: async (kitEvent, op) => {
-			for (let i = 0; i < modulesSorted.length; i++) {
-				const f = modulesSorted[i].initRequest
-				if (f) {
-					try {
-						await f(kitEvent, op)
-					} catch (error) {
-						modulesSorted[i].log.error(error)
-					}
-				}
-			}
-		},
-		initApi: async (r) => {
-			if (!building) {
-				for (let i = 0; i < modulesSorted.length; i++) {
-					const f = modulesSorted[i].initApi
-					if (f) {
-						try {
-							await f(r)
-						} catch (error) {
-							modulesSorted[i].log.error(error)
-						}
-					}
-				}
-			}
-		},
+		// native remult modules
+		modules: [...(o.modules ?? []), ...ffModulesToRemult],
 	})
 }
 

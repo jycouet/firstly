@@ -1,6 +1,4 @@
 import {
-	Entity,
-	Fields,
 	getEntityRef,
 	IdEntity,
 	isBackend,
@@ -11,53 +9,14 @@ import {
 	type LifecycleEvent,
 } from 'remult'
 
-export const Role_ChangeLog = {
-	ChangeLog__Admin: 'changeLog__admin',
-}
+import { ChangeLog, Role_ChangeLog, type change } from './changeLogEntities'
 
-@Entity<ChangeLog>('_ff_change_logs', {
-	caption: 'FF Change Logs',
-	allowApiCrud: Role_ChangeLog.ChangeLog__Admin,
-	defaultOrderBy: {
-		changeDate: 'desc',
-	},
-})
-export class ChangeLog {
-	@Fields.cuid()
-	id = ''
-
-	@Fields.string()
-	entity: string = ''
-
-	@Fields.string()
-	entityId: string = ''
-
-	@Fields.date()
-	changeDate: Date = new Date()
-
-	@Fields.string()
-	userId = ''
-
-	@Fields.json({ dbName: 'changesJson' })
-	changes: change[] = []
-
-	@Fields.boolean()
-	newRow = false
-
-	@Fields.boolean()
-	deleted = false
-}
+export { Role_ChangeLog }
 
 export interface changeEvent {
 	date: Date
 	userId: string
 	changes: change[]
-}
-
-export interface change {
-	key: string
-	oldValue: string
-	newValue: string
 }
 
 export async function recordSaved<entityType>(
