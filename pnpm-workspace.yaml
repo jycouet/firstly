@@ -32,7 +32,7 @@ catalogs:
   '@kitql/internals': 0.10.5
 
  testing:
-  '@playwright/test': 1.52.0
+  '@playwright/test': 1.53.2
   vitest: 3.2.3
 
  lib-author-helper:
