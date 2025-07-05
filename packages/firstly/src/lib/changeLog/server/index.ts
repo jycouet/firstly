@@ -1,6 +1,6 @@
 import { Module } from 'remult/server'
 
-import { ChangeLog } from '../index'
+import { ChangeLog } from '../changeLogEntities'
 
 /**
  * We suggest you to create your own `@APP_Entity` decorator and use it instead of `@Entity`.

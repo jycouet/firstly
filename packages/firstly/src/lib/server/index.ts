@@ -79,7 +79,12 @@ export const firstly = (o: Options) => {
 	})
 
 	// REMULT P1: With Generate Migrations it's a bit hard to get all entities from all modules.
-	entities = [...modulesSorted.flatMap((m) => m.entities ?? []), ...(o.entities ?? [])]
+	entities = [
+		...modulesSorted.flatMap((m) => m.entities ?? []),
+		...(o.entities ?? []),
+		//Managing only the first level... should be ok for now...
+		...(o?.modules?.flatMap((m) => m.entities ?? []) ?? []),
+	]
 
 	return remultApi({
 		// Changing the default default of remult
