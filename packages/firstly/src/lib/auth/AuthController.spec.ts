@@ -24,7 +24,7 @@ describe('demo', () => {
 	it('Invalid Demo User', async () => {
 		firstly({
 			dataProvider: new InMemoryDataProvider(),
-			modules: [
+			modulesFF: [
 				auth({
 					providers: { demo: [{ name: 'Noam' }] },
 				}),
@@ -49,7 +49,7 @@ describe('demo', () => {
 
 	it('valid Demo User', async () => {
 		const api = firstly({
-			modules: [
+			modulesFF: [
 				auth({
 					providers: { demo: [{ name: 'Noam' }] },
 				}),
