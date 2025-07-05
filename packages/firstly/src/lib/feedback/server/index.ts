@@ -1,11 +1,11 @@
 import { remult } from 'remult'
 
-import { Module } from '../../server'
+import { ModuleFF } from '../../server'
 import { FeedbackController } from '../FeedbackController'
 import type { FeedbackOptions } from '../types'
 
-export const feedback: (o: FeedbackOptions) => Module = (o) => {
-	return new Module({
+export const feedback: (o: FeedbackOptions) => ModuleFF = (o) => {
+	return new ModuleFF({
 		name: 'feedback',
 		controllers: [FeedbackController],
 		initRequest: async (kitEvent, op) => {

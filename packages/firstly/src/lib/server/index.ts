@@ -19,10 +19,11 @@ type ModuleInput = {
 	controllers?: ClassType<any>[]
 	initApi?: RemultServerOptions<RequestEvent>['initApi']
 	initRequest?: RemultServerOptions<RequestEvent>['initRequest']
-	modules?: Module[]
+	/** @deprecated use `remult` modules instead */
+	modulesFF?: ModuleFF[]
 }
 
-export class Module {
+export class ModuleFF {
 	name: string
 	log: Log
 
@@ -31,7 +32,8 @@ export class Module {
 	controllers?: ClassType<any>[]
 	initApi?: RemultServerOptions<RequestEvent>['initApi']
 	initRequest?: RemultServerOptions<RequestEvent>['initRequest']
-	modules?: Module[]
+	/** @deprecated use `remult` modules instead */
+	modulesFF?: ModuleFF[]
 
 	constructor(input: ModuleInput) {
 		this.name = input.name
@@ -41,12 +43,13 @@ export class Module {
 		this.controllers = input.controllers
 		this.initApi = input.initApi
 		this.initRequest = input.initRequest
-		this.modules = input.modules
+		this.modulesFF = input.modulesFF
 	}
 }
 
 type Options = RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
-	modules?: Module[] | undefined
+	/** @deprecated use `remult` modules instead */
+	modulesFF?: ModuleFF[] | undefined
 }
 
 declare module 'remult' {
@@ -66,8 +69,8 @@ export let entities: ClassType<any>[] = []
  */
 export const firstly = (o: Options) => {
 	const modulesSorted = modulesFlatAndOrdered([
-		...[...(o.modules ?? []), sveltekit()],
-		new Module({
+		...[...(o.modulesFF ?? []), sveltekit()],
+		new ModuleFF({
 			name: 'default',
 			entities: o.entities ?? [],
 			controllers: o.controllers ?? [],
@@ -129,14 +132,14 @@ export const firstly = (o: Options) => {
 /**
  * Full flat and ordered list by index and concatenaining the modules name
  */
-export const modulesFlatAndOrdered = (modules: Module[]): Module[] => {
-	const flattenModules = (modules: Module[], parentName = ''): Module[] => {
-		return modules.reduce<Module[]>((acc, module) => {
+export const modulesFlatAndOrdered = (modules: ModuleFF[]): ModuleFF[] => {
+	const flattenModules = (modules: ModuleFF[], parentName = ''): ModuleFF[] => {
+		return modules.reduce<ModuleFF[]>((acc, module) => {
 			const fullName = parentName ? `${parentName}-${module.name}` : module.name
 			// Create a new module object without the 'modules' property
-			const { modules: _, ...flatModule } = module
+			const { modulesFF: _, ...flatModule } = module
 			const newModule = { ...flatModule, name: fullName }
-			const subModules = module.modules ? flattenModules(module.modules, fullName) : []
+			const subModules = module.modulesFF ? flattenModules(module.modulesFF, fullName) : []
 			return [...acc, newModule, ...subModules]
 		}, [])
 	}

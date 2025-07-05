@@ -11,9 +11,13 @@ import {
 	type LifecycleEvent,
 } from 'remult'
 
+export const Role_ChangeLog = {
+	ChangeLog__Admin: 'changeLog__admin',
+}
+
 @Entity<ChangeLog>('_ff_change_logs', {
 	caption: 'FF Change Logs',
-	allowApiCrud: false,
+	allowApiCrud: Role_ChangeLog.ChangeLog__Admin,
 	defaultOrderBy: {
 		changeDate: 'desc',
 	},

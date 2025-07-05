@@ -4,7 +4,7 @@ import { FF_Role } from '$lib'
 import { FF_Role_Auth } from '$lib/auth'
 import { auth, github } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'
-import { firstly, Module } from '$lib/server'
+import { firstly, ModuleFF } from '$lib/server'
 
 const Role = {
 	...FF_Role,
@@ -13,7 +13,7 @@ const Role = {
 } as const
 
 export const api = firstly({
-	modules: [
+	modulesFF: [
 		mail({
 			template: {
 				brandColor: '#E10098',
@@ -94,7 +94,7 @@ export const api = firstly({
 			},
 		}),
 
-		new Module({
+		new ModuleFF({
 			name: 'theEnd',
 			async initApi() {
 				// await sendMail('my_first_mail', {

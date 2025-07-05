@@ -4,7 +4,7 @@ import { EntityError, InMemoryDataProvider, remult, repo, type UserInfo } from '
 import { TestApiDataProvider } from 'remult/server'
 
 import { FF_Role } from '../'
-import { firstly, Module } from '../server'
+import { firstly, ModuleFF } from '../server'
 import { AuthController } from './AuthController'
 import { FFAuthUser } from './Entities'
 import { AuthControllerServer } from './server/AuthController.server'
@@ -28,7 +28,7 @@ describe('demo', () => {
 				auth({
 					providers: { demo: [{ name: 'Noam' }] },
 				}),
-				new Module({
+				new ModuleFF({
 					name: 'test',
 					initApi: async () => {
 						try {
