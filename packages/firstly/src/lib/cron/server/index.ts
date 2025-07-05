@@ -2,7 +2,7 @@ import { CronJob } from 'cron'
 
 import { green, magenta, red, yellow } from '@kitql/helpers'
 
-import { Module } from '../../server'
+import { ModuleFF } from '../../server'
 
 export const jobs: Record<
 	string,
@@ -66,8 +66,8 @@ export const cron: (
 		concurrent?: number
 		logs?: { starting?: boolean; ended?: boolean }
 	})[],
-) => Module = (jobsInfos) => {
-	const m = new Module({
+) => ModuleFF = (jobsInfos) => {
+	const m = new ModuleFF({
 		name: 'cron',
 	})
 

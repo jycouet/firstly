@@ -10,7 +10,7 @@ import { env } from '$env/dynamic/private'
 import { building } from '$app/environment'
 
 import { AuthController } from '..'
-import { Module } from '../../server'
+import { ModuleFF } from '../../server'
 import type { RecursivePartial } from '../../utils/types'
 import { FFAuthAccount, FFAuthUser, FFAuthUserSession } from '../Entities'
 import type {
@@ -380,7 +380,7 @@ export const getSafeOptions = <
 	}
 }
 
-export const authModuleRaw = new Module({
+export const authModuleRaw = new ModuleFF({
 	name: 'auth',
 	priority: -777,
 })

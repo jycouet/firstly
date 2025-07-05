@@ -45,13 +45,13 @@ const LINKS = {
   "remult_admin": `/api/admin`,
   "github": (params?: { owner?: (string | number), repo?: (string | number) }) => {
     params = params ?? {}
-    params['owner'] = params['owner'] ?? "jycouet"; 
-    params['repo'] = params['repo'] ?? "firstly"; 
+    params['owner'] = params['owner'] ?? "\"jycouet\""; 
+    params['repo'] = params['repo'] ?? "\"firstly\""; 
     return `https://github.com/${params['owner']}/${params['repo']}`
   }
 }
 
-type ParamValue = string | number | undefined
+type ParamValue = string | number | boolean | null | undefined
 
 /**
  * Append search params to a string

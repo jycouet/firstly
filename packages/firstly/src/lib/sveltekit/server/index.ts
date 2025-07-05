@@ -1,12 +1,12 @@
 import { remult } from 'remult'
 
-import { Module } from '../../server'
+import { ModuleFF } from '../../server'
 
 /**
  * @deprecated will be done directly in remult when modules will be in 😉
  */
-export const sveltekit: () => Module = () => {
-	return new Module({
+export const sveltekit: () => ModuleFF = () => {
+	return new ModuleFF({
 		name: 'sveltekit',
 		priority: -779,
 		entities: [],

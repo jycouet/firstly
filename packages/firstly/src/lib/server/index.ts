@@ -1,11 +1,9 @@
 import type { RequestEvent } from '@sveltejs/kit'
 
 import { type ClassType } from 'remult'
-import { remultSveltekit } from 'remult/remult-sveltekit'
-import type { RemultServerOptions } from 'remult/server'
+import { remultApi } from 'remult/remult-sveltekit'
+import { Module, type RemultServerOptions } from 'remult/server'
 import { Log } from '@kitql/helpers'
-
-import { building } from '$app/environment'
 
 import { sveltekit } from '../sveltekit/server'
 
@@ -19,10 +17,11 @@ type ModuleInput = {
 	controllers?: ClassType<any>[]
 	initApi?: RemultServerOptions<RequestEvent>['initApi']
 	initRequest?: RemultServerOptions<RequestEvent>['initRequest']
-	modules?: Module[]
+	/** @deprecated use `remult` modules instead */
+	modulesFF?: ModuleFF[]
 }
 
-export class Module {
+export class ModuleFF {
 	name: string
 	log: Log
 
@@ -31,7 +30,8 @@ export class Module {
 	controllers?: ClassType<any>[]
 	initApi?: RemultServerOptions<RequestEvent>['initApi']
 	initRequest?: RemultServerOptions<RequestEvent>['initRequest']
-	modules?: Module[]
+	/** @deprecated use `remult` modules instead */
+	modulesFF?: ModuleFF[]
 
 	constructor(input: ModuleInput) {
 		this.name = input.name
@@ -41,12 +41,13 @@ export class Module {
 		this.controllers = input.controllers
 		this.initApi = input.initApi
 		this.initRequest = input.initRequest
-		this.modules = input.modules
+		this.modulesFF = input.modulesFF
 	}
 }
 
 type Options = RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
-	modules?: Module[] | undefined
+	/** @deprecated use `remult` modules instead */
+	modulesFF?: ModuleFF[] | undefined
 }
 
 declare module 'remult' {
@@ -65,19 +66,27 @@ export let entities: ClassType<any>[] = []
  * @deprecated will be done directly in remult when modules will be in 😉
  */
 export const firstly = (o: Options) => {
-	const modulesSorted = modulesFlatAndOrdered([
-		...[...(o.modules ?? []), sveltekit()],
-		new Module({
-			name: 'default',
-			entities: o.entities ?? [],
-			controllers: o.controllers ?? [],
-			initRequest: o.initRequest,
-			initApi: o.initApi,
-		}),
-	])
-	entities = modulesSorted.flatMap((m) => m.entities ?? [])
+	const modulesSorted = modulesFlatAndOrdered([...[...(o.modulesFF ?? []), sveltekit()]])
 
-	return remultSveltekit({
+	const ffModulesToRemult = modulesSorted.map((m) => {
+		return new Module({
+			key: m.name,
+			entities: m.entities ?? [],
+			controllers: m.controllers ?? [],
+			initApi: m.initApi,
+			initRequest: m.initRequest,
+		})
+	})
+
+	// REMULT P1: With Generate Migrations it's a bit hard to get all entities from all modules.
+	entities = [
+		...modulesSorted.flatMap((m) => m.entities ?? []),
+		...(o.entities ?? []),
+		//Managing only the first level... should be ok for now...
+		...(o?.modules?.flatMap((m) => m.entities ?? []) ?? []),
+	]
+
+	return remultApi({
 		// Changing the default default of remult
 		logApiEndPoints: false,
 		admin: true,
@@ -94,49 +103,22 @@ export const firstly = (o: Options) => {
 		// Add user configuration
 		...o,
 
-		// Module part
-		entities,
-		controllers: modulesSorted.flatMap((m) => m.controllers ?? []),
-		initRequest: async (kitEvent, op) => {
-			for (let i = 0; i < modulesSorted.length; i++) {
-				const f = modulesSorted[i].initRequest
-				if (f) {
-					try {
-						await f(kitEvent, op)
-					} catch (error) {
-						modulesSorted[i].log.error(error)
-					}
-				}
-			}
-		},
-		initApi: async (r) => {
-			if (!building) {
-				for (let i = 0; i < modulesSorted.length; i++) {
-					const f = modulesSorted[i].initApi
-					if (f) {
-						try {
-							await f(r)
-						} catch (error) {
-							modulesSorted[i].log.error(error)
-						}
-					}
-				}
-			}
-		},
+		// native remult modules
+		modules: [...(o.modules ?? []), ...ffModulesToRemult],
 	})
 }
 
 /**
  * Full flat and ordered list by index and concatenaining the modules name
  */
-export const modulesFlatAndOrdered = (modules: Module[]): Module[] => {
-	const flattenModules = (modules: Module[], parentName = ''): Module[] => {
-		return modules.reduce<Module[]>((acc, module) => {
+export const modulesFlatAndOrdered = (modules: ModuleFF[]): ModuleFF[] => {
+	const flattenModules = (modules: ModuleFF[], parentName = ''): ModuleFF[] => {
+		return modules.reduce<ModuleFF[]>((acc, module) => {
 			const fullName = parentName ? `${parentName}-${module.name}` : module.name
 			// Create a new module object without the 'modules' property
-			const { modules: _, ...flatModule } = module
+			const { modulesFF: _, ...flatModule } = module
 			const newModule = { ...flatModule, name: fullName }
-			const subModules = module.modules ? flattenModules(module.modules, fullName) : []
+			const subModules = module.modulesFF ? flattenModules(module.modulesFF, fullName) : []
 			return [...acc, newModule, ...subModules]
 		}, [])
 	}

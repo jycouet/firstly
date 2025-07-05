@@ -12,7 +12,7 @@ import type { Component, ComponentProps, ComponentType, SvelteComponent } from '
 import { remult } from 'remult'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
-import { Module } from '../../server'
+import { ModuleFF } from '../../server'
 import { default as DefaultMail } from '../templates/DefaultMail.svelte'
 
 export type TransportTypes =
@@ -165,12 +165,12 @@ ${cyan(JSON.stringify(globalOptions?.transport, null, 2))}
 	}
 }
 
-const mailModule = new Module({
+const mailModule = new ModuleFF({
 	name: 'mail',
 	priority: -888,
 })
 
-export const mail: (o?: MailOptions<SvelteComponent>) => Module = (o) => {
+export const mail: (o?: MailOptions<SvelteComponent>) => ModuleFF = (o) => {
 	mailModule.initApi = () => {
 		initMail(o)
 		// Need to init in the 2 places!
