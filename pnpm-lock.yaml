@@ -58,8 +58,8 @@ catalogs:
       specifier: 1.1.0
       version: 1.1.0
     '@types/nodemailer':
-      specifier: 6.4.14
-      version: 6.4.14
+      specifier: 6.4.17
+      version: 6.4.17
     arctic:
       specifier: 3.7.0
       version: 3.7.0
@@ -73,8 +73,8 @@ catalogs:
       specifier: 4.15.3
       version: 4.15.3
     nodemailer:
-      specifier: 7.0.3
-      version: 7.0.3
+      specifier: 7.0.4
+      version: 7.0.4
     sailkit:
       specifier: 0.3.0
       version: 0.3.0
@@ -250,7 +250,7 @@ importers:
         version: 1.1.0
       '@types/nodemailer':
         specifier: catalog:prod
-        version: 6.4.14
+        version: 6.4.17
       arctic:
         specifier: catalog:prod
         version: 3.7.0
@@ -274,7 +274,7 @@ importers:
         version: 4.15.3
       nodemailer:
         specifier: catalog:prod
-        version: 7.0.3
+        version: 7.0.4
       remult:
         specifier: 3.0.6-next.1
         version: 3.0.6-next.1
@@ -1694,8 +1694,8 @@ packages:
   '@types/node@22.5.1':
     resolution: {integrity: sha512-KkHsxej0j9IW1KKOOAA/XBA0z08UFSrRQHErzEfA3Vgq57eXIMYboIlHJuYIfd+lwCQjtKqUu3UnmKbtUc9yRw==}
 
-  '@types/nodemailer@6.4.14':
-    resolution: {integrity: sha512-fUWthHO9k9DSdPCSPRqcu6TWhYyxTBg382vlNIttSe9M7XfsT06y0f24KHXtbnijPGGRIcVvdKHTNikOI6qiHA==}
+  '@types/nodemailer@6.4.17':
+    resolution: {integrity: sha512-I9CCaIp6DTldEg7vyUTZi8+9Vo0hi1/T8gv3C89yk1rSAAzoKQ8H8ki/jBYJSFoH/BisgLP8tkZMlQ91CIquww==}
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -3875,8 +3875,8 @@ packages:
   node-releases@2.0.14:
     resolution: {integrity: sha512-y10wOWt8yZpqXmOgRo77WaHEmhYQYGNA6y421PKsKYWEK8aW+cqAphborZDhqfyKrbZEN92CN1X2KbafY2s7Yw==}
 
-  nodemailer@7.0.3:
-    resolution: {integrity: sha512-Ajq6Sz1x7cIK3pN6KesGTah+1gnwMnx5gKl3piQlQQE/PwyJ4Mbc8is2psWYxK3RJTVeqsDaCv8ZzXLCDHMTZw==}
+  nodemailer@7.0.4:
+    resolution: {integrity: sha512-9O00Vh89/Ld2EcVCqJ/etd7u20UhME0f/NToPfArwPEe1Don1zy4mAIz6ariRr7mJ2RDxtaDzN0WJVdVXPtZaw==}
     engines: {node: '>=6.0.0'}
 
   nopt@7.2.1:
@@ -6686,7 +6686,7 @@ snapshots:
     dependencies:
       undici-types: 6.19.8
 
-  '@types/nodemailer@6.4.14':
+  '@types/nodemailer@6.4.17':
     dependencies:
       '@types/node': 22.5.1
 
@@ -9732,7 +9732,7 @@ snapshots:
 
   node-releases@2.0.14: {}
 
-  nodemailer@7.0.3: {}
+  nodemailer@7.0.4: {}
 
   nopt@7.2.1:
     dependencies:

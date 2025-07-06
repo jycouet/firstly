@@ -1,3 +1,4 @@
+import { MailController } from '$modules/mail/MailController'
 import { task } from '$modules/task/server'
 import { _AppUser } from '$modules/user/AppUser'
 import { FF_Role } from '$lib'
@@ -13,10 +14,18 @@ const Role = {
 } as const
 
 export const api = firstly({
+	controllers: [MailController],
 	modulesFF: [
 		mail({
-			template: {
-				brandColor: '#E10098',
+			brandColor: '#E10098',
+
+			nodemailer: {
+				// transport: {
+
+				// }
+				defaults: {
+					from: 'noreply-2@firstly.fun',
+				},
 			},
 		}),
 

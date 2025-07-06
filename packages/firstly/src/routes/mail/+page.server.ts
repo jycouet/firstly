@@ -1,6 +1,6 @@
 import { renderEmail } from 'sailkit'
 
-import DefaultMail from '$lib/mail/templates/DefaultMail.svelte'
+import DefaultMail from '$modules/mail/templates/DefaultMail.svelte'
 
 export const load = async () => {
 	const { html, plainText } = await renderEmail(DefaultMail, {
