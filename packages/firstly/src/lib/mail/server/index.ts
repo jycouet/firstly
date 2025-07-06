@@ -16,19 +16,25 @@ import { log, mailEntities } from '../index'
 import { toHtml, type MailStyle } from './formatMailHelper'
 
 export type TransportTypes =
-	| SMTPTransport
 	| SMTPPool
+	| SMTPPool.Options
 	| SendmailTransport
+	| SendmailTransport.Options
 	| StreamTransport
+	| StreamTransport.Options
 	| JSONTransport
+	| JSONTransport.Options
 	| SESTransport
-	| typeNodemailer.Transport<any>
+	| SESTransport.Options
+	| SMTPTransport
+	| SMTPTransport.Options
+	| string
 
 export type DefaultOptions = typeNodemailer.SendMailOptions
 
 type GlobalEasyOptions = {
 	saveHtml?: boolean
-	from?: string
+	from?: DefaultOptions['from']
 
 	service?: string
 	primaryColor?: string
@@ -52,13 +58,11 @@ let globalOptions: MailOptions | undefined
 const initMail: (o?: MailOptions) => void = async (o) => {
 	globalOptions = {
 		...o,
-		service: globalOptions?.service ?? o?.service,
-		primaryColor: globalOptions?.primaryColor ?? o?.primaryColor,
-		secondaryColor: globalOptions?.secondaryColor ?? o?.secondaryColor,
 		nodemailer: {
-			...globalOptions?.nodemailer,
+			...o?.nodemailer,
 			defaults: {
-				from: globalOptions?.from ?? o?.from,
+				from: o?.from,
+				...o?.nodemailer?.defaults,
 			},
 		},
 	}

@@ -13,6 +13,8 @@ import { ChangeLog, Role_ChangeLog, type change } from './changeLogEntities'
 
 export { Role_ChangeLog }
 
+export type { change }
+
 export interface changeEvent {
 	date: Date
 	userId: string

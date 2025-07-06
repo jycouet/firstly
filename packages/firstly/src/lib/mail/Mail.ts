@@ -5,7 +5,8 @@ import { Role_Mail } from './Role_Mail'
 const statuses = ['transport_not_configured', 'sent', 'error'] as const
 type StatusType = (typeof statuses)[number]
 
-@Entity<Mail>('mails', {
+@Entity<Mail>('_ff_mails', {
+	caption: 'Mails',
 	allowApiCrud: Role_Mail.Mail_Admin,
 	defaultOrderBy: { createdAt: 'desc' },
 })
