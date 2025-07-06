@@ -9,9 +9,7 @@ title: Module - ChangeLog
 import { changelog } from 'firstly/changelog/server'
 
 export const api = remultApi({
-	modules: [
-		changelog(),
-	],
+	modules: [changelog()],
 })
 ```
 
@@ -22,7 +20,6 @@ The best practice is to create your decorator `@APP_Entity` helper to wrap the `
 ```ts
 // src/lib/APP_Entity.ts
 import { Entity, isBackend, type EntityOptions } from 'remult'
-
 import { recordDeleted, recordSaved } from 'firstly/changeLog'
 
 export function APP_Entity<entityType>(

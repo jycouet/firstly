@@ -9,9 +9,7 @@ title: Core Module - Mail
 import { mail } from 'firstly/mail/server'
 
 export const api = remultApi({
-	modules: [
-		mail(),
-	],
+	modules: [mail()],
 })
 ```
 
@@ -28,9 +26,7 @@ import { remult } from 'remult'
 await remult.context.sendMail('my_first_mail', {
 	to: '...@...',
 	subject: 'Hello from firstly',
-	sections: [
-		{	html: 'hello <b>hello</b> 👋' },
-	],
+	sections: [{ html: 'hello <b>hello</b> 👋' }],
 })
 ```
 
@@ -58,7 +54,7 @@ export const api = remultApi({
 						pass: '...',
 					},
 				},
-			}
+			},
 		}),
 	],
 })
@@ -73,9 +69,9 @@ export const api = remultApi({
 			// Like this you don't need to pass the `from` param in every call
 			from: {
 				name: 'My Cool App',
-				address: 'noreply@coolApp.io'
-			}
-		})
-	]
+				address: 'noreply@coolApp.io',
+			},
+		}),
+	],
 })
 ```
