@@ -9,9 +9,9 @@ start to be used to it in firstly 😉)_.
 Here is how to play with it:
 
 ```ts
-import { cron, cronTime } from 'firstly/cron'
+import { cron, cronTime } from 'firstly/cron/server'
 
-export const api = firstly({
+export const api = remultApi({
   modules: [
     cron([
       {
