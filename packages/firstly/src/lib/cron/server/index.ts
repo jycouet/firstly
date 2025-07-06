@@ -1,8 +1,11 @@
 import { CronJob } from 'cron'
 
+import { repo } from 'remult'
+import { Module } from 'remult/server'
 import { green, magenta, red, yellow } from '@kitql/helpers'
 
-import { ModuleFF } from '../../server'
+import { log } from '..'
+import { Cron } from '../Cron'
 
 export const jobs: Record<
 	string,
@@ -40,6 +43,27 @@ export const cronTime = {
 }
 
 /**
+ * Type for onTick function that must return a Record<string, any>
+ */
+export type CronOnTick = () => Record<string, any> | Promise<Record<string, any>>
+
+/**
+ * Type for cron job parameters with enforced onTick return type
+ */
+export type CronJobParams = {
+	cronTime: string | Date
+	onTick: CronOnTick
+	topic: string
+	concurrent?: number
+	logs?: { starting?: boolean; ended?: boolean }
+	start?: boolean
+	runOnInit?: boolean
+	timeZone?: string
+	utcOffset?: string | number
+	onComplete?: () => void
+}
+
+/**
  * usage:
  *
  * ```ts
@@ -50,7 +74,10 @@ export const cronTime = {
  *     cron([{
  *       topic: 'first_cron',
  *       cronTime: cronTime.every_second,
- *       onTick: () => { console.log('hello') },
+ *       onTick: () => {
+ *         console.log('hello')
+ *         return { status: 'success' }
+ *       },
  *       start: !dev, // Start in production
  *       // runOnInit: dev, // nice in dev environement
  *     }])
@@ -60,15 +87,11 @@ export const cronTime = {
  *
  * using [cron](https://www.npmjs.com/package/cron) library under the hood
  */
-export const cron: (
-	jobsInfos: (Parameters<typeof CronJob.from>[0] & {
-		topic: string
-		concurrent?: number
-		logs?: { starting?: boolean; ended?: boolean }
-	})[],
-) => ModuleFF = (jobsInfos) => {
-	const m = new ModuleFF({
-		name: 'cron',
+export const cron: (jobsInfos: CronJobParams[]) => Module<unknown> = (jobsInfos) => {
+	const m = new Module({
+		key: 'cron',
+
+		entities: [Cron],
 	})
 
 	const logJobs = (
@@ -89,32 +112,39 @@ export const cron: (
 		}
 
 		if (isSuccess) {
-			m.log.success(l.join(' '))
+			log.success(l.join(' '))
 		} else {
-			m.log.info(l.join(' '))
+			log.info(l.join(' '))
 		}
 	}
 
 	m.initApi = async () => {
 		jobsInfos.forEach((infos) => {
-			const { topic, runOnInit, logs, concurrent, ...params } = infos
+			const { topic, runOnInit, logs, concurrent, onTick: originalOnTick, ...params } = infos
 
 			const concurrentToUse = concurrent ?? 1
 
-			const onTickSaved = params.onTick
-			const fullOnTick = async () => {
+			// Create a wrapper that converts the return type to void for CronJob
+			const wrappedOnTick = async (): Promise<void> => {
 				if (jobs[topic].concurrentInProgress < concurrentToUse) {
 					jobs[topic].concurrentInProgress = jobs[topic].concurrentInProgress + 1
+					const rCron = await repo(Cron).insert({ topic })
 					if (logs?.starting === undefined || logs?.starting === true) {
 						logJobs(topic, job, 'starting...', false, false)
 					}
-					// @ts-ignore
-					await onTickSaved()
+					const res = await originalOnTick()
+					log.info(`[${topic}] result:`, res)
+					rCron.result = res
+					rCron.endedAt = new Date()
+					rCron.status = 'ended'
+					await repo(Cron).save(rCron)
+
 					if (logs?.ended === undefined || logs?.ended === true) {
 						logJobs(topic, job, 'done')
 					}
 					jobs[topic].concurrentInProgress = jobs[topic].concurrentInProgress - 1
 				} else {
+					const rCron = await repo(Cron).insert({ topic, status: 'skipped' })
 					logJobs(
 						topic,
 						job,
@@ -124,9 +154,13 @@ export const cron: (
 					)
 				}
 			}
-			params.onTick = fullOnTick
 
-			const job = CronJob.from(params)
+			// Use type assertion to bypass complex generic type issues
+			const job = CronJob.from({
+				...params,
+				onTick: wrappedOnTick,
+			} as any) as CronJob<null, unknown>
+
 			jobs[topic] = { job, concurrentInProgress: 0 }
 
 			logJobs(topic, job, 'setup done')
