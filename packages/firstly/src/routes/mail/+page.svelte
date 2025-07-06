@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { MailController } from '$modules/mail/MailController'
+
 	import type { PageProps } from './$types'
 
 	const { data }: PageProps = $props()
@@ -19,13 +20,14 @@
 	</div>
 </section>
 
+<br />
+<br />
+<br />
 
-<br/>
-<br/>
-<br/>
-
-<button onclick={() => {
-	MailController.sendMail()
-}}>
+<button
+	onclick={() => {
+		MailController.sendMail()
+	}}
+>
 	Send test mail
 </button>

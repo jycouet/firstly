@@ -132,13 +132,13 @@ kbd {
 }
 :where(select, textarea),
 input:not(
-		[type='submit'],
-		[type='button'],
-		[type='reset'],
-		[type='checkbox'],
-		[type='radio'],
-		[type='file']
-	) {
+	[type='submit'],
+	[type='button'],
+	[type='reset'],
+	[type='checkbox'],
+	[type='radio'],
+	[type='file']
+) {
 	--pico-outline-width: 0.0625rem;
 }
 [type='search'] {
@@ -784,11 +784,11 @@ del {
 		-webkit-text-decoration var(--pico-transition);
 }
 :where(a:not([role='button'])):is(
-		[aria-current]:not([aria-current='false']),
-		:hover,
-		:active,
-		:focus
-	),
+	[aria-current]:not([aria-current='false']),
+	:hover,
+	:active,
+	:focus
+),
 [role='link']:is([aria-current]:not([aria-current='false']), :hover, :active, :focus) {
 	--pico-color: var(--pico-primary-hover);
 	--pico-underline: var(--pico-primary-hover-underline);
@@ -1881,17 +1881,17 @@ article > footer {
 }
 @supports selector(:has(*)) {
 	[role='group']:has(
-			button:focus,
-			[type='submit']:focus,
-			[type='button']:focus,
-			[role='button']:focus
-		),
+		button:focus,
+		[type='submit']:focus,
+		[type='button']:focus,
+		[role='button']:focus
+	),
 	[role='search']:has(
-			button:focus,
-			[type='submit']:focus,
-			[type='button']:focus,
-			[role='button']:focus
-		) {
+		button:focus,
+		[type='submit']:focus,
+		[type='button']:focus,
+		[role='button']:focus
+	) {
 		--pico-group-box-shadow: var(--pico-group-box-shadow-focus-with-button);
 	}
 	[role='group']:has(
