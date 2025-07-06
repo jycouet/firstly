@@ -9,7 +9,7 @@ catalogs:
  docs:
   '@astrojs/starlight': 0.34.3
   accessible-astro-components: 4.1.0
-  astro: 5.8.0
+  astro: 5.11.0
   astro-icon: 1.1.5
   sharp: 0.34.1
   prettier-plugin-astro: 0.14.1
@@ -19,20 +19,20 @@ catalogs:
   vite: 6.3.5
   '@tsconfig/svelte': 5.0.2
   tslib: 2.8.0
-  vite-plugin-watch-and-run: 1.7.1
-  vite-plugin-kit-routes: 0.8.4
-  vite-plugin-stripper: 0.9.0
+  vite-plugin-watch-and-run: 1.7.5
+  vite-plugin-kit-routes: 1.0.2
+  vite-plugin-stripper: 0.9.2
   esm-env: 1.2.2
   '@clack/prompts': 0.11.0
-  prettier: 3.5.3
+  prettier: 3.6.2
 
  kitql:
   '@kitql/helpers': 0.8.13
-  '@kitql/eslint-config': 0.7.0
+  '@kitql/eslint-config': 0.7.1
   '@kitql/internals': 0.10.5
 
  testing:
-  '@playwright/test': 1.52.0
+  '@playwright/test': 1.53.2
   vitest: 3.2.3
 
  lib-author-helper:
@@ -40,18 +40,18 @@ catalogs:
   '@changesets/cli': 2.29.4
 
  svelte:
-  'svelte': 5.33.1
+  'svelte': 5.35.2
   svelte-check: 4.2.1
   svelte-micro: 2.5.7
 
  sveltekit:
   '@sveltejs/adapter-node': 5.2.2
-  '@sveltejs/kit': 2.21.3
+  '@sveltejs/kit': 2.22.2
   '@sveltejs/vite-plugin-svelte': 5.1.0
   '@sveltejs/package': 2.3.2
 
  ui:
-  mermaid: 11.6.0
+  mermaid: 11.8.0
   '@mdi/js': 7.4.47
   '@melt-ui/svelte': 0.86.3
   autoprefixer: 10.4.19
@@ -65,8 +65,8 @@ catalogs:
   '@oslojs/crypto': 1.0.1
   '@oslojs/encoding': 1.1.0
   '@oslojs/otp': 1.1.0
-  '@types/nodemailer': 6.4.14
-  nodemailer: 7.0.3
+  '@types/nodemailer': 6.4.17
+  nodemailer: 7.0.4
   arctic: 3.7.0
   bcryptjs: 3.0.2
   cron: 4.3.0

@@ -15,36 +15,36 @@ const toAllow = (permission: BaseEnum[] | BaseEnum | undefined) => {
 
 export function FF_Entity<entityType>(
 	key: string,
-	options: EntityOptions<
+	options?: EntityOptions<
 		entityType extends new (...args: any) => any ? InstanceType<entityType> : entityType
 	>,
 ) {
 	return Entity(key, {
 		...options,
-		allowApiCrud: options.allowApiCrud ?? toAllow(options.permissionApiCrud),
-		allowApiDelete: options.allowApiDelete ?? toAllow(options.permissionApiDelete),
-		allowApiInsert: options.allowApiInsert ?? toAllow(options.permissionApiInsert),
-		allowApiRead: options.allowApiRead ?? toAllow(options.permissionApiRead),
-		allowApiUpdate: options.allowApiUpdate ?? toAllow(options.permissionApiUpdate),
+		allowApiCrud: options?.allowApiCrud ?? toAllow(options?.permissionApiCrud),
+		allowApiDelete: options?.allowApiDelete ?? toAllow(options?.permissionApiDelete),
+		allowApiInsert: options?.allowApiInsert ?? toAllow(options?.permissionApiInsert),
+		allowApiRead: options?.allowApiRead ?? toAllow(options?.permissionApiRead),
+		allowApiUpdate: options?.allowApiUpdate ?? toAllow(options?.permissionApiUpdate),
 
 		// changesLogs
 		saved: async (entity, e) => {
 			await options?.saved?.(entity, e)
-			if (options.changeLog === false) {
+			if (options?.changeLog === false) {
 				// Don't log changes
 			} else {
 				if (isBackend()) {
-					await recordSaved(entity, e, options.changeLog)
+					await recordSaved(entity, e, options?.changeLog)
 				}
 			}
 		},
 		deleted: async (entity, e) => {
 			await options?.deleted?.(entity, e)
-			if (options.changeLog === false) {
+			if (options?.changeLog === false) {
 				// Don't log changes
 			} else {
 				if (isBackend()) {
-					await recordDeleted(entity, e, options.changeLog)
+					await recordDeleted(entity, e, options?.changeLog)
 				}
 			}
 		},

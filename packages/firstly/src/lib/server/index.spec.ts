@@ -1,19 +1,22 @@
 import { describe, expect, it } from 'vitest'
 
-import { Module, modulesFlatAndOrdered } from '.'
+import { ModuleFF, modulesFlatAndOrdered } from '.'
 import { auth } from '../auth/server'
 
 describe('api', () => {
 	it('flatten modules', () => {
-		const modules: Module[] = [
-			new Module({ name: 'init', modules: [new Module({ name: 'a' }), new Module({ name: 'b' })] }),
-			new Module({ name: 'main' }),
+		const modules: ModuleFF[] = [
+			new ModuleFF({
+				name: 'init',
+				modulesFF: [new ModuleFF({ name: 'a' }), new ModuleFF({ name: 'b' })],
+			}),
+			new ModuleFF({ name: 'main' }),
 			auth({}),
-			new Module({ name: 'main last', priority: 100 }),
-			new Module({ name: 'prio', priority: -1000 }),
-			new Module({
+			new ModuleFF({ name: 'main last', priority: 100 }),
+			new ModuleFF({ name: 'prio', priority: -1000 }),
+			new ModuleFF({
 				name: 'the end',
-				modules: [new Module({ name: 'd' }), new Module({ name: 'c' })],
+				modulesFF: [new ModuleFF({ name: 'd' }), new ModuleFF({ name: 'c' })],
 			}),
 		]
 

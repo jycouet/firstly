@@ -20,6 +20,7 @@ export const api = firstly({
         cronTime: cronTime.every_second, // You can use the cron syntax `* * * * * *` or some built in helpers.
         onTick: () => {
           console.log('hello')
+          return { status: 'success' } // Must return a Record<string, any>
         },
         // onTick: fnUpdateFormSomewhereElse // Usually doing this in real life !
 

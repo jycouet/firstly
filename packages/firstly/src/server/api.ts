@@ -1,10 +1,11 @@
+import { MailController } from '$modules/mail/MailController'
 import { task } from '$modules/task/server'
 import { _AppUser } from '$modules/user/AppUser'
 import { FF_Role } from '$lib'
 import { FF_Role_Auth } from '$lib/auth'
 import { auth, github } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'
-import { firstly, Module } from '$lib/server'
+import { firstly, ModuleFF } from '$lib/server'
 
 const Role = {
 	...FF_Role,
@@ -13,13 +14,23 @@ const Role = {
 } as const
 
 export const api = firstly({
+	controllers: [MailController],
 	modules: [
 		mail({
-			template: {
-				brandColor: '#E10098',
-			},
-		}),
+			from: 'noreply@firstly.fun',
+			// primaryColor: '#E10098',
+			service: 'Firstly',
 
+			// nodemailer: {
+			// 	// transport: {
+			// 	// }
+			// 	// defaults: {
+			// 	// },
+			// },
+		}),
+	],
+
+	modulesFF: [
 		auth({
 			// rolesToInitFromEnv: Role,
 
@@ -94,7 +105,7 @@ export const api = firstly({
 			},
 		}),
 
-		new Module({
+		new ModuleFF({
 			name: 'theEnd',
 			async initApi() {
 				// await sendMail('my_first_mail', {

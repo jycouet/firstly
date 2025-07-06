@@ -1,10 +1,10 @@
-import { Module } from '$lib/server'
+import { ModuleFF } from '$lib/server'
 
 import { Task } from '../Task'
 import { TaskController } from '../TaskController'
 
-export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) => {
-	const m = new Module({
+export const task: (o: { specialInfo: string }) => ModuleFF = ({ specialInfo }) => {
+	const m = new ModuleFF({
 		name: 'task',
 		entities: [Task],
 		controllers: [TaskController],

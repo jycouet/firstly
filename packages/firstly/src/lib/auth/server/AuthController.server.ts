@@ -137,23 +137,19 @@ export class AuthControllerServer {
 					to: email,
 					subject: 'Invitation',
 
-					templateProps: {
-						title: 'Invitation 👋',
-						previewText: 'This is the mail you were waiting for',
-						sections: [
-							{
-								text: 'Today is your lucky day !',
-								highlighted: true,
+					title: 'Invitation 👋',
+					sections: [
+						{
+							html: 'Today is your lucky day !',
+						},
+						{
+							html: 'You were invited to join the team',
+							cta: {
+								html: 'JOIN',
+								link: url,
 							},
-							{
-								text: 'You were invited to join the team',
-								cta: {
-									text: 'JOIN',
-									link: url,
-								},
-							},
-						],
-					},
+						},
+					],
 				})
 
 				authModuleRaw.log.success(`${magenta('[invitationSend]')} (${yellow(url)})`)
@@ -238,20 +234,16 @@ export class AuthControllerServer {
 				await sendMail('verifyMailSend', {
 					to: email,
 					subject: 'Wecome',
-
-					templateProps: {
-						title: 'Wecome 👋',
-						previewText: 'This is the mail you were waiting for',
-						sections: [
-							{
-								text: 'You can validate your account',
-								cta: {
-									text: 'HERE',
-									link: url,
-								},
+					title: 'Wecome 👋',
+					sections: [
+						{
+							html: 'You can validate your account',
+							cta: {
+								html: 'HERE',
+								link: url,
 							},
-						],
-					},
+						},
+					],
 				})
 
 				authModuleRaw.log.success(`${magenta('[verifyMailSend]')} (${yellow(url)})`)
@@ -356,24 +348,18 @@ export class AuthControllerServer {
 				await sendMail('resetPasswordSend', {
 					to: email,
 					subject: 'Reset your password',
-
-					templateProps: {
-						title: 'Reset your password 👋',
-						previewText: 'This is the mail you were waiting for',
-						sections: [
-							{
-								text: 'Did you forgot something ?',
-								highlighted: true,
+					sections: [
+						{
+							html: 'Did you forgot something ?',
+						},
+						{
+							html: 'No worries, you can reset your password',
+							cta: {
+								html: 'HERE',
+								link: url,
 							},
-							{
-								text: 'No worries, you can reset your password',
-								cta: {
-									text: 'HERE',
-									link: url,
-								},
-							},
-						],
-					},
+						},
+					],
 				})
 
 				authModuleRaw.log.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)

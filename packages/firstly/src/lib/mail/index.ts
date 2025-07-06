@@ -1,3 +1,11 @@
-import { default as DefaultMail } from './templates/DefaultMail.svelte'
+import { Log } from '@kitql/helpers'
 
-export { DefaultMail }
+import { Mail } from './Mail'
+
+export const key = 'mail'
+
+export const log = new Log(key)
+
+export const mailEntities = {
+	Mail,
+}

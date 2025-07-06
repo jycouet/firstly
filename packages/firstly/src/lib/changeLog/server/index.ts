@@ -1,43 +1,55 @@
-import { Module } from '../../server'
-import { ChangeLog } from '../index'
+import { Module } from 'remult/server'
+
+import { ChangeLog } from '../changeLogEntities'
 
 /**
- * ## Default way
- * The easiest is to switch from `@Entity` to `@FF_Entity` to the entities where you want to log changes.
+ * We suggest you to create your own `@APP_Entity` decorator and use it instead of `@Entity`.
+ * Like this you opt-in to the change log feature Entity by Entity.
  *
+ * @example
  * ```ts
- * \@FF_Entity<User>('users', {
+ * // APP_Entity.ts example
+ * import { Entity, isBackend, type EntityOptions } from 'remult'
  *
- *   // Optional => To disable change logs
- *   // changeLog: false,
+ * import { recordDeleted, recordSaved } from 'firstly/changeLog'
  *
- *   // Optional => To disable some columns from being logged
- *   // changeLog: {
- *   //   excludeColumns: (e) => {
- *   //     return [e.password]
- *   //   },
- *   // },
- * })
- * export class User {}
- * ```
+ * export function APP_Entity<entityType>(
+ * 	key: string,
+ * 	options?: EntityOptions<
+ * 		entityType extends new (...args: any) => any ? InstanceType<entityType> : entityType
+ * 	>,
+ * ) {
+ * 	return Entity(key, {
+ * 		...options,
  *
- * ## Manual way
- * If you want to go more manual, you can import these functions and call them in your entity's lifecycle events.
- * ```ts
- * \@Entity<User>('users', {
- *   saved: async (entity, e) => {
- *     await recordSaved(entity, e)
- *   },
- *   deleted: async (entity, e) => {
- *     await recordDeleted(entity, e)
- *   },
- * })
- * export class User {}
+ * 		// changesLogs
+ * 		saved: async (entity, e) => {
+ * 			await options?.saved?.(entity, e)
+ * 			if (options?.changeLog === false) {
+ * 				// Don't log changes
+ * 			} else {
+ * 				if (isBackend()) {
+ * 					await recordSaved(entity, e, options?.changeLog)
+ * 				}
+ * 			}
+ * 		},
+ * 		deleted: async (entity, e) => {
+ * 			await options?.deleted?.(entity, e)
+ * 			if (options?.changeLog === false) {
+ * 				// Don't log changes
+ * 			} else {
+ * 				if (isBackend()) {
+ * 					await recordDeleted(entity, e, options?.changeLog)
+ * 				}
+ * 			}
+ * 		},
+ * 	})
+ * }
  * ```
  */
-export const changeLog: () => Module = () => {
+export const changeLog = () => {
 	return new Module({
-		name: 'changeLog',
+		key: 'changeLog',
 		entities: [ChangeLog],
 	})
 }

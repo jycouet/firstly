@@ -17,6 +17,7 @@
 	export let store: StoreItem<T>
 
 	export let focusKey: string | null | undefined = null
+	export let createRequest: ((args: { input: string; id: string }) => void) | undefined = undefined
 
 	const getError = (errors: any, field: FieldMetadata<any, any>) => {
 		const fo = getRelationFieldInfo(field)
@@ -105,7 +106,7 @@
 					bind:value={$store.item[cell.field.key]}
 					error={getError($store.errors, cell.field)}
 					{focus}
-					on:createRequest
+					{createRequest}
 				/>
 				<!-- disabled={isDisableFieldDynamic(cell)} -->
 			{:else}
