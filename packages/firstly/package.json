@@ -34,15 +34,11 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "mjml": ">=4",
-    "remult": "3.0.6-next.1",
+    "remult": "3.0.6",
     "svelte": ">=5"
   },
   "peerDependenciesMeta": {
     "@sveltejs/kit": {
-      "optional": true
-    },
-    "mjml": {
       "optional": true
     },
     "remult": {

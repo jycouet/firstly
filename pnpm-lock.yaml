@@ -276,8 +276,8 @@ importers:
         specifier: catalog:prod
         version: 7.0.4
       remult:
-        specifier: 3.0.6-next.1
-        version: 3.0.6-next.1
+        specifier: 3.0.6
+        version: 3.0.6
       sailkit:
         specifier: catalog:prod
         version: 0.3.0(@sveltejs/kit@2.22.2(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.35.2)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(svelte@5.35.2)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.7.0)))(mjml@4.15.3)(svelte@5.35.2)
@@ -4402,8 +4402,8 @@ packages:
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
-  remult@3.0.6-next.1:
-    resolution: {integrity: sha512-7UvEWW8lmYOaLoArkNM7KCn8bb3S25IEyj3wh0r4QduJTps4fedT6bj8AXiLUa74U57E/oD/AvwI6F2IOy+fhQ==}
+  remult@3.0.6:
+    resolution: {integrity: sha512-mmdv2hWPeBeUKr7j2YgqEjjeMy/KZCqHYRNlAmnsX7cK87vq5neQqFKO9bMbONmXXaoDrjoSkWElWt53I60isw==}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -10264,7 +10264,7 @@ snapshots:
       mdast-util-to-markdown: 2.1.2
       unified: 11.0.5
 
-  remult@3.0.6-next.1:
+  remult@3.0.6:
     dependencies:
       '@paralleldrive/cuid2': 2.2.2
       reflect-metadata: 0.1.14

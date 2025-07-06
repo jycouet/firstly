@@ -12,6 +12,7 @@ import { remult } from 'remult'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
 import { ModuleFF } from '../../server'
+import { toHtml, type MailStyle } from './formatMailHelper'
 
 export type TransportTypes =
 	| SMTPTransport
@@ -21,21 +22,21 @@ export type TransportTypes =
 	| JSONTransport
 	| SESTransport
 	| typeNodemailer.Transport<any>
-// | DefaultOptions
 
 export type DefaultOptions = typeNodemailer.SendMailOptions
-// | SMTPTransport.Options
-// | SMTPPool.Options
-// | SendmailTransport.Options
-// | StreamTransport.Options
-// | JSONTransport.Options
-// | SESTransport.Options
-// | typeNodemailer.TransportOptions
-// | typeNodemailer.SendMailOptions
 
-export type MailOptions = {
-	brandColor?: string
+type GlobalEasyOptions = {
+	from?: string
 
+	service?: string
+	primaryColor?: string
+	secondaryColor?: string
+	footer?: string
+
+	toHtml?: (args: MailStyle) => string
+}
+
+export type MailOptions = GlobalEasyOptions & {
 	nodemailer?: {
 		transport?: TransportTypes
 		defaults?: DefaultOptions
@@ -47,7 +48,18 @@ let transporter: ReturnType<typeof typeNodemailer.createTransport>
 let globalOptions: MailOptions | undefined
 
 const initMail: (o?: MailOptions) => void = async (o) => {
-	globalOptions = o
+	globalOptions = {
+		...o,
+		service: globalOptions?.service ?? o?.service,
+		primaryColor: globalOptions?.primaryColor ?? o?.primaryColor,
+		secondaryColor: globalOptions?.secondaryColor ?? o?.secondaryColor,
+		nodemailer: {
+			...globalOptions?.nodemailer,
+			defaults: {
+				from: globalOptions?.from ?? o?.from,
+			},
+		},
+	}
 
 	if (o?.nodemailer?.transport) {
 		transporter = nodemailer.createTransport(o?.nodemailer?.transport, o?.nodemailer?.defaults)
@@ -59,7 +71,9 @@ const initMail: (o?: MailOptions) => void = async (o) => {
 						...globalOptions,
 						...{
 							...globalOptions?.nodemailer,
-							nodemailer: { defaults: { from: account.user } },
+							nodemailer: {
+								defaults: { from: account.user },
+							},
 						},
 					}
 
@@ -93,8 +107,58 @@ export type SendMail = typeof sendMail
 export const sendMail: (
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,
-	mailOptions: Parameters<typeof transporter.sendMail>[0],
-) => ReturnType<typeof transporter.sendMail> = async (topic, mailOptions) => {
+	easyOptions: GlobalEasyOptions & {
+		to: Required<DefaultOptions>['to']
+		subject: Required<DefaultOptions>['subject']
+		title?: string
+		sections: {
+			html: string
+			cta?: { html: string; link: string } | undefined
+		}[]
+	},
+	options?: { nodemailer?: MailOptions['nodemailer'] },
+) => ReturnType<typeof transporter.sendMail> = async (topic, easyOptions, options) => {
+	let { nodemailer: nodemailerOptions } = options ?? {}
+	const easyOptionsToUse = {
+		...easyOptions,
+		service: easyOptions.service ?? globalOptions?.service,
+		primaryColor: easyOptions.primaryColor ?? globalOptions?.primaryColor,
+		secondaryColor: easyOptions.secondaryColor ?? globalOptions?.secondaryColor,
+		footer: easyOptions.footer ?? globalOptions?.footer,
+		from: easyOptions.from ?? globalOptions?.from,
+	}
+
+	let { primaryColor, secondaryColor, title, footer, service } = easyOptionsToUse
+	const { subject, sections } = easyOptionsToUse
+
+	service = service ?? 'service'
+	primaryColor = primaryColor ?? '#0d0f70'
+	secondaryColor = secondaryColor ?? '#653eae'
+	title = title ?? subject ?? 'subject'
+	footer = footer ?? 'The team wishes you a great day 🚀'
+
+	const args = {
+		service,
+		primaryColor,
+		secondaryColor,
+		subject,
+		title,
+		footer,
+		sections,
+	}
+	const html = easyOptionsToUse.toHtml ? easyOptionsToUse.toHtml(args) : toHtml(args)
+
+	nodemailerOptions = {
+		defaults: {
+			...globalOptions?.nodemailer?.defaults,
+			to: easyOptionsToUse.to,
+			subject: easyOptionsToUse.subject,
+			html,
+			...nodemailerOptions?.defaults,
+			from: easyOptionsToUse.from ?? globalOptions?.from,
+		},
+	}
+
 	// if the transporter is not ready, wait for it! (it can happen only if nothing is set...)
 	for (let i = 0; i < 30; i++) {
 		if (transporter !== undefined) {
@@ -103,57 +167,19 @@ export const sendMail: (
 		await sleep(100)
 	}
 	try {
-		if (!mailOptions.html) {
-			const templateProps = {
-				subject: mailOptions.subject,
-			}
-			try {
-				// const { renderEmail } = await import('sailkit')
-				// const { html, plainText } = await renderEmail(
-				// 	// @ts-ignore
-				// 	mailOptions.template ?? DefaultMail,
-				// 	templateProps,
-				// )
-
-				// mailOptions.text = plainText
-				// mailOptions.html = html
-				mailOptions.text = 'test'
-				mailOptions.html = 'test'
-			} catch (error) {
-				mailModule.log.error(`${magenta(`[${topic}]`)}`, error)
-				mailModule.log.error(
-					`${magenta(`[${topic}]`)}`,
-					`missing ${red('mjml')} as dependency?! (it's a peer dependency of sailkit)`,
-				)
-			}
-		}
-
 		if (!globalOptions?.nodemailer?.transport) {
-			const info = await transporter.sendMail({
-				...mailOptions,
-				...{ from: mailOptions.from ?? globalOptions?.nodemailer?.defaults?.from },
-			})
+			const info = await transporter.sendMail({ ...nodemailerOptions.defaults })
 			mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
 			We are still nice and generated you an email preview link: 
-			👉 ${cyan(
-				String(
-					nodemailer.getTestMessageUrl(
-						// @ts-ignore
-						info,
-					),
-				),
-			)}
+			👉 ${cyan(String(nodemailer.getTestMessageUrl(info)))}
 			
 			To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
       `)
 			return info
 		} else {
-			const info = await transporter.sendMail({
-				...mailOptions,
-				...{ from: mailOptions.from ?? globalOptions?.nodemailer?.defaults?.from },
-			})
+			const info = await transporter.sendMail({ ...nodemailerOptions.defaults })
 			mailModule.log.success(
-				`${magenta(`[${topic}]`)} - Sent to ${typeof mailOptions.to === 'string' ? green(mailOptions.to) : mailOptions.to}`,
+				`${magenta(`[${topic}]`)} - Sent to ${typeof nodemailerOptions.defaults?.to === 'string' ? green(nodemailerOptions.defaults?.to) : nodemailerOptions.defaults?.to}`,
 			)
 			return info
 		}
@@ -166,6 +192,7 @@ ${cyan(JSON.stringify(globalOptions?.nodemailer?.transport, null, 2))}
 		} else {
 			mailModule.log.error(`${magenta(`[${topic}]`)} - Error`, error)
 		}
+		throw error
 	}
 }
 

@@ -17,16 +17,16 @@ export const api = firstly({
 	controllers: [MailController],
 	modulesFF: [
 		mail({
-			brandColor: '#E10098',
+			from: 'noreply@firstly.fun',
+			// primaryColor: '#E10098',
+			service: 'Firstly',
 
-			nodemailer: {
-				// transport: {
-
-				// }
-				defaults: {
-					from: 'noreply-2@firstly.fun',
-				},
-			},
+			// nodemailer: {
+			// 	// transport: {
+			// 	// }
+			// 	// defaults: {
+			// 	// },
+			// },
 		}),
 
 		auth({
