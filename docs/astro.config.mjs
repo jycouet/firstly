@@ -49,16 +49,25 @@ export default defineConfig({
 					label: 'Modules',
 					items: [
 						{
-							label: 'Auth',
-							link: '/docs/modules/auth',
+							label: 'Change Log',
+							link: '/docs/modules/changelog',
+						},
+						{
+							label: 'Cron',
+							link: '/docs/modules/cron',
 						},
 						{
 							label: 'Mail',
 							link: '/docs/modules/mail',
 						},
+					],
+				},
+				{
+					label: 'Firstly Modules (deprecated)',
+					items: [
 						{
-							label: 'Cron',
-							link: '/docs/modules/cron',
+							label: 'Auth',
+							link: '/docs/modules/auth',
 						},
 					],
 				},

@@ -2,6 +2,17 @@
 title: Core Module - Mail
 ---
 
+## Setup
+
+```ts
+// src/server/api.ts
+import { mail } from 'firstly/mail/server'
+
+export const api = remultApi({
+	modules: [mail()],
+})
+```
+
 ## Usage
 
 To it's core, `firstly` provides you the ability to send emails. For this, we didn't reinvent the
@@ -15,7 +26,7 @@ import { remult } from 'remult'
 await remult.context.sendMail('my_first_mail', {
 	to: '...@...',
 	subject: 'Hello from firstly',
-	html: 'hello <b>hello</b> 👋',
+	sections: [{ html: 'hello <b>hello</b> 👋' }],
 })
 ```
 
@@ -23,73 +34,44 @@ By default, firstly will create a demo account on [ethereal.email](https://ether
 will **NEVER** send a real email, but you can see the email sent in the ethereal dashboard. You also
 get a link to the email preview in the console.
 
-## Use the template
-
-Instead of passing the `html` param, you can pass `templateProps`, and it will use a nice default
-template.
-
-```ts
-import { sendMail } from 'firstly/mail/server'
-
-await sendMail('my_second_mail', {
-	to: '...@...',
-	subject: 'Hello from firstly (a second time)',
-
-	templateProps: {
-		title: 'firstly 👋',
-		previewText: 'This is the mail you were waiting for',
-		sections: [
-			{
-				text: 'Then, How are you today ?',
-				highlighted: true,
-			},
-			{
-				text: 'Did you star the repo ?',
-				cta: {
-					text: 'Check it out',
-					link: 'https://github.com/jycouet/firstly',
-				},
-			},
-		],
-	},
-})
-```
-
 # How to really send email ?
 
 ## Manually configure your service
 
+Configure the `transport` of your email service.
+
 ```ts
-export const api = firstly({
-	mail: {
-		transport: {
-			host: '...',
-			port: 587,
-			secure: false, // Use `true` for port 465, `false` for all other ports
-			auth: {
-				user: '...',
-				pass: '...',
+export const api = remultApi({
+	modules: [
+		mail({
+			nodemailer: {
+				transport: {
+					host: '...',
+					port: 587,
+					secure: false, // Use `true` for port 465, `false` for all other ports
+					auth: {
+						user: '...',
+						pass: '...',
+					},
+				},
 			},
-		},
-	},
+		}),
+	],
 })
 ```
 
 ## Other params
 
 ```ts
-export const api = firstly({
-  mail: {
-    // Like this you don't need to pass the `from` param in every call
-    from: {
-      name: 'My Cool App',
-      address: 'noreply@coolApp.io'
-    }
-    template: {
-      component: AnySvelteComponent
-      // to match your own branding
-      brandColor: '#E10098'
-    }
-  }
+export const api = remultApi({
+	modules: [
+		mail({
+			// Like this you don't need to pass the `from` param in every call
+			from: {
+				name: 'My Cool App',
+				address: 'noreply@coolApp.io',
+			},
+		}),
+	],
 })
 ```
