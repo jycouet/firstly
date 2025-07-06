@@ -8,10 +8,11 @@ import type SMTPPool from 'nodemailer/lib/smtp-pool'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import type StreamTransport from 'nodemailer/lib/stream-transport'
 
-import { remult } from 'remult'
+import { remult, repo } from 'remult'
+import { Module } from 'remult/server'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
-import { ModuleFF } from '../../server'
+import { log, mailEntities } from '../index'
 import { toHtml, type MailStyle } from './formatMailHelper'
 
 export type TransportTypes =
@@ -26,6 +27,7 @@ export type TransportTypes =
 export type DefaultOptions = typeNodemailer.SendMailOptions
 
 type GlobalEasyOptions = {
+	saveHtml?: boolean
 	from?: string
 
 	service?: string
@@ -87,11 +89,11 @@ const initMail: (o?: MailOptions) => void = async (o) => {
 						},
 					})
 				} else {
-					mailModule.log.error("Error nodemailer.createTestAccount() can't be done.")
+					log.error("Error nodemailer.createTestAccount() can't be done.")
 				}
 			})
 		} catch (error) {
-			mailModule.log.error("Error nodemailer.createTestAccount() can't be done.")
+			log.error("Error nodemailer.createTestAccount() can't be done.")
 		}
 	}
 }
@@ -129,7 +131,7 @@ export const sendMail: (
 	}
 
 	let { primaryColor, secondaryColor, title, footer, service } = easyOptionsToUse
-	const { subject, sections } = easyOptionsToUse
+	const { subject, sections, to } = easyOptionsToUse
 
 	service = service ?? 'service'
 	primaryColor = primaryColor ?? '#0d0f70'
@@ -137,7 +139,7 @@ export const sendMail: (
 	title = title ?? subject ?? 'subject'
 	footer = footer ?? 'The team wishes you a great day 🚀'
 
-	const args = {
+	const metadata = {
 		service,
 		primaryColor,
 		secondaryColor,
@@ -146,13 +148,13 @@ export const sendMail: (
 		footer,
 		sections,
 	}
-	const html = easyOptionsToUse.toHtml ? easyOptionsToUse.toHtml(args) : toHtml(args)
+	const html = easyOptionsToUse.toHtml ? easyOptionsToUse.toHtml(metadata) : toHtml(metadata)
 
 	nodemailerOptions = {
 		defaults: {
 			...globalOptions?.nodemailer?.defaults,
-			to: easyOptionsToUse.to,
-			subject: easyOptionsToUse.subject,
+			to,
+			subject,
 			html,
 			...nodemailerOptions?.defaults,
 			from: easyOptionsToUse.from ?? globalOptions?.from,
@@ -169,39 +171,62 @@ export const sendMail: (
 	try {
 		if (!globalOptions?.nodemailer?.transport) {
 			const info = await transporter.sendMail({ ...nodemailerOptions.defaults })
-			mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
-			We are still nice and generated you an email preview link: 
-			👉 ${cyan(String(nodemailer.getTestMessageUrl(info)))}
+			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
+		We are still nice and generated you an email preview link (the mail we not really sent): 
+		👉 ${cyan(String(nodemailer.getTestMessageUrl(info)))}
 			
-			To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
+		To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
       `)
+			await repo(mailEntities.Mail).insert({
+				status: 'transport_not_configured',
+				to: JSON.stringify(to),
+				html: easyOptionsToUse.saveHtml ? html : '',
+				topic,
+				metadata,
+			})
 			return info
 		} else {
 			const info = await transporter.sendMail({ ...nodemailerOptions.defaults })
-			mailModule.log.success(
+			log.success(
 				`${magenta(`[${topic}]`)} - Sent to ${typeof nodemailerOptions.defaults?.to === 'string' ? green(nodemailerOptions.defaults?.to) : nodemailerOptions.defaults?.to}`,
 			)
+			await repo(mailEntities.Mail).insert({
+				status: 'sent',
+				to: JSON.stringify(to),
+				html: easyOptionsToUse.saveHtml ? html : '',
+				topic,
+				metadata,
+			})
 			return info
 		}
 	} catch (error) {
 		if (error instanceof Error && error.message.includes('Missing credentials for "PLAIN"')) {
-			mailModule.log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not well configured`)} ⚠️ 
+			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not well configured`)} ⚠️ 
 👉 transport used:
 ${cyan(JSON.stringify(globalOptions?.nodemailer?.transport, null, 2))}
 			`)
 		} else {
-			mailModule.log.error(`${magenta(`[${topic}]`)} - Error`, error)
+			log.error(`${magenta(`[${topic}]`)} - Error`, error)
 		}
+		await repo(mailEntities.Mail).insert({
+			status: 'error',
+			errorInfo: JSON.stringify(error),
+			to: JSON.stringify(to),
+			html: easyOptionsToUse.saveHtml ? html : '',
+			topic,
+			metadata,
+		})
 		throw error
 	}
 }
 
-const mailModule = new ModuleFF({
-	name: 'mail',
+const mailModule = new Module({
+	key: 'mail',
 	priority: -888,
+	entities: Object.values(mailEntities),
 })
 
-export const mail: (o?: MailOptions) => ModuleFF = (o) => {
+export const mail: (o?: MailOptions) => Module<unknown> = (o) => {
 	mailModule.initApi = () => {
 		initMail(o)
 		// Need to init in the 2 places!

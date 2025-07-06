@@ -15,7 +15,7 @@ const Role = {
 
 export const api = firstly({
 	controllers: [MailController],
-	modulesFF: [
+	modules: [
 		mail({
 			from: 'noreply@firstly.fun',
 			// primaryColor: '#E10098',
@@ -28,7 +28,9 @@ export const api = firstly({
 			// 	// },
 			// },
 		}),
+	],
 
+	modulesFF: [
 		auth({
 			// rolesToInitFromEnv: Role,
 
