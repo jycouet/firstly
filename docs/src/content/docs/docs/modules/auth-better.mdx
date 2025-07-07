@@ -35,27 +35,26 @@ verification email.
 ```ts
 // src/modules/auth/server/auth.ts
 export const auth = betterAuth({
-  database: remultAdapter(remult, {
-    authEntities,
-    usePlural: true,
-  }),
+	database: remultAdapter(remult, {
+		authEntities,
+		usePlural: true,
+	}),
 
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: true,
-  },
+	emailAndPassword: {
+		enabled: true,
+		requireEmailVerification: true,
+	},
 
-  emailVerification: {
-    autoSignInAfterVerification: true,
-    async sendVerificationEmail(data) {
-      const { user, url } = data;
-      remult.context.sendMail?.("sendVerificationEmail", {
-        to: user.email,
-        subject: "Welcome to our app!",
-        sections: [{ html:  "Verify your email", cta: { html: "Verify", link: url } }],
-      });
-    },
-  },
-});
-
+	emailVerification: {
+		autoSignInAfterVerification: true,
+		async sendVerificationEmail(data) {
+			const { user, url } = data
+			remult.context.sendMail?.('sendVerificationEmail', {
+				to: user.email,
+				subject: 'Welcome to our app!',
+				sections: [{ html: 'Verify your email', cta: { html: 'Verify', link: url } }],
+			})
+		},
+	},
+})
 ```
