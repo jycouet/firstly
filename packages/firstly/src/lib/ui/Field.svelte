@@ -4,8 +4,8 @@
 
 	import { type FieldMetadata, type FindOptions } from 'remult'
 
-	import { type BaseItem, type Cell } from '../internals'
 	import { suffixWithS } from '../formats/strings'
+	import { type BaseItem, type Cell } from '../internals'
 	import {
 		displayWithDefaultAndSuffix,
 		getEntityDisplayValue,

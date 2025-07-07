@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
 
-	import { Button, dialog, Loading, type ResolvedType } from '../../internals'
 	import { FeedbackController } from '../../feedback/FeedbackController'
+	import { Button, dialog, Loading, type ResolvedType } from '../../internals'
 	import DialogIssues from './DialogIssues.svelte'
 
 	export let dialogId: number

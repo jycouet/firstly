@@ -10,7 +10,7 @@
 		getEntityDisplayValueFromField,
 		getFieldLinkDisplayValue,
 		getFieldMetaType,
-		} from '../internals/helper.js'
+	} from '../internals/helper.js'
 	import { LibIcon_Delete, LibIcon_Edit, type StoreList } from '../internals/index.js'
 	import Button from './Button.svelte'
 	import Clipboardable from './Clipboardable.svelte'
