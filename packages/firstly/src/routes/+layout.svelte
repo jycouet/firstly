@@ -4,7 +4,7 @@
 
 	import { page } from '$app/stores'
 
-	import { route } from '$lib/ROUTES'
+	import { route } from '$lib2/ROUTES'
 	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
 
 	import '../app.pcss'

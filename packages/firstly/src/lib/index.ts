@@ -1,4 +1,8 @@
 import type { FindOptionsBase } from 'remult'
+// ******************************
+// Helpers (re export)
+// ******************************
+import { Log } from '@kitql/helpers'
 
 import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
 import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
@@ -64,6 +68,8 @@ export type { FF_FindOptions } from './storeList.js'
 export type StoreItem<T> = ReturnType<typeof storeItem<T>>
 export type StoreList<T> = ReturnType<typeof storeList<T>>
 export type { ResolvedType, UnArray, RecursivePartial } from './utils/types.js'
+
+export { Log }
 
 // ******************************
 // Helpers
