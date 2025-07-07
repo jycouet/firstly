@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { AuthController } from '../../../../../../firstly/src/lib/auth'
 	import type { FirstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
-	import { isError } from '../../../../../../firstly/src/lib/helper'
+	import { isError } from '../../../../../../firstly/src/lib/internals'
 	import { autofocus } from '../helpers'
 
 	export let firstlyDataAuth: FirstlyDataAuth

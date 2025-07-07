@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isError } from '../../../../../../firstly/src/lib'
+	import { isError } from '../../../../../../firstly/src/lib/internals'
 	import { AuthController } from '../../../../../../firstly/src/lib/auth'
 	import type { FirstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
 
