@@ -1,1 +1,0 @@
-import{D as r,E as l,ak as m,S as o,T as d,U as n,V as p,W as u,Y as i}from"./index-LRDptjak.js";p();a[u]="src/lib/modules/admin/Page.svelte";function a(e,s){r(new.target),l(s,!1,a);var t=m("Hello from admin");return o(e,t),d({...n()})}i(a);export{a as default};

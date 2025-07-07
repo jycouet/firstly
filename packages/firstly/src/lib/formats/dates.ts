@@ -1,4 +1,4 @@
-import { ff_Log } from '../'
+import { ff_Log } from '../index'
 
 export const dateISOToPlainDate = (iso: string) => {
 	try {

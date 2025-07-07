@@ -4,8 +4,8 @@
 	import type { FieldMetadata } from 'remult'
 	import { getRelationFieldInfo } from 'remult/internals'
 
-	import { tw, type StoreItem } from '../'
-	import type { Cell } from '../cellsBuildor'
+	import { tw, type StoreItem } from '../internals'
+	import type { Cell } from '../internals/cellsBuildor'
 	import Field from './Field.svelte'
 	import FieldContainer from './internals/FieldContainer.svelte'
 	import Loading from './Loading.svelte'

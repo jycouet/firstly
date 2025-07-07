@@ -1,7 +1,7 @@
 import { Entity, isBackend, type EntityOptions } from 'remult'
 
+import { recordDeleted, recordSaved } from '../changeLog'
 import type { BaseEnum } from './BaseEnum'
-import { recordDeleted, recordSaved } from './changeLog'
 
 const toAllow = (permission: BaseEnum[] | BaseEnum | undefined) => {
 	if (permission) {

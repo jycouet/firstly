@@ -6,7 +6,7 @@ import {
 	type StringFieldOptions,
 } from 'remult'
 
-import { displayCurrency } from './formats'
+import { displayCurrency } from '../formats'
 import { getEnums } from './helper'
 
 // Translate default messages

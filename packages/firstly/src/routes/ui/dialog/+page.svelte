@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from '$lib'
+	import { Button } from '$lib/internals'
 	import { dialog } from '$lib/ui/dialog/dialog'
 
 	import DemoDialog from './DemoDialog.svelte'

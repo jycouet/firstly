@@ -49,6 +49,10 @@ export default defineConfig({
 					label: 'Modules',
 					items: [
 						{
+							label: 'Auth (Better-Auth)',
+							link: '/docs/modules/auth-better',
+						},
+						{
 							label: 'Change Log',
 							link: '/docs/modules/changelog',
 						},
@@ -66,7 +70,7 @@ export default defineConfig({
 					label: 'Firstly Modules (deprecated)',
 					items: [
 						{
-							label: 'Auth',
+							label: 'Auth (Lucia style)',
 							link: '/docs/modules/auth',
 						},
 					],

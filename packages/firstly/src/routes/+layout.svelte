@@ -4,8 +4,8 @@
 
 	import { page } from '$app/stores'
 
-	import { route } from '$lib/ROUTES'
 	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
+	import { route } from '$lib2/ROUTES'
 
 	import '../app.pcss'
 	import '../lib/svelte/firstly.css'

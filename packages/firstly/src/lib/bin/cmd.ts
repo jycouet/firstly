@@ -273,7 +273,7 @@ export { }
 `,
 	],
 	'./src/server/index.ts': [
-		`import { FF_Role } from 'firstly'
+		`import { FF_Role } from 'firstly/internals'
 import { firstly, Module } from 'firstly/server'
 import { auth } from 'firstly/auth/server'
 import { mail } from 'firstly/mail/server'
@@ -547,7 +547,7 @@ export const load = (async (event) => {
 
 	// Lib files
 	'./src/lib/index.ts': [
-		`import { FF_Role } from 'firstly'
+		`import { FF_Role } from 'firstly/internals'
 import { FF_Role_Auth } from 'firstly/auth'
 import { Log } from '@kitql/helpers'
 
@@ -568,7 +568,7 @@ export const Role = {
 	],
 	'./src/lib/ui/SignIn.svelte': [
 		`<script lang="ts">
-  import { isError } from 'firstly'
+  import { isError } from 'firstly/internals'
   import { AuthController } from 'firstly/auth'
 
   import { goto, invalidateAll } from '$app/navigation'
@@ -618,7 +618,7 @@ export const Role = {
 	],
 	'./src/lib/ui/SignOut.svelte': [
 		`<script lang="ts">
-  import { isError } from 'firstly'
+  import { isError } from 'firstly/internals'
   import { AuthController } from 'firstly/auth'
 
   import { invalidateAll } from '$app/navigation'
@@ -667,7 +667,7 @@ export const task: (o: { specialInfo: string }) => Module = ({ specialInfo }) =>
 	],
 	'./src/modules/task/Task.ts': [
 		`import { Allow, Entity, Field, Fields, ValueListFieldType } from 'remult'
-import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'firstly'
+import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'firstly/internals'
 
 @Entity('task', {
   allowApiCrud: Allow.authenticated,

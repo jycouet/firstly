@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { repo } from 'remult'
 
-	import { storeItem } from '$lib'
-	import { cellsBuildor } from '$lib/cellsBuildor'
+	import { cellsBuildor } from '$lib/internals/cellsBuildor'
+	import { storeItem } from '$lib/internals/storeItem'
 	import FieldGroup from '$lib/ui/FieldGroup.svelte'
 	import { UIEntity } from '$lib/virtual/UIEntity'
 

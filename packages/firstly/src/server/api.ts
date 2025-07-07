@@ -1,7 +1,8 @@
+import { FF_Role } from 'firstly/internals'
+
 import { MailController } from '$modules/mail/MailController'
 import { task } from '$modules/task/server'
 import { _AppUser } from '$modules/user/AppUser'
-import { FF_Role } from '$lib'
 import { FF_Role_Auth } from '$lib/auth'
 import { auth, github } from '$lib/auth/server'
 import { mail } from '$lib/mail/server'

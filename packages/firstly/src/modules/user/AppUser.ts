@@ -1,6 +1,6 @@
 import { Fields } from 'remult'
+import { FF_Entity } from 'firstly/internals'
 
-import { FF_Entity } from '$lib'
 import { FFAuthUser } from '$lib/auth'
 
 @FF_Entity<_AppUser>('app_users', {

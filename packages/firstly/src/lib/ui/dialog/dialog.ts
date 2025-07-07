@@ -11,7 +11,7 @@ import {
 	type BaseItemLight,
 	type CellsInput,
 	type StoreItem,
-} from '../../'
+} from '../../internals'
 import type { FF_Repo } from '../../svelte'
 
 export type DialogClasses = {

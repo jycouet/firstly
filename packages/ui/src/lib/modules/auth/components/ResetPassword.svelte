@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { isError } from '../../../../../../firstly/src/lib'
 	import { AuthController } from '../../../../../../firstly/src/lib/auth'
 	import type { FirstlyDataAuth } from '../../../../../../firstly/src/lib/auth/types'
+	import { isError } from '../../../../../../firstly/src/lib/internals'
 
 	export let firstlyDataAuth: FirstlyDataAuth
 	export let password1 = ''

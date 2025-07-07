@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { repo } from 'remult'
 
-	import { cellsBuildor, FieldGroup, storeItem, UIEntity } from '$lib'
+	import { cellsBuildor, FieldGroup, storeItem, UIEntity } from '$lib/internals'
 
 	const repoUi = repo(UIEntity)
 

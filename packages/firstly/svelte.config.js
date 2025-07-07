@@ -16,6 +16,7 @@ const config = {
 			$server: './src/server',
 
 			firstly: './src/lib',
+			$lib2: './src/lib2',
 		},
 	},
 	compilerOptions: {},

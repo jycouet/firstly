@@ -1,6 +1,5 @@
 import { Allow, Entity, Field, Fields, getEntityRef } from 'remult'
-
-import { FF_Role } from '$lib'
+import { FF_Role } from 'firstly/internals'
 
 import { TaskTypeEnum } from './TaskTypeEnum'
 

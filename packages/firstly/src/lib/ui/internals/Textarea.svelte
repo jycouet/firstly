@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte'
 
-	import { scrollbar } from '../../theme'
+	import { scrollbar } from '../../internals/theme'
 
 	export let name: string | null = null
 	export let id = ''

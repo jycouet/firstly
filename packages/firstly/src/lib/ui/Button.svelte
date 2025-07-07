@@ -5,7 +5,7 @@
 
 	import { remult } from 'remult'
 
-	import { BaseEnum, tw } from '../'
+	import { BaseEnum, tw } from '../internals'
 
 	export let isLoading = false
 	let className: string | undefined | null = undefined

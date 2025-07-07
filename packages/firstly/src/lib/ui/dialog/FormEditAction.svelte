@@ -1,7 +1,7 @@
 <script lang="ts" generics="T extends any">
 	import { createEventDispatcher } from 'svelte'
 
-	import type { StoreItem } from '../..'
+	import type { StoreItem } from '../../internals'
 	import Button from '../Button.svelte'
 	import Icon from '../Icon.svelte'
 	import { LibIcon_Add, LibIcon_Check, LibIcon_Delete } from '../LibIcon'

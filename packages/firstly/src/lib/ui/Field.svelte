@@ -4,15 +4,15 @@
 
 	import { type FieldMetadata, type FindOptions } from 'remult'
 
-	import { type BaseItem, type Cell } from '../'
 	import { suffixWithS } from '../formats/strings'
+	import { type BaseItem, type Cell } from '../internals'
 	import {
 		displayWithDefaultAndSuffix,
 		getEntityDisplayValue,
 		getFieldMetaType,
 		getFirstInterestingField,
 		type MetaTypeRelation,
-	} from '../helper.js'
+	} from '../internals/helper.js'
 	import { tw } from '../utils/tailwind'
 	import Clipboardable from './Clipboardable.svelte'
 	import Icon from './Icon.svelte'

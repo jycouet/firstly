@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte'
 
-	import type { BaseItem } from '../../../'
+	import type { BaseItem } from '../../../internals'
 	import Icon from '../../../ui/Icon.svelte'
 
 	export let id: string

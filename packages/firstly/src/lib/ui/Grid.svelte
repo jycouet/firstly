@@ -3,15 +3,15 @@
 
 	import type { EntityOrderBy } from 'remult'
 
-	import type { Cell } from '../cellsBuildor.js'
+	import type { Cell } from '../internals/cellsBuildor.js'
 	import {
 		displayWithDefaultAndSuffix,
 		getEntityDisplayValue,
 		getEntityDisplayValueFromField,
 		getFieldLinkDisplayValue,
 		getFieldMetaType,
-	} from '../helper.js'
-	import { LibIcon_Delete, LibIcon_Edit, type StoreList } from '../index.js'
+	} from '../internals/helper.js'
+	import { LibIcon_Delete, LibIcon_Edit, type StoreList } from '../internals/index.js'
 	import Button from './Button.svelte'
 	import Clipboardable from './Clipboardable.svelte'
 	import GridLoading from './GridLoading.svelte'

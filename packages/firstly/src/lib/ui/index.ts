@@ -1,6 +1,6 @@
 import type { FieldMetadata } from 'remult'
 
-import type { Cell } from '../'
+import type { Cell } from '../internals'
 
 export type Align = 'text-left' | 'text-center' | 'text-right'
 
