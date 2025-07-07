@@ -1,0 +1,61 @@
+---
+title: Module - Better-Auth
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+<Aside type="note">
+	This is not a `firstly` module. But it's playing very well with `firstly`!
+
+</Aside>
+
+The easiest way to get it today is to create a remult project with the cli and select `better-auth`
+as the auth provider. [remult - Creating a project](https://remult.dev/docs/creating-a-project)
+
+```sh
+npm init remult@latest
+```
+
+Then, you can take the `./src/demo/auth` folder and copy it to your own project.
+
+I suggest to put it in a `./src/modules` folder.
+
+<Aside type="tip">
+	If you have ideas on how to distribute it, please ping me!
+	
+	- `firstly` could have like a degit cmd maybe ?
+
+</Aside>
+
+## Playing well with [mail module](./mail)
+
+When you use the `mail` module, you can use the `sendVerificationEmail` function to send a
+verification email.
+
+```ts
+// src/modules/auth/server/auth.ts
+export const auth = betterAuth({
+  database: remultAdapter(remult, {
+    authEntities,
+    usePlural: true,
+  }),
+
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+  },
+
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    async sendVerificationEmail(data) {
+      const { user, url } = data;
+      remult.context.sendMail?.("sendVerificationEmail", {
+        to: user.email,
+        subject: "Welcome to our app!",
+        sections: [{ html:  "Verify your email", cta: { html: "Verify", link: url } }],
+      });
+    },
+  },
+});
+
+```
