@@ -1,6 +1,6 @@
 import { ValueListFieldType } from 'remult'
 
-import { BaseEnum, type BaseEnumOptions } from '../../lib/BaseEnum.js'
+import { BaseEnum, type BaseEnumOptions } from '../../lib/internals/BaseEnum.js'
 import { LibIcon_Add, LibIcon_Delete } from '../../lib/ui/LibIcon.js'
 import type { Task } from './Task'
 

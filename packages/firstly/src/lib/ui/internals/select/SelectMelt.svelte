@@ -12,7 +12,7 @@
 		tw,
 		type BaseItem,
 		type FF_Icon,
-	} from '../../../'
+	} from '../../../internals'
 	import Icon from '../../Icon.svelte'
 
 	export let id: string

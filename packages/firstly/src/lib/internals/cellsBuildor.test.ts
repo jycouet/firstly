@@ -2,8 +2,8 @@ import { expect, test } from 'vitest'
 
 import { repo } from 'remult'
 
+import { UIEntity } from '../virtual/UIEntity.js'
 import { buildWhere, cellsBuildor, fieldsOf, getPlaceholder } from './cellsBuildor.js'
-import { UIEntity } from './virtual/UIEntity.js'
 
 const repoUi = repo(UIEntity)
 test('getPlaceholder', () => {

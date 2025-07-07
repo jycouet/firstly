@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dialog } from '../../'
+	import { dialog } from '../../internals'
 	import DialogMilestones from './DialogMilestones.svelte'
 
 	const list = async () => {

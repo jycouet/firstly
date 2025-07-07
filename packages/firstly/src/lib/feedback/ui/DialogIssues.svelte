@@ -11,7 +11,7 @@
 		LibIcon_Search,
 		Loading,
 		type ResolvedType,
-	} from '../..'
+	} from '../../internals'
 	import DialogIssue from './DialogIssue.svelte'
 
 	export let dialogId: number

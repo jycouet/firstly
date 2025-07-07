@@ -1,7 +1,7 @@
 import { ValueListFieldType } from 'remult'
 
-import { BaseEnum } from '../BaseEnum'
-import type { BaseEnumOptions } from '../BaseEnum'
+import { BaseEnum } from '../internals/BaseEnum'
+import type { BaseEnumOptions } from '../internals/BaseEnum'
 
 import '../ui/LibIcon'
 

@@ -100,6 +100,10 @@
       "svelte": "./esm/index.js",
       "default": "./esm/index.js"
     },
+    "./internals": {
+      "types": "./esm/internals/index.d.ts",
+      "default": "./esm/internals/index.js"
+    },
     "./server": {
       "types": "./esm/server/index.d.ts",
       "default": "./esm/server/index.js"

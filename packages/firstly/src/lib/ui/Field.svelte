@@ -4,7 +4,7 @@
 
 	import { type FieldMetadata, type FindOptions } from 'remult'
 
-	import { type BaseItem, type Cell } from '../'
+	import { type BaseItem, type Cell } from '../internals'
 	import { suffixWithS } from '../formats/strings'
 	import {
 		displayWithDefaultAndSuffix,
@@ -12,7 +12,7 @@
 		getFieldMetaType,
 		getFirstInterestingField,
 		type MetaTypeRelation,
-	} from '../helper.js'
+	} from '../internals/helper.js'
 	import { tw } from '../utils/tailwind'
 	import Clipboardable from './Clipboardable.svelte'
 	import Icon from './Icon.svelte'

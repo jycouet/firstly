@@ -3,7 +3,7 @@
 
 	import { invalidateAll } from '$app/navigation'
 
-	import { isError } from '$lib'
+	import { isError } from '$lib/internals'
 	import { AuthController } from '$lib/auth'
 	import Button from '$lib/ui/Button.svelte'
 

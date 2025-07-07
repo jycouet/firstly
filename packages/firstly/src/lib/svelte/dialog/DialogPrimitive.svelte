@@ -3,7 +3,7 @@
 	import { createEventDispatcher } from 'svelte'
 	import { fade } from 'svelte/transition'
 
-	import { LibIcon_Cross, type BaseItemLight } from '../../'
+	import { LibIcon_Cross, type BaseItemLight } from '../../internals'
 	import Icon from '../../ui/Icon.svelte'
 	import LinkPlus from '../../ui/link/LinkPlus.svelte'
 	import { flyAndScale } from '../../utils/transition'

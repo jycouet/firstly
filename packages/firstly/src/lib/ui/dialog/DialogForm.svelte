@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { FieldGroup, storeItem } from '../..'
-	import { cellsBuildor } from '../../cellsBuildor'
+	import { FieldGroup, storeItem } from '../../internals'
+	import { cellsBuildor } from '../../internals/cellsBuildor'
 	import { dialog, type DialogMetaDataInternal } from './dialog'
 	import DialogPrimitive from './DialogPrimitive.svelte'
 	import FormEditAction from './FormEditAction.svelte'

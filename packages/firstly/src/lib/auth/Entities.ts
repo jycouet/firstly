@@ -2,8 +2,8 @@ import type { OAuth2Tokens } from 'arctic'
 
 import { Fields, Relations, Validators, ValueListFieldType } from 'remult'
 
-import { BaseEnum, FF_Entity, FF_Role } from '..'
-import type { BaseEnumOptions } from '..'
+import { BaseEnum, FF_Entity, FF_Role } from '../internals'
+import type { BaseEnumOptions } from '../internals'
 import type { OAuth2UserInfo } from './types'
 
 export const FF_Role_Auth = {

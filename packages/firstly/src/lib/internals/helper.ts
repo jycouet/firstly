@@ -2,7 +2,7 @@ import { EntityError, getEntityRef, getValueList } from 'remult'
 import type { ClassType, ErrorInfo, FieldMetadata, LifecycleEvent, Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
-import { suffixWithS } from './formats/strings.js'
+import { suffixWithS } from '../formats/strings.js'
 import type { BaseEnum, BaseItem } from './index.js'
 
 export function isError<T>(object: any): object is ErrorInfo<T> {

@@ -3,8 +3,8 @@ import { derived, get, writable } from 'svelte/store'
 
 import type { ErrorInfo, FindOptions, Repository } from 'remult'
 
-import { ff_Log } from './common.js'
-import { isError } from './helper'
+import { ff_Log } from '../index.js'
+import { isError } from './helper.js'
 
 type TheStoreItem<T> = {
 	item: T | undefined

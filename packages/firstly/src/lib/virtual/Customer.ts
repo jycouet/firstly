@@ -1,6 +1,6 @@
 import { Entity, Fields } from 'remult'
 
-import { FF_Fields } from '../FF_Fields'
+import { FF_Fields } from '../internals/FF_Fields'
 
 @Entity('customers', {
 	allowApiCrud: true,

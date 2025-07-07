@@ -3,15 +3,15 @@
 
 	import type { EntityOrderBy } from 'remult'
 
-	import type { Cell } from '../cellsBuildor.js'
+	import type { Cell } from '../internals/cellsBuildor.js'
 	import {
 		displayWithDefaultAndSuffix,
 		getEntityDisplayValue,
 		getEntityDisplayValueFromField,
 		getFieldLinkDisplayValue,
 		getFieldMetaType,
-	} from '../helper.js'
-	import { LibIcon_Delete, LibIcon_Edit } from '../index.js'
+	} from '../internals/helper.js'
+	import { LibIcon_Delete, LibIcon_Edit } from '../internals/index.js'
 	import { intersection } from '../svelte/actions/intersection.js'
 	import type { FF_Repo } from '../svelte/FF_Repo.svelte.js'
 	import Button from './Button.svelte'

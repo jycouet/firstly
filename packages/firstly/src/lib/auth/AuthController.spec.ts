@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { EntityError, InMemoryDataProvider, remult, repo, type UserInfo } from 'remult'
 import { TestApiDataProvider } from 'remult/server'
 
-import { FF_Role } from '../'
+import { FF_Role } from '../internals'
 import { firstly, ModuleFF } from '../server'
 import { AuthController } from './AuthController'
 import { FFAuthUser } from './Entities'
