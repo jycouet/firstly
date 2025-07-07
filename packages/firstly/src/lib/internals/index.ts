@@ -73,6 +73,7 @@ export { BaseEnum } from './BaseEnum.js'
 export { dialog } from '../ui/dialog/dialog.js'
 export {
 	getEntityDisplayValue,
+	displayWithDefaultAndSuffix,
 	isError,
 	getFieldLinkDisplayValue,
 	getEnum,
