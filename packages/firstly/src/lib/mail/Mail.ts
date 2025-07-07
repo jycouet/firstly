@@ -6,7 +6,7 @@ const statuses = ['transport_not_configured', 'sent', 'error'] as const
 type StatusType = (typeof statuses)[number]
 
 @Entity<Mail>('_ff_mails', {
-	caption: 'Mails',
+	caption: 'FF Mails',
 	allowApiCrud: Role_Mail.Mail_Admin,
 	defaultOrderBy: { createdAt: 'desc' },
 })

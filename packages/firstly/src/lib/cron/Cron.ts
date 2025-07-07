@@ -6,7 +6,7 @@ const statuses = ['starting', 'ended', 'skipped'] as const
 type StatusType = (typeof statuses)[number]
 
 @Entity<Cron>('_ff_crons', {
-	caption: 'Crons',
+	caption: 'FF Crons',
 	allowApiCrud: Role_Cron.Cron_Admin,
 	defaultOrderBy: { startingAt: 'desc' },
 })

@@ -2,6 +2,19 @@
 title: Core Module - Mail
 ---
 
+To it's core, `firstly` provides you the ability to send emails. For this, we didn't reinvent the
+wheel and use the great [nodemailer](https://nodemailer.com/) package.
+
+Once you have it setup, assign you the role `mail.admin` (You can get it via
+`Role_Mail.Mail_Admin`), and in Admin UI, you will be able to see all mails in the entity named
+`FF Mails`.
+
+## Installation
+
+```bash
+npm add firstly@latest -D
+```
+
 ## Setup
 
 ```ts
@@ -14,9 +27,6 @@ export const api = remultApi({
 ```
 
 ## Usage
-
-To it's core, `firstly` provides you the ability to send emails. For this, we didn't reinvent the
-wheel and use the great [nodemailer](https://nodemailer.com/) package.
 
 Anywhere in your code you can then:
 
@@ -33,8 +43,6 @@ await remult.context.sendMail('my_first_mail', {
 By default, firstly will create a demo account on [ethereal.email](https://ethereal.email/), this
 will **NEVER** send a real email, but you can see the email sent in the ethereal dashboard. You also
 get a link to the email preview in the console.
-
-# How to really send email ?
 
 ## Manually configure your service
 
