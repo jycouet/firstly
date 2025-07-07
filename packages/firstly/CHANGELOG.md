@@ -1,5 +1,14 @@
 # firstly
 
+## 0.1.0-next.4
+
+### Minor Changes
+
+- [#153](https://github.com/jycouet/firstly/pull/153)
+  [`f8ca698`](https://github.com/jycouet/firstly/commit/f8ca698aa2b4ec7cfe77f6e63486c0bf9a124946)
+  Thanks [@jycouet](https://github.com/jycouet)! - all root import ... from `firstly` moved to
+  `firstly/internals` (we will gradually add them back when needed
+
 ## 0.1.0-next.3
 
 ### Minor Changes
