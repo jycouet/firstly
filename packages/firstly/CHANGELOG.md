@@ -1,5 +1,12 @@
 # firstly
 
+## 0.1.0-next.5
+
+### Patch Changes
+
+- [`c4606c5`](https://github.com/jycouet/firstly/commit/c4606c5ad5c0c9d90c830d99d1d2a919dc3750ec)
+  Thanks [@jycouet](https://github.com/jycouet)! - role to roles
+
 ## 0.1.0-next.4
 
 ### Minor Changes
