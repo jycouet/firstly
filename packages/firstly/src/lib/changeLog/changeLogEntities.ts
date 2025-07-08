@@ -1,7 +1,7 @@
 import { Entity, Fields } from 'remult'
 
-export const Role_ChangeLog = {
-	ChangeLog_Admin: 'changeLog.admin',
+export const Roles_ChangeLog = {
+	ChangeLog_Admin: 'ChangeLog.Admin',
 }
 
 export interface change {
@@ -12,7 +12,7 @@ export interface change {
 
 @Entity<ChangeLog>('_ff_change_logs', {
 	caption: 'FF Change Logs',
-	allowApiCrud: Role_ChangeLog.ChangeLog_Admin,
+	allowApiCrud: Roles_ChangeLog.ChangeLog_Admin,
 	defaultOrderBy: {
 		changeDate: 'desc',
 	},

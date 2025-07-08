@@ -1,13 +1,13 @@
 import { Entity, Fields } from 'remult'
 
-import { Role_Cron } from './Role_Cron'
+import { Roles_Cron } from './Roles_Cron'
 
 const statuses = ['starting', 'ended', 'skipped'] as const
 type StatusType = (typeof statuses)[number]
 
 @Entity<Cron>('_ff_crons', {
 	caption: 'FF Crons',
-	allowApiCrud: Role_Cron.Cron_Admin,
+	allowApiCrud: Roles_Cron.Cron_Admin,
 	defaultOrderBy: { startingAt: 'desc' },
 })
 export class Cron {

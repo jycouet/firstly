@@ -1,13 +1,13 @@
 import { Entity, Fields } from 'remult'
 
-import { Role_Mail } from './Role_Mail'
+import { Roles_Mail } from './Roles_Mail'
 
 const statuses = ['transport_not_configured', 'sent', 'error'] as const
 type StatusType = (typeof statuses)[number]
 
 @Entity<Mail>('_ff_mails', {
 	caption: 'FF Mails',
-	allowApiCrud: Role_Mail.Mail_Admin,
+	allowApiCrud: Roles_Mail.Mail_Admin,
 	defaultOrderBy: { createdAt: 'desc' },
 })
 export class Mail {
