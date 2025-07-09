@@ -1,3 +1,5 @@
+import { building } from '$app/environment'
+
 import { ModuleFF } from '$lib/server'
 
 import { Task } from '../Task'
@@ -9,6 +11,7 @@ export const task: (o: { specialInfo: string }) => ModuleFF = ({ specialInfo }) 
 		entities: [Task],
 		controllers: [TaskController],
 		initApi: async () => {
+			if (building) return
 			m.log.success(`Task module is ready! 🚀 (specialInfo: ${specialInfo})`)
 		},
 	})
