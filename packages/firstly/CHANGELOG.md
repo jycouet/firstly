@@ -1,5 +1,60 @@
 # firstly
 
+## 0.1.0
+
+### Minor Changes
+
+- [#140](https://github.com/jycouet/firstly/pull/140)
+  [`94b2188`](https://github.com/jycouet/firstly/commit/94b2188c78772f94e7835ab933fcebbe2a37703c)
+  Thanks [@jycouet](https://github.com/jycouet)! - [BREAKING] - deprecate firstly module in favor of
+  remult module
+
+  ```diff
+  remultApi({
+  --	modules: [],   // firstly modules
+  ++	modulesFF: [], // firstly modules (deprecated)
+  ++  modules: [],   // remult modules
+  })
+
+  Then, you can use `modules` level of `remult`
+
+  ```
+
+- [#153](https://github.com/jycouet/firstly/pull/153)
+  [`f8ca698`](https://github.com/jycouet/firstly/commit/f8ca698aa2b4ec7cfe77f6e63486c0bf9a124946)
+  Thanks [@jycouet](https://github.com/jycouet)! - all root import ... from `firstly` moved to
+  `firstly/internals` (we will gradually add them back when needed
+
+### Patch Changes
+
+- [#117](https://github.com/jycouet/firstly/pull/117)
+  [`407ed4d`](https://github.com/jycouet/firstly/commit/407ed4db8f4b99f234932965b870d51f6a9c07ca)
+  Thanks [@jycouet](https://github.com/jycouet)! - need to pass `redirect` to handleAuth manually
+
+- [#102](https://github.com/jycouet/firstly/pull/102)
+  [`f0effb9`](https://github.com/jycouet/firstly/commit/f0effb9e2dfa3f1c3070bc27c498d7f1e1ed877d)
+  Thanks [@jycouet](https://github.com/jycouet)! - Prepare JYC 016
+
+- [`c4606c5`](https://github.com/jycouet/firstly/commit/c4606c5ad5c0c9d90c830d99d1d2a919dc3750ec)
+  Thanks [@jycouet](https://github.com/jycouet)! - role to roles
+
+- [#108](https://github.com/jycouet/firstly/pull/108)
+  [`cf100f4`](https://github.com/jycouet/firstly/commit/cf100f40a8462eca51acff3ac5d8779da78816ec)
+  Thanks [@jycouet](https://github.com/jycouet)! - fix import paths
+
+- [#117](https://github.com/jycouet/firstly/pull/117)
+  [`f30c737`](https://github.com/jycouet/firstly/commit/f30c73781d8f50da08fcdc25f1f7611133ea8b0c)
+  Thanks [@jycouet](https://github.com/jycouet)! - switch mail engine to sailkit
+
+- [#117](https://github.com/jycouet/firstly/pull/117)
+  [`5e1d67e`](https://github.com/jycouet/firstly/commit/5e1d67eb8f75127c3d729945e20b22c40184ee20)
+  Thanks [@jycouet](https://github.com/jycouet)! - [BREAKING] - Auth Identifier got removed in favor
+  of name in User table.
+
+- [#110](https://github.com/jycouet/firstly/pull/110)
+  [`0c66f11`](https://github.com/jycouet/firstly/commit/0c66f114dd95f65c0407abddbd647a66769142eb)
+  Thanks [@jycouet](https://github.com/jycouet)! - add github in default ui (if configured)
+
 ## 0.1.0-next.5
 
 ### Patch Changes
