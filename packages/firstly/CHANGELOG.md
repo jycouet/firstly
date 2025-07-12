@@ -1,5 +1,12 @@
 # firstly
 
+## 0.1.1
+
+### Patch Changes
+
+- [`847af7a`](https://github.com/jycouet/firstly/commit/847af7a6d33224884032c80f63cb489106e6d40a)
+  Thanks [@jycouet](https://github.com/jycouet)! - export mail & cron roles from client bundle
+
 ## 0.1.0
 
 ### Minor Changes
