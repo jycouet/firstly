@@ -8,18 +8,13 @@ export class MailController {
 	@BackendMethod({ allowed: true })
 	static async sendMail() {
 		remult.context!.sendMail!('test', {
-			to: 'jj@tt.fr',
-			subject: 'Working ?',
+			to: 'hello@example.com',
+			subject: 'Hello from firstly',
 			sections: [
-				{
-					html: '<b>section 1</b>',
-				},
+				{ html: 'hello <b>world</b> 👋' },
 				{
 					html: 'Did you star remult repo ?',
-					cta: {
-						html: 'Star it',
-						link: 'https://github.com/remult/remult',
-					},
+					cta: { html: 'Star it', link: 'https://github.com/remult/remult' },
 				},
 			],
 		})

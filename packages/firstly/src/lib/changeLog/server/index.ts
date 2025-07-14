@@ -1,6 +1,13 @@
 import { Module } from 'remult/server'
 
+import type { ColumnDeciderArgs } from '..'
 import { ChangeLog } from '../changeLogEntities'
+
+declare module 'remult' {
+	export interface EntityOptions<entityType> {
+		changeLog?: false | ColumnDeciderArgs<entityType>
+	}
+}
 
 /**
  * We suggest you to create your own `@APP_Entity` decorator and use it instead of `@Entity`.

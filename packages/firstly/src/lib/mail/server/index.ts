@@ -15,6 +15,12 @@ import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 import { log, mailEntities } from '../index'
 import { toHtml, type MailStyle } from './formatMailHelper'
 
+declare module 'remult' {
+	export interface RemultContext {
+		sendMail?: SendMail
+	}
+}
+
 export type TransportTypes =
 	| SMTPPool
 	| SMTPPool.Options
@@ -102,14 +108,7 @@ const initMail: (o?: MailOptions) => void = async (o) => {
 	}
 }
 
-declare module 'remult' {
-	export interface RemultContext {
-		sendMail?: SendMail
-	}
-}
-
 export type SendMail = typeof sendMail
-
 export const sendMail: (
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,

@@ -2,6 +2,8 @@
 title: Module - Mail
 ---
 
+import { Aside } from '@astrojs/starlight/components'
+
 To it's core, `firstly` provides you the ability to send emails. For this, we didn't reinvent the
 wheel and use the great [nodemailer](https://nodemailer.com/) package.
 
@@ -34,15 +36,31 @@ Anywhere in your code you can then:
 import { remult } from 'remult'
 
 await remult.context.sendMail('my_first_mail', {
-	to: '...@...',
+	to: 'hello@example.com',
 	subject: 'Hello from firstly',
-	sections: [{ html: 'hello <b>hello</b> 👋' }],
+	sections: [
+		{ html: 'hello <b>world</b> 👋' },
+		{
+			html: 'Did you star remult repo ?',
+			cta: { html: 'Star it', link: 'https://github.com/remult/remult' },
+		},
+	],
 })
 ```
 
-By default, firstly will create a demo account on [ethereal.email](https://ethereal.email/), this
-will **NEVER** send a real email, but you can see the email sent in the ethereal dashboard. You also
-get a link to the email preview in the console.
+The result will be something like this:
+
+![Mail preview](./mail/mail_1.png)
+
+You can see the structure of the mail in the following image:
+
+![Mail structure](./mail/mail_2.png)
+
+<Aside type="note">
+	By default, firstly will create a demo account on [ethereal.email](https://ethereal.email/), this
+	will **NEVER** send a real email, but you can see the email sent in the ethereal dashboard. You
+	also get a link to the email preview in the console.
+</Aside>
 
 ## Manually configure your service
 
@@ -68,16 +86,22 @@ export const api = remultApi({
 })
 ```
 
-## Other params
+## Global params
+
+Global params are applied to all mails by default and can be overridden for each mail.
 
 ```ts
 export const api = remultApi({
 	modules: [
 		mail({
-			// Like this you don't need to pass the `from` param in every call
+			service: 'Cool App',
+			footer: `Thank you for using Cool App`,
+			// primaryColor: '#000000',
+			// secondaryColor: '#000000',
+			// toHtml(mailInfo) => `` // You can override the html of the mail
 			from: {
 				name: 'My Cool App',
-				address: 'noreply@coolApp.io',
+				address: 'noreply@coolApp.com',
 			},
 		}),
 	],
