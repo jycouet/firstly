@@ -1,5 +1,12 @@
 # firstly
 
+## 0.1.2
+
+### Patch Changes
+
+- [`e4d8b67`](https://github.com/jycouet/firstly/commit/e4d8b673787beee6d28e36aac1a404f49d690fb8)
+  Thanks [@jycouet](https://github.com/jycouet)! - export interface for `changeLog` Module
+
 ## 0.1.1
 
 ### Patch Changes
