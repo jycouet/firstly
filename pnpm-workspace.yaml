@@ -28,11 +28,11 @@ catalogs:
 
  kitql:
   '@kitql/helpers': 0.8.13
-  '@kitql/eslint-config': 0.7.1
+  '@kitql/eslint-config': 0.7.2
   '@kitql/internals': 0.10.5
 
  testing:
-  '@playwright/test': 1.53.2
+  '@playwright/test': 1.54.1
   vitest: 3.2.3
 
  lib-author-helper:
