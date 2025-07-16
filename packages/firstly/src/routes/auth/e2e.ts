@@ -27,7 +27,7 @@ const getMsg = async (page: Page, type: 'error' | 'success' = 'success') => {
 async function click(page: Page, text: string) {
 	await page.getByText(text).click({})
 	// Let the network do it's things...
-	await sleep(400)
+	await sleep(500)
 }
 
 test.beforeEach(async ({ page }) => {
