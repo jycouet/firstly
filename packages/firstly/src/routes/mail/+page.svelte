@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { MailController } from '$modules/mail/MailController'
 	import { Button } from 'firstly/internals'
+
+	import { MailController } from '$modules/mail/MailController'
 
 	import type { PageProps } from './$types'
 
@@ -39,5 +40,3 @@
 <br />
 <br />
 <br />
-
-

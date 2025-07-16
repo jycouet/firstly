@@ -6,7 +6,7 @@
 	import { dialog, FF_Display, FF_Repo, getClasses, type GridTheme } from './'
 
 	interface Props<entityType> {
-		uid?: string
+		// uid?: string
 		r: FF_Repo<entityType>
 		fields?: FieldMetadata<unknown, entityType>[]
 		showCreate?: boolean

@@ -1,5 +1,5 @@
 <script lang="ts" generics="valueType = unknown, entityType = unknown">
-	import { deepMerge, FF_Cell, FF_Repo } from './'
+	import { deepMerge, FF_Cell } from './'
 	import type { CellMetadata } from './customField'
 	import FF_Cell_Caption from './FF_Cell_Caption.svelte'
 	import FF_Cell_Display from './FF_Cell_Display.svelte'
@@ -11,7 +11,7 @@
 
 	interface Props<valueType = unknown, entityType = unknown> {
 		cell: CellMetadata<valueType, entityType>
-		r?: FF_Repo<entityType>
+		// r?: FF_Repo<entityType>
 		class?: string
 	}
 

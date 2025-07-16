@@ -240,19 +240,19 @@
 			{:else}
 				{#if createOptionWhenNoResult}
 					{#if $inputValue}
-					<div class="p-4">
-						<Button
-							class="w-full"
-							on:click={async () => {
-								createRequest?.({ input: $inputValue, id })
-								$open = false
-							}}
-						>
-							<div class="flex items-center gap-2">
-								<Icon data={LibIcon_Add}></Icon>
-								{#if $inputValue}
-									Créer "{$inputValue}"								
-								{/if}
+						<div class="p-4">
+							<Button
+								class="w-full"
+								on:click={async () => {
+									createRequest?.({ input: $inputValue, id })
+									$open = false
+								}}
+							>
+								<div class="flex items-center gap-2">
+									<Icon data={LibIcon_Add}></Icon>
+									{#if $inputValue}
+										Créer "{$inputValue}"
+									{/if}
 								</div>
 							</Button>
 						</div>

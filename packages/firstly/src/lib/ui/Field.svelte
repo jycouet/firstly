@@ -5,7 +5,7 @@
 	import { type FieldMetadata, type FindOptions } from 'remult'
 
 	import { suffixWithS } from '../formats/strings'
-	import {  type BaseItem, type Cell } from '../internals'
+	import { type BaseItem, type Cell } from '../internals'
 	import {
 		displayWithDefaultAndSuffix,
 		getEntityDisplayValue,
@@ -22,8 +22,8 @@
 	import SelectMelt from './internals/select/SelectMelt.svelte'
 	import SelectRadio from './internals/select/SelectRadio.svelte'
 	import Textarea from './internals/Textarea.svelte'
-	import LinkPlus from './link/LinkPlus.svelte'
 	import { LibIcon_Eye, LibIcon_EyeOff } from './LibIcon'
+	import LinkPlus from './link/LinkPlus.svelte'
 
 	export let cell: Cell<T>
 	export let value: HTMLInputAttributes['value'] = undefined
@@ -309,7 +309,9 @@
 					`join-item w-full bg-transparent placeholder:text-base-content/30`,
 					metaType.subKind === 'number' && 'text-end',
 				)}
-				style={cell.field?.inputType === 'textpsd' && textpsdVisible === false ? 'filter: blur(0.2rem)' : ''}
+				style={cell.field?.inputType === 'textpsd' && textpsdVisible === false
+					? 'filter: blur(0.2rem)'
+					: ''}
 				type={metaType.subKind.replaceAll('dateOnly', 'date').replaceAll('textpsd', 'text')}
 				value={toInput(cell.field, value)}
 				{withDedounce}
@@ -322,11 +324,14 @@
 			/>
 			{calcSuffix(value)}
 			{#if cell.field?.inputType === 'textpsd'}
-				<button on:click={(e) => {
-					e.preventDefault()
-					textpsdVisible = !textpsdVisible
-				}} class="btn-ghost btn-sm">
-					<Icon data={textpsdVisible ?LibIcon_Eye:LibIcon_EyeOff   } />
+				<button
+					on:click={(e) => {
+						e.preventDefault()
+						textpsdVisible = !textpsdVisible
+					}}
+					class="btn-ghost btn-sm"
+				>
+					<Icon data={textpsdVisible ? LibIcon_Eye : LibIcon_EyeOff} />
 				</button>
 			{/if}
 		</div>
