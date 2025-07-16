@@ -5,7 +5,7 @@
 	import { type FieldMetadata, type FindOptions } from 'remult'
 
 	import { suffixWithS } from '../formats/strings'
-	import { type BaseItem, type Cell } from '../internals'
+	import {  type BaseItem, type Cell } from '../internals'
 	import {
 		displayWithDefaultAndSuffix,
 		getEntityDisplayValue,
@@ -23,6 +23,7 @@
 	import SelectRadio from './internals/select/SelectRadio.svelte'
 	import Textarea from './internals/Textarea.svelte'
 	import LinkPlus from './link/LinkPlus.svelte'
+	import { LibIcon_Eye, LibIcon_EyeOff } from './LibIcon'
 
 	export let cell: Cell<T>
 	export let value: HTMLInputAttributes['value'] = undefined
@@ -188,6 +189,8 @@
 
 		return ''
 	}
+
+	let textpsdVisible = false
 </script>
 
 <FieldContainer
@@ -296,7 +299,7 @@
 				}}
 			/>
 		</div>
-	{:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'dateOnly' || metaType.subKind === 'number'}
+	{:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'dateOnly' || metaType.subKind === 'number' || metaType.subKind === 'textpsd'}
 		<div class="input input-bordered inline-flex w-full items-center pl-2">
 			<Input
 				{focus}
@@ -306,7 +309,8 @@
 					`join-item w-full bg-transparent placeholder:text-base-content/30`,
 					metaType.subKind === 'number' && 'text-end',
 				)}
-				type={metaType.subKind.replaceAll('dateOnly', 'date')}
+				style={cell.field?.inputType === 'textpsd' && textpsdVisible === false ? 'filter: blur(0.2rem)' : ''}
+				type={metaType.subKind.replaceAll('dateOnly', 'date').replaceAll('textpsd', 'text')}
 				value={toInput(cell.field, value)}
 				{withDedounce}
 				on:input={(e) => {
@@ -317,6 +321,14 @@
 				{...$$restProps}
 			/>
 			{calcSuffix(value)}
+			{#if cell.field?.inputType === 'textpsd'}
+				<button on:click={(e) => {
+					e.preventDefault()
+					textpsdVisible = !textpsdVisible
+				}} class="btn-ghost btn-sm">
+					<Icon data={textpsdVisible ?LibIcon_Eye:LibIcon_EyeOff   } />
+				</button>
+			{/if}
 		</div>
 	{:else if metaType.subKind === 'textarea'}
 		<Textarea

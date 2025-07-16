@@ -15,6 +15,8 @@ import {
 	mdiCogOutline,
 	mdiContentSaveEdit,
 	mdiDelete,
+	mdiEye,
+	mdiEyeOff,
 	mdiLoading,
 	mdiMagnify,
 	mdiPencil,
@@ -38,6 +40,8 @@ export const LibIcon_Search = mdiMagnify
 export const LibIcon_Check = mdiCheck
 export const LibIcon_MultiCheck = mdiCheckAll
 export const LibIcon_Add = mdiPlusCircle
+export const LibIcon_Eye = mdiEye
+export const LibIcon_EyeOff = mdiEyeOff
 export const LibIcon_MultiAdd = mdiPlusBoxMultiple
 export const LibIcon_Edit = mdiPencil
 export const LibIcon_Delete = mdiDelete
