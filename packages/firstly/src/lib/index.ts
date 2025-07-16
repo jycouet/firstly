@@ -1,5 +1,8 @@
-import * as log from '@kitql/helpers'
+import * as h from '@kitql/helpers'
 
-export { log }
+export {
+	/** alias for @kitql/helpers */
+	h,
+}
 
-export const ff_Log = new log.Log('firstly')
+export const ff_Log = new h.Log('firstly')
