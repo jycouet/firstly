@@ -81,7 +81,6 @@
 
 <button
 	{...$trigger}
-	use:$trigger
 	use:isAllowed={{ permission }}
 	on:click
 	{...$$restProps}
