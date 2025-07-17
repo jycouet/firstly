@@ -27,56 +27,18 @@ export const api = remultApi({
 
 ## Usage
 
-The best practice is to create your decorator `@APP_Entity` helper to wrap the `@Entity` decorator.
+Use the `withChangeLog` function to wrap your entity options.
 
 ```ts
-// src/lib/APP_Entity.ts
-import { Entity, isBackend, type EntityOptions } from 'remult'
-import { recordDeleted, recordSaved } from 'firstly/changeLog'
+import { withChangeLog } from 'firstly/changeLog'
 
-export function APP_Entity<entityType>(
-	key: string,
-	options?: EntityOptions<
-		entityType extends new (...args: any) => any ? InstanceType<entityType> : entityType
-	>,
-) {
-	return Entity(key, {
-		...options,
-
-		// changesLogs
-		saved: async (entity, e) => {
-			await options?.saved?.(entity, e)
-			if (options?.changeLog === false) {
-				// Don't log changes
-			} else {
-				if (isBackend()) {
-					await recordSaved(entity, e, options?.changeLog)
-				}
-			}
-		},
-		deleted: async (entity, e) => {
-			await options?.deleted?.(entity, e)
-			if (options?.changeLog === false) {
-				// Don't log changes
-			} else {
-				if (isBackend()) {
-					await recordDeleted(entity, e, options?.changeLog)
-				}
-			}
-		},
-	})
-}
+@Entity(
+	'users',
+	withChangeLog({
+		// ...
+	}),
+)
+class User {}
 ```
 
-Then, for any entity to opt-in change logs, you just need to use `@APP_Entity` decorator.
-
-For example:
-
-```diff
--- @Entity('User')
-++ @APP_Entity('User')
-export class User {
-	@Fields.string()
-	name = ''
-}
-```
+Yes, that's it! 🎉

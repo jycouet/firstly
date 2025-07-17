@@ -53,8 +53,11 @@ export const linkRoleToUsersFromEnv = async (o: {
 			if (!user) {
 				user = repo(userEntity).create({ id: a.userId, name: nameify(providerUserId) })
 			}
-			user.roles = [...new Set([...user.roles, ...roles].sort())]
-			await repo(userEntity).save(user)
+			const newRoles = [...new Set([...user.roles, ...roles].sort())]
+			if ((newRoles ?? []).join(',') !== (user.roles ?? []).join(',')) {
+				user.roles = newRoles
+				await repo(userEntity).save(user)
+			}
 		}
 	}
 	if (providersInfo.length > 0) {

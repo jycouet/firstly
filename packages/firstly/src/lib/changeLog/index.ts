@@ -4,6 +4,7 @@ import {
 	isBackend,
 	remult,
 	repo,
+	type EntityOptions,
 	type FieldRef,
 	type FieldsRef,
 	type LifecycleEvent,
@@ -130,5 +131,33 @@ export class FieldDecider<entityType> {
 		)
 		this.excludedFields.push(...meta.fields.toArray().filter((c) => c.metadata.options.sqlExpression))
 		this.fields = meta.fields.toArray().filter((f) => !this.excludedFields.includes(f))
+	}
+}
+
+export const withChangeLog = <entityType>(options?: EntityOptions<entityType>) => {
+	return {
+		...options,
+
+		// changesLogs
+		saved: async (entity: entityType, e: LifecycleEvent<entityType>) => {
+			await options?.saved?.(entity, e)
+			if (options?.changeLog === false) {
+				// Don't log changes
+			} else {
+				if (isBackend()) {
+					await recordSaved(entity, e, options?.changeLog)
+				}
+			}
+		},
+		deleted: async (entity: entityType, e: LifecycleEvent<entityType>) => {
+			await options?.deleted?.(entity, e)
+			if (options?.changeLog === false) {
+				// Don't log changes
+			} else {
+				if (isBackend()) {
+					await recordDeleted(entity, e, options?.changeLog)
+				}
+			}
+		},
 	}
 }

@@ -1,6 +1,6 @@
-import { Entity, isBackend, type EntityOptions } from 'remult'
+import { Entity, type EntityOptions } from 'remult'
 
-import { recordDeleted, recordSaved } from '../changeLog'
+import { withChangeLog } from '../changeLog'
 import type { BaseEnum } from './BaseEnum'
 
 const toAllow = (permission: BaseEnum[] | BaseEnum | undefined) => {
@@ -19,34 +19,17 @@ export function FF_Entity<entityType>(
 		entityType extends new (...args: any) => any ? InstanceType<entityType> : entityType
 	>,
 ) {
-	return Entity(key, {
-		...options,
-		allowApiCrud: options?.allowApiCrud ?? toAllow(options?.permissionApiCrud),
-		allowApiDelete: options?.allowApiDelete ?? toAllow(options?.permissionApiDelete),
-		allowApiInsert: options?.allowApiInsert ?? toAllow(options?.permissionApiInsert),
-		allowApiRead: options?.allowApiRead ?? toAllow(options?.permissionApiRead),
-		allowApiUpdate: options?.allowApiUpdate ?? toAllow(options?.permissionApiUpdate),
+	return Entity(
+		key,
 
-		// changesLogs
-		saved: async (entity, e) => {
-			await options?.saved?.(entity, e)
-			if (options?.changeLog === false) {
-				// Don't log changes
-			} else {
-				if (isBackend()) {
-					await recordSaved(entity, e, options?.changeLog)
-				}
-			}
-		},
-		deleted: async (entity, e) => {
-			await options?.deleted?.(entity, e)
-			if (options?.changeLog === false) {
-				// Don't log changes
-			} else {
-				if (isBackend()) {
-					await recordDeleted(entity, e, options?.changeLog)
-				}
-			}
-		},
-	})
+		withChangeLog({
+			...options,
+
+			allowApiCrud: options?.allowApiCrud ?? toAllow(options?.permissionApiCrud),
+			allowApiDelete: options?.allowApiDelete ?? toAllow(options?.permissionApiDelete),
+			allowApiInsert: options?.allowApiInsert ?? toAllow(options?.permissionApiInsert),
+			allowApiRead: options?.allowApiRead ?? toAllow(options?.permissionApiRead),
+			allowApiUpdate: options?.allowApiUpdate ?? toAllow(options?.permissionApiUpdate),
+		}),
+	)
 }

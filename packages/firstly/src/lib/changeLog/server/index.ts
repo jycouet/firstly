@@ -10,15 +10,28 @@ declare module 'remult' {
 }
 
 /**
- * We suggest you to create your own `@APP_Entity` decorator and use it instead of `@Entity`.
- * Like this you opt-in to the change log feature Entity by Entity.
+ * ## Option 1
+ * Use the `withChangeLog` function to wrap your entity options.
+ *
+ * @example
+ * ```ts
+ * import { withChangeLog } from 'firstly/changeLog'
+ *
+ * \@Entity('users', withChangeLog({
+ *   // ...
+ * }))
+ * class User { }
+ * ```
+ * ## Option 2
+ * Create your own `@APP_Entity` decorator and use it instead of `@Entity`.
+ * Inside, it uses the `withChangeLog` function to wrap your entity options.
  *
  * @example
  * ```ts
  * // APP_Entity.ts example
  * import { Entity, isBackend, type EntityOptions } from 'remult'
  *
- * import { recordDeleted, recordSaved } from 'firstly/changeLog'
+ * import { withChangeLog } from 'firstly/changeLog'
  *
  * export function APP_Entity<entityType>(
  * 	key: string,
@@ -26,31 +39,7 @@ declare module 'remult' {
  * 		entityType extends new (...args: any) => any ? InstanceType<entityType> : entityType
  * 	>,
  * ) {
- * 	return Entity(key, {
- * 		...options,
- *
- * 		// changesLogs
- * 		saved: async (entity, e) => {
- * 			await options?.saved?.(entity, e)
- * 			if (options?.changeLog === false) {
- * 				// Don't log changes
- * 			} else {
- * 				if (isBackend()) {
- * 					await recordSaved(entity, e, options?.changeLog)
- * 				}
- * 			}
- * 		},
- * 		deleted: async (entity, e) => {
- * 			await options?.deleted?.(entity, e)
- * 			if (options?.changeLog === false) {
- * 				// Don't log changes
- * 			} else {
- * 				if (isBackend()) {
- * 					await recordDeleted(entity, e, options?.changeLog)
- * 				}
- * 			}
- * 		},
- * 	})
+ * 	return Entity(key, withChangeLog(options))
  * }
  * ```
  */
