@@ -1,5 +1,16 @@
 # firstly
 
+## 0.1.3
+
+### Patch Changes
+
+- [`2348b71`](https://github.com/jycouet/firstly/commit/2348b7172d67b2357daf6cc57fbbd69d13345505)
+  Thanks [@jycouet](https://github.com/jycouet)! - export `withChangeLog` to chain options for
+  `@Entity`
+
+- [`51cbd73`](https://github.com/jycouet/firstly/commit/51cbd7318797bf740627ae4cac8cc5074f7dab5e)
+  Thanks [@jycouet](https://github.com/jycouet)! - export @kitql/helper as `h`
+
 ## 0.1.2
 
 ### Patch Changes
