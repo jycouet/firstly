@@ -25,7 +25,7 @@ WORKDIR /app
 COPY . .
 
 # Install all dependencies
-RUN npm i -g pnpm@10.5.2
+RUN npm i -g pnpm@10.13.1
 RUN pnpm install --production=false
 
 # Build the application
