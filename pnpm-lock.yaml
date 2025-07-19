@@ -96,8 +96,8 @@ catalogs:
       specifier: 2.22.2
       version: 2.22.2
     '@sveltejs/package':
-      specifier: 2.3.2
-      version: 2.3.2
+      specifier: 2.4.0
+      version: 2.4.0
     '@sveltejs/vite-plugin-svelte':
       specifier: 5.1.0
       version: 5.1.0
@@ -305,7 +305,7 @@ importers:
         version: 2.22.2(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.34.3)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.0)))(svelte@5.34.3)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.0))
       '@sveltejs/package':
         specifier: catalog:sveltekit
-        version: 2.3.2(svelte@5.34.3)(typescript@5.8.2)
+        version: 2.4.0(svelte@5.34.3)(typescript@5.8.2)
       '@sveltejs/vite-plugin-svelte':
         specifier: catalog:sveltekit
         version: 5.1.0(svelte@5.34.3)(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.0))
@@ -1518,8 +1518,8 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       vite: ^5.0.3 || ^6.0.0 || ^7.0.0-beta.0
 
-  '@sveltejs/package@2.3.2':
-    resolution: {integrity: sha512-6M8/Te7iXRG7SiH92wugqfyoJpuepjn78L433LnXicUeMso9M/N4vdL9DPK3MfTkVVY4klhNRptVqme3p4oZWA==}
+  '@sveltejs/package@2.4.0':
+    resolution: {integrity: sha512-DZzPhkSkxJDBI2o07FbyrI7pxOMXl0j4RR5AB0aH/RVnoBC5lBl4v4FAW5WFrTRu3IC3H9y00MIia4uZ1buX+w==}
     engines: {node: ^16.14 || >=18}
     hasBin: true
     peerDependencies:
@@ -4695,8 +4695,8 @@ packages:
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0
 
-  svelte2tsx@0.7.32:
-    resolution: {integrity: sha512-7Ormx3i2/8XbCzui4Lpans6hnvmwtYQlU+FTqpB7nF5N7CLJionFtVYP/9amPI6phqu9IfkAZySI2IttMYlXew==}
+  svelte2tsx@0.7.40:
+    resolution: {integrity: sha512-Fgqe2lzC9DWT/kQTIXqN39O2ot9rUqzUu9dqpbuI6EsaEJ6+RSXVmXnxcNYMlKb2LRPDoIg9TVzXYWwi0zhCmQ==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
@@ -6501,14 +6501,14 @@ snapshots:
       vite: 6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.0)
       vitefu: 1.0.6(vite@6.3.5(@types/node@22.5.1)(jiti@1.21.6)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.0))
 
-  '@sveltejs/package@2.3.2(svelte@5.34.3)(typescript@5.8.2)':
+  '@sveltejs/package@2.4.0(svelte@5.34.3)(typescript@5.8.2)':
     dependencies:
-      chokidar: 3.6.0
+      chokidar: 4.0.3
       kleur: 4.1.5
       sade: 1.8.1
       semver: 7.7.1
       svelte: 5.34.3
-      svelte2tsx: 0.7.32(svelte@5.34.3)(typescript@5.8.2)
+      svelte2tsx: 0.7.40(svelte@5.34.3)(typescript@5.8.2)
     transitivePeerDependencies:
       - typescript
 
@@ -10672,7 +10672,7 @@ snapshots:
     dependencies:
       svelte: 5.34.3
 
-  svelte2tsx@0.7.32(svelte@5.34.3)(typescript@5.8.2):
+  svelte2tsx@0.7.40(svelte@5.34.3)(typescript@5.8.2):
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
