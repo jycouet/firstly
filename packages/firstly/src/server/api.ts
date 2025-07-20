@@ -54,7 +54,11 @@ export const api = firstly({
 				return {
 					id: user.id,
 					name: user.name,
-					roles: [...user.roles, ...Object.values(Roles_Carbon)],
+					roles: [
+						...user.roles,
+						//
+						// ...Object.values(Roles_Carbon),
+					],
 					session: {
 						id: session.id,
 						expiresAt: session.expiresAt,
