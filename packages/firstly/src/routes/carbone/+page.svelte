@@ -4,6 +4,7 @@
 	import { repo } from 'remult'
 	import { CarboneController } from 'firstly/carbone/CarboneController'
 	import { CarboneTemplate } from 'firstly/carbone/carboneEntities'
+	import { downloadFile, fileToBase64 } from 'firstly/carbone'
 	import { Button } from 'firstly/internals'
 
 	let fileInput: HTMLInputElement
@@ -15,36 +16,7 @@
 		'{\n  "name": "John Doe",\n  "date": "' + new Date().toLocaleDateString() + '"\n}',
 	)
 
-	const downloadFile = (base64Data: string, filename: string, contentType: string) => {
-		try {
-			// Convert base64 to blob
-			const byteCharacters = atob(base64Data)
-			const byteNumbers = new Array(byteCharacters.length)
-			for (let i = 0; i < byteCharacters.length; i++) {
-				byteNumbers[i] = byteCharacters.charCodeAt(i)
-			}
-			const byteArray = new Uint8Array(byteNumbers)
-			const blob = new Blob([byteArray], { type: contentType })
 
-			// Create download link
-			const url = URL.createObjectURL(blob)
-			const link = document.createElement('a')
-			link.href = url
-			link.download = filename
-			link.style.display = 'none'
-
-			// Trigger download
-			document.body.appendChild(link)
-			link.click()
-			document.body.removeChild(link)
-
-			// Clean up
-			URL.revokeObjectURL(url)
-		} catch (error) {
-			console.error('Download failed:', error)
-			throw error
-		}
-	}
 
 	const handleFileUpload = async (event: Event) => {
 		const target = event.target as HTMLInputElement
@@ -57,17 +29,7 @@
 			uploadResult = ''
 
 			// Convert file to base64
-			const base64 = await new Promise<string>((resolve, reject) => {
-				const reader = new FileReader()
-				reader.onload = () => {
-					const result = reader.result as string
-					// Remove data URL prefix to get just the base64 content
-					const base64Content = result.split(',')[1]
-					resolve(base64Content)
-				}
-				reader.onerror = reject
-				reader.readAsDataURL(file)
-			})
+			const base64 = await fileToBase64(file)
 
 			// Upload the template
 			await CarboneController.uploadTemplate({
