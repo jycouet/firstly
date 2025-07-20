@@ -2,8 +2,6 @@ import { Roles_Carbon } from 'firstly/carbone/Roles_Carbon'
 import { carbone } from 'firstly/carbone/server'
 import { FF_Role } from 'firstly/internals'
 
-import { CARBONE_API_KEY } from '$env/static/private'
-
 import { MailController } from '$modules/mail/MailController'
 import { task } from '$modules/task/server'
 import { _AppUser } from '$modules/user/AppUser'
@@ -35,7 +33,7 @@ export const api = firstly({
 		}),
 
 		carbone({
-			CARBONE_API_KEY,
+			CARBONE_API_KEY: 'test_1234567890',
 		}),
 	],
 
