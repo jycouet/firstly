@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte'
 
 	import { repo } from 'remult'
+	import { downloadFile, fileToBase64 } from 'firstly/carbone'
 	import { CarboneController } from 'firstly/carbone/CarboneController'
 	import { CarboneTemplate } from 'firstly/carbone/carboneEntities'
-	import { downloadFile, fileToBase64 } from 'firstly/carbone'
 	import { Button } from 'firstly/internals'
 
 	let fileInput: HTMLInputElement
@@ -15,8 +15,6 @@
 	let templateData = $state(
 		'{\n  "name": "John Doe",\n  "date": "' + new Date().toLocaleDateString() + '"\n}',
 	)
-
-
 
 	const handleFileUpload = async (event: Event) => {
 		const target = event.target as HTMLInputElement
