@@ -20,7 +20,8 @@ export class CarboneServer {
 
 	private getHeaders = (headersInit?: HeadersInit) => {
 		if (this.api_key === undefined || this.api_key === '') {
-			throw new Error('Token CARBONE_API_TOKEN not defined!')
+			log.error('Token CARBONE_API_TOKEN not defined!')
+			throw new Error('Configuration error')
 		}
 
 		const headers = new Headers(headersInit)
