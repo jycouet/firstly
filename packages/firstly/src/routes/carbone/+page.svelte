@@ -38,7 +38,7 @@
 			})
 
 			uploadResult = `Successfully uploaded: ${file.name}`
-			console.log('Template uploaded successfully:', file.name)
+			console.info('Template uploaded successfully:', file.name)
 
 			// Clear the input
 			if (fileInput) {
@@ -215,7 +215,7 @@
 												filename: `rendered_${template.name}`,
 											})
 
-											console.log(`render result:`, data)
+											console.info(`render result:`, data)
 
 											// Download the file
 											downloadFile(data.data, data.filename, data.contentType)
