@@ -111,13 +111,13 @@ export class CarboneController {
 
 		//
 		data: Record<string, any>
-		convertTo?: 'pdf'
+		convertTo?: 'pdf' | string
 
 		//
 		filename?: string
 	}) {
-		const { templateName, templateBase64, data, convertTo = 'pdf', filename } = config
-		let { templateId } = config
+		const { templateName, templateBase64, data, filename } = config
+		let { templateId, convertTo } = config
 
 		let mode = ''
 		if (templateBase64) {
@@ -129,18 +129,25 @@ export class CarboneController {
 				throw new Error('Template not found')
 			}
 			templateId = t.id
+			if (!convertTo) {
+				convertTo = t.extension
+			}
 		} else {
 			mode = 'templateId'
+		}
+
+		if (CarboneController.server.test) {
+			convertTo = 'pdf'
 		}
 
 		const response = templateBase64
 			? await CarboneController.server.fetch({
 					api: `/render/template?download=true`,
-					body: JSON.stringify({ data, template: templateBase64, convertTo }),
+					body: JSON.stringify({ data, template: templateBase64, convertTo: convertTo ?? 'pdf' }),
 				})
 			: await CarboneController.server.fetch({
 					api: `/render/${templateId}?download=true`,
-					body: JSON.stringify({ data, convertTo }),
+					body: JSON.stringify({ data, convertTo: convertTo ?? 'pdf' }),
 				})
 
 		await repo(CarboneLog).insert({

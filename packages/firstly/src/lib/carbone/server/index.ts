@@ -8,6 +8,7 @@ export const carbone = (config: {
 	CARBONE_API_KEY?: string
 	api_url?: string
 	api_version?: '5'
+	test?: boolean
 }) => {
 	return new Module({
 		key,
@@ -17,7 +18,10 @@ export const carbone = (config: {
 			if (config.CARBONE_API_KEY === undefined) {
 				log.error('CARBONE_API_KEY is required')
 			} else {
-				CarboneController.server = new CarboneServer(config)
+				CarboneController.server = new CarboneServer({
+					...config,
+					test: config.test === undefined ? config.CARBONE_API_KEY.startsWith('test') : config.test,
+				})
 				log.success('initialized')
 			}
 		},

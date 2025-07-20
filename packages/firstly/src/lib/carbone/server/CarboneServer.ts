@@ -4,11 +4,18 @@ export class CarboneServer {
 	api_key: string
 	api_url: string
 	api_version: '5'
+	test: boolean
 
-	constructor(options: { CARBONE_API_KEY?: string; api_url?: string; api_version?: '5' }) {
+	constructor(options: {
+		CARBONE_API_KEY?: string
+		api_url?: string
+		api_version?: '5'
+		test?: boolean
+	}) {
 		this.api_key = options.CARBONE_API_KEY ?? ''
 		this.api_url = options.api_url ?? 'https://api.carbone.io'
 		this.api_version = options.api_version ?? '5'
+		this.test = options.test ?? false
 	}
 
 	private getHeaders = (headersInit?: HeadersInit) => {
