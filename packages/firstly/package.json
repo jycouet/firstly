@@ -159,6 +159,14 @@
     "./mail/server": {
       "types": "./esm/mail/server/index.d.ts",
       "default": "./esm/mail/server/index.js"
+    },
+    "./carbone": {
+      "types": "./esm/carbone/index.d.ts",
+      "default": "./esm/carbone/index.js"
+    },
+    "./carbone/server": {
+      "types": "./esm/carbone/server/index.d.ts",
+      "default": "./esm/carbone/server/index.js"
     }
   },
   "files": [

@@ -1,3 +1,4 @@
+import { carbone } from 'firstly/carbone/server'
 import { FF_Role } from 'firstly/internals'
 
 import { MailController } from '$modules/mail/MailController'
@@ -29,6 +30,10 @@ export const api = firstly({
 			// 	// },
 			// },
 		}),
+
+		carbone({
+			CARBONE_API_KEY: 'test_1234567890',
+		}),
 	],
 
 	modulesFF: [
@@ -48,7 +53,11 @@ export const api = firstly({
 				return {
 					id: user.id,
 					name: user.name,
-					roles: user.roles,
+					roles: [
+						...user.roles,
+						//
+						// ...Object.values(Roles_Carbon),
+					],
 					session: {
 						id: session.id,
 						expiresAt: session.expiresAt,
