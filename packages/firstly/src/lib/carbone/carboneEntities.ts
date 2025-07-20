@@ -11,7 +11,7 @@ export class CarbonLogAction {
 	constructor(public id: string) {}
 }
 
-@Entity<CarboneTemplate>('_ff_carbone_templates', {
+@Entity<CarboneTemplate>('carboneTemplates', {
 	allowApiCrud: Roles_Carbon.Carbon_Admin,
 	allowApiRead: Roles_Carbon.Carbon_ViewTemplate,
 	defaultOrderBy: { updatedAt: 'desc' },
@@ -30,7 +30,7 @@ export class CarboneTemplate {
 	extension = ''
 }
 
-@Entity<CarboneLog>('_ff_carbone_logs', {
+@Entity<CarboneLog>('carboneLogs', {
 	allowApiCrud: Roles_Carbon.Carbon_Admin,
 	defaultOrderBy: { updatedAt: 'desc' },
 })
