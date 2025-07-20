@@ -39,6 +39,7 @@
 		{ path: route('/ui/enum'), text: 'UI / Enum' },
 		{ path: route('/ui/fieldGroup'), text: 'UI / FieldGroup' },
 		{ path: route('/ui/select'), text: 'UI / Select' },
+		{ path: route('/carbone'), text: 'Carbone' },
 		{ path: route('/demo/FF_Simple'), text: 'Demo Simple' },
 		{ path: route('/demo/FF_Form_Grid'), text: 'Demo Form Grid' },
 		{ path: route('/demo/FF_Layout'), text: 'Demo Layout' },
