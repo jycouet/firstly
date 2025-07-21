@@ -143,7 +143,7 @@ declare module 'remult' {
 
 		styleRadioUntil?: number
 
-		step?: '1' | '0.1' | '0.01'
+		step?: '1' | '0.1' | '0.01' | '0.5'
 
 		href?: (item: entityType) => string
 
