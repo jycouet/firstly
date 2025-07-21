@@ -46,13 +46,9 @@ export class CarboneServer {
 		})
 
 		if (!response.ok) {
-			const errorText = await response.text()
-			log.error(`Carbone render failed`, {
-				status: response.status,
-				statusText: response.statusText,
-				error: errorText,
-			})
-			throw new Error(`Carbone render failed`)
+			const err = await response.json()
+			log.error(`Carbone render failed`, err)
+			throw new Error(err.error)
 		}
 
 		return response

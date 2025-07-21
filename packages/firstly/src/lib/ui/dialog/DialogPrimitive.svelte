@@ -35,7 +35,7 @@
 <div
 	{...$portalled}
 	use:$portalled.action
-	class="fixed top-0 z-50 flex h-full w-full items-center justify-center"
+	class="fixed top-0 z-40 flex h-full w-full items-center justify-center"
 >
 	{#if $localOpen}
 		<div
