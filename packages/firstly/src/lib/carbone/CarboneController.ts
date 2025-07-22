@@ -12,8 +12,13 @@ export class CarboneController {
 		allowed: [Roles_Carbon.Carbon_Admin, Roles_Carbon.Carbon_UploadTemplate],
 		apiPrefix: 'carbone',
 	})
-	static async uploadTemplate(config: { name: string; base64: string; nameForCarbone?: string }) {
-		const { name, base64, nameForCarbone } = config
+	static async uploadTemplate(config: {
+		name: string
+		base64: string
+		nameForCarbone?: string
+		deleteOlderTemplatesWithSameName?: boolean
+	}) {
+		const { name, base64, nameForCarbone, deleteOlderTemplatesWithSameName } = config
 
 		// 30 max                                                         1    13
 		const nameToUse =
@@ -28,13 +33,23 @@ export class CarboneController {
 		})
 		const j = await res.json()
 		const templateId = j.data.templateId
-		await repo(CarboneTemplate).upsert({
+		const newTemplate = await repo(CarboneTemplate).upsert({
 			where: { id: templateId, name, extension: j.data.templateExtension },
 		})
 		await repo(CarboneLog).insert({
 			templateId,
 			action: CarbonLogAction.template_upload,
 		})
+
+		// Delete all other templates with the same name
+		if (deleteOlderTemplatesWithSameName) {
+			const older = await repo(CarboneTemplate).find({
+				where: { name: newTemplate.name, id: { $ne: newTemplate.id } },
+			})
+			for (const t of older) {
+				await CarboneController.deleteTemplate({ templateId: t.id })
+			}
+		}
 	}
 
 	@BackendMethod({
