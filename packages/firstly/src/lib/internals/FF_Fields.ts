@@ -1,12 +1,14 @@
 import {
 	Fields,
 	Validators,
+	type ClassType,
 	type FieldOptions,
 	type FieldValidator,
 	type StringFieldOptions,
 } from 'remult'
 
 import { displayCurrency } from '../formats'
+import type { BaseEnum } from './BaseEnum'
 import { getEnums } from './helper'
 
 // Translate default messages
@@ -178,7 +180,7 @@ export class FF_Fields {
 	}
 
 	static arrayValueList<enumType = any, entityType = any>(
-		enumClass: enumType,
+		enumClass: ClassType<BaseEnum<any>>,
 		o?: FieldOptions<entityType, any[]>,
 	) {
 		return Fields.json(() => Array<entityType>, {
@@ -186,28 +188,23 @@ export class FF_Fields {
 			inputType: 'selectArrayEnum',
 			allowNull: false,
 			valueConverter: {
-				fromDb: (v: string) => {
+				fromDb: (v: string | string[]) => {
 					if (!v) return []
 
-					if (typeof v === 'string') {
-						return v
-							.split(',')
-							.map((c: string) => c.replace('{', '').replace('}', ''))
-							.map((s: any) => {
-								// @ts-ignore
-								return enumClass[s] as enumType
-							})
+					const arr = Array.isArray(v)
+						? v
+						: v?.split(',').flatMap((c) => c.replaceAll('{', '').replaceAll('}', ''))
+
+					const list = getEnums(enumClass)
+					const toRet = []
+					for (const s of arr) {
+						const found = list.find((c) => c.id === s)
+						if (found) {
+							toRet.push(found)
+						}
 					}
 
-					const keys = v
-						// @ts-ignore
-						.map((s: any) => {
-							// @ts-ignore
-							return enumClass[s] as enumType
-						})
-						.filter((p: any) => p !== undefined)
-
-					return keys
+					return toRet
 				},
 				toDb: (v) => {
 					const arr = Array.isArray(v) ? v : [v]
