@@ -144,8 +144,8 @@ catalogs:
       specifier: 7.4.47
       version: 7.4.47
     '@melt-ui/svelte':
-      specifier: 0.86.3
-      version: 0.86.3
+      specifier: 0.86.6
+      version: 0.86.6
     autoprefixer:
       specifier: 10.4.19
       version: 10.4.19
@@ -167,11 +167,6 @@ catalogs:
     tailwindcss:
       specifier: 3.4.4
       version: 3.4.4
-
-patchedDependencies:
-  '@melt-ui/svelte@0.86.3':
-    hash: 58c0728ce4d4ab5c745fdea92197d9b9e17284cb1b0170aaf800d21a3b83f05b
-    path: patches/@melt-ui__svelte@0.86.3.patch
 
 importers:
 
@@ -238,7 +233,7 @@ importers:
         version: 7.4.47
       '@melt-ui/svelte':
         specifier: catalog:ui
-        version: 0.86.3(patch_hash=58c0728ce4d4ab5c745fdea92197d9b9e17284cb1b0170aaf800d21a3b83f05b)(svelte@5.34.3)
+        version: 0.86.6(svelte@5.34.3)
       '@oslojs/crypto':
         specifier: catalog:prod
         version: 1.0.1
@@ -1245,8 +1240,8 @@ packages:
   '@mdx-js/mdx@3.1.0':
     resolution: {integrity: sha512-/QxEhPAvGwbQmy1Px8F899L5Uc2KZ6JtXwlCgJmjSTBedwOZkByYcBG4GceIGPXRDsmfxhHazuS+hlOShRLeDw==}
 
-  '@melt-ui/svelte@0.86.3':
-    resolution: {integrity: sha512-ZsWmHGd6P636mws1CgatlX7JtLkWoUBPXeNzPzvHYgZdagp8io8MPFotDIfRyKwTEQFUqF9fhBks6CWr0Nupuw==}
+  '@melt-ui/svelte@0.86.6':
+    resolution: {integrity: sha512-Jer+M7DgIwT5IHfTayb4Iw/fkkxWNmC/mqn/nMh9JrbPbkxmyabfLQnhJ+JDn5HK77f84j34lubO3iqFtYAfMg==}
     peerDependencies:
       svelte: ^3.0.0 || ^4.0.0 || ^5.0.0-next.118
 
@@ -6273,7 +6268,7 @@ snapshots:
       - acorn
       - supports-color
 
-  '@melt-ui/svelte@0.86.3(patch_hash=58c0728ce4d4ab5c745fdea92197d9b9e17284cb1b0170aaf800d21a3b83f05b)(svelte@5.34.3)':
+  '@melt-ui/svelte@0.86.6(svelte@5.34.3)':
     dependencies:
       '@floating-ui/core': 1.6.3
       '@floating-ui/dom': 1.6.13
