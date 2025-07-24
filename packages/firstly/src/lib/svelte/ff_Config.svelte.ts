@@ -116,8 +116,8 @@ export const daisyTheme: Theme = {
 	},
 	edit: {
 		checkbox: 'checkbox',
-		input: 'input input-bordered',
-		select: 'select select-bordered',
+		input: 'input',
+		select: 'select',
 	},
 	grid: {
 		root: 'table',

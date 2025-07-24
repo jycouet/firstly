@@ -28,7 +28,7 @@
 {:else if layoutToUse.type === 'grid'}
 	<FF_Grid {r}></FF_Grid>
 {:else if layoutToUse.type === 'tab'}
-	<div role="tablist" class="tabs tabs-lifted">
+	<div role="tablist" class="tabs tabs-lift">
 		{#each layoutToUse.groups ?? [] as group (group.key)}
 			<input
 				type="radio"

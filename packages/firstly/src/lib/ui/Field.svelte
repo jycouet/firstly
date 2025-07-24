@@ -203,7 +203,7 @@
 	{@const clearableComputed =
 		cell.clearable || clearable || (mode === 'filtre' && clearable === undefined)}
 	{#if isViewMode(mode, cell.field)}
-		<span class="input-bordered flex items-center pl-2 pr-4">
+		<span class="flex items-center pl-2 pr-4">
 			{#if cell.field?.inputType === 'checkbox'}
 				<input type="checkbox" {...common(cell.field)} class="checkbox ml-2" disabled checked={value} />
 			{:else if metaType.kind === 'relation'}
@@ -300,13 +300,13 @@
 			/>
 		</div>
 	{:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'dateOnly' || metaType.subKind === 'number' || metaType.subKind === 'textpsd'}
-		<div class="input input-bordered inline-flex w-full items-center pl-2">
+		<div class="input inline-flex w-full items-center pl-2">
 			<Input
 				{focus}
 				{...common(cell.field)}
 				autocomplete="off"
 				class={tw(
-					`join-item w-full bg-transparent placeholder:text-base-content/30`,
+					`join-item w-full placeholder:text-base-content/30`,
 					metaType.subKind === 'number' && 'text-end',
 				)}
 				style={cell.field?.inputType === 'textpsd' && textpsdVisible === false

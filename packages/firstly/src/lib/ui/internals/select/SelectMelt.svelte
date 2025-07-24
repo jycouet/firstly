@@ -165,7 +165,7 @@
 	$: calcFilteredItems($touchedInput, $inputValue, value)
 </script>
 
-<div class="input input-bordered flex min-w-0 items-center {disabled && 'opacity-40'}">
+<div class="input flex min-w-0 items-center {disabled && 'opacity-40'}">
 	<div class="relative">
 		{#if $localSelected?.value?.icon?.data}
 			<Icon

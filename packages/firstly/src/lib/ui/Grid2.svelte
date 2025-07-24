@@ -113,7 +113,7 @@
 </script>
 
 <div class="overflow-x-auto">
-	<table class="table {classes.table} bg-base-200">
+	<table class="table {classes.table}">
 		<thead>
 			<tr>
 				{#if settingsLeft && (withEdit || withDelete || withAdd)}

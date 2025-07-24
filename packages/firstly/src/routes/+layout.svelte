@@ -7,7 +7,7 @@
 	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
 	import { route } from '$lib2/ROUTES'
 
-	import '../app.pcss'
+	import '../app.css'
 	import '../lib/svelte/firstly.css'
 
 	import { createSubscriber } from 'svelte/reactivity'
@@ -323,12 +323,12 @@
 					</svg>
 					Firstly
 				</div>
-				<ul class="menu">
+				<ul class="menu w-full">
 					{#each links as link}
 						<li>
 							<a
 								href={link.path}
-								class={link.path === $page.url.pathname ? 'active' : ''}
+								class={link.path === $page.url.pathname ? 'menu-active' : ''}
 								target={link?.target}
 							>
 								<svg data-src="https://unpkg.com/heroicons/20/solid/home.svg" class="h-5 w-5"></svg>

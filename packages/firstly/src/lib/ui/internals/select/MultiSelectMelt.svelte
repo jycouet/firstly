@@ -174,7 +174,7 @@
 	$: calcFilteredItems($touchedInput, $inputValue, values)
 </script>
 
-<div class="input input-bordered flex min-w-0 items-center">
+<div class="input flex min-w-0 items-center">
 	<div class="relative">
 		{#if iconToDisplayInInput($localSelected)}
 			{@const ico = iconToDisplayInInput($localSelected)}

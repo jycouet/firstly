@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@plugin "daisyui" {
+	themes: dim --default;
+	logs: false;
+}
+@plugin "daisyui/theme" {
+	name: 'firstly';
+
+	--color-primary: oklch(0.5706 0.1796 274.52);
+	--color-secondary: oklch(0.7707 0.1245 74.58);
+	--color-accent: oklch(0.3128 0.0832 314.02);
+}

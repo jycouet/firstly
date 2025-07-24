@@ -70,14 +70,15 @@
 		<div class="card-body">
 			<h2 class="card-title">Upload Template</h2>
 
-			<div class="form-control">
+			<!-- <div class="form-control"> -->
+			<div class="">
 				<label for="fileInput" class="label">
 					<span class="label-text">Select template file</span>
 				</label>
 				<input
 					bind:this={fileInput}
 					type="file"
-					class="file-input file-input-bordered w-full"
+					class="file-input w-full"
 					accept=".docx,.xlsx,.pptx,.odt,.ods,.odp"
 					onchange={handleFileUpload}
 					disabled={uploading}
@@ -124,7 +125,7 @@
 				</label>
 				<textarea
 					bind:value={templateData}
-					class="textarea textarea-bordered h-32 w-full"
+					class="textarea h-32 w-full"
 					placeholder={`{
   "name": "John Doe",
   "date": "2024-01-01"
