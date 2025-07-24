@@ -208,7 +208,7 @@ export class FF_Fields {
 				},
 				toDb: (v) => {
 					const arr = Array.isArray(v) ? v : [v]
-					return `{${[...new Set((arr ?? []).map((c) => c.id))].join(',')}}`
+					return `{${[...new Set((arr.filter((c) => c !== undefined) ?? []).map((c) => c.id))].join(',')}}`
 				},
 				displayValue: (v) => {
 					// Nice to have a oneLiner, but if you want custom style, just take the array and do what you want
