@@ -189,6 +189,16 @@ export class FF_Fields {
 				fromDb: (v: string) => {
 					if (!v) return []
 
+					if (typeof v === 'string') {
+						return v
+							.split(',')
+							.map((c: string) => c.replace('{', '').replace('}', ''))
+							.map((s: any) => {
+								// @ts-ignore
+								return enumClass[s] as enumType
+							})
+					}
+
 					const keys = v
 						// @ts-ignore
 						.map((s: any) => {
