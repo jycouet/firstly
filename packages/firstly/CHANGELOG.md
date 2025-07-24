@@ -1,5 +1,13 @@
 # firstly
 
+## 0.1.4
+
+### Patch Changes
+
+- [#172](https://github.com/jycouet/firstly/pull/172)
+  [`ab633f5`](https://github.com/jycouet/firstly/commit/ab633f59964f437c636f84c06e0ba82d11954c0a)
+  Thanks [@jycouet](https://github.com/jycouet)! - new module https://carbone.io/ 🎉
+
 ## 0.1.3
 
 ### Patch Changes
