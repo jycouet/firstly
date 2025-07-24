@@ -2,19 +2,8 @@
 	import { createTooltip } from '@melt-ui/svelte'
 	import { fade } from 'svelte/transition'
 
-	interface Props {
-		text?: string;
-		hideTooltip?: boolean;
-		children?: import('svelte').Snippet;
-		tooltip?: import('svelte').Snippet;
-	}
-
-	let {
-		text = '',
-		hideTooltip = false,
-		children,
-		tooltip
-	}: Props = $props();
+	export let text = ''
+	export let hideTooltip = false
 
 	const {
 		elements: { trigger, content, arrow },
@@ -34,20 +23,20 @@
 </script>
 
 <button type="button" class="trigger" {...$trigger} use:trigger aria-label="Add">
-	{@render children?.()}
+	<slot />
 </button>
 <!-- {hideTooltip} -->
-{#if $open && !hideTooltip && (text || tooltip)}
+{#if $open && !hideTooltip && (text || $$slots.tooltip)}
 	<div
 		{...$content}
 		use:content
 		transition:fade={{ duration: 100 }}
-		class="z-50 rounded-lg bg-base-300 ring-1 ring-black"
+		class="z-30 rounded-lg bg-base-300 ring-1 ring-black"
 	>
 		<div {...$arrow} use:arrow></div>
 		<div class="px-4 py-1">
-			{#if tooltip}
-				{@render tooltip?.()}
+			{#if $$slots.tooltip}
+				<slot name="tooltip" />
 			{:else}
 				{@html text}
 			{/if}
