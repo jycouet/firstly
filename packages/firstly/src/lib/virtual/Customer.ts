@@ -6,7 +6,7 @@ import { FF_Fields } from '../internals/FF_Fields'
 	allowApiCrud: true,
 })
 export class Customer {
-	@Fields.cuid()
+	@Fields.id()
 	id!: string
 
 	@FF_Fields.string({ caption: 'Nom de la société', placeholder: 'Dynamic Process' })

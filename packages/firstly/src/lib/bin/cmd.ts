@@ -673,7 +673,7 @@ import { BaseEnum, LibIcon_Add, LibIcon_Delete, type BaseEnumOptions } from 'fir
   allowApiCrud: Allow.authenticated,
 })
 export class Task {
-  @Fields.cuid()
+  @Fields.id()
   id!: string
 
   @Fields.createdAt()

@@ -47,7 +47,7 @@ export class UIEntity {
 	@Fields.json({ allowNull: true })
 	permissions? = []
 
-	@Fields.cuid()
+	@Fields.id()
 	cuid!: string
 
 	@Fields.boolean({ allowNull: true })

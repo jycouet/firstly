@@ -16,7 +16,7 @@ export const FF_Role_Auth = {
 	caption: 'FF Auth - Users',
 })
 export class FFAuthUser {
-	@Fields.cuid()
+	@Fields.id()
 	id!: string
 
 	@Fields.createdAt({ includeInApi: [FF_Role_Auth.FF_Role_Auth_Admin, FF_Role.FF_Role_Admin] })
@@ -70,7 +70,7 @@ export class FFAuthUser {
 	},
 })
 export class FFAuthAccount {
-	@Fields.cuid()
+	@Fields.id()
 	id!: string
 
 	@Fields.createdAt()
