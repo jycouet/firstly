@@ -24,7 +24,7 @@ import { TaskTypeEnum } from './TaskTypeEnum'
 	},
 })
 export class Task {
-	@Fields.cuid()
+	@Fields.id()
 	id!: string
 
 	@Fields.createdAt({
