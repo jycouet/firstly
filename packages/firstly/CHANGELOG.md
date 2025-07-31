@@ -1,5 +1,12 @@
 # firstly
 
+## 0.2.1
+
+### Patch Changes
+
+- [`a4e3c6e`](https://github.com/jycouet/firstly/commit/a4e3c6ecf52dd48c10115214109426a0e35e5e8b)
+  Thanks [@jycouet](https://github.com/jycouet)! - fix auth ui (with new remult 3.1)
+
 ## 0.2.0
 
 ### Minor Changes
