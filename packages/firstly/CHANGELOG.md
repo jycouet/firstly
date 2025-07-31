@@ -1,5 +1,19 @@
 # firstly
 
+## 0.2.0
+
+### Minor Changes
+
+- [#176](https://github.com/jycouet/firstly/pull/176)
+  [`1859bba`](https://github.com/jycouet/firstly/commit/1859bbaff86d3592900c7a18de1491203f8ebe8d)
+  Thanks [@jycouet](https://github.com/jycouet)! - align with remult 3.1 (cuid to id)
+
+### Patch Changes
+
+- [#172](https://github.com/jycouet/firstly/pull/172)
+  [`ab633f5`](https://github.com/jycouet/firstly/commit/ab633f59964f437c636f84c06e0ba82d11954c0a)
+  Thanks [@jycouet](https://github.com/jycouet)! - new module https://carbone.io/ 🎉
+
 ## 0.1.3
 
 ### Patch Changes
