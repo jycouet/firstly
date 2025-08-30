@@ -133,7 +133,7 @@ export class AuthControllerServer {
 				} satisfies AuthResponse
 			} else {
 				const sendMail = getSendMail()
-				await sendMail('invitationSend', {
+				const result = await sendMail('invitationSend', {
 					to: email,
 					subject: 'Invitation',
 
@@ -152,12 +152,19 @@ export class AuthControllerServer {
 					],
 				})
 
-				authModuleRaw.log.success(`${magenta('[invitationSend]')} (${yellow(url)})`)
-
-				return {
-					message: 'Demo Mail sent !',
-					user: remult.user,
-				} satisfies AuthResponse
+				if (result.error) {
+					authModuleRaw.log.error(`${magenta('[invitationSend]')} (${yellow(url)})`, result.error)
+					return {
+						message: 'Error sending mail',
+						user: remult.user,
+					} satisfies AuthResponse
+				} else {
+					authModuleRaw.log.success(`${magenta('[invitationSend]')} (${yellow(url)})`)
+					return {
+						message: 'Demo Mail sent !',
+						user: remult.user,
+					} satisfies AuthResponse
+				}
 			}
 		}
 
@@ -231,7 +238,7 @@ export class AuthControllerServer {
 				authModuleRaw.log.success(`${green('[custom]')}${magenta('[verifyMailSend]')} (${yellow(url)})`)
 			} else {
 				const sendMail = getSendMail()
-				await sendMail('verifyMailSend', {
+				const result = await sendMail('verifyMailSend', {
 					to: email,
 					subject: 'Wecome',
 					title: 'Wecome 👋',
@@ -246,7 +253,11 @@ export class AuthControllerServer {
 					],
 				})
 
-				authModuleRaw.log.success(`${magenta('[verifyMailSend]')} (${yellow(url)})`)
+				if (result.error) {
+					authModuleRaw.log.error(`${magenta('[verifyMailSend]')} (${yellow(url)})`, result.error)
+				} else {
+					authModuleRaw.log.success(`${magenta('[verifyMailSend]')} (${yellow(url)})`)
+				}
 			}
 			return {
 				message: 'We sent you a mail to verify your account.',
@@ -345,7 +356,7 @@ export class AuthControllerServer {
 				} satisfies AuthResponse
 			} else {
 				const sendMail = getSendMail()
-				await sendMail('resetPasswordSend', {
+				const result = await sendMail('resetPasswordSend', {
 					to: email,
 					subject: 'Reset your password',
 					sections: [
@@ -362,7 +373,12 @@ export class AuthControllerServer {
 					],
 				})
 
-				authModuleRaw.log.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
+				if (result.error) {
+					authModuleRaw.log.error(`${magenta('[resetPasswordSend]')} (${yellow(url)})`, result.error)
+				} else {
+					authModuleRaw.log.success(`${magenta('[resetPasswordSend]')} (${yellow(url)})`)
+				}
+
 				return {
 					message: `${oSafe.strings.resetPasswordSend} (DEMO)`,
 					user: remult.user,
