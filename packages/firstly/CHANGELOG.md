@@ -1,5 +1,16 @@
 # firstly
 
+## 0.2.1
+
+### Patch Changes
+
+- [#185](https://github.com/jycouet/firstly/pull/185)
+  [`9689241`](https://github.com/jycouet/firstly/commit/9689241824fb7066e019e64d6a8afdb439fc6838)
+  Thanks [@jycouet](https://github.com/jycouet)! - sendMail() return data & error now
+
+- [`a4e3c6e`](https://github.com/jycouet/firstly/commit/a4e3c6ecf52dd48c10115214109426a0e35e5e8b)
+  Thanks [@jycouet](https://github.com/jycouet)! - fix auth ui (with new remult 3.1)
+
 ## 0.2.0
 
 ### Minor Changes
