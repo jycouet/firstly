@@ -45,7 +45,7 @@ catalogs:
   '@sveltejs/adapter-node': 5.3.2
   '@sveltejs/kit': 2.22.2
   '@sveltejs/vite-plugin-svelte': 5.1.0
-  '@sveltejs/package': 2.4.0
+  '@sveltejs/package': 2.5.4
 
  ui:
   mermaid: 11.9.0
