@@ -52,3 +52,18 @@ jobs:
 
    - name: 🎢 test:e2e
      run: pnpm -r test:e2e
+
+ diff_dependencies:
+  runs-on: ubuntu-latest
+  permissions:
+   contents: read
+   pull-requests: write
+  steps:
+   - name: Checkout repository
+     uses: actions/checkout@v4
+     with:
+      fetch-depth: 0
+   - name: Create Diff
+     uses: e18e/action-dependency-diff@v1
+     with:
+      dependency-threshold: '3'
