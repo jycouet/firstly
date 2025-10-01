@@ -28,7 +28,7 @@ async function getGitHub(query: string, variables?: Record<string, any>) {
 	return null
 }
 
-async function addMetaData(issueId: string, author: string | undefined, page: string) {
+async function addMetaData(issueId: string, obj: Record<string, any>) {
 	if (import.meta.env.SSR) {
 		const commentToMinimize = await getGitHub(
 			`mutation AddComment($input: AddCommentInput!) {
@@ -44,7 +44,7 @@ async function addMetaData(issueId: string, author: string | undefined, page: st
 			{
 				input: {
 					subjectId: issueId,
-					body: `<pre>\n${JSON.stringify({ author, page }, null, 2)}\n</pre>`,
+					body: `<pre>\n${JSON.stringify(obj, null, 2)}\n</pre>`,
 				},
 			},
 		)
@@ -280,7 +280,12 @@ export class FeedbackController {
 	}
 
 	@BackendMethod({ allowed: Allow.authenticated })
-	static async createIssue(milestoneId: string, title: string, body: string, page: string) {
+	static async createIssue(
+		milestoneId: string,
+		title: string,
+		body: string,
+		metadata: { page: string },
+	) {
 		const repoInfo = await getGitHub(
 			`query RepoInfo(
 				$repository: String!
@@ -334,16 +339,18 @@ export class FeedbackController {
 
 		const toRet = newIssue.createIssue.issue as { id: string; number: number }
 
-		await addMetaData(toRet.id, remult.user?.name, page)
+		const feedbackMetadata =
+			remult.context.feedbackOptions.transformMetadata?.({
+				user: remult.user,
+				metadata,
+			}) ?? metadata
+		await addMetaData(toRet.id, feedbackMetadata)
 
 		remult.context.feedbackOptions.saved?.({
 			number: toRet.number,
 			title: title,
 			body,
-			metadata: {
-				author: JSON.stringify(remult.user?.name),
-				page,
-			},
+			metadata: feedbackMetadata,
 		})
 
 		return toRet
@@ -355,7 +362,7 @@ export class FeedbackController {
 		issueNumber: number,
 		title: string,
 		body: string,
-		page: string,
+		metadata: { page: string },
 		labels: { id: string; name: string }[],
 	) {
 		const inputComment: { subjectId: string; body: string } = {
@@ -393,16 +400,18 @@ export class FeedbackController {
 			},
 		)
 
-		await addMetaData(issueId, remult.user?.name, page)
+		const feedbackMetadata =
+			remult.context.feedbackOptions.transformMetadata?.({
+				user: remult.user,
+				metadata,
+			}) ?? metadata
+		await addMetaData(issueId, feedbackMetadata)
 
 		remult.context.feedbackOptions.saved?.({
 			number: issueNumber,
 			title,
 			body,
-			metadata: {
-				author: JSON.stringify(remult.user?.name),
-				page,
-			},
+			metadata: feedbackMetadata,
 		})
 
 		return 'done'
