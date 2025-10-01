@@ -32,15 +32,15 @@ async function addMetaData(issueId: string, obj: Record<string, any>) {
 	if (import.meta.env.SSR) {
 		const commentToMinimize = await getGitHub(
 			`mutation AddComment($input: AddCommentInput!) {
-			addComment(input: $input) {
-				commentEdge {
-					node {
-						id
-					}
-				}
-			}
-		}
-		`,
+      addComment(input: $input) {
+        commentEdge {
+          node {
+            id
+          }
+        }
+      }
+    }
+    `,
 			{
 				input: {
 					subjectId: issueId,
@@ -51,13 +51,13 @@ async function addMetaData(issueId: string, obj: Record<string, any>) {
 
 		await getGitHub(
 			`mutation MinimizeComment($input: MinimizeCommentInput!) {
-			minimizeComment(input: $input) {
-				minimizedComment {
-					isMinimized
-				}
-			}
-		}
-		`,
+      minimizeComment(input: $input) {
+        minimizedComment {
+          isMinimized
+        }
+      }
+    }
+    `,
 			{
 				input: {
 					subjectId: commentToMinimize.addComment.commentEdge.node.id,
@@ -73,26 +73,26 @@ export class FeedbackController {
 	static async getMilestones() {
 		const data = await getGitHub(
 			`query Milestones(
-			$repository: String!
-			$owner: String!
-			$filter: String
-			$take: Int = 25
-			$cursor: String
-		) {
-			repository(name: $repository, owner: $owner) {
-				milestones(query: $filter, last: $take, after: $cursor, states: OPEN) {
-					pageInfo {
-						endCursor
-					}
-					nodes {
-						id
-						number
-						title
-					}
-				}
-			}
-		}
-		`,
+      $repository: String!
+      $owner: String!
+      $filter: String
+      $take: Int = 25
+      $cursor: String
+    ) {
+      repository(name: $repository, owner: $owner) {
+        milestones(query: $filter, last: $take, after: $cursor, states: OPEN) {
+          pageInfo {
+            endCursor
+          }
+          nodes {
+            id
+            number
+            title
+          }
+        }
+      }
+    }
+    `,
 			{
 				repository: remult.context.feedbackOptions.repo.name,
 				owner: remult.context.feedbackOptions.repo.owner,
@@ -119,33 +119,33 @@ export class FeedbackController {
 				: null // When open take milestone order
 		const data = await getGitHub(
 			`query Issues(
-				$repository: String!
-				$owner: String!
-				$filters: IssueFilters
-				$milestoneNumber: Int!
-				$take: Int = 25
-				$cursor: String
-				$issueOrder: IssueOrder
-			) {
-				repository(name: $repository, owner: $owner) {
-					milestone(number: $milestoneNumber) {
-						issues(first: $take, after: $cursor, filterBy: $filters, orderBy: $issueOrder) {
-							nodes {
-								id
-								number
-								titleHTML
-								state
+        $repository: String!
+        $owner: String!
+        $filters: IssueFilters
+        $milestoneNumber: Int!
+        $take: Int = 25
+        $cursor: String
+        $issueOrder: IssueOrder
+      ) {
+        repository(name: $repository, owner: $owner) {
+          milestone(number: $milestoneNumber) {
+            issues(first: $take, after: $cursor, filterBy: $filters, orderBy: $issueOrder) {
+              nodes {
+                id
+                number
+                titleHTML
+                state
                 labels(first:10){
                   nodes {
                     name
                   }
                 }
-							}
-						}
-					}
-				}
-			}			
-		`,
+              }
+            }
+          }
+        }
+      }			
+    `,
 			{
 				repository: remult.context.feedbackOptions.repo.name,
 				owner: remult.context.feedbackOptions.repo.owner,
@@ -178,38 +178,38 @@ export class FeedbackController {
 	static async getIssue(issueNumber: number) {
 		const data = await getGitHub(
 			`query Issue($repository: String!, $owner: String!, $issueNumber: Int!) {
-				repository(name: $repository, owner: $owner) {
-					issue(number: $issueNumber) {
-						id
-						createdAt
-						bodyHTML
-						state
-						title
-            labels(first: 25){
-              nodes{
-                id
-                name
-              }
-            }
-						comments(first: 100) {
-							nodes {
-								id
-								isMinimized
-								createdAt
-								body
-								bodyHTML
-								reactionGroups {
-									content
-									reactors(first: 1) {
-										totalCount
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		`,
+repository(name: $repository, owner: $owner) {
+  issue(number: $issueNumber) {
+    id
+    createdAt
+    bodyHTML
+    state
+    title
+    labels(first: 25){
+      nodes{
+        id
+        name
+      }
+    }
+    comments(first: 100) {
+      nodes {
+        id
+        isMinimized
+        createdAt
+        body
+        bodyHTML
+        reactionGroups {
+          content
+          reactors(first: 1) {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+}
+}
+    `,
 			{
 				repository: remult.context.feedbackOptions.repo.name,
 				owner: remult.context.feedbackOptions.repo.owner,
@@ -217,7 +217,7 @@ export class FeedbackController {
 			},
 		)
 
-		type Item = { bodyHTML: string; who?: string; createdAt: Date; public: boolean; title: string }
+		type Item = { bodyHTML: string; createdAt: Date; public: boolean; title: string }
 		const items: Item[] = []
 		const firstItem: Item = {
 			bodyHTML: data.repository.issue.bodyHTML,
@@ -247,9 +247,8 @@ export class FeedbackController {
 
 		for (let i = 0; i < comments.length; i++) {
 			if (comments[i].isMinimized) {
-				const parsed = JSON.parse(comments[i].body.replaceAll('<pre>\n', '').replaceAll('\n</pre>', ''))
-				items[items.length - 1].who = parsed.author
-				items[items.length - 1].public = true
+				// const parsed = JSON.parse(comments[i].body.replaceAll('<pre>\n', '').replaceAll('\n</pre>', ''))
+				items[items.length - 1].public = false
 			} else {
 				const nbEye = comments[i].reactionGroups.find((c) => c.content === 'EYES')?.reactors.totalCount
 
@@ -288,19 +287,19 @@ export class FeedbackController {
 	) {
 		const repoInfo = await getGitHub(
 			`query RepoInfo(
-				$repository: String!
-				$owner: String!
-			) {
-				repository(name: $repository, owner: $owner) {
-					id
+        $repository: String!
+        $owner: String!
+      ) {
+        repository(name: $repository, owner: $owner) {
+          id
           labels(first: 25){
             nodes{
               id
               name
             }
           }
-				}
-			}`,
+        }
+      }`,
 			{
 				repository: remult.context.feedbackOptions.repo.name,
 				owner: remult.context.feedbackOptions.repo.owner,
@@ -318,14 +317,14 @@ export class FeedbackController {
 
 		const newIssue = await getGitHub(
 			`mutation CreateIssue($input: CreateIssueInput!) {
-			createIssue(input: $input) {
-				issue {
-					id
-					number
-				}
-			}
-		}
-		`,
+      createIssue(input: $input) {
+        issue {
+          id
+          number
+        }
+      }
+    }
+    `,
 			{
 				input: {
 					repositoryId: repoInfoData.id,
@@ -380,20 +379,20 @@ export class FeedbackController {
 
 		await getGitHub(
 			`mutation AddComment($inputComment: AddCommentInput!, $inputIssue: UpdateIssueInput!) {
-				addComment(input: $inputComment) {
-					commentEdge {
-						node {
-							id
-						}
-					}
-				}
+        addComment(input: $inputComment) {
+          commentEdge {
+            node {
+              id
+            }
+          }
+        }
         updateIssue(input: $inputIssue) {
           issue {
             id
           }
         }
-			}
-			`,
+      }
+      `,
 			{
 				inputComment,
 				inputIssue,
@@ -438,13 +437,13 @@ export class FeedbackController {
             id
           }
         }
-				closeIssue(input: $inputClose) {
-					issue {
-						id
-					}
-				}
-			}
-			`,
+        closeIssue(input: $inputClose) {
+          issue {
+            id
+          }
+        }
+      }
+      `,
 			{
 				inputIssue,
 				inputClose,
@@ -462,13 +461,13 @@ export class FeedbackController {
 
 		await getGitHub(
 			`mutation ReOpenIssue($input: ReopenIssueInput!) {
-				reopenIssue(input: $input) {
-					issue {
-						id
-					}
-				}
-			}
-			`,
+        reopenIssue(input: $input) {
+          issue {
+            id
+          }
+        }
+      }
+      `,
 			{
 				input,
 			},
