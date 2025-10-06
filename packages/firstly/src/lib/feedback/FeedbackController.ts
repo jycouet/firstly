@@ -217,7 +217,7 @@ repository(name: $repository, owner: $owner) {
 			},
 		)
 
-		type Item = { bodyHTML: string; createdAt: Date; public: boolean; title: string }
+		type Item = { bodyHTML: string; who?: string; createdAt: Date; public: boolean; title: string }
 		const items: Item[] = []
 		const firstItem: Item = {
 			bodyHTML: data.repository.issue.bodyHTML,
@@ -247,8 +247,9 @@ repository(name: $repository, owner: $owner) {
 
 		for (let i = 0; i < comments.length; i++) {
 			if (comments[i].isMinimized) {
-				// const parsed = JSON.parse(comments[i].body.replaceAll('<pre>\n', '').replaceAll('\n</pre>', ''))
-				items[items.length - 1].public = false
+				const parsed = JSON.parse(comments[i].body.replaceAll('<pre>\n', '').replaceAll('\n</pre>', ''))
+				items[items.length - 1].who = parsed?.author ?? '???'
+				items[items.length - 1].public = true
 			} else {
 				const nbEye = comments[i].reactionGroups.find((c) => c.content === 'EYES')?.reactors.totalCount
 
