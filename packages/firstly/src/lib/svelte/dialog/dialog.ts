@@ -97,7 +97,7 @@ const createDialogManagement = () => {
 		confirm: (topic: string, text: string, icon?: string) => {
 			const detail = {
 				detail: {
-					caption: 'Confirmez',
+					caption: 'A Confirmer',
 					icon: { data: icon },
 				},
 				children: `
@@ -113,7 +113,7 @@ const createDialogManagement = () => {
 		confirmDelete: (topic: string) => {
 			const detail = {
 				detail: {
-					caption: 'Supprimer',
+					caption: 'A Supprimer',
 					icon: { data: LibIcon_Delete },
 				},
 				children: topic
