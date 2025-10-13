@@ -69,9 +69,6 @@ catalogs:
     cron:
       specifier: 4.3.0
       version: 4.3.0
-    mjml:
-      specifier: 4.15.3
-      version: 4.15.3
     nodemailer:
       specifier: 7.0.4
       version: 7.0.4
@@ -264,9 +261,6 @@ importers:
       esm-env:
         specifier: catalog:tooling
         version: 1.2.2
-      mjml:
-        specifier: catalog:prod
-        version: 4.15.3
       nodemailer:
         specifier: catalog:prod
         version: 7.0.4
