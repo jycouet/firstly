@@ -32,7 +32,8 @@ Wrap your entity options with the `withChangeLog` function to opt-in changeLog.
 ```ts
 import { withChangeLog } from 'firstly/changeLog'
 
-@Entity('users',
+@Entity(
+	'users',
 	withChangeLog({
 		// ...
 	}),

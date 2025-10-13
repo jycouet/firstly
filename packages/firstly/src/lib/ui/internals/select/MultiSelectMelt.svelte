@@ -97,6 +97,8 @@
 			const list = (v ?? []).map((c) => c.value.id)
 
 			// Create a map to count occurrences of each element
+			// TODO: switch to: Use SvelteMap instead  svelte/prefer-svelte-reactivity
+			// eslint-disable-next-line
 			const countMap: Map<string, number> = new Map()
 
 			list.forEach((item) => {
