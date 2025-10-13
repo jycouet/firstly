@@ -27,5 +27,5 @@ packages/firstly/static/favicon.svg
 .astro
 .devbox
 
-firstly/packages/firstly/src/lib/ui/Tooltip.svelte
-firstly/packages/firstly/src/lib/ui/Button.svelte
+packages/firstly/src/lib/ui/Tooltip.svelte
+packages/firstly/src/lib/ui/Button.svelte
