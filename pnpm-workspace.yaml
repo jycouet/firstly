@@ -69,4 +69,3 @@ catalogs:
   cron: 4.3.0
   '@layerstack/utils': 1.0.0
   '@layerstack/svelte-actions': 1.0.0
-  sailkit: 0.3.0

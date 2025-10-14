@@ -81,7 +81,6 @@
     "daisyui": "catalog:ui",
     "esm-env": "catalog:tooling",
     "nodemailer": "catalog:prod",
-    "sailkit": "catalog:prod",
     "tailwind-merge": "catalog:ui",
     "tailwindcss": "catalog:ui",
     "vite-plugin-kit-routes": "catalog:tooling",
