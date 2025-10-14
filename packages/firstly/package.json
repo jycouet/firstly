@@ -80,7 +80,6 @@
     "cron": "catalog:prod",
     "daisyui": "catalog:ui",
     "esm-env": "catalog:tooling",
-    "mjml": "catalog:prod",
     "nodemailer": "catalog:prod",
     "sailkit": "catalog:prod",
     "tailwind-merge": "catalog:ui",
