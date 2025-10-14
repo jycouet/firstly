@@ -1,6 +1,5 @@
 import { Entity, Field, Fields } from 'remult'
 
-import { FF_Fields } from '../internals/FF_Fields.js'
 import { StateDemoEnum } from './StateDemoEnum.js'
 
 @Entity('uiEntities', {
