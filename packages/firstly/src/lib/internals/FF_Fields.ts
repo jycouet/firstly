@@ -104,18 +104,6 @@ export class FF_Fields {
 		})
 	}
 
-	static dateOnly<entityType = any>(o?: FieldOptions<entityType, Date>) {
-		// empty if there is nothing coming here.
-		if (o === undefined) {
-			o = {}
-		}
-
-		o.inputType = 'dateOnly'
-
-		// let's return the field
-		return Fields.dateOnly({ ...o, validate: validate_update_when_not_allow_null(o) })
-	}
-
 	static arrayEnum<enumType = any, entityType = any>(
 		enumClass: enumType,
 		o?: FieldOptions<entityType, any[]>,

@@ -299,7 +299,7 @@
 				}}
 			/>
 		</div>
-	{:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'dateOnly' || metaType.subKind === 'number' || metaType.subKind === 'textpsd'}
+	{:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'date' || metaType.subKind === 'number' || metaType.subKind === 'textpsd'}
 		<div class="input input-bordered inline-flex w-full items-center pl-2">
 			<Input
 				{focus}
@@ -312,7 +312,7 @@
 				style={cell.field?.inputType === 'textpsd' && textpsdVisible === false
 					? 'filter: blur(0.2rem)'
 					: ''}
-				type={metaType.subKind.replaceAll('dateOnly', 'date').replaceAll('textpsd', 'text')}
+				type={metaType.subKind.replaceAll('textpsd', 'text')}
 				value={toInput(cell.field, value)}
 				{withDedounce}
 				on:input={(e) => {

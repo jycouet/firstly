@@ -59,6 +59,6 @@ export class UIEntity {
 	@Fields.date({ allowNull: true, allowApiUpdate: false })
 	arrivalDate?: Date
 
-	@FF_Fields.dateOnly({ allowNull: true })
+	@Fields.dateOnly({ allowNull: true })
 	arrivalDateOnly?: Date
 }
