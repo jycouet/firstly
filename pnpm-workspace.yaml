@@ -5,14 +5,14 @@ packages:
 catalogs:
  docs:
   '@astrojs/starlight': 0.36.0
-  accessible-astro-components: 4.1.0
-  astro: 5.12.0
+  accessible-astro-components: 5.0.1
+  astro: 5.14.5
   astro-icon: 1.1.5
   sharp: 0.34.1
   prettier-plugin-astro: 0.14.1
 
  tooling:
-  typescript: 5.8.2
+  typescript: 5.9.3
   vite: 6.3.5
   '@tsconfig/svelte': 5.0.2
   tslib: 2.8.0
@@ -25,7 +25,7 @@ catalogs:
 
  kitql:
   '@kitql/helpers': 0.8.13
-  '@kitql/eslint-config': 0.7.3
+  '@kitql/eslint-config': 0.8.0-next.1
   '@kitql/internals': 0.10.5
 
  testing:
