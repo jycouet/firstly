@@ -10,8 +10,8 @@ catalogs:
       specifier: 0.36.0
       version: 0.36.0
     accessible-astro-components:
-      specifier: 4.1.0
-      version: 4.1.0
+      specifier: 5.0.1
+      version: 5.0.1
     astro:
       specifier: 5.12.0
       version: 5.12.0
@@ -193,7 +193,7 @@ importers:
         version: 0.7.3(@ianvs/prettier-plugin-sort-imports@4.4.0(@vue/compiler-sfc@3.4.7)(prettier@3.6.2))(@typescript-eslint/eslint-plugin@8.37.0(@typescript-eslint/parser@8.37.0(eslint@9.31.0(jiti@1.21.6))(typescript@5.8.2))(eslint@9.31.0(jiti@1.21.6))(typescript@5.8.2))(@vue/compiler-sfc@3.4.7)(jiti@1.21.6)(prettier-plugin-astro@0.14.1)(prettier@3.6.2)(svelte@5.35.7)(typescript@5.8.2)
       accessible-astro-components:
         specifier: catalog:docs
-        version: 4.1.0
+        version: 5.0.1
       astro:
         specifier: catalog:docs
         version: 5.12.0(@types/node@22.5.1)(jiti@1.21.6)(rollup@4.41.0)(terser@5.31.1)(tsx@4.17.0)(typescript@5.8.2)(yaml@2.8.0)
@@ -2124,8 +2124,8 @@ packages:
   '@vue/shared@3.4.7':
     resolution: {integrity: sha512-G+i4glX1dMJk88sbJEcQEGWRQnVm9eIY7CcQbO5dpdsD9SF8jka3Mr5OqZYGjczGN1+D6EUwdu6phcmcx9iuPA==}
 
-  accessible-astro-components@4.1.0:
-    resolution: {integrity: sha512-R1Xrq7n61denF/VxCTxSJdOnCA4nhK/NvsYAe1WXnF1CYJbj4K4J9YwS+GPpJ6pONN3x/qp+bVCMgexRkY8EzQ==}
+  accessible-astro-components@5.0.1:
+    resolution: {integrity: sha512-+jV5py6HZdv9+ZvYnRL1JeGOOLfBB89/1FmERwU3fkA+h2YRvsXxJl8qBlNuZUsiXWEOZGjXzjcRKYGnNE2B/Q==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -7612,7 +7612,7 @@ snapshots:
   '@vue/shared@3.4.7':
     optional: true
 
-  accessible-astro-components@4.1.0: {}
+  accessible-astro-components@5.0.1: {}
 
   acorn-jsx@5.3.2(acorn@8.15.0):
     dependencies:
