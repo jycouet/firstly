@@ -45,7 +45,8 @@ export class ModuleFF {
 	}
 }
 
-type Options = RemultServerOptions<RequestEvent<Partial<Record<string, string>>, string | null>> & {
+// It's typed with real resolve now...
+type Options = RemultServerOptions<RequestEvent<Partial<Record<string, string>>, any>> & {
 	/** @deprecated use `remult` modules instead */
 	modulesFF?: ModuleFF[] | undefined
 }
