@@ -1,11 +1,4 @@
-import {
-	Fields,
-	Validators,
-	type ClassType,
-	type FieldOptions,
-	type FieldValidator,
-	type StringFieldOptions,
-} from 'remult'
+import { Fields, Validators, type ClassType, type FieldOptions } from 'remult'
 
 import { displayCurrency } from '../formats'
 import type { BaseEnum } from './BaseEnum'
@@ -17,64 +10,7 @@ import { getEnums } from './helper'
 Validators.unique.defaultMessage = 'Existe déjà!'
 Validators.required.defaultMessage = 'Obligatoire!'
 
-// export function addValidators(
-//   validators: FieldOptions['validate'],
-//   newValidator: FieldOptions['validate'],
-//   atStart = false,
-// ) {
-//   if (!newValidator) return validators
-//   const newValidators = Array.isArray(newValidator) ? newValidator : [newValidator]
-//   const validatorsArray = Array.isArray(validators) ? validators : validators ? [validators] : []
-//   return atStart ? [...newValidators, ...validatorsArray] : [...validatorsArray, ...newValidators]
-// }
-
-// REMULT P2: A/ Add in the doc that allowNull is false by default
-//            B/ Would be great to have a Validators.required automatically when allowNull is not true.
-//            C/ WARNING Validators.required is also checking for empty string
-const validate_update_when_not_allow_null = <entityType, valueType>(
-	o: FieldOptions<entityType, valueType>,
-) => {
-	const validate: FieldValidator<entityType, valueType>[] = []
-
-	if (
-		o.includeInApi !== false &&
-		o.serverExpression === undefined &&
-		o.sqlExpression === undefined &&
-		(o.allowNull === undefined || o.allowNull === false) &&
-		// if require: false is explicitly set, then we don't need to add required validator
-		o.required !== false
-	) {
-		// addValidators(o.validate, [Validators.required], true)
-		validate.push(Validators.required)
-	}
-
-	// let's add original validate if any
-	if (o.validate) {
-		if (Array.isArray(o.validate)) {
-			validate.push(...o.validate)
-		} else {
-			validate.push(o.validate)
-		}
-	}
-
-	return validate
-}
-
 export class FF_Fields {
-	static string<entityType = unknown, valueType = string>(
-		o?: StringFieldOptions<entityType, valueType>,
-	) {
-		if (o === undefined) {
-			o = {}
-		}
-
-		// let's return the field
-		return Fields.string<entityType, valueType>({
-			...o,
-			validate: validate_update_when_not_allow_null(o),
-		})
-	}
-
 	static currency<entityType = unknown>(o?: FieldOptions<entityType, number>) {
 		// let's return the field
 		return Fields.number({

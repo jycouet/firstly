@@ -17,19 +17,24 @@ export class UIEntity {
 	@Fields.updatedAt()
 	updatedAt = new Date()
 
-	@FF_Fields.string({ caption: "Nom de l'utilisateur", placeholder: 'Jean-Yves', suffix: 'sdsd' })
+	@Fields.string({
+		required: true,
+		caption: "Nom de l'utilisateur",
+		placeholder: 'Jean-Yves',
+		suffix: 'SUF!',
+	})
 	username!: string
 
 	@Fields.string({ caption: 'E Mail', inputType: 'email', placeholder: 'prénom.nom@se.com' })
 	email!: string
 
-	@FF_Fields.string({
+	@Fields.string({
 		caption: 'Mot de passe',
 		inputType: 'password',
 		placeholder: '********',
 		includeInApi: false,
 		minLength: 6,
-		allowNull: false,
+		required: true,
 	})
 	password!: string
 
