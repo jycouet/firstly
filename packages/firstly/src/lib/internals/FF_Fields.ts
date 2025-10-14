@@ -208,4 +208,24 @@ export class FF_Fields {
 			},
 		})
 	}
+
+	static vector32<entityType = unknown>(
+		...options: (FieldOptions<entityType, number[]> & { dimensions?: number })[]
+	) {
+		const dimensions = options[0].dimensions ?? 1024
+
+		return Fields.object<entityType, number[]>(
+			{
+				valueConverter: {
+					fieldTypeInDb: `F32_BLOB(${dimensions})`,
+					toDb: (val) => JSON.stringify(val),
+					// TODO: remove ts-ignore when remult@3.3.0-next.1 is released (that has toDbSql)
+					// @ts-ignore
+					toDbSql: (val) => `vector32(${val})`,
+					fromDb: (val: Buffer) => Array.from(new Float32Array(val)),
+				},
+			},
+			...options,
+		)
+	}
 }
