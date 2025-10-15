@@ -10,3 +10,28 @@
 	--color-secondary: oklch(0.7707 0.1245 74.58);
 	--color-accent: oklch(0.3128 0.0832 314.02);
 }
+ 
+/* ux: {
+	themes: {
+		light: {
+			primary: colors['orange']['500'],
+			'primary-content': 'white',
+			secondary: colors['blue']['500'],
+			'surface-100': colors['zinc']['800'],
+			'surface-200': colors['zinc']['900'],
+			'surface-300': colors['zinc']['950'],
+			'surface-content': colors['zinc']['100'],
+			'color-scheme': 'light',
+		},
+		dark: {
+			primary: colors['orange']['500'],
+			'primary-content': 'white',
+			secondary: colors['blue']['500'],
+			'surface-100': colors['zinc']['800'],
+			'surface-200': colors['zinc']['900'],
+			'surface-300': colors['zinc']['950'],
+			'surface-content': colors['zinc']['100'],
+			'color-scheme': 'dark',
+		},
+	},
+}, */
