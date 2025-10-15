@@ -179,7 +179,7 @@
 </script>
 
 <div class="grid grid-cols-4 gap-4">
-	<div class="divider col-span-4">Message</div>
+	<div class="col-span-4 divider">Message</div>
 	<!-- <div>
 		<select bind:value={authType}>
 			{#each authTypes as auth}
@@ -199,7 +199,7 @@
 
 	<!-- Demo -->
 	<!-- {#if authType === AuthProvider.DEMO.id} -->
-	<div class="divider col-span-4">Demo</div>
+	<div class="col-span-4 divider">Demo</div>
 	<Button on:click={() => signInDemo('Noam')}>Noam</Button>
 	<Button on:click={() => signInDemo('Ermin')}>Ermin</Button>
 	<Button on:click={() => signInDemo('JYC')}>JYC</Button>
@@ -208,9 +208,9 @@
 
 	<!-- Password -->
 	<!-- {#if authType === AuthProvider.PASSWORD.id} -->
-	<div class="divider col-span-4">Password</div>
-	<input class="input input-bordered" type="text" placeholder="email" bind:value={indentifier} />
-	<input class="input input-bordered" type="password" placeholder="password" bind:value={password} />
+	<div class="col-span-4 divider">Password</div>
+	<input class="input" type="text" placeholder="email" bind:value={indentifier} />
+	<input class="input" type="password" placeholder="password" bind:value={password} />
 
 	<Button on:click={signUp}>SignUp</Button>
 	<Button on:click={signIn}>SignIn</Button>
@@ -218,26 +218,21 @@
 	<div></div>
 	<div></div>
 	<Button on:click={forgotPassword}>Forgot Password</Button>
-	<input class="input input-bordered" type="text" placeholder="token" bind:value={token} />
-	<input
-		class="input input-bordered"
-		type="password"
-		placeholder="resetPassword"
-		bind:value={rPassword}
-	/>
+	<input class="input" type="text" placeholder="token" bind:value={token} />
+	<input class="input" type="password" placeholder="resetPassword" bind:value={rPassword} />
 	<div></div>
 	<Button on:click={resetPassword}>Reset Password</Button>
 	<!-- {/if} -->
 
 	<!-- OTP -->
 	<!-- {#if authType === AuthProvider.OTP.id} -->
-	<div class="divider col-span-4">OTP</div>
-	<input class="input input-bordered" type="text" placeholder="email" bind:value={indentifierOtp} />
+	<div class="col-span-4 divider">OTP</div>
+	<input class="input" type="text" placeholder="email" bind:value={indentifierOtp} />
 	<div></div>
 	<div></div>
 	<Button on:click={sendOtp}>Send OTP</Button>
 
-	<input class="input input-bordered" type="text" placeholder="OTP" bind:value={otp} />
+	<input class="input" type="text" placeholder="OTP" bind:value={otp} />
 	<div></div>
 	<div></div>
 	<Button on:click={verifyOtp}>Verify</Button>
@@ -245,7 +240,7 @@
 
 	<!-- {#if authType === AuthProvider.OAUTH.id} -->
 	<!-- OAuth -->
-	<div class="divider col-span-4">OAuth</div>
+	<div class="col-span-4 divider">OAuth</div>
 	<div></div>
 	<div></div>
 	<Button on:click={() => signInOAuth('github')}>GitHub</Button>
@@ -253,7 +248,7 @@
 	<!-- {/if} -->
 
 	<!-- Logged -->
-	<div class="divider col-span-4">Logged ?</div>
+	<div class="col-span-4 divider">Logged ?</div>
 	<pre class="col-span-3" data-testid="msg-info">User: {JSON.stringify(remult.user, null, 2)}</pre>
 	<Button class="btn-outline btn-error" disabled={remult.user === undefined} on:click={signOut}
 		>SignOut</Button

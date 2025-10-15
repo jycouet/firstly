@@ -23,3 +23,5 @@ export const getAligns = (cells: Cell<any>[], withAction: boolean) => {
 	}
 	return cols
 }
+
+export const baseTable = 'overflow-x-auto rounded-box bg-base-300/60'

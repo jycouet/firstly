@@ -27,7 +27,7 @@
 				<Button
 					type="button"
 					on:click={dispatchDelete}
-					class="btn-outline btn-error mr-4 text-white"
+					class="mr-4 text-white btn-outline btn-error"
 					isLoading={$store.loading}
 				>
 					<Icon data={LibIcon_Delete} />

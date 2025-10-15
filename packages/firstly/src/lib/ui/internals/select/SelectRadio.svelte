@@ -17,7 +17,7 @@
 	}
 </script>
 
-<div {id} class="input input-bordered flex w-fit min-w-0 items-center">
+<div {id} class="input flex w-fit min-w-0 items-center">
 	<div class="-mx-2 flex gap-2" title={placeholder}>
 		{#each items as item}
 			<button

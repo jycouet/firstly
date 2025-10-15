@@ -84,7 +84,7 @@
 	use:isAllowed={{ permission }}
 	on:click
 	{...$$restProps}
-	class={tw(['btn text-white', disabled ? '' : 'btn-primary', className])}
+	class={tw(['btn text-white', className ?? 'btn-primary'])}
 	{disabled}
 >
 	<!-- btn-outline -->

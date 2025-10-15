@@ -86,7 +86,7 @@
 		>
 			<div class="flex w-full justify-center justify-items-center text-left">
 				<div class="flex-grow">
-					<span class="mr-2 inline-block w-8 text-right text-xs italic text-base-content/60"
+					<span class="mr-2 inline-block w-8 text-right text-xs text-base-content/60 italic"
 						>#{issue.number}</span
 					>
 					{@html issue.titleHTML}

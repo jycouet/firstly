@@ -57,7 +57,7 @@
 			{...$content}
 			use:$content.action
 		>
-			<div class="left-0 top-0 mb-4 w-full">
+			<div class="top-0 left-0 mb-4 w-full">
 				<h2 {...$localTitle} use:$localTitle.action class="m-0 text-lg font-medium">
 					<div class="flex items-center justify-between gap-4">
 						<LinkPlus item={detail}></LinkPlus>
@@ -65,8 +65,8 @@
 							{...$close}
 							use:$close.action
 							aria-label="close"
-							class="btn btn-circle btn-outline btn-lg
-            h-max min-h-0 w-max border-none"
+							class="btn btn-circle h-max min-h-0
+            w-max border-none btn-outline btn-lg"
 						>
 							<Icon data={LibIcon_Cross}></Icon>
 						</button>

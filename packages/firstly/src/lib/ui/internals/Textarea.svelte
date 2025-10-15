@@ -50,7 +50,7 @@
 		use:focusNow
 		{...$$restProps}
 		class="shadow-neutral-focus md:rounded-xls
-			textarea textarea-bordered flex h-max min-h-8
+			textarea flex h-max min-h-8
 			w-full items-center rounded-lg bg-transparent text-xs
 			shadow-sm md:text-sm lg:min-h-[2.5rem]
 			{scrollbar.thin}"
