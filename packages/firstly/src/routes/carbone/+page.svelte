@@ -70,8 +70,7 @@
 		<div class="card-body">
 			<h2 class="card-title">Upload Template</h2>
 
-			<!-- <div class="form-control"> -->
-			<div class="">
+			<fieldset class="fieldset">
 				<label for="fileInput" class="label">
 					<span class="label-text">Select template file</span>
 				</label>
@@ -86,7 +85,7 @@
 				<label for="fileInput" class="label">
 					<span class="label-text-alt">Supported: .docx, .xlsx, .pptx, .odt, .ods, .odp</span>
 				</label>
-			</div>
+			</fieldset>
 
 			{#if uploading}
 				<div class="alert alert-info">

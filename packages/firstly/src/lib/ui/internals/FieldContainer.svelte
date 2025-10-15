@@ -13,8 +13,7 @@
 	export let classes: { label?: string; slot?: string } = {}
 </script>
 
-<!-- <div class="form-control w-full"> -->
-<div class="">
+<fieldset class="fieldset w-full">
 	<label for={forId} class={tw(`label flex gap-1 px-2 pb-1`, classes.label)}>
 		<span class="label-text pl-2 text-xs text-base-content/60">
 			{label}{required ? ' *' : ''}
@@ -26,4 +25,4 @@
 	<div class={tw('grid h-12 w-full', classes.slot)}>
 		<slot />
 	</div>
-</div>
+</fieldset>
