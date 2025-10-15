@@ -36,7 +36,8 @@
 	export let loadingRows = 5
 
 	export let classes = {
-		table: 'table-pin-rows table-pin-cols',
+		// table: 'table-pin-rows table-pin-cols',
+		table: '',
 	}
 	export let orderBy: EntityOrderBy<T> | undefined = undefined
 	export let orderByCols: (keyof T)[] | true | undefined = undefined
