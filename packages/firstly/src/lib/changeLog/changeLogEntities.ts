@@ -18,7 +18,7 @@ export interface change {
 	},
 })
 export class ChangeLog {
-	@Fields.cuid()
+	@Fields.id()
 	id = ''
 
 	@Fields.string()

@@ -11,7 +11,7 @@ type StatusType = (typeof statuses)[number]
 	defaultOrderBy: { createdAt: 'desc' },
 })
 export class Mail {
-	@Fields.cuid()
+	@Fields.id()
 	id?: string
 
 	@Fields.createdAt()

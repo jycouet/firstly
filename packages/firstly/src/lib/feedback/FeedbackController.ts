@@ -28,36 +28,36 @@ async function getGitHub(query: string, variables?: Record<string, any>) {
 	return null
 }
 
-async function addMetaData(issueId: string, author: string | undefined, page: string) {
+async function addMetaData(issueId: string, obj: Record<string, any>) {
 	if (import.meta.env.SSR) {
 		const commentToMinimize = await getGitHub(
 			`mutation AddComment($input: AddCommentInput!) {
-			addComment(input: $input) {
-				commentEdge {
-					node {
-						id
-					}
-				}
-			}
-		}
-		`,
+      addComment(input: $input) {
+        commentEdge {
+          node {
+            id
+          }
+        }
+      }
+    }
+    `,
 			{
 				input: {
 					subjectId: issueId,
-					body: `<pre>\n${JSON.stringify({ author, page }, null, 2)}\n</pre>`,
+					body: `<pre>\n${JSON.stringify(obj, null, 2)}\n</pre>`,
 				},
 			},
 		)
 
 		await getGitHub(
 			`mutation MinimizeComment($input: MinimizeCommentInput!) {
-			minimizeComment(input: $input) {
-				minimizedComment {
-					isMinimized
-				}
-			}
-		}
-		`,
+      minimizeComment(input: $input) {
+        minimizedComment {
+          isMinimized
+        }
+      }
+    }
+    `,
 			{
 				input: {
 					subjectId: commentToMinimize.addComment.commentEdge.node.id,
@@ -73,26 +73,26 @@ export class FeedbackController {
 	static async getMilestones() {
 		const data = await getGitHub(
 			`query Milestones(
-			$repository: String!
-			$owner: String!
-			$filter: String
-			$take: Int = 25
-			$cursor: String
-		) {
-			repository(name: $repository, owner: $owner) {
-				milestones(query: $filter, last: $take, after: $cursor, states: OPEN) {
-					pageInfo {
-						endCursor
-					}
-					nodes {
-						id
-						number
-						title
-					}
-				}
-			}
-		}
-		`,
+      $repository: String!
+      $owner: String!
+      $filter: String
+      $take: Int = 25
+      $cursor: String
+    ) {
+      repository(name: $repository, owner: $owner) {
+        milestones(query: $filter, last: $take, after: $cursor, states: OPEN) {
+          pageInfo {
+            endCursor
+          }
+          nodes {
+            id
+            number
+            title
+          }
+        }
+      }
+    }
+    `,
 			{
 				repository: remult.context.feedbackOptions.repo.name,
 				owner: remult.context.feedbackOptions.repo.owner,
@@ -119,33 +119,33 @@ export class FeedbackController {
 				: null // When open take milestone order
 		const data = await getGitHub(
 			`query Issues(
-				$repository: String!
-				$owner: String!
-				$filters: IssueFilters
-				$milestoneNumber: Int!
-				$take: Int = 25
-				$cursor: String
-				$issueOrder: IssueOrder
-			) {
-				repository(name: $repository, owner: $owner) {
-					milestone(number: $milestoneNumber) {
-						issues(first: $take, after: $cursor, filterBy: $filters, orderBy: $issueOrder) {
-							nodes {
-								id
-								number
-								titleHTML
-								state
+        $repository: String!
+        $owner: String!
+        $filters: IssueFilters
+        $milestoneNumber: Int!
+        $take: Int = 25
+        $cursor: String
+        $issueOrder: IssueOrder
+      ) {
+        repository(name: $repository, owner: $owner) {
+          milestone(number: $milestoneNumber) {
+            issues(first: $take, after: $cursor, filterBy: $filters, orderBy: $issueOrder) {
+              nodes {
+                id
+                number
+                titleHTML
+                state
                 labels(first:10){
                   nodes {
                     name
                   }
                 }
-							}
-						}
-					}
-				}
-			}			
-		`,
+              }
+            }
+          }
+        }
+      }			
+    `,
 			{
 				repository: remult.context.feedbackOptions.repo.name,
 				owner: remult.context.feedbackOptions.repo.owner,
@@ -178,38 +178,38 @@ export class FeedbackController {
 	static async getIssue(issueNumber: number) {
 		const data = await getGitHub(
 			`query Issue($repository: String!, $owner: String!, $issueNumber: Int!) {
-				repository(name: $repository, owner: $owner) {
-					issue(number: $issueNumber) {
-						id
-						createdAt
-						bodyHTML
-						state
-						title
-            labels(first: 25){
-              nodes{
-                id
-                name
-              }
-            }
-						comments(first: 100) {
-							nodes {
-								id
-								isMinimized
-								createdAt
-								body
-								bodyHTML
-								reactionGroups {
-									content
-									reactors(first: 1) {
-										totalCount
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		`,
+repository(name: $repository, owner: $owner) {
+  issue(number: $issueNumber) {
+    id
+    createdAt
+    bodyHTML
+    state
+    title
+    labels(first: 25){
+      nodes{
+        id
+        name
+      }
+    }
+    comments(first: 100) {
+      nodes {
+        id
+        isMinimized
+        createdAt
+        body
+        bodyHTML
+        reactionGroups {
+          content
+          reactors(first: 1) {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+}
+}
+    `,
 			{
 				repository: remult.context.feedbackOptions.repo.name,
 				owner: remult.context.feedbackOptions.repo.owner,
@@ -248,7 +248,7 @@ export class FeedbackController {
 		for (let i = 0; i < comments.length; i++) {
 			if (comments[i].isMinimized) {
 				const parsed = JSON.parse(comments[i].body.replaceAll('<pre>\n', '').replaceAll('\n</pre>', ''))
-				items[items.length - 1].who = parsed.author
+				items[items.length - 1].who = parsed?.author ?? '???'
 				items[items.length - 1].public = true
 			} else {
 				const nbEye = comments[i].reactionGroups.find((c) => c.content === 'EYES')?.reactors.totalCount
@@ -280,22 +280,27 @@ export class FeedbackController {
 	}
 
 	@BackendMethod({ allowed: Allow.authenticated })
-	static async createIssue(milestoneId: string, title: string, body: string, page: string) {
+	static async createIssue(
+		milestoneId: string,
+		title: string,
+		body: string,
+		metadata: { page: string },
+	) {
 		const repoInfo = await getGitHub(
 			`query RepoInfo(
-				$repository: String!
-				$owner: String!
-			) {
-				repository(name: $repository, owner: $owner) {
-					id
+        $repository: String!
+        $owner: String!
+      ) {
+        repository(name: $repository, owner: $owner) {
+          id
           labels(first: 25){
             nodes{
               id
               name
             }
           }
-				}
-			}`,
+        }
+      }`,
 			{
 				repository: remult.context.feedbackOptions.repo.name,
 				owner: remult.context.feedbackOptions.repo.owner,
@@ -313,14 +318,14 @@ export class FeedbackController {
 
 		const newIssue = await getGitHub(
 			`mutation CreateIssue($input: CreateIssueInput!) {
-			createIssue(input: $input) {
-				issue {
-					id
-					number
-				}
-			}
-		}
-		`,
+      createIssue(input: $input) {
+        issue {
+          id
+          number
+        }
+      }
+    }
+    `,
 			{
 				input: {
 					repositoryId: repoInfoData.id,
@@ -334,16 +339,18 @@ export class FeedbackController {
 
 		const toRet = newIssue.createIssue.issue as { id: string; number: number }
 
-		await addMetaData(toRet.id, remult.user?.name, page)
+		const feedbackMetadata =
+			remult.context.feedbackOptions.transformMetadata?.({
+				user: remult.user,
+				metadata,
+			}) ?? metadata
+		await addMetaData(toRet.id, feedbackMetadata)
 
 		remult.context.feedbackOptions.saved?.({
 			number: toRet.number,
 			title: title,
 			body,
-			metadata: {
-				author: JSON.stringify(remult.user?.name),
-				page,
-			},
+			metadata: feedbackMetadata,
 		})
 
 		return toRet
@@ -355,7 +362,7 @@ export class FeedbackController {
 		issueNumber: number,
 		title: string,
 		body: string,
-		page: string,
+		metadata: { page: string },
 		labels: { id: string; name: string }[],
 	) {
 		const inputComment: { subjectId: string; body: string } = {
@@ -373,36 +380,38 @@ export class FeedbackController {
 
 		await getGitHub(
 			`mutation AddComment($inputComment: AddCommentInput!, $inputIssue: UpdateIssueInput!) {
-				addComment(input: $inputComment) {
-					commentEdge {
-						node {
-							id
-						}
-					}
-				}
+        addComment(input: $inputComment) {
+          commentEdge {
+            node {
+              id
+            }
+          }
+        }
         updateIssue(input: $inputIssue) {
           issue {
             id
           }
         }
-			}
-			`,
+      }
+      `,
 			{
 				inputComment,
 				inputIssue,
 			},
 		)
 
-		await addMetaData(issueId, remult.user?.name, page)
+		const feedbackMetadata =
+			remult.context.feedbackOptions.transformMetadata?.({
+				user: remult.user,
+				metadata,
+			}) ?? metadata
+		await addMetaData(issueId, feedbackMetadata)
 
 		remult.context.feedbackOptions.saved?.({
 			number: issueNumber,
 			title,
 			body,
-			metadata: {
-				author: JSON.stringify(remult.user?.name),
-				page,
-			},
+			metadata: feedbackMetadata,
 		})
 
 		return 'done'
@@ -429,13 +438,13 @@ export class FeedbackController {
             id
           }
         }
-				closeIssue(input: $inputClose) {
-					issue {
-						id
-					}
-				}
-			}
-			`,
+        closeIssue(input: $inputClose) {
+          issue {
+            id
+          }
+        }
+      }
+      `,
 			{
 				inputIssue,
 				inputClose,
@@ -453,13 +462,13 @@ export class FeedbackController {
 
 		await getGitHub(
 			`mutation ReOpenIssue($input: ReopenIssueInput!) {
-				reopenIssue(input: $input) {
-					issue {
-						id
-					}
-				}
-			}
-			`,
+        reopenIssue(input: $input) {
+          issue {
+            id
+          }
+        }
+      }
+      `,
 			{
 				input,
 			},

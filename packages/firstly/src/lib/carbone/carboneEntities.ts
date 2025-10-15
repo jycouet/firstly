@@ -35,7 +35,7 @@ export class CarboneTemplate {
 	defaultOrderBy: { updatedAt: 'desc' },
 })
 export class CarboneLog {
-	@Fields.cuid()
+	@Fields.id()
 	id!: string
 
 	@Fields.updatedAt()

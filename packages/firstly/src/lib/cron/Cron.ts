@@ -11,7 +11,7 @@ type StatusType = (typeof statuses)[number]
 	defaultOrderBy: { startingAt: 'desc' },
 })
 export class Cron {
-	@Fields.cuid()
+	@Fields.id()
 	id?: string
 
 	@Fields.string({ required: true })

@@ -109,6 +109,9 @@ const initMail: (o?: MailOptions) => void = async (o) => {
 }
 
 export type SendMail = typeof sendMail
+export type SendMailResult =
+	| { data: SMTPTransport.SentMessageInfo; error?: undefined }
+	| { error: any; data?: undefined }
 export const sendMail: (
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,
@@ -122,7 +125,7 @@ export const sendMail: (
 		}[]
 	},
 	options?: { nodemailer?: MailOptions['nodemailer'] },
-) => ReturnType<typeof transporter.sendMail> = async (topic, easyOptions, options) => {
+) => Promise<SendMailResult> = async (topic, easyOptions, options) => {
 	let { nodemailer: nodemailerOptions } = options ?? {}
 	const easyOptionsToUse = {
 		...easyOptions,
@@ -173,10 +176,10 @@ export const sendMail: (
 	}
 	try {
 		if (!globalOptions?.nodemailer?.transport) {
-			const info = await transporter.sendMail({ ...nodemailerOptions.defaults })
+			const data = await transporter.sendMail({ ...nodemailerOptions.defaults })
 			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
 		We are still nice and generated you an email preview link (the mail we not really sent): 
-		👉 ${cyan(String(nodemailer.getTestMessageUrl(info)))}
+		👉 ${cyan(String(nodemailer.getTestMessageUrl(data)))}
 			
 		To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
       `)
@@ -187,9 +190,9 @@ export const sendMail: (
 				topic,
 				metadata,
 			})
-			return info
+			return { data }
 		} else {
-			const info = await transporter.sendMail({ ...nodemailerOptions.defaults })
+			const data = await transporter.sendMail({ ...nodemailerOptions.defaults })
 			log.success(
 				`${magenta(`[${topic}]`)} - Sent to ${typeof nodemailerOptions.defaults?.to === 'string' ? green(nodemailerOptions.defaults?.to) : nodemailerOptions.defaults?.to}`,
 			)
@@ -200,7 +203,7 @@ export const sendMail: (
 				topic,
 				metadata,
 			})
-			return info
+			return { data }
 		}
 	} catch (error) {
 		if (error instanceof Error && error.message.includes('Missing credentials for "PLAIN"')) {
@@ -211,15 +214,48 @@ ${cyan(JSON.stringify(globalOptions?.nodemailer?.transport, null, 2))}
 		} else {
 			log.error(`${magenta(`[${topic}]`)} - Error`, error)
 		}
+
+		// TODO
+		// Build comprehensive error info for JSON storage
+		const errorInfoJSON = {
+			message: error instanceof Error ? error.message : String(error),
+			name: error instanceof Error ? error.name : 'Unknown',
+			// stack: error instanceof Error ? error.stack : undefined,
+			code: (error as any)?.code,
+			errno: (error as any)?.errno,
+			syscall: (error as any)?.syscall,
+			hostname: (error as any)?.hostname,
+			port: (error as any)?.port,
+			address: (error as any)?.address,
+			response: (error as any)?.response,
+			responseCode: (error as any)?.responseCode,
+			command: (error as any)?.command,
+			// Capture any other enumerable properties
+			...Object.getOwnPropertyNames(error).reduce(
+				(acc, key) => {
+					if (!['message', 'name', 'stack'].includes(key)) {
+						try {
+							acc[key] = (error as any)[key]
+						} catch (e) {
+							// Ignore properties that can't be accessed
+						}
+					}
+					return acc
+				},
+				{} as Record<string, any>,
+			),
+		}
+
 		await repo(mailEntities.Mail).insert({
 			status: 'error',
-			errorInfo: JSON.stringify(error),
+			errorInfo: JSON.stringify(errorInfoJSON),
 			to: JSON.stringify(to),
 			html: easyOptionsToUse.saveHtml ? html : '',
 			topic,
 			metadata,
 		})
-		throw error
+
+		return { error }
 	}
 }
 

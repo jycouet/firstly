@@ -26,3 +26,6 @@ packages/firstly/src/lib/auth/static
 packages/firstly/static/favicon.svg
 .astro
 .devbox
+
+packages/firstly/src/lib/ui/Tooltip.svelte
+packages/firstly/src/lib/ui/Button.svelte

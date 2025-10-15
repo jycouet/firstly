@@ -45,7 +45,7 @@
 
 		const p = $page.url.pathname + $page.url.search
 		if (!issue?.id) {
-			const result = await FeedbackController.createIssue(milestoneId, title, content, p)
+			const result = await FeedbackController.createIssue(milestoneId, title, content, { page: p })
 			issueNumber = result.number
 		} else {
 			await FeedbackController.addCommentOnIssue(
@@ -53,7 +53,7 @@
 				issueNumber!,
 				issue.title,
 				content,
-				p,
+				{ page: p },
 				issue.labels,
 			)
 		}

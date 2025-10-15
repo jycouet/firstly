@@ -90,7 +90,7 @@ const createDialogManagement = () => {
 		confirm: (topic: string, text: string, icon?: string) => {
 			const detail = {
 				detail: {
-					caption: 'Confirmez',
+					caption: 'A Confirmer',
 					icon: { data: icon },
 				},
 				children: `

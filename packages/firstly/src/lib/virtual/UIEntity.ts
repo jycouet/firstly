@@ -1,6 +1,5 @@
 import { Entity, Field, Fields } from 'remult'
 
-import { FF_Fields } from '../internals/FF_Fields.js'
 import { StateDemoEnum } from './StateDemoEnum.js'
 
 @Entity('uiEntities', {
@@ -17,19 +16,24 @@ export class UIEntity {
 	@Fields.updatedAt()
 	updatedAt = new Date()
 
-	@FF_Fields.string({ caption: "Nom de l'utilisateur", placeholder: 'Jean-Yves', suffix: 'sdsd' })
+	@Fields.string({
+		required: true,
+		caption: "Nom de l'utilisateur",
+		placeholder: 'Jean-Yves',
+		suffix: 'SUF!',
+	})
 	username!: string
 
 	@Fields.string({ caption: 'E Mail', inputType: 'email', placeholder: 'prénom.nom@se.com' })
 	email!: string
 
-	@FF_Fields.string({
+	@Fields.string({
 		caption: 'Mot de passe',
 		inputType: 'password',
 		placeholder: '********',
 		includeInApi: false,
 		minLength: 6,
-		allowNull: false,
+		required: true,
 	})
 	password!: string
 
@@ -47,7 +51,7 @@ export class UIEntity {
 	@Fields.json({ allowNull: true })
 	permissions? = []
 
-	@Fields.cuid()
+	@Fields.id()
 	cuid!: string
 
 	@Fields.boolean({ allowNull: true })
@@ -59,6 +63,6 @@ export class UIEntity {
 	@Fields.date({ allowNull: true, allowApiUpdate: false })
 	arrivalDate?: Date
 
-	@FF_Fields.dateOnly({ allowNull: true })
+	@Fields.dateOnly({ allowNull: true })
 	arrivalDateOnly?: Date
 }

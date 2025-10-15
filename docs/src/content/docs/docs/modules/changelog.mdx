@@ -4,8 +4,8 @@ title: Module - ChangeLog
 
 It will track insert, update and delete operations on your entities.
 
-Once you have it setup, assign you the role `ChangeLog.Admin` (You can get it via
-`Roles_ChangeLog.ChangeLog_Admin`), and in Admin UI, you will be able to see all changes in the
+Once you have it setup, assign you the role `"ChangeLog.Admin"` _(You can get it via
+`Roles_ChangeLog.ChangeLog_Admin`)_, and in Admin UI, you will be able to see all changes in the
 entity named `FF Change Logs`.
 
 ## Installation
@@ -18,16 +18,16 @@ npm add firstly@latest -D
 
 ```ts
 // src/server/api.ts
-import { changelog } from 'firstly/changelog/server'
+import { changeLog } from 'firstly/changeLog/server'
 
 export const api = remultApi({
-	modules: [changelog()],
+	modules: [changeLog()],
 })
 ```
 
 ## Usage
 
-Use the `withChangeLog` function to wrap your entity options.
+Wrap your entity options with the `withChangeLog` function to opt-in changeLog.
 
 ```ts
 import { withChangeLog } from 'firstly/changeLog'
@@ -42,3 +42,28 @@ class User {}
 ```
 
 Yes, that's it! 🎉
+
+### (Optional) `@APP_Entity` decorator
+
+Create your own `@APP_Entity` decorator and use it instead of `@Entity`.
+
+```ts
+// APP_Entity.ts
+import { Entity, type EntityOptions } from 'remult'
+import { withChangeLog } from 'firstly/changeLog'
+
+export function APP_Entity<entityType>(
+	key: string,
+	options?: EntityOptions<
+		entityType extends new (...args: any) => any ? InstanceType<entityType> : entityType
+	>,
+) {
+	return Entity(
+		key,
+		withChangeLog({
+			...options,
+			// other app specific default options
+		}),
+	)
+}
+```

@@ -1,3 +1,5 @@
+import type { UserInfo } from 'remult'
+
 export type FeedbackOptions = {
 	GITHUB_API_TOKEN: string
 	repo: {
@@ -10,6 +12,10 @@ export type FeedbackOptions = {
 	}
 	highlight_label?: string
 	create_label?: string
+	transformMetadata?: (o: {
+		user: UserInfo | undefined
+		metadata: Record<string, any>
+	}) => Record<string, any>
 	saved?: (args: {
 		number: number
 		title: string
