@@ -203,7 +203,7 @@
 	{@const clearableComputed =
 		cell.clearable || clearable || (mode === 'filtre' && clearable === undefined)}
 	{#if isViewMode(mode, cell.field)}
-		<span class="flex items-center pl-2 pr-4">
+		<span class="flex items-center pr-4 pl-2">
 			{#if cell.field?.inputType === 'checkbox'}
 				<input type="checkbox" {...common(cell.field)} class="checkbox ml-2" disabled checked={value} />
 			{:else if metaType.kind === 'relation'}

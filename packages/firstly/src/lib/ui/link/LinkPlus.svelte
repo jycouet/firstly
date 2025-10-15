@@ -39,7 +39,7 @@
 					<div>
 						<Link href={item.href}>{item.caption}</Link>
 						{#if item.captionSub && captionSubStyle === 'inline'}
-							<span class="text-xs italic text-base-content/70">{item.captionSub}</span>
+							<span class="text-xs text-base-content/70 italic">{item.captionSub}</span>
 						{/if}
 					</div>
 				{:else}
@@ -51,7 +51,7 @@
 					</span>
 				{/if}
 				{#if item.captionSub && captionSubStyle === 'under'}
-					<span class="text-xs italic text-base-content/70">{item.captionSub}</span>
+					<span class="text-xs text-base-content/70 italic">{item.captionSub}</span>
 				{/if}
 			</div>
 		{/if}

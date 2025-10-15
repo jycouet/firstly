@@ -90,7 +90,7 @@
 
 			{#if uploading}
 				<div class="alert alert-info">
-					<span class="loading loading-spinner loading-sm"></span>
+					<span class="loading loading-sm loading-spinner"></span>
 					Uploading template...
 				</div>
 			{/if}
@@ -156,7 +156,7 @@
 								{/if}
 							</div>
 
-							<div class="card-actions mt-4 justify-between">
+							<div class="mt-4 card-actions justify-between">
 								<Button
 									class="btn-ghost btn-sm"
 									onclick={async () => {
@@ -176,7 +176,7 @@
 								</Button>
 
 								<Button
-									class="btn-error btn-sm"
+									class="btn-sm btn-error"
 									onclick={async () => {
 										try {
 											// Download the original template
@@ -194,7 +194,7 @@
 								</Button>
 
 								<Button
-									class="btn-primary btn-sm"
+									class="btn-sm btn-primary"
 									onclick={async () => {
 										try {
 											rendering = true
@@ -230,7 +230,7 @@
 									disabled={rendering}
 								>
 									{#if rendering}
-										<span class="loading loading-spinner loading-xs"></span>
+										<span class="loading loading-xs loading-spinner"></span>
 									{:else}
 										Render
 									{/if}
@@ -243,7 +243,7 @@
 
 			{#if renderResult}
 				<div
-					class="alert mt-4"
+					class="mt-4 alert"
 					class:alert-success={renderResult.includes('Successfully')}
 					class:alert-error={renderResult.includes('failed')}
 				>

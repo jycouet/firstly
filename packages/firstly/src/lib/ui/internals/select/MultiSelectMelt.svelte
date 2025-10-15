@@ -188,7 +188,7 @@
 	<input
 		{...$input}
 		use:$input.action
-		class="-ml-8 -mr-5 h-full min-w-0 flex-grow bg-transparent px-10"
+		class="-mr-5 -ml-8 h-full min-w-0 flex-grow bg-transparent px-10"
 		{placeholder}
 	/>
 	<div class="pointer-events-none relative right-0 flex gap-2">
@@ -220,9 +220,9 @@
 					use:$option.action
 					class="relative flex cursor-pointer scroll-my-2 items-center rounded-md px-1
           py-2
+          data-[disabled]:opacity-50
           data-[highlighted]:bg-primary
-          data-[highlighted]:text-primary-content
-					data-[disabled]:opacity-50"
+					data-[highlighted]:text-primary-content"
 				>
 					{#if isChecked($localSelected, item)}
 						<Icon data={LibIcon_Check} class="w-6"></Icon>

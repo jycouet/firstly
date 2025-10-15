@@ -120,7 +120,7 @@
 			<div class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
 				<!-- header -->
 				<header class="col-span-12 flex items-center gap-2 lg:gap-4">
-					<label for="my-drawer" class="btn btn-square btn-ghost drawer-button lg:hidden">
+					<label for="my-drawer" class="drawer-button btn btn-square btn-ghost lg:hidden">
 						<svg data-src="https://unpkg.com/heroicons/20/solid/bars-3.svg" class="h-5 w-5"></svg>
 					</label>
 					<div class="grow">
@@ -136,11 +136,11 @@
 					<div class="dropdown dropdown-end z-10">
 						<div role="menu" tabindex="0" class="btn btn-circle btn-ghost">
 							<div class="indicator">
-								<span class="badge indicator-item badge-error badge-xs"></span>
+								<span class="indicator-item badge badge-xs badge-error"></span>
 								<svg data-src="https://unpkg.com/heroicons/20/solid/bell.svg" class="h-5 w-5"></svg>
 							</div>
 						</div>
-						<ul class="menu dropdown-content mt-3 w-80 rounded-box bg-base-100 p-2 shadow-2xl">
+						<ul class="dropdown-content menu mt-3 w-80 rounded-box bg-base-100 p-2 shadow-2xl">
 							<li>
 								<a href="/" class="gap-4">
 									<div class="avatar">
@@ -202,7 +202,7 @@
 					<!-- /dropdown -->
 					<!-- dropdown -->
 					<div class="dropdown dropdown-end z-10">
-						<div role="menu" tabindex="0" class="avatar btn btn-circle btn-ghost">
+						<div role="menu" tabindex="0" class="btn avatar btn-circle btn-ghost">
 							{#if !remult.authenticated()}
 								<div class="w-10 rounded-full bg-red-700"></div>
 							{:else if remult.user?.name === 'Ermin'}
@@ -213,7 +213,7 @@
 								</div>
 							{/if}
 						</div>
-						<ul class="menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow-2xl">
+						<ul class="dropdown-content menu mt-3 w-52 rounded-box bg-base-100 p-2 shadow-2xl">
 							<li>
 								<a href={route('/auth')}>Auth</a>
 							</li>
