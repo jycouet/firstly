@@ -52,11 +52,11 @@ catalogs:
   '@mdi/js': 7.4.47
   '@melt-ui/svelte': 0.86.6
   postcss: 8.5.3
-  tailwindcss: 4.1.11
-  '@tailwindcss/vite': 4.1.11
+  tailwindcss: 4.1.14
+  '@tailwindcss/vite': 4.1.14
   tailwind-merge: 2.6.0
   clsx: 2.1.1
-  daisyui: 5.0.46
+  daisyui: 5.3.2
 
  prod:
   '@oslojs/crypto': 1.0.1
