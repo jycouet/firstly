@@ -16,7 +16,7 @@
 	import Clipboardable from './Clipboardable.svelte'
 	import GridLoading from './GridLoading.svelte'
 	import Icon from './Icon.svelte'
-	import { align, getAligns } from './index.js'
+	import { align, baseTable, getAligns } from './index.js'
 	import {
 		LibIcon_Add,
 		LibIcon_Settings,
@@ -85,38 +85,14 @@
 	const cellsToTake = (cells: Cell<T>[]) => {
 		return cells.filter((c) => c.modeView !== 'hide')
 	}
-
-	const classForRounding = (i: number) => {
-		if (settingsLeft && (withEdit || withDelete || withAdd)) {
-			if (i === 0) {
-				return ''
-			} else if (i === cells.length - 1) {
-				return 'rounded-tr-lg'
-			}
-		}
-
-		if (!settingsLeft && (withEdit || withDelete || withAdd)) {
-			if (i === 0) {
-				return 'rounded-tl-lg'
-			} else if (i === cells.length - 1) {
-				return ''
-			}
-		}
-
-		if (i === 0) {
-			return 'rounded-tl-lg'
-		} else if (i === cells.length - 1) {
-			return 'rounded-tr-lg'
-		}
-	}
 </script>
 
 <div class="overflow-x-auto">
-	<table class="table {classes.table}">
+	<table class="table {classes.table} {baseTable}">
 		<thead>
 			<tr>
 				{#if settingsLeft && (withEdit || withDelete || withAdd)}
-					<th class="rounded-tl-lg">
+					<th class="">
 						<div class="flex justify-start">
 							{#if !withAdd}
 								<Icon data={LibIcon_Settings}></Icon>
@@ -136,7 +112,7 @@
 
 				{#each cellsToTake(cells) as b, i}
 					{@const al = align(b.field, b.kind === 'slot')}
-					<th class="{al} {classForRounding(i)}">
+					<th class="{al}">
 						{#if b.headerSlot}
 							<slot name="header" field={b.field} />
 						{:else}
@@ -160,7 +136,7 @@
 				{/each}
 
 				{#if !settingsLeft && (withEdit || withDelete || withAdd)}
-					<th class="rounded-tr-lg">
+					<th class="">
 						<div class="flex justify-end">
 							{#if withAdd}
 								<Button
