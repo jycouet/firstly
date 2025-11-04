@@ -112,7 +112,7 @@
 
 				{#each cellsToTake(cells) as b, i}
 					{@const al = align(b.field, b.kind === 'slot')}
-					<th class="{al}">
+					<th class={al}>
 						{#if b.headerSlot}
 							<slot name="header" field={b.field} />
 						{:else}

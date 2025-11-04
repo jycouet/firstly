@@ -9,14 +9,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install Stuff
 RUN apt-get update && apt-get install -y \
-	curl \
-	wget \
-	gnupg \
-	git \
-	&& curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-	&& apt-get install -y nodejs \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*
+ curl \
+ wget \
+ gnupg \
+ git \
+ && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+ && apt-get install -y nodejs \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app

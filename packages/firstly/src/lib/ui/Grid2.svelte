@@ -114,7 +114,7 @@
 
 				{#each cellsToTake(cells) as b, i}
 					{@const al = align(b.field, b.kind === 'slot')}
-					<th class="{al}">
+					<th class={al}>
 						{#if b.headerSlot}
 							<slot name="header" field={b.field} />
 						{:else}
@@ -157,7 +157,7 @@
 				{/if}
 			</tr>
 		</thead>
-		<tbody  class="">
+		<tbody class="">
 			{#if r.loading.init && r.metadata.apiReadAllowed}
 				<GridLoading columns={getAligns(cells, withEdit || withDelete)} {loadingRows} />
 			{:else}

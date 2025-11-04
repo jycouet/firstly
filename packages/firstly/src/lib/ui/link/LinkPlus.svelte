@@ -5,12 +5,12 @@
 	import Link from './Link.svelte'
 
 	interface Props {
-		item: BaseItemLight | undefined;
-		noIcon?: boolean;
-		captionSubStyle?: 'under' | 'inline' | 'none';
+		item: BaseItemLight | undefined
+		noIcon?: boolean
+		captionSubStyle?: 'under' | 'inline' | 'none'
 	}
 
-	let { item, noIcon = false, captionSubStyle = 'under' }: Props = $props();
+	let { item, noIcon = false, captionSubStyle = 'under' }: Props = $props()
 
 	const hasSomethingToDisplay = (item: BaseItemLight) => {
 		if (item.href) {
