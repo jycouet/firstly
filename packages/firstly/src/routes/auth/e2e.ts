@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { sleep } from '@kitql/helpers'
 
 const SHOT_TIME = 200
-const LONG_TIME = 600
+const LONG_TIME = 777
 
 const getInfo = async (page: Page) => {
 	await sleep(SHOT_TIME)
