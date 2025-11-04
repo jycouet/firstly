@@ -3,6 +3,7 @@
 	import type { HTMLInputAttributes } from 'svelte/elements'
 
 	import { type FieldMetadata, type FindOptions } from 'remult'
+	import { midTrim } from '@kitql/helpers'
 
 	import { suffixWithS } from '../formats/strings'
 	import { type BaseItem, type Cell } from '../internals'
@@ -23,6 +24,7 @@
 	import SelectRadio from './internals/select/SelectRadio.svelte'
 	import Textarea from './internals/Textarea.svelte'
 	import { LibIcon_Eye, LibIcon_EyeOff } from './LibIcon'
+	import Link from './link/Link.svelte'
 	import LinkPlus from './link/LinkPlus.svelte'
 
 	export let cell: Cell<T>
@@ -219,6 +221,19 @@
 					{/if}
 					<Clipboardable value={v}>{v}</Clipboardable>
 				</div>
+			{:else if metaType.subKind === 'link'}
+				<div class="ml-2 flex h-12 max-w-sm items-center gap-4 truncate">
+					{#if value}
+						<Link href={value} target="_blank" isExternal
+							>{midTrim(value.replaceAll('https://', '').replaceAll('www.', ''), {
+								len: 38,
+								midStr: ' ... ',
+							})}</Link
+						>
+					{:else}
+						<span class="text-base-content/30">-</span>
+					{/if}
+				</div>
 			{:else}
 				{@const v = displayWithDefaultAndSuffix(cell.field, value)}
 				<div
@@ -299,7 +314,7 @@
 				}}
 			/>
 		</div>
-	{:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'date' || metaType.subKind === 'number' || metaType.subKind === 'textpsd'}
+	{:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'date' || metaType.subKind === 'number' || metaType.subKind === 'textpsd' || metaType.subKind === 'link'}
 		<div class="input inline-flex w-full items-center pl-2">
 			<Input
 				{focus}
@@ -312,7 +327,7 @@
 				style={cell.field?.inputType === 'textpsd' && textpsdVisible === false
 					? 'filter: blur(0.2rem)'
 					: ''}
-				type={metaType.subKind.replaceAll('textpsd', 'text')}
+				type={metaType.subKind.replaceAll('textpsd', 'text').replaceAll('link', 'text')}
 				value={toInput(cell.field, value)}
 				{withDedounce}
 				on:input={(e) => {

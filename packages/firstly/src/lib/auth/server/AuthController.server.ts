@@ -98,7 +98,7 @@ export class AuthControllerServer {
 	 * This is for login / password authentication invite
 	 */
 	static async invite(emailParam: string): Promise<AuthResponse> {
-		const email = emailParam?.toLowerCase()
+		const email = emailParam?.toLowerCase().trim()
 
 		const oSafe = getSafeOptions()
 
@@ -122,7 +122,8 @@ export class AuthControllerServer {
 				lastVerifiedAt: undefined,
 			})
 
-			const url = `${remult.context.request.url.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
+			// TODO: Using env ORIGIN
+			const url = `${remult.context.request?.url?.origin}${oSafe.firstlyData.props.ui?.paths.reset_password}?token=${token}`
 
 			if (AUTH_OPTIONS?.invitationSend) {
 				await AUTH_OPTIONS?.invitationSend({ email, url })
