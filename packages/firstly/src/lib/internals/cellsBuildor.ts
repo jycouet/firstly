@@ -1,4 +1,4 @@
-import type { SvelteComponent } from 'svelte'
+import type { Component, SvelteComponent } from 'svelte'
 
 import { type ClassType, type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
@@ -30,7 +30,7 @@ type CellInternal<Entity> = {
 	clipboardable?: boolean // if true, will add a copy button to the field
 	clearable?: boolean // for select
 
-	component?: new (...args: any[]) => SvelteComponent
+	component?: (new (...args: any[]) => SvelteComponent) | Component
 	props?: any
 	rowToProps?: (row: any) => any
 }
