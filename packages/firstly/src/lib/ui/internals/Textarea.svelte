@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte'
 
-	import { scrollbar } from '../../internals/theme'
-
 	export let name: string | null = null
 	export let id = ''
 	export let rows = 4
@@ -52,8 +50,7 @@
 		class="shadow-neutral-focus md:rounded-xls
 			textarea flex h-max min-h-8
 			w-full items-center rounded-lg bg-transparent text-xs
-			shadow-sm md:text-sm lg:min-h-[2.5rem]
-			{scrollbar.thin}"
+			shadow-sm md:text-sm lg:min-h-[2.5rem]"
 		id={id || name || 'default-textarea-id'}
 		{name}
 		{placeholder}

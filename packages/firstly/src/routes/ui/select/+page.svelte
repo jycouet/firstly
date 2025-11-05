@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { repo } from 'remult'
+	import type { BaseItem } from 'firstly/internals'
 	import Select2 from 'firstly/ui/internals/select/Select2.svelte'
 	import SelectMelt from 'firstly/ui/internals/select/SelectMelt.svelte'
 
@@ -7,7 +8,6 @@
 	import { storeItem } from '$lib/internals/storeItem'
 	import FieldGroup from '$lib/ui/FieldGroup.svelte'
 	import { UIEntity } from '$lib/virtual/UIEntity'
-	import type { BaseItem } from 'firstly/internals'
 
 	const repoUi = repo(UIEntity)
 
@@ -28,12 +28,7 @@
 <div class="grid grid-cols-3 gap-4">
 	<FieldGroup {cells} {store} />
 	<Select2 bind:value {items} clearable />
-	<SelectMelt
-	bind:value
-		id="whatever"
-		{items}
-		clearable
-	/>
+	<SelectMelt bind:value id="whatever" {items} clearable />
 
 	<div>
 		Data

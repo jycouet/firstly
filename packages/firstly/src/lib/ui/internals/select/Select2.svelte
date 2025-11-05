@@ -37,7 +37,7 @@
 	{onChange}
 >
 	{#snippet prepend()}
-	{value}
+		{value}
 		<Icon data={LibIcon_Search} class="mr-2 ml-3"></Icon>
 	{/snippet}
 
