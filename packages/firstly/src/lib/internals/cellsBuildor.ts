@@ -30,7 +30,8 @@ type CellInternal<Entity> = {
 	clipboardable?: boolean // if true, will add a copy button to the field
 	clearable?: boolean // for select
 
-	component?: (new (...args: any[]) => SvelteComponent) | Component
+	component?: new (...args: any[]) => SvelteComponent
+	componentS5?: Component
 	props?: any
 	rowToProps?: (row: any) => any
 }

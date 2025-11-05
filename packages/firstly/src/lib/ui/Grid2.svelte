@@ -206,6 +206,16 @@
 												on:refresh
 											></svelte:component>
 										</div>
+									{:else if b.componentS5}
+										{@const Comp = b.componentS5}
+										<!-- NOT TESTED YET! -->
+										<div class={b.class}>
+											<Comp
+												{...b.props}
+												{...b.rowToProps ? b.rowToProps(row) : {}}
+												onrefresh={() => dispatch('refresh')}
+											/>
+										</div>
 									{:else}
 										<pre>Col: {b.col}</pre>
 										<pre class="bg-error">Component prop needed !</pre>
