@@ -1,16 +1,27 @@
 <script lang="ts">
 	import { tw } from '../../utils/tailwind'
 
-	export let label: string = 'label'
-	export let forId: string
-	export let required = false
-	export let error: string = ''
+	interface Props {
+		label?: string
+		forId: string
+		required?: boolean
+		error?: string
+		/**
+		 * example usage for paginate
+		 * classes={{ label: 'justify-end' }}
+		 */
+		classes?: { label?: string; slot?: string }
+		children?: import('svelte').Snippet
+	}
 
-	/**
-	 * example usage for paginate
-	 * classes={{ label: 'justify-end' }}
-	 */
-	export let classes: { label?: string; slot?: string } = {}
+	let {
+		label = 'label',
+		forId,
+		required = false,
+		error = '',
+		classes = {},
+		children,
+	}: Props = $props()
 </script>
 
 <fieldset class="fieldset w-full">
@@ -23,6 +34,6 @@
 		{/if}
 	</label>
 	<div class={tw('grid h-12 w-full', classes.slot)}>
-		<slot />
+		{@render children?.()}
 	</div>
 </fieldset>
