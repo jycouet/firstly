@@ -28,6 +28,7 @@ const getMsg = async (page: Page, type: 'error' | 'success' = 'success') => {
 }
 
 async function click(page: Page, text: string) {
+	await sleep(SHOT_TIME)
 	await page.getByText(text).click({})
 	// Let the network do it's things...
 	await sleep(LONG_TIME)
