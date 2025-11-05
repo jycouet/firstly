@@ -6,6 +6,8 @@ import type { ErrorInfo, FindOptions, Repository } from 'remult'
 import { ff_Log } from '../index.js'
 import { isError } from './helper.js'
 
+export type StoreItem<T> = ReturnType<typeof storeItem<T>>
+
 type TheStoreItem<T> = {
 	item: T | undefined
 	loading?: boolean

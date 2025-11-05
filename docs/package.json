@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "lint": "kitql-lint",
-    "format": "kitql-lint --format",
+    "format": "kitql-lint -f -d",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
