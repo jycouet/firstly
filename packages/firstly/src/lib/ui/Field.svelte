@@ -26,6 +26,7 @@
 	import { LibIcon_Eye, LibIcon_EyeOff } from './LibIcon'
 	import Link from './link/Link.svelte'
 	import LinkPlus from './link/LinkPlus.svelte'
+	// import Select2 from './internals/select/Select2.svelte'
 
 	export let cell: Cell<T>
 	export let value: HTMLInputAttributes['value'] = undefined
@@ -288,6 +289,13 @@
 				on:selected={(e) => dispatchSelected(e.detail)}
 			/>
 		{:else}
+			<!-- <Select2
+				{...common(cell.field, true)}
+				clearable={clearableComputed}
+				items={metaType.values}
+				value={value?.id || value}
+				onChange={(e) => dispatchSelected(metaType.values.find((v) => v.id === e))}
+			/> -->
 			<SelectMelt
 				{focus}
 				{...common(cell.field, true)}

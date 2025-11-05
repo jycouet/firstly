@@ -264,6 +264,9 @@ importers:
       remult:
         specifier: '>=3.2.2'
         version: 3.2.2
+      svelecte:
+        specifier: 5.3.0
+        version: 5.3.0(svelte@5.40.0)
       tailwind-merge:
         specifier: catalog:ui
         version: 2.6.0
@@ -4772,6 +4775,11 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+
+  svelecte@5.3.0:
+    resolution: {integrity: sha512-9WKD6KxPf31CweyZtObTetGtkq1TncBA2E+aSHcT+bfjALgP+LUGMMQUU+2qhlfSoGpw9JYmLfxphGjb0q350g==}
+    peerDependencies:
+      svelte: ^5.2.7
 
   svelte-check@4.3.0:
     resolution: {integrity: sha512-Iz8dFXzBNAM7XlEIsUjUGQhbEE+Pvv9odb9+0+ITTgFWZBGeJRRYqHUUglwe2EkLD5LIsQaAc4IUJyvtKuOO5w==}
@@ -10984,6 +10992,10 @@ snapshots:
       has-flag: 4.0.0
 
   supports-preserve-symlinks-flag@1.0.0: {}
+
+  svelecte@5.3.0(svelte@5.40.0):
+    dependencies:
+      svelte: 5.40.0
 
   svelte-check@4.3.0(picomatch@4.0.2)(svelte@5.40.0)(typescript@5.9.3):
     dependencies:
