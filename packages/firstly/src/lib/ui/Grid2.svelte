@@ -43,7 +43,6 @@
 	}
 	export let orderBy: EntityOrderBy<T> | undefined = undefined
 	export let orderByCols: (keyof T)[] | true | undefined = undefined
-	export let settingsLeft = false
 
 	export let dicoNoResult = 'Aucun résultat !'
 
@@ -93,25 +92,6 @@
 	<table class="table {classes.table} {baseTable}">
 		<thead class="">
 			<tr class="">
-				{#if settingsLeft && (withEdit || withDelete || withAdd)}
-					<th class="bg-base-200">
-						<div class="flex justify-start">
-							{#if !withAdd}
-								<Icon data={LibIcon_Settings}></Icon>
-							{:else}
-								<Button
-									permission={r.metadata.options.permissionApiInsert}
-									disabled={!r.metadata.apiInsertAllowed()}
-									class="btn btn-square btn-ghost btn-xs"
-									on:click={() => dispatch('add', {})}
-								>
-									<Icon data={LibIcon_Add} />
-								</Button>
-							{/if}
-						</div>
-					</th>
-				{/if}
-
 				{#each cellsToTake(cells) as b, i}
 					{@const al = align(b.field, b.kind === 'slot')}
 					<th class={al}>
@@ -137,7 +117,7 @@
 					</th>
 				{/each}
 
-				{#if !settingsLeft && (withEdit || withDelete || withAdd)}
+				{#if withEdit || withDelete || withAdd}
 					<th class="">
 						<div class="flex justify-end">
 							{#if withAdd}
@@ -163,34 +143,6 @@
 			{:else}
 				{#each r.items ?? [] as row}
 					<tr onclick={() => dispatch('rowclick', row)} class="hover:bg-base-content/20">
-						<!-- BECARFULL THIS CODE IS DUPLICATED -->
-						{#if settingsLeft && (withEdit || withDelete)}
-							<td class="text-left">
-								<div class="flex justify-start gap-2">
-									{#if withEdit}
-										<Button
-											permission={r.metadata.options.permissionApiUpdate}
-											disabled={!r.metadata.apiUpdateAllowed()}
-											class="btn btn-square btn-ghost btn-xs"
-											on:click={() => dispatch('edit', row)}
-										>
-											<Icon data={LibIcon_Edit} />
-										</Button>
-									{/if}
-									{#if withDelete}
-										<Button
-											permission={r.metadata.options.permissionApiDelete}
-											disabled={!r.metadata.apiDeleteAllowed()}
-											class="btn btn-square btn-ghost btn-xs"
-											on:click={() => dispatch('delete', row)}
-										>
-											<Icon data={LibIcon_Delete} />
-										</Button>
-									{/if}
-								</div>
-							</td>
-						{/if}
-
 						{#each cellsToTake(cells) as b}
 							{@const metaType = getFieldMetaType(b.field)}
 							<td class={align(b.field, b.kind === 'slot')}>
@@ -269,7 +221,7 @@
 							</td>
 						{/each}
 
-						{#if !settingsLeft && (withEdit || withDelete)}
+						{#if withEdit || withDelete}
 							<td class="text-right">
 								<div class="flex justify-end gap-2">
 									{#if withEdit}
