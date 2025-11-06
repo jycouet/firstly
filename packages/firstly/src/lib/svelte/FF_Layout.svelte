@@ -46,7 +46,7 @@
 	</div>
 {:else if layoutToUse.type === 'accordion'}
 	{#each layoutToUse.groups ?? [] as group (group.key)}
-		<div class="collapse collapse-arrow bg-base-100">
+		<div class="collapse-arrow collapse bg-base-100">
 			<input
 				type="radio"
 				name="my-accordion"

@@ -17,7 +17,6 @@
 		error?: string
 	}
 
-	// eslint-disable-next-line svelte/no-unused-props
 	let { value = $bindable(), error, ...props }: Props<valueType, entityType> = $props()
 
 	// let classes = $derived(getClasses('field', props.classes))

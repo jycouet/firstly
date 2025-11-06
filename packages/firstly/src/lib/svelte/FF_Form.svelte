@@ -92,7 +92,7 @@
 				<div data-ff-form-fields class="{classes?.fields} {group.class}">
 					{#each group.fields as field}
 						<FF_Cell
-							cell={{field, mode: 'edit'}}
+							cell={{ field, mode: 'edit' }}
 							bind:value={valuesToUse[field.key as keyof entityType]}
 							error={errors[field.key ?? '']}
 						/>
