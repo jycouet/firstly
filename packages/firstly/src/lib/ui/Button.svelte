@@ -101,7 +101,7 @@
 	use:isAllowed={{ permission }}
 	onclick={bubble('click')}
 	{...rest}
-	class={tw(['btn text-white', className ?? 'btn-primary'])}
+	class={tw(['btn', 'text-white', 'btn-primary', className])}
 	{disabled}
 >
 	<!-- btn-outline -->
