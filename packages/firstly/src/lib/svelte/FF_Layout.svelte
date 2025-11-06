@@ -39,14 +39,14 @@
 				onchange={() => (selectedThing = group.key)}
 				aria-label={group.caption}
 			/>
-			<div role="tabpanel" class="tab-content rounded-box border-base-300 bg-base-100 p-6">
+			<div role="tabpanel" class="tab-content border-base-300 bg-base-100 p-6">
 				<FF_Form {r} groups={[group]} show={{ title: false }}></FF_Form>
 			</div>
 		{/each}
 	</div>
 {:else if layoutToUse.type === 'accordion'}
 	{#each layoutToUse.groups ?? [] as group (group.key)}
-		<div class="collapse bg-base-100">
+		<div class="collapse collapse-arrow bg-base-100">
 			<input
 				type="radio"
 				name="my-accordion"

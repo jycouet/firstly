@@ -1,7 +1,7 @@
 <script lang="ts" generics="entityType = unknown">
 	import { EntityError, getEntityRef } from 'remult'
 
-	import { FF_Field, getClasses } from './'
+	import { FF_Cell, getClasses } from './'
 	import type { FF_Repo, FieldGroup, FormTheme } from './'
 
 	const default_uid = $props.id()
@@ -91,11 +91,10 @@
 				{/if}
 				<div data-ff-form-fields class="{classes?.fields} {group.class}">
 					{#each group.fields as field}
-						<FF_Field
-							uid="{ToUse}-{field.key}"
-							{field}
+						<FF_Cell
+							cell={{field, mode: 'edit'}}
 							bind:value={valuesToUse[field.key as keyof entityType]}
-							error={errors[field.key]}
+							error={errors[field.key ?? '']}
 						/>
 					{/each}
 				</div>
