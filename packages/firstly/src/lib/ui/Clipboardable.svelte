@@ -20,6 +20,6 @@
 	}
 </script>
 
-<button onclick={() => clip(value)} class={`${value ? 'cursor-copy' : ''} ${extraClass}`}>
+<button onclick={() => clip(value)} class={`text-left ${value ? 'cursor-copy' : ''} ${extraClass}`}>
 	{@render children?.()}
 </button>
