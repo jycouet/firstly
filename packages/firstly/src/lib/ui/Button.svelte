@@ -21,7 +21,7 @@
 
 	let {
 		isLoading = false,
-		class: className = 'btn-neutral',
+		class: className = '',
 		permission = undefined,
 		children,
 		tooltip,
