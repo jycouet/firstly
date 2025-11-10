@@ -80,7 +80,7 @@ pkg.dependencies = mergeAndSort(pkg.dependencies, {})
 pkg.scripts = {
 	...pkg.scripts,
 	'//// ---- BEST PRACTICES ---- ////': '',
-	lint: 'kitql-lint',
+	lint: 'kitql-lint -d',
 	format: 'kitql-lint -f -d',
 }
 if (res.includes('all') || res.includes('dependencies')) {

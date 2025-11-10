@@ -4,7 +4,7 @@
   "version": "0.0.2",
   "scripts": {
     "dev": "astro dev",
-    "lint": "kitql-lint",
+    "lint": "kitql-lint -d",
     "format": "kitql-lint -f -d",
     "start": "astro dev",
     "build": "astro build",
