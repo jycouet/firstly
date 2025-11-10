@@ -21,7 +21,7 @@
 
 	let {
 		isLoading = false,
-		class: className = undefined,
+		class: className = 'btn-primary',
 		permission = undefined,
 		children,
 		tooltip,
@@ -101,7 +101,7 @@
 	use:isAllowed={{ permission }}
 	onclick={bubble('click')}
 	{...rest}
-	class={tw(['btn', 'text-white', 'btn-primary', className])}
+	class={tw(['btn', className])}
 	{disabled}
 >
 	<!-- btn-outline -->

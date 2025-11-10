@@ -20,8 +20,8 @@ import {
 	mdiLoading,
 	mdiMagnify,
 	mdiPencil,
+	mdiPlus,
 	mdiPlusBoxMultiple,
-	mdiPlusCircle,
 	mdiSend,
 	mdiSort,
 	mdiSortReverseVariant,
@@ -39,7 +39,7 @@ export const LibIcon_ChevronRight = mdiChevronRight
 export const LibIcon_Search = mdiMagnify
 export const LibIcon_Check = mdiCheck
 export const LibIcon_MultiCheck = mdiCheckAll
-export const LibIcon_Add = mdiPlusCircle
+export const LibIcon_Add = mdiPlus
 export const LibIcon_Eye = mdiEye
 export const LibIcon_EyeOff = mdiEyeOff
 export const LibIcon_MultiAdd = mdiPlusBoxMultiple
