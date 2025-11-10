@@ -21,7 +21,7 @@
 
 	let {
 		isLoading = false,
-		class: className = 'btn-primary',
+		class: className = 'btn-neutral',
 		permission = undefined,
 		children,
 		tooltip,
@@ -98,6 +98,7 @@
 
 <button
 	{...$trigger}
+	use:trigger
 	use:isAllowed={{ permission }}
 	onclick={bubble('click')}
 	{...rest}
