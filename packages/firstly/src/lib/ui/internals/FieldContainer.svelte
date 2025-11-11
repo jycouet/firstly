@@ -33,7 +33,7 @@
 			<span class="label-text-alt truncate text-error">{error}</span>
 		{/if}
 	</label>
-	<div class={tw('grid h-12 w-full', classes.slot)}>
+	<div class={tw('grid h-12 w-full text-base', classes.slot)}>
 		{@render children?.()}
 	</div>
 </fieldset>

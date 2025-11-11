@@ -209,7 +209,7 @@
 	{#if isViewMode(mode, cell.field)}
 		<span class="flex items-center pr-4 pl-2">
 			{#if cell.field?.inputType === 'checkbox'}
-				<input type="checkbox" {...common(cell.field)} class="checkbox ml-2" disabled checked={value} />
+				<input type="checkbox" {...common(cell.field)} class="checkbox ml-2 bg-base-300" disabled checked={value} />
 			{:else if metaType.kind === 'relation'}
 				{@const item = getEntityDisplayValue(metaType.repoTarget, value)}
 				<div class={tw('flex items-center gap-4', 'h-12', 'pl-2')}>
@@ -314,7 +314,7 @@
 			<input
 				type="checkbox"
 				{...{ ...common(cell.field), required: undefined }}
-				class="checkbox"
+				class="checkbox bg-base-300"
 				checked={value}
 				on:input={(e) => {
 					// @ts-ignore
