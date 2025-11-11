@@ -3,16 +3,11 @@ import { writable } from 'svelte/store'
 
 import { type Repository } from 'remult'
 
-import {
-	LibIcon_Add,
-	LibIcon_Delete,
-	LibIcon_Edit,
-	LibIcon_Search,
-	type BaseItemLight,
-	type CellsInput,
-	type StoreItem,
-} from '../../internals'
+import type { BaseItemLight } from '../../internals/BaseEnum'
+import type { CellsInput } from '../../internals/cellsBuildor'
+import type { StoreItem } from '../../internals/storeItem'
 import type { FF_Repo } from '../../svelte'
+import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit, LibIcon_Search } from '../LibIcon'
 
 export type DialogClasses = {
 	/**

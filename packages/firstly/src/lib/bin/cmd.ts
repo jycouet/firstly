@@ -80,8 +80,8 @@ pkg.dependencies = mergeAndSort(pkg.dependencies, {})
 pkg.scripts = {
 	...pkg.scripts,
 	'//// ---- BEST PRACTICES ---- ////': '',
-	lint: 'kitql-lint',
-	format: 'kitql-lint -f',
+	lint: 'kitql-lint -d',
+	format: 'kitql-lint -f -d',
 }
 if (res.includes('all') || res.includes('dependencies')) {
 	write('./package.json', [JSON.stringify(pkg, null, 2)])

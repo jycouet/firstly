@@ -28,7 +28,7 @@
 {:else if layoutToUse.type === 'grid'}
 	<FF_Grid {r}></FF_Grid>
 {:else if layoutToUse.type === 'tab'}
-	<div role="tablist" class="tabs tabs-lifted">
+	<div role="tablist" class="tabs-lift tabs">
 		{#each layoutToUse.groups ?? [] as group (group.key)}
 			<input
 				type="radio"
@@ -39,14 +39,14 @@
 				onchange={() => (selectedThing = group.key)}
 				aria-label={group.caption}
 			/>
-			<div role="tabpanel" class="tab-content rounded-box border-base-300 bg-base-100 p-6">
+			<div role="tabpanel" class="tab-content border-base-300 bg-base-100 p-6">
 				<FF_Form {r} groups={[group]} show={{ title: false }}></FF_Form>
 			</div>
 		{/each}
 	</div>
 {:else if layoutToUse.type === 'accordion'}
 	{#each layoutToUse.groups ?? [] as group (group.key)}
-		<div class="collapse bg-base-100">
+		<div class="collapse-arrow collapse bg-base-100">
 			<input
 				type="radio"
 				name="my-accordion"

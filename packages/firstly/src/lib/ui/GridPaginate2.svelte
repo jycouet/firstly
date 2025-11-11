@@ -13,11 +13,11 @@
 <FieldContainer {label} forId="paginate" classes={{ label: 'justify-end' }}>
 	<div class="flex w-14 items-center justify-end">
 		{#if totalCount === undefined}
-			<Loading class="ml-6 mr-2 h-3 w-1/6"></Loading>
+			<Loading class="mr-2 ml-6 h-3 w-1/6"></Loading>
 			<Loading class="mx-2 h-4 w-1/2"></Loading>
 			<Loading class="mx-2 h-3 w-1/6"></Loading>
 		{:else}
-			<span class="justify-end px-2 font-bold text-primary">
+			<span class="mb-2 justify-end px-2 text-lg font-bold text-primary">
 				{totalCount}
 			</span>
 		{/if}

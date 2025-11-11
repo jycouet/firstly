@@ -30,7 +30,7 @@
 <FieldContainer {label} forId="paginate" classes={{ label: 'justify-end' }}>
 	<div class="flex w-36 items-center justify-end">
 		{#if totalCount === undefined}
-			<Loading class="ml-6 mr-2 h-3 w-1/6"></Loading>
+			<Loading class="mr-2 ml-6 h-3 w-1/6"></Loading>
 			<Loading class="mx-2 h-4 w-1/2"></Loading>
 			<Loading class="mx-2 h-3 w-1/6"></Loading>
 		{:else if !needPaginate}

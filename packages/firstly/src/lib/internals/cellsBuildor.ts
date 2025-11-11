@@ -1,4 +1,4 @@
-import type { SvelteComponent } from 'svelte'
+import type { Component, SvelteComponent } from 'svelte'
 
 import { type ClassType, type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
@@ -31,6 +31,7 @@ type CellInternal<Entity> = {
 	clearable?: boolean // for select
 
 	component?: new (...args: any[]) => SvelteComponent
+	componentS5?: Component
 	props?: any
 	rowToProps?: (row: any) => any
 }

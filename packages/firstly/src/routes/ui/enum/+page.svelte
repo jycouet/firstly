@@ -18,7 +18,7 @@
 
 <div class="grid grid-cols-4 gap-4">
 	<FieldContainer label="Civilité" forId="sd" classes={{}}>
-		<div class="input input-bordered flex w-fit min-w-0 items-center">
+		<div class="input flex w-fit min-w-0 items-center">
 			<div class="-mx-2 flex gap-2">
 				{#each list as { id, caption, icon }}
 					<button
@@ -41,6 +41,6 @@
 	</FieldContainer>
 
 	<FieldContainer forId="456" label="default">
-		<Input class="input input-bordered"></Input>
+		<Input class="input"></Input>
 	</FieldContainer>
 </div>

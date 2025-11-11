@@ -67,3 +67,4 @@ jobs:
      uses: e18e/action-dependency-diff@v1
      with:
       duplicate-threshold: '3'
+      size-threshold: -1

@@ -27,7 +27,7 @@
 				<Button
 					type="button"
 					on:click={dispatchDelete}
-					class="btn-outline btn-error mr-4 text-white"
+					class="mr-4 btn-error"
 					isLoading={$store.loading}
 				>
 					<Icon data={LibIcon_Delete} />
@@ -41,7 +41,7 @@
 			</div>
 		</div>
 
-		<Button class="text-white" {...$$restProps} isLoading={$store.loading}>
+		<Button class="btn-primary" {...$$restProps} isLoading={$store.loading}>
 			<Icon data={LibIcon_Check} />
 			<p>Sauvegarder</p>
 		</Button>
@@ -54,7 +54,7 @@
 			{/if}
 		</div>
 
-		<Button class="text-white" {...$$restProps} isLoading={$store.loading}>
+		<Button class="btn-primary" {...$$restProps} isLoading={$store.loading}>
 			<Icon data={LibIcon_Add} />
 			<p>{textCreate}</p>
 		</Button>

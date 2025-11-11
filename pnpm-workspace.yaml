@@ -51,12 +51,11 @@ catalogs:
   mermaid: 11.12.0
   '@mdi/js': 7.4.47
   '@melt-ui/svelte': 0.86.6
-  autoprefixer: 10.4.19
-  postcss: 8.5.3
-  tailwindcss: 3.4.4
+  tailwindcss: 4.1.14
+  '@tailwindcss/vite': 4.1.14
   tailwind-merge: 2.6.0
   clsx: 2.1.1
-  daisyui: 4.12.14
+  daisyui: 5.5.0
 
  prod:
   '@oslojs/crypto': 1.0.1

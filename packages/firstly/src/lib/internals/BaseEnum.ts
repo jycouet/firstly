@@ -1,5 +1,7 @@
 import type { FindOptionsBase, Repository } from 'remult'
 
+export type BaseItemLight = Partial<BaseItem>
+
 export type FF_Icon = {
 	data?: string | string[]
 	size?: string | number

@@ -3,7 +3,7 @@
 
 	import Icon from '../ui/Icon.svelte'
 	import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '../ui/LibIcon'
-	import { dialog, FF_Display, FF_Repo, getClasses, type GridTheme } from './'
+	import { dialog, FF_Cell_Display, FF_Repo, getClasses, type GridTheme } from './'
 
 	interface Props<entityType> {
 		// uid?: string
@@ -100,7 +100,7 @@
 			<tr data-ff-grid-row class={classes?.row}>
 				{#each fields as f (f.key)}
 					<td data-ff-grid-row-cell class="{classes?.rowCell} td-{f.inputType}">
-						<FF_Display field={f} value={item[f.key as keyof entityType]}></FF_Display>
+						<FF_Cell_Display field={f} value={item[f.key as keyof entityType]}></FF_Cell_Display>
 					</td>
 				{/each}
 				{#if showActions}

@@ -1,30 +1,47 @@
 <script lang="ts">
 	import { createTooltip } from '@melt-ui/svelte'
 	import type { Action } from 'svelte/action'
+	import { createBubbler, run } from 'svelte/legacy'
 	import { fade, fly } from 'svelte/transition'
 
 	import { remult } from 'remult'
 
 	import { BaseEnum, tw } from '../internals'
 
-	export let isLoading = false
-	let className: string | undefined | null = undefined
-	export { className as class }
+	const bubble = createBubbler()
 
-	export let permission: BaseEnum[] | BaseEnum | undefined = undefined
+	interface Props {
+		isLoading?: boolean
+		class?: string | undefined | null
+		permission?: BaseEnum[] | BaseEnum | undefined
+		children?: import('svelte').Snippet
+		tooltip?: import('svelte').Snippet
+		[key: string]: any
+	}
 
-	let permissionDisabled = false
-	$: disabled = $$restProps.disabled || permissionDisabled || isLoading
+	let {
+		isLoading = false,
+		class: className = '',
+		permission = undefined,
+		children,
+		tooltip,
+		...rest
+	}: Props = $props()
+
+	let permissionDisabled = $state(false)
+	let disabled = $derived(rest.disabled || permissionDisabled || isLoading)
 
 	// let's trigger the annimation if it's more than 200ms
-	let triggerAnnimation = false
-	$: isLoading &&
-		setTimeout(() => {
-			if (isLoading) {
-				// eslint-disable-next-line
-				triggerAnnimation = true
-			}
-		}, 200)
+	let triggerAnnimation = $state(false)
+	run(() => {
+		isLoading &&
+			setTimeout(() => {
+				if (isLoading) {
+					// eslint-disable-next-line
+					triggerAnnimation = true
+				}
+			}, 200)
+	})
 
 	let updates = (param: { permission: BaseEnum[] | BaseEnum | undefined }) => {
 		if (param && param.permission) {
@@ -42,7 +59,7 @@
 		}
 	}
 
-	let disabledWhy = ''
+	let disabledWhy = $state('')
 	const isAllowed: Action<HTMLElement, { permission: BaseEnum[] | BaseEnum | undefined }> = (
 		node,
 		param,
@@ -81,14 +98,15 @@
 
 <button
 	{...$trigger}
+	use:trigger
 	use:isAllowed={{ permission }}
-	on:click
-	{...$$restProps}
-	class={tw(['btn text-white', disabled ? '' : 'btn-primary', className])}
+	onclick={bubble('click')}
+	{...rest}
+	class={tw(['btn', className])}
 	{disabled}
 >
 	<!-- btn-outline -->
-	<slot />
+	{@render children?.()}
 	{#if triggerAnnimation && isLoading}
 		<div in:fly={{ x: -20 }}>
 			<span class="loading loading-spinner"></span>
@@ -96,7 +114,7 @@
 	{/if}
 </button>
 
-{#if $open && (disabledWhy || $$slots.tooltip)}
+{#if $open && (disabledWhy || tooltip)}
 	<div
 		{...$content}
 		use:content
@@ -105,8 +123,8 @@
 	>
 		<div {...$arrow} use:arrow></div>
 		<div class="px-4 py-1">
-			{#if $$slots.tooltip}
-				<slot name="tooltip" />
+			{#if tooltip}
+				{@render tooltip?.()}
 			{:else}
 				{disabledWhy}
 			{/if}

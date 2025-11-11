@@ -19,10 +19,10 @@ import { default as Link } from '../ui/link/Link.svelte'
 import { default as LinkPlus } from '../ui/link/LinkPlus.svelte'
 import { default as Loading } from '../ui/Loading.svelte'
 import { default as Tooltip } from '../ui/Tooltip.svelte'
-import type { BaseEnum, BaseItem, FF_Icon } from './BaseEnum.js'
-import type { CellsInput as CellsInput_ForExport } from './cellsBuildor.js'
+import type { BaseEnum, BaseItem, BaseItemLight, FF_Icon } from './BaseEnum.js'
+import type { CellsInput } from './cellsBuildor.js'
 import { FF_Role } from './common.js'
-import { storeItem } from './storeItem.js'
+import { storeItem, type StoreItem } from './storeItem.js'
 import { storeList } from './storeList.js'
 
 // ******************************
@@ -52,14 +52,15 @@ export {
 // Helpers types
 // ******************************
 export type { BaseEnumOptions } from './BaseEnum.js'
-export type { BaseItem }
-export type BaseItemLight = Partial<BaseItem>
+export type { BaseItem, BaseItemLight }
 
 export type { DialogMetaDataInternal } from '../ui/dialog/dialog.js'
-export type CellsInput<entityType> = CellsInput_ForExport<entityType>
+export type { CellsInput }
+// export type CellsInput<entityType> = CellsInput_ForExport<entityType>
 export type { Cell, VisibilityMode } from './cellsBuildor.js'
 export type { FF_FindOptions } from './storeList.js'
-export type StoreItem<T> = ReturnType<typeof storeItem<T>>
+// export type StoreItem<T> = ReturnType<typeof storeItem<T>>
+export type { StoreItem }
 export type StoreList<T> = ReturnType<typeof storeList<T>>
 export type { ResolvedType, UnArray, RecursivePartial } from '../utils/types.js'
 

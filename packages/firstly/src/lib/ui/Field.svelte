@@ -27,6 +27,8 @@
 	import Link from './link/Link.svelte'
 	import LinkPlus from './link/LinkPlus.svelte'
 
+	// import Select2 from './internals/select/Select2.svelte'
+
 	export let cell: Cell<T>
 	export let value: HTMLInputAttributes['value'] = undefined
 
@@ -205,9 +207,15 @@
 	{@const clearableComputed =
 		cell.clearable || clearable || (mode === 'filtre' && clearable === undefined)}
 	{#if isViewMode(mode, cell.field)}
-		<span class="input-bordered flex items-center pl-2 pr-4">
+		<span class="flex items-center pr-4 pl-2">
 			{#if cell.field?.inputType === 'checkbox'}
-				<input type="checkbox" {...common(cell.field)} class="checkbox ml-2" disabled checked={value} />
+				<input
+					type="checkbox"
+					{...common(cell.field)}
+					class="checkbox ml-2 bg-base-300"
+					disabled
+					checked={value}
+				/>
 			{:else if metaType.kind === 'relation'}
 				{@const item = getEntityDisplayValue(metaType.repoTarget, value)}
 				<div class={tw('flex items-center gap-4', 'h-12', 'pl-2')}>
@@ -288,6 +296,13 @@
 				on:selected={(e) => dispatchSelected(e.detail)}
 			/>
 		{:else}
+			<!-- <Select2
+				{...common(cell.field, true)}
+				clearable={clearableComputed}
+				items={metaType.values}
+				value={value?.id || value}
+				onChange={(e) => dispatchSelected(metaType.values.find((v) => v.id === e))}
+			/> -->
 			<SelectMelt
 				{focus}
 				{...common(cell.field, true)}
@@ -305,7 +320,7 @@
 			<input
 				type="checkbox"
 				{...{ ...common(cell.field), required: undefined }}
-				class="checkbox"
+				class="checkbox bg-base-300"
 				checked={value}
 				on:input={(e) => {
 					// @ts-ignore
@@ -315,13 +330,13 @@
 			/>
 		</div>
 	{:else if metaType.subKind === 'text' || metaType.subKind === 'email' || metaType.subKind === 'password' || metaType.subKind === 'date' || metaType.subKind === 'number' || metaType.subKind === 'textpsd' || metaType.subKind === 'link'}
-		<div class="input input-bordered inline-flex w-full items-center pl-2">
+		<div class="input inline-flex w-full items-center pl-2">
 			<Input
 				{focus}
 				{...common(cell.field)}
 				autocomplete="off"
 				class={tw(
-					`join-item w-full bg-transparent placeholder:text-base-content/30`,
+					`join-item w-full placeholder:text-base-content/30`,
 					metaType.subKind === 'number' && 'text-end',
 				)}
 				style={cell.field?.inputType === 'textpsd' && textpsdVisible === false

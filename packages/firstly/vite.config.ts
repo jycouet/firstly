@@ -1,4 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite'
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, loadEnv } from 'vite'
 
 import type { KIT_ROUTES } from '$lib2/ROUTES'
@@ -47,6 +48,7 @@ const config = defineConfig(({ mode }) => {
 				},
 			}),
 			sveltekit(),
+			tailwindcss(),
 		],
 		test: {
 			include: ['src/**/*.{test,spec}.{js,ts}'],

@@ -13,10 +13,11 @@
 		cell: CellMetadata<valueType, entityType>
 		r?: FF_Repo<entityType>
 		class?: string
+		value?: valueType
+		error?: string
 	}
 
-	// eslint-disable-next-line svelte/no-unused-props
-	let props: Props<valueType, entityType> = $props()
+	let { value = $bindable(), error, ...props }: Props<valueType, entityType> = $props()
 
 	// let classes = $derived(getClasses('field', props.classes))
 
@@ -25,9 +26,6 @@
 	let hint = $derived(props.cell.field?.options.ui?.hint ?? props.cell.ui?.hint)
 	// @ts-ignore
 	let ui = $derived(deepMerge(props.cell.field?.options.ui ?? {}, props.cell.ui ?? {}))
-
-	let error = ''
-	let value: any = $state('')
 </script>
 
 <!-- Snippets sections -->

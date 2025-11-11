@@ -44,19 +44,19 @@ import { repo } from 'remult'
 ```ts
 // today in remult & sveltekit
 export const _api = remultSveltekit({
-  entities: [Task],
-  controllers: [TaskController]
+	entities: [Task],
+	controllers: [TaskController],
 })
 
 // today in firslty & sveltekit
 export const _api = firstly({
-  modules: [
-    {
-      name: "module-task",
-      entities: [Task],
-      controllers: [TaskController]
-    }
-  ]
+	modules: [
+		{
+			name: 'module-task',
+			entities: [Task],
+			controllers: [TaskController],
+		},
+	],
 })
 ```
 

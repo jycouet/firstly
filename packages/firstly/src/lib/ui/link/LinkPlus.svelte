@@ -4,9 +4,13 @@
 	import Tooltip from '../Tooltip.svelte'
 	import Link from './Link.svelte'
 
-	export let item: BaseItemLight | undefined
-	export let noIcon = false
-	export let captionSubStyle: 'under' | 'inline' | 'none' = 'under'
+	interface Props {
+		item: BaseItemLight | undefined
+		noIcon?: boolean
+		captionSubStyle?: 'under' | 'inline' | 'none'
+	}
+
+	let { item, noIcon = false, captionSubStyle = 'under' }: Props = $props()
 
 	const hasSomethingToDisplay = (item: BaseItemLight) => {
 		if (item.href) {
@@ -39,7 +43,7 @@
 					<div>
 						<Link href={item.href}>{item.caption}</Link>
 						{#if item.captionSub && captionSubStyle === 'inline'}
-							<span class="text-xs italic text-base-content/70">{item.captionSub}</span>
+							<span class="text-xs text-base-content/70 italic">{item.captionSub}</span>
 						{/if}
 					</div>
 				{:else}
@@ -51,7 +55,7 @@
 					</span>
 				{/if}
 				{#if item.captionSub && captionSubStyle === 'under'}
-					<span class="text-xs italic text-base-content/70">{item.captionSub}</span>
+					<span class="text-xs text-base-content/70 italic">{item.captionSub}</span>
 				{/if}
 			</div>
 		{/if}
