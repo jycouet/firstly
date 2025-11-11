@@ -84,8 +84,8 @@ catalogs:
       version: 2.5.7
   sveltekit:
     '@sveltejs/adapter-node':
-      specifier: 5.3.2
-      version: 5.3.2
+      specifier: 5.4.0
+      version: 5.4.0
     '@sveltejs/kit':
       specifier: 2.46.5
       version: 2.46.5
@@ -282,7 +282,7 @@ importers:
         version: 0.8.13
       '@sveltejs/adapter-node':
         specifier: catalog:sveltekit
-        version: 5.3.2(@sveltejs/kit@2.46.5(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))
+        version: 5.4.0(@sveltejs/kit@2.46.5(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))
       '@sveltejs/kit':
         specifier: catalog:sveltekit
         version: 2.46.5(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1))
@@ -1394,15 +1394,6 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/pluginutils@5.1.4':
-    resolution: {integrity: sha512-USm05zrsFxYLPdWWq+K3STlWiT/3ELn3RcV5hJMghpeAIhxfsUIg6mt12CBJBInWMV4VneoV7SfGv8xIwo2qNQ==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-
   '@rollup/pluginutils@5.3.0':
     resolution: {integrity: sha512-5EdhGZtnu3V88ces7s53hhfK5KSASnJZv8Lulpc04cWO3REESroJXg73DFsOmgbU2BhwV0E20bu2IDZb3VKW4Q==}
     engines: {node: '>=14.0.0'}
@@ -1841,8 +1832,8 @@ packages:
     peerDependencies:
       acorn: ^8.9.0
 
-  '@sveltejs/adapter-node@5.3.2':
-    resolution: {integrity: sha512-nBJSipMb1KLjnAM7uzb+YpnA1VWKb+WdR+0mXEnXI6K1A3XYWbjkcjnW20ubg07sicK8XaGY/FAX3PItw39qBQ==}
+  '@sveltejs/adapter-node@5.4.0':
+    resolution: {integrity: sha512-NMsrwGVPEn+J73zH83Uhss/hYYZN6zT3u31R3IHAn3MiKC3h8fjmIAhLfTSOeNHr5wPYfjjMg8E+1gyFgyrEcQ==}
     peerDependencies:
       '@sveltejs/kit': ^2.4.0
 
@@ -4649,6 +4640,7 @@ packages:
   sitemap@8.0.0:
     resolution: {integrity: sha512-+AbdxhM9kJsHtruUF39bwS/B0Fytw6Fr1o4ZAIAEqA6cke2xcoO2GleBw9Zw7nRzILVEgz7zBM5GiTJjie1G9A==}
     engines: {node: '>=14.0.0', npm: '>=6.0.0'}
+    deprecated: 'SECURITY: Multiple vulnerabilities fixed in 8.0.1 (XML injection, path traversal, command injection, protocol injection). Upgrade immediately: npm install sitemap@8.0.1'
     hasBin: true
 
   slash@3.0.0:
@@ -6807,41 +6799,33 @@ snapshots:
 
   '@reteps/dockerfmt@0.3.6': {}
 
-  '@rollup/plugin-commonjs@28.0.6(rollup@4.41.0)':
+  '@rollup/plugin-commonjs@28.0.6(rollup@4.52.4)':
     dependencies:
-      '@rollup/pluginutils': 5.1.4(rollup@4.41.0)
+      '@rollup/pluginutils': 5.3.0(rollup@4.52.4)
       commondir: 1.0.1
       estree-walker: 2.0.2
-      fdir: 6.4.4(picomatch@4.0.2)
+      fdir: 6.5.0(picomatch@4.0.3)
       is-reference: 1.2.1
-      magic-string: 0.30.17
-      picomatch: 4.0.2
+      magic-string: 0.30.19
+      picomatch: 4.0.3
     optionalDependencies:
-      rollup: 4.41.0
+      rollup: 4.52.4
 
-  '@rollup/plugin-json@6.1.0(rollup@4.41.0)':
+  '@rollup/plugin-json@6.1.0(rollup@4.52.4)':
     dependencies:
-      '@rollup/pluginutils': 5.1.4(rollup@4.41.0)
+      '@rollup/pluginutils': 5.3.0(rollup@4.52.4)
     optionalDependencies:
-      rollup: 4.41.0
+      rollup: 4.52.4
 
-  '@rollup/plugin-node-resolve@16.0.1(rollup@4.41.0)':
+  '@rollup/plugin-node-resolve@16.0.1(rollup@4.52.4)':
     dependencies:
-      '@rollup/pluginutils': 5.1.4(rollup@4.41.0)
+      '@rollup/pluginutils': 5.3.0(rollup@4.52.4)
       '@types/resolve': 1.20.2
       deepmerge: 4.3.1
       is-module: 1.0.0
       resolve: 1.22.8
     optionalDependencies:
-      rollup: 4.41.0
-
-  '@rollup/pluginutils@5.1.4(rollup@4.41.0)':
-    dependencies:
-      '@types/estree': 1.0.7
-      estree-walker: 2.0.2
-      picomatch: 4.0.2
-    optionalDependencies:
-      rollup: 4.41.0
+      rollup: 4.52.4
 
   '@rollup/pluginutils@5.3.0(rollup@4.52.4)':
     dependencies:
@@ -7321,13 +7305,13 @@ snapshots:
     dependencies:
       acorn: 8.15.0
 
-  '@sveltejs/adapter-node@5.3.2(@sveltejs/kit@2.46.5(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))':
+  '@sveltejs/adapter-node@5.4.0(@sveltejs/kit@2.46.5(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))':
     dependencies:
-      '@rollup/plugin-commonjs': 28.0.6(rollup@4.41.0)
-      '@rollup/plugin-json': 6.1.0(rollup@4.41.0)
-      '@rollup/plugin-node-resolve': 16.0.1(rollup@4.41.0)
+      '@rollup/plugin-commonjs': 28.0.6(rollup@4.52.4)
+      '@rollup/plugin-json': 6.1.0(rollup@4.52.4)
+      '@rollup/plugin-node-resolve': 16.0.1(rollup@4.52.4)
       '@sveltejs/kit': 2.46.5(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1))
-      rollup: 4.41.0
+      rollup: 4.52.4
 
   '@sveltejs/kit@2.46.5(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1)))(svelte@5.40.0)(vite@7.1.10(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.31.1)(tsx@4.17.0)(yaml@2.8.1))':
     dependencies:
@@ -9389,7 +9373,7 @@ snapshots:
 
   is-reference@1.2.1:
     dependencies:
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.8
 
   is-reference@3.0.3:
     dependencies:
