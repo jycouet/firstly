@@ -250,7 +250,5 @@
 	<!-- Logged -->
 	<div class="col-span-4 divider">Logged ?</div>
 	<pre class="col-span-3" data-testid="msg-info">User: {JSON.stringify(remult.user, null, 2)}</pre>
-	<Button class="btn-outline btn-error" disabled={remult.user === undefined} on:click={signOut}
-		>SignOut</Button
-	>
+	<Button class="btn-error" disabled={remult.user === undefined} on:click={signOut}>SignOut</Button>
 </div>
