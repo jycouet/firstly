@@ -208,7 +208,7 @@
 		cell.clearable || clearable || (mode === 'filtre' && clearable === undefined)}
 	{#if isViewMode(mode, cell.field)}
 		<span class="flex items-center pr-4 pl-2">
-			{#if cell.field?.inputType === 'checkbox' && cell.field?.displayValue === undefined}
+			{#if cell.field?.inputType === 'checkbox'}
 				<input
 					type="checkbox"
 					{...common(cell.field)}
