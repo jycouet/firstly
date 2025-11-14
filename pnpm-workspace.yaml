@@ -55,7 +55,7 @@ catalogs:
   '@tailwindcss/vite': 4.1.14
   tailwind-merge: 2.6.0
   clsx: 2.1.1
-  daisyui: 5.5.0
+  daisyui: 5.5.3
 
  prod:
   '@oslojs/crypto': 1.0.1

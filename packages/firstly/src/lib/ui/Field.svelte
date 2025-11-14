@@ -212,7 +212,7 @@
 				<input
 					type="checkbox"
 					{...common(cell.field)}
-					class="checkbox ml-2 bg-base-300"
+					class="checkbox ml-2 border-base-content/60"
 					disabled
 					checked={value}
 				/>
@@ -320,7 +320,7 @@
 			<input
 				type="checkbox"
 				{...{ ...common(cell.field), required: undefined }}
-				class="checkbox bg-base-300"
+				class="checkbox"
 				checked={value}
 				on:input={(e) => {
 					// @ts-ignore
