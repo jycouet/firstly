@@ -48,6 +48,18 @@
 				{/if}
 			</svelte:component>
 		</DialogPrimitive>
+	{:else if toShow.componentS5}
+		<DialogPrimitive
+			detail={toShow.detail}
+			open
+			on:change={() => dialog.close(toShow.id, { success: false })}
+		>
+			<svelte:component this={toShow.componentS5} {...toShow.props} dialogId={toShow.id}>
+				{#if toShow.children}
+					{@html toShow.children}
+				{/if}
+			</svelte:component>
+		</DialogPrimitive>
 	{:else if toShow.component}
 		<DialogPrimitive
 			detail={toShow.detail}

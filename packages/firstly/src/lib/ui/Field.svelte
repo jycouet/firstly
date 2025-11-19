@@ -245,7 +245,7 @@
 			{:else}
 				{@const v = displayWithDefaultAndSuffix(cell.field, value)}
 				<div
-					class="ml-2 flex h-12 w-full items-center {metaType.subKind === 'number' ? 'justify-end' : ''}"
+					class="ml-2 pb-2 flex h-12 w-full items-center {metaType.subKind === 'number' ? 'justify-end' : ''}"
 				>
 					<Clipboardable value={v}>{v}</Clipboardable>
 				</div>
@@ -316,7 +316,7 @@
 			/>
 		{/if}
 	{:else if metaType.subKind === 'checkbox'}
-		<div class="grid content-center items-center pl-4">
+		<div class="grid content-center items-center pl-4 pb-2">
 			<input
 				type="checkbox"
 				{...{ ...common(cell.field), required: undefined }}

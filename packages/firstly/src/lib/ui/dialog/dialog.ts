@@ -1,4 +1,4 @@
-import type { SvelteComponent } from 'svelte'
+import type { Component, SvelteComponent } from 'svelte'
 import { writable } from 'svelte/store'
 
 import { type Repository } from 'remult'
@@ -33,6 +33,9 @@ export type DialogMetaData<entityType = any> = {
 	classes?: DialogClasses
 
 	component?: new (...args: any[]) => SvelteComponent
+	componentS5?: Component
+	// TODO
+	// props?: Component extends (internals: any, props: infer P) => any ? P : never
 	props?: any
 	children?: any
 	reThrow?: boolean
