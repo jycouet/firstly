@@ -69,14 +69,7 @@
 
 {#if BROWSER || ssr}
 	{#if svg || $$slots.default}
-		<span
-			class={getInfoProps(className)}
-			style={getInfoProps(style)}
-			style:width
-			style:height
-			{role}
-			on:click
-		>
+		<span class={getInfoProps(className)} style={getInfoProps(style)} style:width style:height {role}>
 			<slot>
 				{@html svg ?? ''}
 			</slot>
@@ -89,7 +82,6 @@
 			class={getInfoProps(className)}
 			style={getInfoProps(style)}
 			{role}
-			on:click
 		>
 			{#each Array.isArray(path) ? path : [path] as d, i}
 				<path
@@ -102,15 +94,7 @@
 		</svg>
 	{/if}
 {:else}
-	<svg
-		{width}
-		{height}
-		{viewBox}
-		class={getInfoProps(className)}
-		style={getInfoProps(style)}
-		{role}
-		on:click
-	>
+	<svg {width} {height} {viewBox} class={getInfoProps(className)} style={getInfoProps(style)} {role}>
 		<path
 			d={LibIcon_Empty}
 			fill="currentColor"

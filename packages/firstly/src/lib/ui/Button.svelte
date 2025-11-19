@@ -1,22 +1,17 @@
 <script lang="ts">
 	import { createTooltip } from '@melt-ui/svelte'
 	import type { Action } from 'svelte/action'
-	import { createBubbler, run } from 'svelte/legacy'
+	import type { HTMLButtonAttributes } from 'svelte/elements'
 	import { fade, fly } from 'svelte/transition'
 
 	import { remult } from 'remult'
 
 	import { BaseEnum, tw } from '../internals'
 
-	const bubble = createBubbler()
-
-	interface Props {
+	interface Props extends HTMLButtonAttributes {
 		isLoading?: boolean
-		class?: string | undefined | null
 		permission?: BaseEnum[] | BaseEnum | undefined
-		children?: import('svelte').Snippet
 		tooltip?: import('svelte').Snippet
-		[key: string]: any
 	}
 
 	let {
@@ -25,19 +20,19 @@
 		permission = undefined,
 		children,
 		tooltip,
+		disabled: disabledProp,
 		...rest
 	}: Props = $props()
 
 	let permissionDisabled = $state(false)
-	let disabled = $derived(rest.disabled || permissionDisabled || isLoading)
+	let disabled = $derived(disabledProp || permissionDisabled || isLoading)
 
 	// let's trigger the annimation if it's more than 200ms
 	let triggerAnnimation = $state(false)
-	run(() => {
+	$effect(() => {
 		isLoading &&
 			setTimeout(() => {
 				if (isLoading) {
-					// eslint-disable-next-line
 					triggerAnnimation = true
 				}
 			}, 200)
@@ -100,7 +95,6 @@
 	{...$trigger}
 	use:trigger
 	use:isAllowed={{ permission }}
-	onclick={bubble('click')}
 	{...rest}
 	class={tw(['btn', className])}
 	{disabled}
