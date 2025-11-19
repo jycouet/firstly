@@ -1,17 +1,21 @@
 <script lang="ts">
 	import { createTooltip } from '@melt-ui/svelte'
 	import type { Action } from 'svelte/action'
-	import type { HTMLButtonAttributes } from 'svelte/elements'
 	import { fade, fly } from 'svelte/transition'
 
 	import { remult } from 'remult'
 
 	import { BaseEnum, tw } from '../internals'
 
-	interface Props extends HTMLButtonAttributes {
+	// TODO: extend HTMLButtonAttributes ?
+	interface Props {
 		isLoading?: boolean
 		permission?: BaseEnum[] | BaseEnum | undefined
 		tooltip?: import('svelte').Snippet
+		class?: string
+		children?: import('svelte').Snippet
+		disabled?: boolean | null
+		[key: string]: any
 	}
 
 	let {
