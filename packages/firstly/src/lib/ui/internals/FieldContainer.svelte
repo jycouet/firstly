@@ -25,7 +25,7 @@
 </script>
 
 <fieldset class="fieldset w-full">
-	<label for={forId} class={tw(`label flex gap-1 px-2`, classes.label)}>
+	<label for={forId} class={tw(`label flex gap-1 px-2 justify-between`, classes.label)}>
 		<span class="label-text pl-2 text-xs text-base-content/60">
 			{label}{required ? ' *' : ''}
 		</span>
