@@ -123,7 +123,7 @@
 									permission={store.getRepo().metadata.options.permissionApiInsert}
 									disabled={!store.getRepo().metadata.apiInsertAllowed()}
 									class="btn btn-square btn-ghost btn-xs"
-									on:click={() => dispatch('add', {})}
+									onclick={() => dispatch('add', {})}
 								>
 									<Icon data={LibIcon_Add} />
 								</Button>
@@ -224,7 +224,7 @@
 											permission={store.getRepo().metadata.options.permissionApiUpdate}
 											disabled={!store.getRepo().metadata.apiUpdateAllowed()}
 											class="btn btn-square btn-ghost btn-xs"
-											on:click={() => dispatch('edit', row)}
+											onclick={() => dispatch('edit', row)}
 										>
 											<Icon data={LibIcon_Edit} />
 										</Button>
@@ -234,7 +234,7 @@
 											permission={store.getRepo().metadata.options.permissionApiDelete}
 											disabled={!store.getRepo().metadata.apiDeleteAllowed()}
 											class="btn btn-square btn-ghost btn-xs"
-											on:click={() => dispatch('delete', row)}
+											onclick={() => dispatch('delete', row)}
 										>
 											<Icon data={LibIcon_Delete} />
 										</Button>

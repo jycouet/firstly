@@ -243,7 +243,7 @@
 						<div class="p-4">
 							<Button
 								class="w-full"
-								on:click={async () => {
+								onclick={async () => {
 									createRequest?.({ input: $inputValue, id })
 									$open = false
 								}}

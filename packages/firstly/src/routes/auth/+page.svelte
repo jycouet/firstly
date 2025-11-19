@@ -200,10 +200,10 @@
 	<!-- Demo -->
 	<!-- {#if authType === AuthProvider.DEMO.id} -->
 	<div class="col-span-4 divider">Demo</div>
-	<Button on:click={() => signInDemo('Noam')}>Noam</Button>
-	<Button on:click={() => signInDemo('Ermin')}>Ermin</Button>
-	<Button on:click={() => signInDemo('JYC')}>JYC</Button>
-	<Button on:click={() => signInDemo('JYC2')}>JYC2</Button>
+	<Button onclick={() => signInDemo('Noam')}>Noam</Button>
+	<Button onclick={() => signInDemo('Ermin')}>Ermin</Button>
+	<Button onclick={() => signInDemo('JYC')}>JYC</Button>
+	<Button onclick={() => signInDemo('JYC2')}>JYC2</Button>
 	<!-- {/if} -->
 
 	<!-- Password -->
@@ -212,16 +212,16 @@
 	<input class="input" type="text" placeholder="email" bind:value={indentifier} />
 	<input class="input" type="password" placeholder="password" bind:value={password} />
 
-	<Button on:click={signUp}>SignUp</Button>
-	<Button on:click={signIn}>SignIn</Button>
-	<Button on:click={invite}>Invite</Button>
+	<Button onclick={signUp}>SignUp</Button>
+	<Button onclick={signIn}>SignIn</Button>
+	<Button onclick={invite}>Invite</Button>
 	<div></div>
 	<div></div>
-	<Button on:click={forgotPassword}>Forgot Password</Button>
+	<Button onclick={forgotPassword}>Forgot Password</Button>
 	<input class="input" type="text" placeholder="token" bind:value={token} />
 	<input class="input" type="password" placeholder="resetPassword" bind:value={rPassword} />
 	<div></div>
-	<Button on:click={resetPassword}>Reset Password</Button>
+	<Button onclick={resetPassword}>Reset Password</Button>
 	<!-- {/if} -->
 
 	<!-- OTP -->
@@ -230,12 +230,12 @@
 	<input class="input" type="text" placeholder="email" bind:value={indentifierOtp} />
 	<div></div>
 	<div></div>
-	<Button on:click={sendOtp}>Send OTP</Button>
+	<Button onclick={sendOtp}>Send OTP</Button>
 
 	<input class="input" type="text" placeholder="OTP" bind:value={otp} />
 	<div></div>
 	<div></div>
-	<Button on:click={verifyOtp}>Verify</Button>
+	<Button onclick={verifyOtp}>Verify</Button>
 	<!-- {/if} -->
 
 	<!-- {#if authType === AuthProvider.OAUTH.id} -->
@@ -243,12 +243,12 @@
 	<div class="col-span-4 divider">OAuth</div>
 	<div></div>
 	<div></div>
-	<Button on:click={() => signInOAuth('github')}>GitHub</Button>
-	<Button on:click={() => signInOAuth('strava')}>Strava</Button>
+	<Button onclick={() => signInOAuth('github')}>GitHub</Button>
+	<Button onclick={() => signInOAuth('strava')}>Strava</Button>
 	<!-- {/if} -->
 
 	<!-- Logged -->
 	<div class="col-span-4 divider">Logged ?</div>
 	<pre class="col-span-3" data-testid="msg-info">User: {JSON.stringify(remult.user, null, 2)}</pre>
-	<Button class="btn-error" disabled={remult.user === undefined} on:click={signOut}>SignOut</Button>
+	<Button class="btn-error" disabled={remult.user === undefined} onclick={signOut}>SignOut</Button>
 </div>

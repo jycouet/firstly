@@ -42,16 +42,16 @@
 		<div>
 			<Button
 				class={issueState === 'OPEN' ? 'btn-primary' : 'btn-ghost'}
-				on:click={() => update('OPEN')}>En cours</Button
+				onclick={() => update('OPEN')}>En cours</Button
 			>
 			<Button
 				class={issueState === 'CLOSED' ? 'btn-primary' : 'btn-ghost'}
-				on:click={() => update('CLOSED')}>Clos</Button
+				onclick={() => update('CLOSED')}>Clos</Button
 			>
 		</div>
 
 		<Button
-			on:click={async () => {
+			onclick={async () => {
 				await dialog.show({
 					component: DialogIssue,
 					classes: { root: 'overflow-auto w-[80vh] h-[80vh]' },
@@ -70,7 +70,7 @@
 
 	{#each issues as issue}
 		<Button
-			on:click={async () => {
+			onclick={async () => {
 				await dialog.show({
 					component: DialogIssue,
 					classes: { root: 'overflow-auto w-[80vh] h-[80vh]' },

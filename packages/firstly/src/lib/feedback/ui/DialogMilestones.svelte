@@ -20,7 +20,7 @@
 <div class="mb-4 grid gap-4">
 	{#each milestones as milestone}
 		<Button
-			on:click={() =>
+			onclick={() =>
 				dialog.show({
 					component: DialogIssues,
 					classes: { root: 'overflow-auto w-[85vh] h-[85vh]' },

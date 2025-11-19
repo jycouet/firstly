@@ -8,7 +8,7 @@
 <div class="grid grid-cols-3 gap-4">
 	<div>
 		<Button
-			on:click={async () => {
+			onclick={async () => {
 				const result1 = await dialog.show({ component: DemoDialog, detail: { caption: 'Hello ?' } })
 				console.info(`result1`, result1)
 				if (result1.success) {

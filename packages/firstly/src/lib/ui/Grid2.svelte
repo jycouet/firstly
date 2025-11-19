@@ -125,7 +125,7 @@
 									permission={r.metadata.options.permissionApiInsert}
 									disabled={!r.metadata.apiInsertAllowed()}
 									class="btn btn-square btn-ghost btn-xs"
-									on:click={() => dispatch('add', {})}
+									onclick={() => dispatch('add', {})}
 								>
 									<Icon data={LibIcon_Add} />
 								</Button>
@@ -229,7 +229,7 @@
 											permission={r.metadata.options.permissionApiUpdate}
 											disabled={!r.metadata.apiUpdateAllowed()}
 											class="btn btn-square btn-ghost btn-xs"
-											on:click={() => dispatch('edit', row)}
+											onclick={() => dispatch('edit', row)}
 										>
 											<Icon data={LibIcon_Edit} />
 										</Button>
@@ -239,7 +239,7 @@
 											permission={r.metadata.options.permissionApiDelete}
 											disabled={!r.metadata.apiDeleteAllowed()}
 											class="btn btn-square btn-ghost btn-xs"
-											on:click={() => dispatch('delete', row)}
+											onclick={() => dispatch('delete', row)}
 										>
 											<Icon data={LibIcon_Delete} />
 										</Button>
@@ -284,7 +284,7 @@
 		>
 			<Button
 				class={r.loading.more ? 'btn-disabled' : 'btn-primary'}
-				on:click={() => {
+				onclick={() => {
 					r.queryMore()
 				}}>Plus</Button
 			>

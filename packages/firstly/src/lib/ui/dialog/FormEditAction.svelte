@@ -26,7 +26,7 @@
 			{#if wDelete}
 				<Button
 					type="button"
-					on:click={dispatchDelete}
+					onclick={dispatchDelete}
 					class="mr-4 btn-error"
 					isLoading={$store.loading}
 				>

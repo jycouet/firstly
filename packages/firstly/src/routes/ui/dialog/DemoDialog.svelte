@@ -16,7 +16,7 @@ coucou {dialogId}
 <br /><br /><br />
 
 <Button
-	on:click={async () => {
+	onclick={async () => {
 		await dialog.confirmDelete('yes?')
 	}}
 >

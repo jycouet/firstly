@@ -64,7 +64,7 @@
 			<div>
 				<Button
 					class="btn-outline btn-warning"
-					on:click={async () => {
+					onclick={async () => {
 						await AuthController.signOut()
 						window.location.href = '/'
 					}}

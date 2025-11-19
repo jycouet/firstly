@@ -16,7 +16,7 @@
 		>
 			{@html toShow.children}
 			<svelte:fragment slot="actions">
-				<Button class="btn-primary" on:click={() => dialog.close(toShow.id, { success: true })}
+				<Button class="btn-primary" onclick={() => dialog.close(toShow.id, { success: true })}
 					>Confirmer</Button
 				>
 			</svelte:fragment>
@@ -29,7 +29,7 @@
 		>
 			{@html toShow.children}
 			<svelte:fragment slot="actions">
-				<Button class="btn-error" on:click={() => dialog.close(toShow.id, { success: true })}>
+				<Button class="btn-error" onclick={() => dialog.close(toShow.id, { success: true })}>
 					Confirmer
 				</Button>
 			</svelte:fragment>

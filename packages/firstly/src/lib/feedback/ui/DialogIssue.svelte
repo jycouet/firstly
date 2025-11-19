@@ -126,7 +126,7 @@
 
 		{#if issue?.state === 'CLOSED'}
 			<div class="flex justify-end">
-				<Button on:click={reOpen} class="btn-neutral">Re Ouvrir</Button>
+				<Button onclick={reOpen} class="btn-neutral">Re Ouvrir</Button>
 			</div>
 		{:else}
 			{#if issueNumber === null}
@@ -138,11 +138,11 @@
 			></Textarea>
 			<div class="flex justify-between">
 				{#if issueNumber}
-					<Button on:click={close} tabIndex={-1} class="btn-error">Clore le feedback</Button>
+					<Button onclick={close} tabindex={-1} class="btn-error">Clore le feedback</Button>
 				{:else}
 					<div></div>
 				{/if}
-				<Button on:click={send} disabled={disableButton(issueNumber, title, content)}>Envoyer</Button>
+				<Button onclick={send} disabled={disableButton(issueNumber, title, content)}>Envoyer</Button>
 			</div>
 		{/if}
 	{/if}
