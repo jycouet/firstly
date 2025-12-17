@@ -1,5 +1,15 @@
 # firstly
 
+## 0.2.1
+
+### Patch Changes
+
+- [#198](https://github.com/jycouet/firstly/pull/198) [`fa88af1`](https://github.com/jycouet/firstly/commit/fa88af1b1f405801dca642b243d4afdc9494de68) Thanks [@jycouet](https://github.com/jycouet)! - [BREAKING] - `FF_Fields.dateOnly` and `FF_Fields.string` are removed, use `Fields.dateOnly` and `Fields.string` instead. _(allowNull & required are now fully independent! Like in remult)_
+
+- [#185](https://github.com/jycouet/firstly/pull/185) [`9689241`](https://github.com/jycouet/firstly/commit/9689241824fb7066e019e64d6a8afdb439fc6838) Thanks [@jycouet](https://github.com/jycouet)! - sendMail() return data & error now
+
+- [`a4e3c6e`](https://github.com/jycouet/firstly/commit/a4e3c6ecf52dd48c10115214109426a0e35e5e8b) Thanks [@jycouet](https://github.com/jycouet)! - fix auth ui (with new remult 3.1)
+
 ## 0.2.0
 
 ### Minor Changes
