@@ -25,23 +25,28 @@ jobs:
    - uses: jycouet/jycouet/shared-config/setup@main
      name: setup env
      with:
-      nodeVersion: 22.12.0
+      nodeVersion: 24
       pnpmVersion: 10.13.1
      # with:
      #   nodeVersion: 18
 
    - name: Configure npm for trusted publishing
      run: |
-      # Ensure npm is using the correct registry
-      npm config set registry https://registry.npmjs.org/
       # Verify npm version supports trusted publishing (requires 11.5.1+)
-      echo "npm version: $(npm --version)"
+      if [ $(npm --version) -lt 11.5.1 ]; then
+        echo "⚠️  Warning: npm version is less than 11.5.1. Trusted publishing may not work."
+        exit 1
+      else
+        echo "✅ npm version: $(npm --version) is 11.5.1+ (required for trusted publishing)"
+      fi
+      
       # Verify OIDC token is available (required for trusted publishing)
       if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
         echo "⚠️  Warning: OIDC token URL not found. Trusted publishing may not work."
       else
         echo "✅ OIDC token URL is available"
       fi
+      
       # Trusted publishing setup instructions:
       # 1. Go to https://www.npmjs.com/package/firstly/settings
       # 2. Navigate to "Publishing access" > "Trusted Publishers"
