@@ -7,7 +7,7 @@ on:
 
 jobs:
  release:
-  # prevents this action from running on forks
+  # prevents this action from running on forks!
   if: github.repository == 'jycouet/firstly'
   permissions:
     contents: write # to create release (changesets/action)
