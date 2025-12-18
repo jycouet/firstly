@@ -17,8 +17,7 @@
   },
   "scripts": {
     "//// ---- PROD ---- ////": "",
-    "release:version": "npm run changeset version",
-    "release": "pnpm -F firstly compile && changeset publish",
+    "changeset:publish": "pnpm -F firstly compile && changeset publish",
     "//// OTHERS ////": "",
     "root-format": "kitql-lint -f -d",
     "root-lint": "kitql-lint -d",

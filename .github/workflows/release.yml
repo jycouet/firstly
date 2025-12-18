@@ -11,18 +11,6 @@ jobs:
   runs-on: ubuntu-latest
   environment: Publishing
   steps:
-   - name: Creating .npmrc
-     run: |
-      cat << EOF > "$HOME/.npmrc"
-        email=$NPM_EMAIL
-        name=$NPM_NAME
-        //registry.npmjs.org/:_authToken=$NPM_TOKEN
-      EOF
-     env:
-      NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
-      NPM_NAME: ${{ secrets.NPM_NAME }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
    - name: Checkout Repo
      uses: actions/checkout@v6
      with:
@@ -42,9 +30,9 @@ jobs:
      uses: changesets/action@v1
      with:
       # This expects you to have a script called release which does a build for your packages and calls changeset publish
-      publish: pnpm release
+      publish: pnpm changeset:publish
       commit: ':package: RELEASE: new version'
       title: ':package: RELEASE: preparing next version'
      env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      NPM_CONFIG_PROVENANCE: true
