@@ -30,6 +30,26 @@ jobs:
      # with:
      #   nodeVersion: 18
 
+   - name: Configure npm for trusted publishing
+     run: |
+      # Ensure npm is using the correct registry
+      npm config set registry https://registry.npmjs.org/
+      # Verify npm version supports trusted publishing (requires 11.5.1+)
+      echo "npm version: $(npm --version)"
+      # Verify OIDC token is available (required for trusted publishing)
+      if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+        echo "⚠️  Warning: OIDC token URL not found. Trusted publishing may not work."
+      else
+        echo "✅ OIDC token URL is available"
+      fi
+      # Trusted publishing setup instructions:
+      # 1. Go to https://www.npmjs.com/package/firstly/settings
+      # 2. Navigate to "Publishing access" > "Trusted Publishers"
+      # 3. Click "Add a publisher" > "GitHub Actions"
+      # 4. Repository: jycouet/firstly
+      # 5. Workflow filename: release.yml (must match exactly, including .yml extension)
+      # 6. Environment: (leave blank unless using GitHub Environments)
+
    - name: Create Release Pull Request or Publish to npm
      id: changesets
      uses: changesets/action@v1
