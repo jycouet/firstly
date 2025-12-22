@@ -203,13 +203,13 @@
 										<Clipboardable value={t}>
 											<!-- 20 is a cool value ! -->
 											<span class={t.length < 20 ? 'text-nowrap' : ''}>
-												{t}
+												{@html t}
 											</span>
 										</Clipboardable>
 									{:else}
 										<!-- 20 is a cool value ! -->
 										<span class={t.length < 20 ? 'text-nowrap' : ''}>
-											{t}
+											{@html t}
 										</span>
 									{/if}
 								{/if}
