@@ -129,8 +129,15 @@
 			value = v?.value?.id
 		})
 
+	// Helper to strip HTML tags from caption for display in input
+	const stripHtml = (html: string): string => {
+		const tmp = document.createElement('div')
+		tmp.innerHTML = html
+		return tmp.textContent || tmp.innerText || ''
+	}
+
 	$: if (!$open) {
-		$inputValue = $localSelected?.label ?? ''
+		$inputValue = $localSelected?.label ? stripHtml($localSelected.label) : ''
 	}
 
 	$: filteredItems = items
@@ -213,28 +220,30 @@
 				<li
 					{...$option(toOption(item))}
 					use:$option.action
-					class="relative flex cursor-pointer scroll-my-2 items-center rounded-md px-1
+					class="relative flex cursor-pointer scroll-my-2 items-start rounded-md px-1
           py-2
           data-[disabled]:opacity-50
           data-[highlighted]:bg-primary
 					data-[highlighted]:text-primary-content"
 				>
-					{#if $localSelected?.value?.id === item.id}
-						<Icon data={LibIcon_Check} class="w-6"></Icon>
-					{:else}
-						<!-- just to book the place -->
-						<span class="w-6"></span>
-					{/if}
-					{#if item.icon?.data}
-						<Icon
-							data={item.icon.data}
-							class={tw(['flex-shrink-0', item.icon.class])}
-							style={item.icon.style}
-							size={item.icon.size}
-						></Icon>
-					{/if}
+					<div class="flex items-center">
+						{#if $localSelected?.value?.id === item.id}
+							<Icon data={LibIcon_Check} class="w-6"></Icon>
+						{:else}
+							<!-- just to book the place -->
+							<span class="w-6"></span>
+						{/if}
+						{#if item.icon?.data}
+							<Icon
+								data={item.icon.data}
+								class={tw(['flex-shrink-0', item.icon.class])}
+								style={item.icon.style}
+								size={item.icon.size}
+							></Icon>
+						{/if}
+					</div>
 					<div class="pl-2">
-						<span class="font-medium">{item.caption}</span>
+						<span class="font-medium">{@html item.caption}</span>
 					</div>
 				</li>
 			{:else}
