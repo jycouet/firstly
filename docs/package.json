@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@astrojs/starlight": "catalog:docs",
-    "@kitql/eslint-config": "catalog:kitql",
     "accessible-astro-components": "catalog:docs",
     "astro": "catalog:docs",
     "astro-icon": "catalog:docs",
