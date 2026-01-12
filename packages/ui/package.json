@@ -17,7 +17,6 @@
     "svelte-check": "catalog:svelte",
     "svelte-micro": "catalog:svelte",
     "tslib": "catalog:tooling",
-    "typescript": "catalog:tooling",
     "vite": "catalog:tooling",
     "vite-plugin-watch-and-run": "catalog:tooling"
   }

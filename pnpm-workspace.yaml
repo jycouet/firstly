@@ -12,7 +12,7 @@ catalogs:
   prettier-plugin-astro: 0.14.1
 
  tooling:
-  typescript: 5.9.3
+  '@typescript/native-preview': 7.0.0-dev.20260112.1
   vite: 7.1.10
   '@tsconfig/svelte': 5.0.2
   tslib: 2.8.0
