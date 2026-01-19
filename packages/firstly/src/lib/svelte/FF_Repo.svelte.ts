@@ -237,6 +237,53 @@ export class FF_Repo<
 		})
 	}
 
+	/**
+	 * Refresh query keeping current items count (BIG refresh)
+	 * Useful after edit/delete to stay at current scroll position
+	 */
+	async queryRefresh(options: Pick<QueryOptionsHelper<Entity>, 'where' | 'orderBy'>) {
+		const currentCount = this.items?.length ?? this.#queryOptions?.pageSize ?? 25
+
+		this.loading = {
+			...this.loading,
+			fetching: true,
+			init: this.items === undefined,
+		}
+
+		const { data: queryResult, error: queryResultError } = tryCatchSync(() =>
+			this.#repo.query({
+				...this.#queryOptions,
+				...options,
+				pageSize: currentCount,
+				aggregate: {
+					...this.#queryOptions?.aggregate,
+				},
+			}),
+		)
+		if (queryResultError) {
+			this.globalError = queryResultError.message
+			return this.loadingEnd()
+		}
+
+		const { data: paginator, error: paginatorError } = await tryCatch(queryResult.paginator())
+		if (paginatorError) {
+			this.globalError = paginatorError.message
+			return this.loadingEnd()
+		}
+
+		this.#paginator = paginator as PaginatorWithAggregate<Entity, QueryOptions>
+		this.items = this.#paginator.items
+		// @ts-expect-error - We know the structure will match due to how we define the types
+		this.aggregates = this.#paginator.aggregates
+		this.hasNextPage = this.#paginator.hasNextPage && this.aggregates!.$count > this.items!.length
+
+		return this.loadingEnd({
+			items: this.items,
+			aggregates: this.aggregates!,
+			hasNextPage: this.hasNextPage,
+		})
+	}
+
 	create(...args: Parameters<Repository<Entity>['create']>) {
 		this.item = this.#repo.create(...args)
 		return this.item
