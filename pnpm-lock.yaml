@@ -26,8 +26,8 @@ catalogs:
       version: 0.34.1
   kitql:
     '@kitql/eslint-config':
-      specifier: 0.8.0-next.6
-      version: 0.8.0-next.6
+      specifier: 0.8.0-next.7
+      version: 0.8.0-next.7
     '@kitql/helpers':
       specifier: 0.8.13
       version: 0.8.13
@@ -171,7 +171,7 @@ importers:
         version: 2.29.4
       '@kitql/eslint-config':
         specifier: catalog:kitql
-        version: 0.8.0-next.6(@typescript-eslint/eslint-plugin@8.53.0(@typescript-eslint/parser@8.53.0(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(@vue/compiler-sfc@3.4.7)(eslint@9.37.0(jiti@2.6.1))(prettier-plugin-astro@0.14.1)(prettier@3.6.2)(svelte@5.40.0)(typescript@5.9.3)
+        version: 0.8.0-next.7(@vue/compiler-sfc@3.4.7)(eslint@9.37.0(jiti@2.6.1))(prettier-plugin-astro@0.14.1)(prettier@3.6.2)(svelte@5.40.0)(typescript@5.9.3)
       '@playwright/test':
         specifier: catalog:testing
         version: 1.56.0
@@ -976,21 +976,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@eslint-community/eslint-utils@4.9.0':
-    resolution: {integrity: sha512-ayVFHdtZ+hsq1t2Dy24wCmGXGe4q9Gu3smhLYALJrr473ZH27MsnSL+LKUlimp4BWJqMDMLmPpx/Q9R3OAlL4g==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    peerDependencies:
-      eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
-
   '@eslint-community/eslint-utils@4.9.1':
     resolution: {integrity: sha512-phrYmNiYppR7znFEdqgfWHXR6NCkZEK7hwWDHZUjit/2/U0r6XvkDl0SYnoM51Hq7FhCGdLDT6zxCCOY1hexsQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
-
-  '@eslint-community/regexpp@4.12.1':
-    resolution: {integrity: sha512-CCZCDJuduB9OUkFkY2IgppNZMi2lBQgD2qzwXkEia16cge2pijY/aXi96CJMquDMn3nJdlPV1A5KrJEXwfLNzQ==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
 
   '@eslint-community/regexpp@4.12.2':
     resolution: {integrity: sha512-EriSTlt5OC9/7SXkRSCAhfSxxoSUgBm33OH+IkwbdpgoqsSsUg7y3uh+IICI/Qg4BBWr3U2i39RpmycbxMq4ew==}
@@ -1252,8 +1242,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@kitql/eslint-config@0.8.0-next.6':
-    resolution: {integrity: sha512-Atf/MF+3JKUEcLA1gzFUN/gONBYauat+qrW3AzcuDuGqHwscxUcJCk1EoskyvfbtHsvcnSj6vb9XlfUyQ5p9Iw==}
+  '@kitql/eslint-config@0.8.0-next.7':
+    resolution: {integrity: sha512-6GaEDZYLHb+ET9TTAP3KxFoA9ha1IeAWmp2KSJuQTDyUcIOtGC7zCyRZSeHVTfRXrioYRVcUA22p5QfvAN2xyg==}
     hasBin: true
     peerDependencies:
       eslint: 9.39.1
@@ -2975,15 +2965,6 @@ packages:
       svelte:
         optional: true
 
-  eslint-plugin-unused-imports@4.3.0:
-    resolution: {integrity: sha512-ZFBmXMGBYfHttdRtOG9nFFpmUvMtbHSjsKrS20vdWdbfiVYsO3yA2SGYy9i9XmZJDfMGBflZGBCm70SEnFQtOA==}
-    peerDependencies:
-      '@typescript-eslint/eslint-plugin': ^8.0.0-0 || ^7.0.0 || ^6.0.0 || ^5.0.0
-      eslint: ^9.0.0 || ^8.0.0
-    peerDependenciesMeta:
-      '@typescript-eslint/eslint-plugin':
-        optional: true
-
   eslint-scope@8.4.0:
     resolution: {integrity: sha512-sNXOfKCn74rt8RICKMvJS7XKV/Xk9kA7DyJr8mJik3S7Cwgy3qlkkmyS2uQB3jiJg6VNdZd/pDBJu0nvG2NlTg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -4172,10 +4153,6 @@ packages:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
 
-  picospinner@3.0.0:
-    resolution: {integrity: sha512-lGA1TNsmy2bxvRsTI2cV01kfTwKzZjnZSDmF9llYNyMHMrU4sP87lQ5taiIKm88L3cbswjl008nwyGc3WpNvzg==}
-    engines: {node: '>=18.0.0'}
-
   pify@4.0.1:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
@@ -5236,11 +5213,6 @@ packages:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
 
-  yaml@2.8.1:
-    resolution: {integrity: sha512-lcYcMxX2PO9XMGvAJkJ3OsNMw+/7FKes7/hgerGUYWIoWu5j/+YQqcZr5JnPZWzOsEBgMbSbiSTn/dv/69Mkpw==}
-    engines: {node: '>= 14.6'}
-    hasBin: true
-
   yaml@2.8.2:
     resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
     engines: {node: '>= 14.6'}
@@ -6265,17 +6237,10 @@ snapshots:
   '@esbuild/win32-x64@0.25.1':
     optional: true
 
-  '@eslint-community/eslint-utils@4.9.0(eslint@9.37.0(jiti@2.6.1))':
-    dependencies:
-      eslint: 9.37.0(jiti@2.6.1)
-      eslint-visitor-keys: 3.4.3
-
   '@eslint-community/eslint-utils@4.9.1(eslint@9.37.0(jiti@2.6.1))':
     dependencies:
       eslint: 9.37.0(jiti@2.6.1)
       eslint-visitor-keys: 3.4.3
-
-  '@eslint-community/regexpp@4.12.1': {}
 
   '@eslint-community/regexpp@4.12.2': {}
 
@@ -6549,7 +6514,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@kitql/eslint-config@0.8.0-next.6(@typescript-eslint/eslint-plugin@8.53.0(@typescript-eslint/parser@8.53.0(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(@vue/compiler-sfc@3.4.7)(eslint@9.37.0(jiti@2.6.1))(prettier-plugin-astro@0.14.1)(prettier@3.6.2)(svelte@5.40.0)(typescript@5.9.3)':
+  '@kitql/eslint-config@0.8.0-next.7(@vue/compiler-sfc@3.4.7)(eslint@9.37.0(jiti@2.6.1))(prettier-plugin-astro@0.14.1)(prettier@3.6.2)(svelte@5.40.0)(typescript@5.9.3)':
     dependencies:
       '@e18e/eslint-plugin': 0.1.3(eslint@9.37.0(jiti@2.6.1))
       '@eslint/compat': 1.4.0(eslint@9.37.0(jiti@2.6.1))
@@ -6563,10 +6528,8 @@ snapshots:
       eslint-plugin-oxlint: 1.39.0
       eslint-plugin-pnpm: 1.4.3(eslint@9.37.0(jiti@2.6.1))
       eslint-plugin-svelte: 3.14.0(eslint@9.37.0(jiti@2.6.1))(svelte@5.40.0)
-      eslint-plugin-unused-imports: 4.3.0(@typescript-eslint/eslint-plugin@8.53.0(@typescript-eslint/parser@8.53.0(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.37.0(jiti@2.6.1))
       globals: 17.0.0
       jsonc-eslint-parser: 2.4.0
-      picospinner: 3.0.0
       prettier-plugin-sh: 0.18.0(prettier@3.6.2)
       prettier-plugin-svelte: 3.4.0(prettier@3.6.2)(svelte@5.40.0)
       prettier-plugin-tailwindcss: 0.7.0(@ianvs/prettier-plugin-sort-imports@4.7.0(@vue/compiler-sfc@3.4.7)(prettier@3.6.2))(prettier-plugin-astro@0.14.1)(prettier-plugin-svelte@3.4.0(prettier@3.6.2)(svelte@5.40.0))(prettier@3.6.2)
@@ -6581,7 +6544,6 @@ snapshots:
       - '@prettier/plugin-pug'
       - '@shopify/prettier-plugin-liquid'
       - '@trivago/prettier-plugin-sort-imports'
-      - '@typescript-eslint/eslint-plugin'
       - '@vue/compiler-sfc'
       - '@zackad/prettier-plugin-twig'
       - content-tag
@@ -8640,7 +8602,7 @@ snapshots:
 
   eslint-plugin-svelte@3.14.0(eslint@9.37.0(jiti@2.6.1))(svelte@5.40.0):
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.0(eslint@9.37.0(jiti@2.6.1))
+      '@eslint-community/eslint-utils': 4.9.1(eslint@9.37.0(jiti@2.6.1))
       '@jridgewell/sourcemap-codec': 1.5.5
       eslint: 9.37.0(jiti@2.6.1)
       esutils: 2.0.3
@@ -8656,12 +8618,6 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  eslint-plugin-unused-imports@4.3.0(@typescript-eslint/eslint-plugin@8.53.0(@typescript-eslint/parser@8.53.0(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.37.0(jiti@2.6.1)):
-    dependencies:
-      eslint: 9.37.0(jiti@2.6.1)
-    optionalDependencies:
-      '@typescript-eslint/eslint-plugin': 8.53.0(@typescript-eslint/parser@8.53.0(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3)
-
   eslint-scope@8.4.0:
     dependencies:
       esrecurse: 4.3.0
@@ -8673,8 +8629,8 @@ snapshots:
 
   eslint@9.37.0(jiti@2.6.1):
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.0(eslint@9.37.0(jiti@2.6.1))
-      '@eslint-community/regexpp': 4.12.1
+      '@eslint-community/eslint-utils': 4.9.1(eslint@9.37.0(jiti@2.6.1))
+      '@eslint-community/regexpp': 4.12.2
       '@eslint/config-array': 0.21.0
       '@eslint/config-helpers': 0.4.0
       '@eslint/core': 0.16.0
@@ -10258,8 +10214,6 @@ snapshots:
 
   picomatch@4.0.3: {}
 
-  picospinner@3.0.0: {}
-
   pify@4.0.1: {}
 
   pkg-types@1.3.1:
@@ -11333,7 +11287,7 @@ snapshots:
   yaml-eslint-parser@1.3.0:
     dependencies:
       eslint-visitor-keys: 3.4.3
-      yaml: 2.8.1
+      yaml: 2.8.2
 
   yaml-eslint-parser@1.3.2:
     dependencies:
@@ -11341,8 +11295,6 @@ snapshots:
       yaml: 2.8.2
 
   yaml@1.10.2: {}
-
-  yaml@2.8.1: {}
 
   yaml@2.8.2: {}
 
