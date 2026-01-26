@@ -10,8 +10,8 @@ catalogs:
       specifier: 0.37.1
       version: 0.37.1
     accessible-astro-components:
-      specifier: 5.0.1
-      version: 5.0.1
+      specifier: 5.1.2
+      version: 5.1.2
     astro:
       specifier: 5.16.6
       version: 5.16.6
@@ -187,7 +187,7 @@ importers:
         version: 0.37.1(astro@5.16.6(@types/node@22.5.1)(jiti@2.6.1)(lightningcss@1.30.1)(rollup@4.52.4)(terser@5.31.1)(tsx@4.17.0)(typescript@5.9.3)(yaml@2.8.2))
       accessible-astro-components:
         specifier: catalog:docs
-        version: 5.0.1
+        version: 5.1.2
       astro:
         specifier: catalog:docs
         version: 5.16.6(@types/node@22.5.1)(jiti@2.6.1)(lightningcss@1.30.1)(rollup@4.52.4)(terser@5.31.1)(tsx@4.17.0)(typescript@5.9.3)(yaml@2.8.2)
@@ -2206,8 +2206,8 @@ packages:
   '@vue/shared@3.4.7':
     resolution: {integrity: sha512-G+i4glX1dMJk88sbJEcQEGWRQnVm9eIY7CcQbO5dpdsD9SF8jka3Mr5OqZYGjczGN1+D6EUwdu6phcmcx9iuPA==}
 
-  accessible-astro-components@5.0.1:
-    resolution: {integrity: sha512-+jV5py6HZdv9+ZvYnRL1JeGOOLfBB89/1FmERwU3fkA+h2YRvsXxJl8qBlNuZUsiXWEOZGjXzjcRKYGnNE2B/Q==}
+  accessible-astro-components@5.1.2:
+    resolution: {integrity: sha512-JjTBtXQAVwPuSA3yBW+bcdIlQ1SSiyv1zSy8lq1StznQZhczofMMiG+gBDHUI1TSY1YQq58UwMpGEXfyNpKpzA==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -4715,10 +4715,12 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   tar@7.5.2:
     resolution: {integrity: sha512-7NyxrTE4Anh8km8iEy7o0QYPs+0JKBTj5ZaqHg6B39erLg0qYXN3BijtShwbsNSvQ+LN75+KV+C4QR/f6Gwnpg==}
     engines: {node: '>=18'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   term-size@2.2.1:
     resolution: {integrity: sha512-wK0Ri4fOGjv/XPy8SBHZChl8CM7uMc5VML7SqiQ0zG7+J5Vr+RMQDoHa2CNT6KHUnTGIXH34UDMkPzAUyapBZg==}
@@ -5154,6 +5156,7 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
@@ -7718,7 +7721,7 @@ snapshots:
   '@vue/shared@3.4.7':
     optional: true
 
-  accessible-astro-components@5.0.1: {}
+  accessible-astro-components@5.1.2: {}
 
   acorn-jsx@5.3.2(acorn@8.15.0):
     dependencies:
