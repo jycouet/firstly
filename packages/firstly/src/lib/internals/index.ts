@@ -174,12 +174,6 @@ declare module 'remult' {
 		searchableFind?: (str: string) => FindOptionsBase<entityType>
 		displayValue?: (item: entityType) => BaseItem
 
-		permissionApiCrud?: BaseEnum[] | BaseEnum
-		permissionApiDelete?: BaseEnum[] | BaseEnum
-		permissionApiInsert?: BaseEnum[] | BaseEnum
-		permissionApiRead?: BaseEnum[] | BaseEnum
-		permissionApiUpdate?: BaseEnum[] | BaseEnum
-
 		changeLog?: false | ColumnDeciderArgs<entityType>
 	}
 }

@@ -122,7 +122,6 @@
 						<div class="flex justify-end">
 							{#if withAdd}
 								<Button
-									permission={r.metadata.options.permissionApiInsert}
 									disabled={!r.metadata.apiInsertAllowed()}
 									class="btn btn-square btn-ghost btn-xs"
 									onclick={() => dispatch('add', {})}
@@ -226,7 +225,6 @@
 								<div class="flex justify-end gap-2">
 									{#if withEdit}
 										<Button
-											permission={r.metadata.options.permissionApiUpdate}
 											disabled={!r.metadata.apiUpdateAllowed()}
 											class="btn btn-square btn-ghost btn-xs"
 											onclick={() => dispatch('edit', row)}
@@ -236,7 +234,6 @@
 									{/if}
 									{#if withDelete}
 										<Button
-											permission={r.metadata.options.permissionApiDelete}
 											disabled={!r.metadata.apiDeleteAllowed()}
 											class="btn btn-square btn-ghost btn-xs"
 											onclick={() => dispatch('delete', row)}

@@ -120,7 +120,6 @@
 						<div class="flex justify-end">
 							{#if withAdd}
 								<Button
-									permission={store.getRepo().metadata.options.permissionApiInsert}
 									disabled={!store.getRepo().metadata.apiInsertAllowed()}
 									class="btn btn-square btn-ghost btn-xs"
 									onclick={() => dispatch('add', {})}
@@ -221,7 +220,6 @@
 								<div class="flex justify-end gap-2">
 									{#if withEdit}
 										<Button
-											permission={store.getRepo().metadata.options.permissionApiUpdate}
 											disabled={!store.getRepo().metadata.apiUpdateAllowed()}
 											class="btn btn-square btn-ghost btn-xs"
 											onclick={() => dispatch('edit', row)}
@@ -231,7 +229,6 @@
 									{/if}
 									{#if withDelete}
 										<Button
-											permission={store.getRepo().metadata.options.permissionApiDelete}
 											disabled={!store.getRepo().metadata.apiDeleteAllowed()}
 											class="btn btn-square btn-ghost btn-xs"
 											onclick={() => dispatch('delete', row)}

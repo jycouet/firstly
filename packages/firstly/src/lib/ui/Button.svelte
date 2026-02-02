@@ -1,16 +1,12 @@
 <script lang="ts">
 	import { createTooltip } from '@melt-ui/svelte'
-	import type { Action } from 'svelte/action'
 	import { fade, fly } from 'svelte/transition'
 
-	import { remult } from 'remult'
-
-	import { BaseEnum, tw } from '../internals'
+	import { tw } from '../internals'
 
 	// TODO: extend HTMLButtonAttributes ?
 	interface Props {
 		isLoading?: boolean
-		permission?: BaseEnum[] | BaseEnum | undefined
 		tooltip?: import('svelte').Snippet
 		class?: string
 		children?: import('svelte').Snippet
@@ -21,15 +17,13 @@
 	let {
 		isLoading = false,
 		class: className = '',
-		permission = undefined,
 		children,
 		tooltip,
 		disabled: disabledProp,
 		...rest
 	}: Props = $props()
 
-	let permissionDisabled = $state(false)
-	let disabled = $derived(disabledProp || permissionDisabled || isLoading)
+	let disabled = $derived(disabledProp || isLoading)
 
 	// let's trigger the annimation if it's more than 200ms
 	let triggerAnnimation = $state(false)
@@ -41,43 +35,6 @@
 				}
 			}, 200)
 	})
-
-	let updates = (param: { permission: BaseEnum[] | BaseEnum | undefined }) => {
-		if (param && param.permission) {
-			permissionDisabled = !remult.isAllowed(
-				Array.isArray(param.permission) ? param.permission.map((c) => c.id) : param.permission.id,
-			)
-			if (permissionDisabled) {
-				disabledWhy = `Vous n'avez pas la permission: ${Array.isArray(param.permission) ? param.permission.map((c) => `"${c.caption}"`).join(' ou ') : `"${param.permission.caption}"`}`
-			} else {
-				disabledWhy = ''
-			}
-		} else {
-			permissionDisabled = false
-			disabledWhy = ''
-		}
-	}
-
-	let disabledWhy = $state('')
-	const isAllowed: Action<HTMLElement, { permission: BaseEnum[] | BaseEnum | undefined }> = (
-		node,
-		param,
-	) => {
-		// the node has been mounted in the DOM
-		// @ts-ignore
-		updates(param)
-
-		return {
-			update(param) {
-				// the value of `bar` has changed
-				updates(param)
-			},
-
-			destroy() {
-				// the node has been removed from the DOM
-			},
-		}
-	}
 
 	const {
 		elements: { trigger, content, arrow },
@@ -98,7 +55,6 @@
 <button
 	{...$trigger}
 	use:trigger
-	use:isAllowed={{ permission }}
 	{...rest}
 	class={tw(['btn', className])}
 	{disabled}
@@ -112,7 +68,7 @@
 	{/if}
 </button>
 
-{#if $open && (disabledWhy || tooltip)}
+{#if $open && tooltip}
 	<div
 		{...$content}
 		use:content
@@ -121,11 +77,7 @@
 	>
 		<div {...$arrow} use:arrow></div>
 		<div class="px-4 py-1">
-			{#if tooltip}
-				{@render tooltip?.()}
-			{:else}
-				{disabledWhy}
-			{/if}
+			{@render tooltip?.()}
 		</div>
 	</div>
 {/if}

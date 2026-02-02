@@ -1,17 +1,6 @@
 import { Entity, type EntityOptions } from 'remult'
 
 import { withChangeLog } from '../changeLog'
-import type { BaseEnum } from './BaseEnum'
-
-const toAllow = (permission: BaseEnum[] | BaseEnum | undefined) => {
-	if (permission) {
-		if (Array.isArray(permission)) {
-			return permission.map((p) => p.id)
-		}
-		return permission.id
-	}
-	return undefined
-}
 
 export function FF_Entity<entityType>(
 	key: string,
@@ -19,17 +8,5 @@ export function FF_Entity<entityType>(
 		entityType extends new (...args: any) => any ? InstanceType<entityType> : entityType
 	>,
 ) {
-	return Entity(
-		key,
-
-		withChangeLog({
-			...options,
-
-			allowApiCrud: options?.allowApiCrud ?? toAllow(options?.permissionApiCrud),
-			allowApiDelete: options?.allowApiDelete ?? toAllow(options?.permissionApiDelete),
-			allowApiInsert: options?.allowApiInsert ?? toAllow(options?.permissionApiInsert),
-			allowApiRead: options?.allowApiRead ?? toAllow(options?.permissionApiRead),
-			allowApiUpdate: options?.allowApiUpdate ?? toAllow(options?.permissionApiUpdate),
-		}),
-	)
+	return Entity(key, withChangeLog({ ...options }))
 }
