@@ -1,12 +1,24 @@
 import { BROWSER } from 'esm-env'
 import { derived, get, writable } from 'svelte/store'
 
-import type { ErrorInfo, FindOptions, Repository } from 'remult'
+import type { EntityFilter, ErrorInfo, FindOptions, Repository } from 'remult'
 
 import { ff_Log } from '../index.js'
 import { isError } from './helper.js'
 
-export type StoreItem<T> = ReturnType<typeof storeItem<T>>
+export interface StoreItem<T> {
+	subscribe: (run: (value: TheStoreItem<T>) => void) => () => void
+	create: (item: Partial<T>) => void
+	set: (newItem: TheStoreItem<T>) => void
+	fetch: (
+		idOrWhere: string | number | EntityFilter<T>,
+		options?: FindOptions<T>,
+		onNewData?: (item: T | undefined) => void,
+	) => Promise<void>
+	save: () => Promise<T | undefined>
+	delete: () => Promise<void>
+	onChange: (prop: keyof T, callback: (newValue: any, oldValue: any) => void) => void
+}
 
 type TheStoreItem<T> = {
 	item: T | undefined
@@ -23,7 +35,7 @@ export const storeItem = <T>(
 		errors: undefined,
 		globalError: undefined,
 	},
-) => {
+): StoreItem<T> => {
 	const internalStore = writable<TheStoreItem<T>>(initValues)
 
 	// Function to watch changes on a specific property of `item`
@@ -64,22 +76,32 @@ export const storeItem = <T>(
 		},
 
 		/**
-		 * if you have keys, build the id with
+		 * Fetch by ID or WHERE clause
 		 * ```ts
+		 * // By ID (string or number)
+		 * store.fetch(123)
+		 * store.fetch('abc')
+		 *
+		 * // By WHERE clause (object)
+		 * store.fetch({ siteId: 123 })
+		 *
+		 * // With composite keys, build the id with
 		 * const id = repo.metadata.idMetadata.getId({a:1,b:2})
 		 * store.fetch(id)
 		 * ```
 		 */
 		fetch: async (
-			id: Parameters<Repository<T>['findId']>[0],
+			idOrWhere: string | number | EntityFilter<T>,
 			options?: FindOptions<T>,
-			onNewData?: (item: T) => void,
+			onNewData?: (item: T | undefined) => void,
 		) => {
 			if (BROWSER) {
 				internalStore.update((s) => ({ ...s, loading: true }))
 				try {
-					const item = await repo.findId(id, options)
-					// lastOptions = options
+					const isId = typeof idOrWhere === 'string' || typeof idOrWhere === 'number'
+					const item = isId
+						? await repo.findId(idOrWhere as Parameters<Repository<T>['findId']>[0], options)
+						: await repo.findFirst(idOrWhere as EntityFilter<T>, options)
 
 					internalStore.update((s) => ({
 						...s,
@@ -89,7 +111,7 @@ export const storeItem = <T>(
 						globalError: undefined,
 					}))
 					if (onNewData) {
-						onNewData(item ?? ({} as T))
+						onNewData(item ?? undefined)
 					}
 				} catch (error) {
 					if (isError<T>(error)) {
