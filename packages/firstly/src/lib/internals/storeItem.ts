@@ -23,6 +23,7 @@ export interface StoreItem<T> {
 type TheStoreItem<T> = {
 	item: T | undefined
 	loading?: boolean
+	initLoading?: boolean
 	errors: ErrorInfo<T> | undefined
 	globalError?: string | undefined
 }
@@ -32,6 +33,7 @@ export const storeItem = <T>(
 	initValues: TheStoreItem<T> = {
 		item: undefined,
 		loading: true,
+		initLoading: true,
 		errors: undefined,
 		globalError: undefined,
 	},
@@ -63,6 +65,7 @@ export const storeItem = <T>(
 			internalStore.set({
 				item: repo.create(item),
 				loading: false,
+				initLoading: false,
 				errors: {},
 				globalError: undefined,
 			})
@@ -70,7 +73,7 @@ export const storeItem = <T>(
 
 		// set: internalStore.set,
 		set: (newItem: TheStoreItem<T>) => {
-			internalStore.update((s) => {
+			internalStore.update(() => {
 				return { ...newItem }
 			})
 		},
@@ -106,6 +109,7 @@ export const storeItem = <T>(
 					internalStore.update((s) => ({
 						...s,
 						loading: false,
+						initLoading: false,
 						item: item ?? ({} as T),
 						errors: undefined,
 						globalError: undefined,
@@ -118,6 +122,7 @@ export const storeItem = <T>(
 						internalStore.update((s) => ({
 							...s,
 							loading: false,
+							initLoading: false,
 							item: {} as T,
 							errors: {} as ErrorInfo<T>,
 							// @ts-ignore
@@ -130,12 +135,22 @@ export const storeItem = <T>(
 
 		/**
 		 * `.save()` will `update` or `insert` the current item.
+		 * Skips save if no fields were changed (prevents empty UPDATE queries).
 		 */
 		save: async () => {
 			const s = get(internalStore)
 			try {
 				if (!s.item) {
 					return
+				}
+				// Skip save if no fields were actually changed
+				try {
+					const entityRef = repo.getEntityRef(s.item)
+					if (!entityRef.isNew() && !entityRef.wasChanged()) {
+						return s.item
+					}
+				} catch {
+					// If getEntityRef fails, proceed with save (item might be a plain object)
 				}
 				internalStore.update((s) => ({ ...s, loading: true }))
 				const item = await repo.save(s.item!)

@@ -225,7 +225,7 @@
 								<div class="flex justify-end gap-2">
 									{#if withEdit}
 										<Button
-											disabled={!r.metadata.apiUpdateAllowed()}
+											disabled={!r.metadata.apiUpdateAllowed(row)}
 											class="btn btn-square btn-ghost btn-xs"
 											onclick={() => dispatch('edit', row)}
 										>
