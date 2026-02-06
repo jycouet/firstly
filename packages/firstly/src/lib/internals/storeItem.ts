@@ -135,22 +135,12 @@ export const storeItem = <T>(
 
 		/**
 		 * `.save()` will `update` or `insert` the current item.
-		 * Skips save if no fields were changed (prevents empty UPDATE queries).
 		 */
 		save: async () => {
 			const s = get(internalStore)
 			try {
 				if (!s.item) {
 					return
-				}
-				// Skip save if no fields were actually changed
-				try {
-					const entityRef = repo.getEntityRef(s.item)
-					if (!entityRef.isNew() && !entityRef.wasChanged()) {
-						return s.item
-					}
-				} catch {
-					// If getEntityRef fails, proceed with save (item might be a plain object)
 				}
 				internalStore.update((s) => ({ ...s, loading: true }))
 				const item = await repo.save(s.item!)
