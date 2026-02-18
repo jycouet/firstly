@@ -14,8 +14,6 @@ vite.config.ts.timestamp*
 coverage
 playwright-report
 DEPLOY_AUTHOR
-$kitql
-$houdini
 test-results
 .turbo
 .nx/cache
