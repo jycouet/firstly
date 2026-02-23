@@ -53,7 +53,7 @@ catalogs:
   '@melt-ui/svelte': 0.86.6
   tailwindcss: 4.1.14
   '@tailwindcss/vite': 4.1.14
-  tailwind-merge: 2.6.0
+  tailwind-merge: 3.5.0
   clsx: 2.1.1
   daisyui: 5.5.3
 
