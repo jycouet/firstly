@@ -33,7 +33,7 @@
 	export let loadOptions:
 		| ((str: string) => Promise<{ items: BaseItem[]; totalCount: number }>)
 		| undefined = undefined
-	export let value: string | undefined = undefined
+	export let value: string | null | undefined = undefined
 	export let clearable = false
 	export let createOptionWhenNoResult = false
 	export let default_select_if_one_item = false
@@ -70,7 +70,7 @@
 		sync.selected(getDefaultValue(value))
 	})
 
-	const getDefaultValue = (_selectedValue: string | undefined) => {
+	const getDefaultValue = (_selectedValue: string | null | undefined) => {
 		if (!items) {
 			return
 		}

@@ -23,7 +23,7 @@
 	export let loadOptions:
 		| ((str: string) => Promise<{ items: BaseItem[]; totalCount: number }>)
 		| undefined = undefined
-	export let values: string[] | undefined = undefined
+	export let values: (string | null)[] | undefined = undefined
 	export let clearable = false
 
 	const dispatch = createEventDispatcher()
@@ -42,7 +42,7 @@
 		}
 	})
 
-	const getDefaultValues = (_selectedValue: string[] | undefined) => {
+	const getDefaultValues = (_selectedValue: (string | null)[] | undefined) => {
 		if (!items) {
 			return []
 		}
@@ -99,14 +99,14 @@
 			// Create a map to count occurrences of each element
 			// TODO: switch to: Use SvelteMap instead  svelte/prefer-svelte-reactivity
 			// eslint-disable-next-line
-			const countMap: Map<string, number> = new Map()
+			const countMap: Map<string | null, number> = new Map()
 
 			list.forEach((item) => {
 				countMap.set(item, (countMap.get(item) || 0) + 1)
 			})
 
 			// Filter the list to include only elements that occur exactly once
-			const uniqueList: string[] = list.filter((item) => countMap.get(item) === 1)
+			const uniqueList: (string | null)[] = list.filter((item) => countMap.get(item) === 1)
 
 			const newIds = uniqueList.sort().join(',')
 			const oldSelectedValues = (values ?? []).sort().join(',')

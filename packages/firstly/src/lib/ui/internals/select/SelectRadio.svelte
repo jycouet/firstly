@@ -8,7 +8,7 @@
 	export let disabled: boolean = false
 	export let placeholder: string = ''
 	export let items: BaseItem[] = []
-	export let value: string | number | undefined = undefined
+	export let value: string | number | null | undefined = undefined
 
 	const dispatch = createEventDispatcher()
 
