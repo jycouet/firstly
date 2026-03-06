@@ -9,6 +9,7 @@ import { page } from '$app/state'
 import { debounce } from '../helpers/debounce.js'
 
 const CONFIG_DELIMITER = ';'
+const NULL_URL_VALUE = '__null__'
 
 // Type definitions for supported parameter types
 type ParamType = 'string' | 'number' | 'boolean' | 'array' | 'object'
@@ -318,6 +319,13 @@ export class SP<T extends Record<string, any>> {
 			const paramValue = params.get(urlKey)
 
 			if (paramValue !== null) {
+				// Decode null sentinel from URL
+				if (paramValue === NULL_URL_VALUE) {
+					this.paramValues[propKey] = null
+					this.debouncedValues[propKey] = null
+					continue
+				}
+
 				// If there is a decode function, always use it to get the proper object
 				if (def.decode) {
 					const decodedValue = def.decode(paramValue)
@@ -378,9 +386,15 @@ export class SP<T extends Record<string, any>> {
 		const params = new URLSearchParams(window.location.search)
 
 		for (const [propKey, value] of Object.entries(this.debouncedValues)) {
-			// Skip undefined or null values
-			if (value === undefined || value === null) {
+			// Skip undefined values
+			if (value === undefined) {
 				params.delete(this.keyMap[propKey])
+				continue
+			}
+
+			// Encode null as special URL value
+			if (value === null) {
+				params.set(this.keyMap[propKey], NULL_URL_VALUE)
 				continue
 			}
 

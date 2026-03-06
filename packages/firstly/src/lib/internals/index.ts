@@ -166,6 +166,7 @@ declare module 'remult' {
 		default_select_if_one_item?: boolean
 
 		multiSelect?: boolean
+		filterNobodyLabel?: string
 
 		skipForDefaultField?: boolean
 	}

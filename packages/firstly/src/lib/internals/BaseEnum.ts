@@ -11,7 +11,7 @@ export type FF_Icon = {
 }
 
 export type BaseItem = BaseEnumOptions & {
-	id: string
+	id: string | null
 	captionSub?: string | (string | undefined)[]
 	href?: string
 	repo?: Repository<any>

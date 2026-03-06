@@ -177,9 +177,12 @@ export const buildWhere = <Entity>(
 	}
 
 	for (const field of fields_filter) {
-		// if there is a value
-		if (obj && obj[field.key]) {
-			const rfi = getRelationFieldInfo(field)
+		const rfi = getRelationFieldInfo(field)
+		// For relation fields, allow null as valid filter value (filters for NULL in DB)
+		const hasValue =
+			rfi?.type === 'toOne' ? obj && obj[field.key] !== undefined : obj && obj[field.key]
+
+		if (hasValue) {
 			if (field.inputType === 'checkbox') {
 				// @ts-ignore
 				and.push({ [field.key]: obj[field.key] })
@@ -202,7 +205,7 @@ export const buildWhere = <Entity>(
 					}
 				}
 			} else if (rfi?.type === 'toOne') {
-				// @ts-ignore (setting the id of the relation)
+				// @ts-ignore (setting the id of the relation, null = filter for NULL)
 				and.push({ [field.key]: obj[field.key] })
 			} else {
 				console.info(`Not handled filter field ${field.key} ${field.inputType}`)

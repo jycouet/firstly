@@ -167,7 +167,16 @@
 			}
 		}
 
-		return { items: arr.map((r) => getEntityDisplayValue(metaTypeObj.repoTarget, r)), totalCount }
+		const items = arr.map((r) => getEntityDisplayValue(metaTypeObj.repoTarget, r))
+
+		// Add "nobody" option at the beginning for filters if configured
+		// @ts-ignore
+		const filterNobodyLabel = cell.field?.options.filterNobodyLabel
+		if (mode === 'filtre' && filterNobodyLabel && str === '') {
+			items.unshift({ id: null, caption: filterNobodyLabel })
+		}
+
+		return { items, totalCount }
 	}
 
 	const getMultiValues = (value: any) => {
