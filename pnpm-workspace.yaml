@@ -29,7 +29,7 @@ catalogs:
   '@kitql/internals': 0.10.5
 
  testing:
-  '@playwright/test': 1.56.0
+  '@playwright/test': 1.58.2
   vitest: 3.2.3
 
  lib-author-helper:
