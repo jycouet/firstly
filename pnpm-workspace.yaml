@@ -4,7 +4,7 @@ packages:
 
 catalogs:
  docs:
-  '@astrojs/starlight': 0.37.1
+  '@astrojs/starlight': 0.38.2
   accessible-astro-components: 5.2.0
   astro: 5.16.6
   astro-icon: 1.1.5
