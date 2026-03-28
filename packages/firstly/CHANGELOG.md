@@ -1,5 +1,11 @@
 # firstly
 
+## 0.2.2
+
+### Patch Changes
+
+- [#221](https://github.com/jycouet/firstly/pull/221) [`0b08040`](https://github.com/jycouet/firstly/commit/0b0804001c9a5bdff560fbcbb8b511c626d260f8) Thanks [@jycouet](https://github.com/jycouet)! - bump deps
+
 ## 0.2.1
 
 ### Patch Changes
