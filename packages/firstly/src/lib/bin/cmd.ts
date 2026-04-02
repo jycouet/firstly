@@ -17,9 +17,7 @@ const version = pkg.devDependencies?.['firstly'] ?? pkg.dependencies?.['firstly'
 console.info('')
 p.intro(`${green(`⚡️`)} Welcome to firstly world! ${gray(` - v${version}`)}`)
 
-const keys = ['all', 'module-demo', 'dependencies'] as const
-
-type Keys = (typeof keys)[number]
+type Keys = 'all' | 'module-demo' | 'dependencies'
 const options: { value: Keys; label: string; hint?: string | undefined }[] = [
 	{
 		value: 'all',
@@ -165,11 +163,6 @@ export default {
 	'.env.example': [
 		`# Enable some roles
 # FF_ADMIN = 'JYC'
-# FF_AUTH_ADMIN = ''
-
-# Enable GitHub login
-# GITHUB_CLIENT_ID = ''
-# GITHUB_CLIENT_SECRET = ''
 `,
 	],
 	'./tsconfig.json': [
@@ -208,7 +201,6 @@ export default defineConfig({
     firstly<KIT_ROUTES>({
       kitRoutes: {
         LINKS: { 
-          login: 'ff/auth/sign-in',
           github: 'https://github.com/[owner]/[repo]',
           remult_admin: 'api/admin',
         },
@@ -271,7 +263,6 @@ export { }
 	'./src/server/index.ts': [
 		`import { FF_Role } from 'firstly/internals'
 import { firstly, Module } from 'firstly/server'
-import { auth } from 'firstly/auth/server'
 import { mail } from 'firstly/mail/server'
 import { changeLog } from 'firstly/changeLog/server'
 
@@ -279,44 +270,7 @@ import { log, Role } from '${libAlias}'
 import { task } from '${modulesAlias}/task/server'
 
 export const api = firstly({
-  //----------------------------------------
-  // To switch to postgres
-  // NEEDS ON TOP OF THE FILE: 
-  //   import { createPostgresConnection } from 'remult/postgres'
-  //   import { DATABASE_URL } from '$env/static/private'
-  //----------------------------------------
-  // dataProvider: await createPostgresConnection({
-  //  connectionString: DATABASE_URL,
-  // }),
-
   modules: [
-    //----------------------------------------
-    // Core Module: auth
-    //----------------------------------------
-    auth({
-      providers: {
-        demo: [
-          { name: 'Ermin' },
-          { name: 'JYC', roles: [FF_Role.FF_Role_Admin] },
-          { name: 'Noam', roles: [FF_Role.FF_Role_Admin, Role.Boss] },
-        ],
-
-        // password: {},
-
-        // otp: {},
-
-        oAuths: [
-          //----------------------------------------
-          // To enable OAuth via Github
-          // Instructions by hovering the method \`github\`
-          // NEEDS ON TOP OF THE FILE: 
-          //   import { github } from 'firstly/auth/server'
-          //----------------------------------------
-          // github(),
-        ],
-      },
-    }),
-
     //----------------------------------------
     // Core Module: mail
     //----------------------------------------
@@ -351,25 +305,11 @@ export const api = firstly({
 	],
 	'./src/hooks.server.ts': [
 		`import { sequence } from '@sveltejs/kit/hooks'
-import { redirect } from '@sveltejs/kit'
 
-import { handleAuth, handleGuard } from 'firstly/auth/server'
-import { route } from '${libAlias}/ROUTES'
 import { api as handleRemult } from '${serverAlias}'
 
 export const handle = sequence(
-	//
 	handleRemult,
-	handleAuth,
-  // client side guard is not here!
-	handleGuard({
-		authenticated: ['/app*'],
-    redirectToLogin: route('/'),
-    // You want to redirect to the firstly UI ? change redirectToLogin to this 👇
-		// redirectToLogin: route('login'),
-		redirectAuthenticated: route('/app'),
-		redirect,
-	})
 )
 `,
 	],
@@ -410,8 +350,6 @@ export const load = (async (event) => {
 	import { Remult, remult } from 'remult'
 
   import { route } from '${libAlias}/ROUTES'
-  import SignIn from '${libAlias}/ui/SignIn.svelte'
-  import SignOut from '${libAlias}/ui/SignOut.svelte'
 
 import type { LayoutData } from './$types'
 
@@ -473,26 +411,10 @@ import type { LayoutData } from './$types'
 <h1>${pkg.name}</h1>
 
 {#if remult.authenticated()}
-  <div style="float:right;">
-    <SignOut></SignOut>
-  </div>
   <span>{remult.user?.name} ({remult.user?.roles})<br /><br /></span>
-{:else}
-  <SignIn demo="Ermin"></SignIn>
-  <SignIn demo="JYC"></SignIn>
-  <SignIn demo="Noam"></SignIn>
-  <br />
-  <SignIn ffLink></SignIn>
-  <br />
-  <SignIn oauth="github"></SignIn>
 {/if}
 
-<hr />
-
-<a href={route('/')}>Home</a> | 
-{#if remult.authenticated()}
-  <a href={route('/app')}>App (Protected route)</a> |
-{/if}
+<a href={route('/')}>Home</a> |
 <a href={route('/demo/task')}>Demo task</a>
 
 <hr />
@@ -544,7 +466,6 @@ export const load = (async (event) => {
 	// Lib files
 	'./src/lib/index.ts': [
 		`import { FF_Role } from 'firstly/internals'
-import { FF_Role_Auth } from 'firstly/auth'
 import { Log } from '@kitql/helpers'
 
 /**
@@ -557,84 +478,10 @@ export const log = new Log('${pkg.name}')
  */
 export const Role = {
 	Boss: 'Boss',
-	...FF_Role_Auth,
 	...FF_Role,
 } as const
 `,
 	],
-	'./src/lib/ui/SignIn.svelte': [
-		`<script lang="ts">
-  import { isError } from 'firstly/internals'
-  import { AuthController } from 'firstly/auth'
-
-  import { goto, invalidateAll } from '$app/navigation'
-
-  import { route } from '${libAlias}/ROUTES'
-
-  // Examples of signin modes
-  export let demo = ''
-  export let ffLink = false
-  export let oauth: 'github' | undefined = undefined
-
-  const signinDemo = async (identif: string) => {
-    try {
-      await AuthController.signInDemo(identif)
-      invalidateAll()
-    } catch (error) {
-      if (isError(error)) {
-        // You will probably not leave this alert in production
-        alert(error.message)
-      }
-    }
-  }
-
-  async function signinOAuth(provider: 'github') {
-    try {
-      window.location.href = await AuthController.signInOAuthGetUrl({
-        provider,
-        redirect: window.location.pathname,
-      })
-    } catch (error) {
-      if (isError(error)) {
-        // You will probably not leave this alert in production
-        alert(error.message)
-      }
-    }
-  }
-</script>
-
-{#if demo}
-  <button on:click={() => signinDemo(demo)}>Login as {demo}</button>
-{:else if ffLink}
-  <button on:click={() => goto(route('login'))}>Login with Firstly UI</button>
-{:else if oauth}
-  <button on:click={() => signinOAuth(oauth)}>Login With {oauth}</button>
-{/if}
-`,
-	],
-	'./src/lib/ui/SignOut.svelte': [
-		`<script lang="ts">
-  import { isError } from 'firstly/internals'
-  import { AuthController } from 'firstly/auth'
-
-  import { invalidateAll } from '$app/navigation'
-
-  const logout = async () => {
-    try {
-      await AuthController.signOut()
-      invalidateAll()
-    } catch (error) {
-      if (isError(error)) {
-        alert(error.message)
-      }
-    }
-  }
-</script>
-
-<button on:click={logout}>Logout</button>
-`,
-	],
-
 	// Task module
 	'./src/modules/task/index.ts': [
 		`import { Log } from '@kitql/helpers'

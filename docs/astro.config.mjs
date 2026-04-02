@@ -66,15 +66,6 @@ export default defineConfig({
 						},
 					],
 				},
-				{
-					label: 'Firstly Modules (deprecated)',
-					items: [
-						{
-							label: 'Auth (Lucia style)',
-							link: '/docs/modules/auth',
-						},
-					],
-				},
 			],
 			customCss: ['./src/styles/custom.css'],
 		}),

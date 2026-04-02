@@ -4,7 +4,6 @@ import { defineConfig, loadEnv } from 'vite'
 
 import type { KIT_ROUTES } from '$lib2/ROUTES'
 
-// import { authRoutes } from './src/lib/auth/index'
 import { firstly } from './src/lib/vite'
 
 // @ts-ignore
@@ -33,9 +32,6 @@ const config = defineConfig(({ mode }) => {
 				kitRoutes: {
 					generated_file_path: 'src/lib2/ROUTES.ts',
 					LINKS: {
-						// ...authRoutes()?.routes,
-						firstly_sign_in: '/ff/auth/sign-in',
-						//
 						remult_admin: '/api/admin',
 						github: {
 							href: 'https://github.com/[owner]/[repo]',

@@ -1,6 +1,6 @@
 <script lang="ts">
 	// import { mdiHome } from '@mdi/js'
-	import { remult, repo } from 'remult'
+	import { remult } from 'remult'
 
 	import { page } from '$app/stores'
 
@@ -18,8 +18,6 @@
 
 	import EditCustom from '$modules/task/ui/EditCustom.svelte'
 	import Title from '$modules/task/ui/Title.svelte'
-	import { _AppUser } from '$modules/user/AppUser'
-	import { AuthController } from '$lib/auth'
 
 	import type { LayoutData } from './$types'
 
@@ -33,7 +31,6 @@
 
 	const links = [
 		{ path: route('/'), text: 'Home' },
-		{ path: route('/auth'), text: 'Manual Auth' },
 		{ path: route('/ui/dialog'), text: 'UI / Dialog' },
 		{ path: route('/ui/enum'), text: 'UI / Enum' },
 		{ path: route('/ui/fieldGroup'), text: 'UI / FieldGroup' },
@@ -45,7 +42,6 @@
 		{ path: route('/demo/FF_Layout/grid'), text: 'Demo Layout Grid' },
 		{ path: route('/demo/FF_Cell'), text: 'Demo Cell' },
 
-		{ path: route('firstly_sign_in'), text: '🔑 Module Auth', target: '_blank' },
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
 			path: route('github', { owner: 'remult', repo: 'remult' }),
@@ -96,7 +92,7 @@
 	}
 
 	// Set the default theme
-	const themes: Record<_AppUser['theme'], Theme> = {
+	const themes: Record<string, Theme> = {
 		default: defaultTheme,
 		daisy: daisyTheme,
 		empty: emptyTheme,
@@ -215,53 +211,9 @@
 						</div>
 						<ul class="dropdown-content menu mt-3 w-52 rounded-box bg-base-100 p-2 shadow-2xl">
 							<li>
-								<a href={route('/auth')}>Auth</a>
-							</li>
-							<li></li>
-							<li>
-								<button
-									onclick={async () => {
-										const res = await AuthController.signInDemo('JYC')
-										remult.user = res.user
-									}}
-								>
-									Sign in JYC
-								</button>
-							</li>
-							<li>
-								<button
-									onclick={async () => {
-										const res = await AuthController.signInDemo('Ermin')
-										remult.user = res.user
-									}}
-								>
-									Sign in Ermeen
-								</button>
-							</li>
-							<li>
-								<button
-									onclick={async () => {
-										const res = await AuthController.signOut()
-										remult.user = res.user
-									}}
-								>
-									Sign out
-								</button>
-							</li>
-							<!-- <li>
-								<a href="/">
-									Inbox
-									<span class="badge badge-success">12</span>
-								</a>
-							</li> -->
-							<li></li>
-							<li>
 								<button
 									onclick={async () => {
 										currentTheme = defaultTheme
-										if (remult.user?.id) {
-											await repo(_AppUser).update(remult.user?.id, { theme: 'default' })
-										}
 									}}
 								>
 									Theme: Default
@@ -271,9 +223,6 @@
 								<button
 									onclick={async () => {
 										currentTheme = daisyTheme
-										if (remult.user?.id) {
-											await repo(_AppUser).update(remult.user?.id, { theme: 'daisy' })
-										}
 									}}
 								>
 									Theme: Daisy
@@ -283,9 +232,6 @@
 								<button
 									onclick={async () => {
 										currentTheme = emptyTheme
-										if (remult.user?.id) {
-											await repo(_AppUser).update(remult.user?.id, { theme: 'empty' })
-										}
 									}}
 								>
 									Theme: Empty
