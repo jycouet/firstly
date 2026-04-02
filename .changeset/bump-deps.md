@@ -1,5 +1,0 @@
----
-'firstly': patch
----
-
-bump deps

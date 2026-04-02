@@ -1,5 +1,18 @@
 # firstly
 
+## 0.3.0
+
+### Minor Changes
+
+- [#232](https://github.com/jycouet/firstly/pull/232) [`fec8bc0`](https://github.com/jycouet/firstly/commit/fec8bc088733d63ce6752b0a764b786f80b736cb) Thanks [@jycouet](https://github.com/jycouet)! - BREAKING: Remove deprecated lucia-style auth module (`firstly/auth`, `firstly/auth/server`).
+
+  Migrate to `better-auth` (see remult docs). Removed deps: `@oslojs/*`, `arctic`, `bcryptjs`.
+  Also removed `packages/ui` (was only used for the auth UI).
+
+### Patch Changes
+
+- [#221](https://github.com/jycouet/firstly/pull/221) [`0b08040`](https://github.com/jycouet/firstly/commit/0b0804001c9a5bdff560fbcbb8b511c626d260f8) Thanks [@jycouet](https://github.com/jycouet)! - bump deps
+
 ## 0.2.1
 
 ### Patch Changes
