@@ -58,13 +58,8 @@ catalogs:
   daisyui: 5.5.3
 
  prod:
-  '@oslojs/crypto': 1.0.1
-  '@oslojs/encoding': 1.1.0
-  '@oslojs/otp': 1.1.0
   '@types/nodemailer': 7.0.2
   nodemailer: 7.0.4
-  arctic: 3.7.0
-  bcryptjs: 3.0.2
   cron: 4.4.0
   '@layerstack/utils': 1.0.0
   '@layerstack/svelte-actions': 1.0.0

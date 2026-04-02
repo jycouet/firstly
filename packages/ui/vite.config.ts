@@ -19,7 +19,7 @@ export default defineConfig({
 		]) as PluginOption,
 	],
 	build: {
-		outDir: '../firstly/src/lib/auth/static',
+		outDir: '../firstly/src/lib/ui/static',
 		emptyOutDir: true,
 		assetsDir: './assets',
 		rollupOptions: {

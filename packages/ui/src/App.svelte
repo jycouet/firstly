@@ -1,15 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
 
-	import type { FirstlyData } from '../../firstly/src/lib/auth/types'
-
-	export let firstlyData: FirstlyData
-
 	const modules = {
-		auth: import('./lib/modules/auth/Page.svelte'),
 		admin: import('./lib/modules/admin/Page.svelte'),
 		storage: import('./lib/modules/storage/Page.svelte'),
 	} as const
+
+	export let firstlyData: { module: keyof typeof modules; debug?: boolean }
 
 	let activeModuleRef: any
 

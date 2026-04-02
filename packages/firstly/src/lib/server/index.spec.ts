@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
 import { ModuleFF, modulesFlatAndOrdered } from '.'
-import { auth } from '../auth/server'
 
 describe('api', () => {
 	it('flatten modules', () => {
@@ -11,7 +10,6 @@ describe('api', () => {
 				modulesFF: [new ModuleFF({ name: 'a' }), new ModuleFF({ name: 'b' })],
 			}),
 			new ModuleFF({ name: 'main' }),
-			auth({}),
 			new ModuleFF({ name: 'main last', priority: 100 }),
 			new ModuleFF({ name: 'prio', priority: -1000 }),
 			new ModuleFF({
@@ -38,26 +36,6 @@ describe('api', () => {
           },
           "name": "prio",
           "priority": -1000,
-        },
-        {
-          "controllers": [
-            [Function],
-          ],
-          "entities": [
-            [Function],
-            [Function],
-            [Function],
-          ],
-          "initApi": [Function],
-          "initRequest": [Function],
-          "log": Log {
-            "levelsToShow": 3,
-            "prefixEmoji": "",
-            "toolName": "firstly | auth",
-            "withDate": null,
-          },
-          "name": "auth",
-          "priority": -777,
         },
         {
           "controllers": undefined,

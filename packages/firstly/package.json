@@ -69,13 +69,8 @@
     "@layerstack/svelte-actions": "catalog:prod",
     "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
-    "@melt-ui/svelte": "catalog:ui",
-    "@oslojs/crypto": "catalog:prod",
-    "@oslojs/encoding": "catalog:prod",
-    "@oslojs/otp": "catalog:prod",
     "@types/nodemailer": "catalog:prod",
-    "arctic": "catalog:prod",
-    "bcryptjs": "catalog:prod",
+    "@melt-ui/svelte": "catalog:ui",
     "clsx": "catalog:ui",
     "cron": "catalog:prod",
     "daisyui": "catalog:ui",
@@ -122,14 +117,6 @@
     "./formats": {
       "types": "./esm/formats/index.d.ts",
       "default": "./esm/formats/index.js"
-    },
-    "./auth": {
-      "types": "./esm/auth/index.d.ts",
-      "default": "./esm/auth/index.js"
-    },
-    "./auth/server": {
-      "types": "./esm/auth/server/index.d.ts",
-      "default": "./esm/auth/server/index.js"
     },
     "./changeLog": {
       "types": "./esm/changeLog/index.d.ts",
