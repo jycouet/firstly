@@ -1,15 +1,9 @@
 import { carbone } from 'firstly/carbone/server'
-import { FF_Role } from 'firstly/internals'
 
 import { MailController } from '$modules/mail/MailController'
 import { task } from '$modules/task/server'
 import { mail } from '$lib/mail/server'
 import { firstly, ModuleFF } from '$lib/server'
-
-const Role = {
-	...FF_Role,
-	Admin: 'admin',
-} as const
 
 export const api = firstly({
 	controllers: [MailController],

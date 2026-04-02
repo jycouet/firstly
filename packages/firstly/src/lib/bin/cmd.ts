@@ -17,9 +17,7 @@ const version = pkg.devDependencies?.['firstly'] ?? pkg.dependencies?.['firstly'
 console.info('')
 p.intro(`${green(`⚡️`)} Welcome to firstly world! ${gray(` - v${version}`)}`)
 
-const keys = ['all', 'module-demo', 'dependencies'] as const
-
-type Keys = (typeof keys)[number]
+type Keys = 'all' | 'module-demo' | 'dependencies'
 const options: { value: Keys; label: string; hint?: string | undefined }[] = [
 	{
 		value: 'all',
