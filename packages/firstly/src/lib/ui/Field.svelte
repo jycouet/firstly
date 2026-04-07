@@ -56,13 +56,13 @@
 	$: metaType = getFieldMetaType(cell.field!, mode === 'filtre')
 
 	const isViewMode = (_mode: 'edit' | 'view' | 'filtre', _field?: FieldMetadata<any, any>) => {
-		return _mode === 'view' || _field?.dbReadOnly || _field?.options.allowApiUpdate === false
+		return _mode === 'view' || _field?.dbReadOnly || _field?.apiUpdateAllowed?.(cellsValues) === false
 	}
 
 	const common = (_field?: FieldMetadata<any, any>, isLight = false) => {
 		let toRet = {
 			id: _field?.key ?? 'SOMETHING_AT_LEAST',
-			disabled: _field?.dbReadOnly || _field?.options.allowApiUpdate === false || disabled,
+			disabled: _field?.dbReadOnly || _field?.apiUpdateAllowed?.(cellsValues) === false || disabled,
 			placeholder: _field?.options?.placeholder ?? undefined,
 		}
 		if (isLight) {
