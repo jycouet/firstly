@@ -23,7 +23,6 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:w": "svelte-check --tsconfig ./tsconfig.json --watch",
     "//// ---- TEST ---- ////": "",
-    "test:bin": "pnpm compile && node ./dist/esm/bin/cmd.js",
     "test:e2e": "CI=true PORT=4142 playwright test",
     "test:unit": "TZ=Europe/Paris vitest",
     "test:unit:ci": "TZ=Europe/Paris vitest run",
@@ -64,8 +63,6 @@
     "vitest": "catalog:testing"
   },
   "dependencies": {
-    "@clack/prompts": "catalog:tooling",
-    "@kitql/internals": "catalog:kitql",
     "@layerstack/svelte-actions": "catalog:prod",
     "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
@@ -87,7 +84,6 @@
     "directory": "dist",
     "access": "public"
   },
-  "bin": "./esm/bin/cmd.js",
   "exports": {
     ".": {
       "types": "./esm/index.d.ts",
@@ -114,9 +110,6 @@
     "./vite": {
       "types": "./esm/vite/index.d.ts",
       "default": "./esm/vite/index.js"
-    },
-    "./bin": {
-      "default": "./esm/bin/cmd.js"
     },
     "./formats": {
       "types": "./esm/formats/index.d.ts",
