@@ -3,7 +3,6 @@
 
 	import { page } from '$app/stores'
 
-	import DialogManagement from '$lib/ui/dialog/DialogManagement.svelte'
 	import { route } from '$lib2/ROUTES'
 
 	import '../app.css'
@@ -22,11 +21,6 @@
 
 	const links = [
 		{ path: route('/'), text: 'Home' },
-		{ path: route('/ui/dialog'), text: 'UI / Dialog' },
-		{ path: route('/ui/enum'), text: 'UI / Enum' },
-		{ path: route('/ui/fieldGroup'), text: 'UI / FieldGroup' },
-		{ path: route('/ui/select'), text: 'UI / Select' },
-		{ path: route('/carbone'), text: 'Carbone' },
 
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
@@ -43,8 +37,6 @@
 <svelte:head>
 	<title>Firstly</title>
 </svelte:head>
-
-<DialogManagement />
 
 <div class="drawer min-h-screen bg-base-200 lg:drawer-open">
 		<input id="my-drawer" type="checkbox" class="drawer-toggle" />
