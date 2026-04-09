@@ -34,7 +34,7 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "remult": ">=3.3.2",
+    "remult": ">=3.3.7",
     "svelte": ">=5"
   },
   "peerDependenciesMeta": {
@@ -56,7 +56,7 @@
     "@sveltejs/vite-plugin-svelte": "catalog:sveltekit",
     "@tailwindcss/vite": "catalog:ui",
     "@typescript/native-preview": "catalog:tooling",
-    "remult": "3.3.6",
+    "remult": "catalog:best",
     "svelte": "catalog:svelte",
     "svelte-check": "catalog:svelte",
     "tslib": "catalog:tooling",

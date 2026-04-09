@@ -11,6 +11,9 @@ catalogs:
   sharp: 0.34.1
   prettier-plugin-astro: 0.14.1
 
+ best:
+  remult: 3.3.7
+ 
  tooling:
   '@typescript/native-preview': 7.0.0-dev.20260112.1
   vite: 7.3.1
