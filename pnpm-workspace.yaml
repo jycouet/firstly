@@ -51,8 +51,8 @@ catalogs:
   mermaid: 11.14.0
   '@mdi/js': 7.4.47
   '@melt-ui/svelte': 0.86.6
-  tailwindcss: 4.1.14
-  '@tailwindcss/vite': 4.1.14
+  tailwindcss: 4.2.2
+  '@tailwindcss/vite': 4.2.2
   tailwind-merge: 3.5.0
   clsx: 2.1.1
   daisyui: 5.5.3
