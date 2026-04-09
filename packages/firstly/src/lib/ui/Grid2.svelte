@@ -13,11 +13,7 @@
 	} from '../internals/helper.js'
 	import { intersection } from '../svelte/actions/intersection.js'
 	import type { FF_Repo } from '../svelte/FF_Repo.svelte.js'
-	import Button from './Button.svelte'
-	import Clipboardable from './Clipboardable.svelte'
-	import GridLoading from './GridLoading.svelte'
-	import Icon from './Icon.svelte'
-	import { align, baseTable, getAligns } from './index.js'
+	import Icon from '../svelte/ui/Icon.svelte'
 	import {
 		LibIcon_Add,
 		LibIcon_Delete,
@@ -26,7 +22,11 @@
 		LibIcon_Sort,
 		LibIcon_SortAsc,
 		LibIcon_SortDesc,
-	} from './LibIcon.js'
+	} from '../svelte/ui/LibIcon.js'
+	import Button from './Button.svelte'
+	import Clipboardable from './Clipboardable.svelte'
+	import GridLoading from './GridLoading.svelte'
+	import { align, baseTable, getAligns } from './index.js'
 	import LinkPlus from './link/LinkPlus.svelte'
 
 	export let cells: Cell<T>[]

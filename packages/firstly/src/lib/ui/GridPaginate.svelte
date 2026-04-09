@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Icon from './Icon.svelte'
+	import Icon from '../svelte/ui/Icon.svelte'
+	import { LibIcon_ChevronLeft, LibIcon_ChevronRight } from '../svelte/ui/LibIcon'
 	import FieldContainer from './internals/FieldContainer.svelte'
-	import { LibIcon_ChevronLeft, LibIcon_ChevronRight } from './LibIcon'
 	import Loading from './Loading.svelte'
 
 	export let label = 'Pagination'

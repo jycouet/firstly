@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type BaseItemLight } from '../../internals'
-	import Icon from '../Icon.svelte'
+	import Icon from '../../svelte/ui/Icon.svelte'
 	import Tooltip from '../Tooltip.svelte'
 	import Link from './Link.svelte'
 

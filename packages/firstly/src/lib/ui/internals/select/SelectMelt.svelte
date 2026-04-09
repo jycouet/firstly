@@ -4,8 +4,13 @@
 	import { fly } from 'svelte/transition'
 
 	import { Button, tw, type BaseItem, type FF_Icon } from '../../../internals'
-	import Icon from '../../Icon.svelte'
-	import { LibIcon_Add, LibIcon_Check, LibIcon_Cross, LibIcon_Search } from '../../LibIcon.js'
+	import Icon from '../../../svelte/ui/Icon.svelte'
+	import {
+		LibIcon_Add,
+		LibIcon_Check,
+		LibIcon_Cross,
+		LibIcon_Search,
+	} from '../../../svelte/ui/LibIcon.js'
 
 	export let id: string
 	export let disabled: boolean = false

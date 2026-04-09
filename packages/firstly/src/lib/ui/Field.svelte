@@ -14,16 +14,16 @@
 		getFirstInterestingField,
 		type MetaTypeRelation,
 	} from '../internals/helper.js'
+	import Icon from '../svelte/ui/Icon.svelte'
+	import { LibIcon_Eye, LibIcon_EyeOff } from '../svelte/ui/LibIcon'
 	import { tw } from '../utils/tailwind'
 	import Clipboardable from './Clipboardable.svelte'
-	import Icon from './Icon.svelte'
 	import FieldContainer from './internals/FieldContainer.svelte'
 	import Input from './internals/Input.svelte'
 	import MultiSelectMelt from './internals/select/MultiSelectMelt.svelte'
 	import SelectMelt from './internals/select/SelectMelt.svelte'
 	import SelectRadio from './internals/select/SelectRadio.svelte'
 	import Textarea from './internals/Textarea.svelte'
-	import { LibIcon_Eye, LibIcon_EyeOff } from './LibIcon'
 	import Link from './link/Link.svelte'
 	import LinkPlus from './link/LinkPlus.svelte'
 
@@ -162,7 +162,7 @@
 
 		if (!cell.field?.options.multiSelect) {
 			// let's get the current item if it's not in the default list (only when there is no searchFilter going on)
-			if (str === '' && getId() && !arr.find((r) => String(r.id) === String(getId()))) {
+			if (str === '' && getId() && !arr.some((r) => String(r.id) === String(getId()))) {
 				arr.unshift(await metaTypeObj.repoTarget.findId(getId()))
 			}
 		}
@@ -254,7 +254,9 @@
 			{:else}
 				{@const v = displayWithDefaultAndSuffix(cell.field, value)}
 				<div
-					class="ml-2 pb-2 flex h-12 w-full items-center {metaType.subKind === 'number' ? 'justify-end' : ''}"
+					class="ml-2 flex h-12 w-full items-center pb-2 {metaType.subKind === 'number'
+						? 'justify-end'
+						: ''}"
 				>
 					<Clipboardable value={v}>{v}</Clipboardable>
 				</div>
@@ -325,7 +327,7 @@
 			/>
 		{/if}
 	{:else if metaType.subKind === 'checkbox'}
-		<div class="grid content-center items-center pl-4 pb-2">
+		<div class="grid content-center items-center pb-2 pl-4">
 			<input
 				type="checkbox"
 				{...{ ...common(cell.field), required: undefined }}

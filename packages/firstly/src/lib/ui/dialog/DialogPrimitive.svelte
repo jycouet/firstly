@@ -4,9 +4,9 @@
 	import { fade } from 'svelte/transition'
 
 	import { tw, type BaseItemLight } from '../../internals'
+	import Icon from '../../svelte/ui/Icon.svelte'
+	import { LibIcon_Cross } from '../../svelte/ui/LibIcon.js'
 	import { flyAndScale } from '../../utils/transition'
-	import Icon from '../Icon.svelte'
-	import { LibIcon_Cross } from '../LibIcon.js'
 	import LinkPlus from '../link/LinkPlus.svelte'
 
 	export let detail: BaseItemLight | undefined = undefined

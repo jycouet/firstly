@@ -5,7 +5,7 @@ export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
 export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
 
-export { default as Icon } from '../ui/Icon.svelte'
+export { default as Icon } from './ui/Icon.svelte'
 export {
 	LibIcon_Empty,
 	LibIcon_Forbidden,
@@ -30,4 +30,4 @@ export {
 	LibIcon_Sort,
 	LibIcon_SortAsc,
 	LibIcon_SortDesc,
-} from '../ui/LibIcon.js'
+} from './ui/LibIcon.js'

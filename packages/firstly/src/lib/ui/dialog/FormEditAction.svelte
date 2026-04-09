@@ -2,9 +2,9 @@
 	import { createEventDispatcher } from 'svelte'
 
 	import type { StoreItem } from '../../internals'
+	import Icon from '../../svelte/ui/Icon.svelte'
+	import { LibIcon_Add, LibIcon_Check, LibIcon_Delete } from '../../svelte/ui/LibIcon'
 	import Button from '../Button.svelte'
-	import Icon from '../Icon.svelte'
-	import { LibIcon_Add, LibIcon_Check, LibIcon_Delete } from '../LibIcon'
 	import type { DialogType } from './dialog'
 
 	export let store: StoreItem<T>

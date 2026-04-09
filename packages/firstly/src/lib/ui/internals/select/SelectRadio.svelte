@@ -2,7 +2,7 @@
 	import { createEventDispatcher } from 'svelte'
 
 	import type { BaseItem } from '../../../internals'
-	import Icon from '../../../ui/Icon.svelte'
+	import Icon from '../../../svelte/ui/Icon.svelte'
 
 	export let id: string
 	export let disabled: boolean = false

@@ -7,7 +7,7 @@ import type { BaseItemLight } from '../../internals/BaseEnum'
 import type { CellsInput } from '../../internals/cellsBuildor'
 import type { StoreItem } from '../../internals/storeItem'
 import type { FF_Repo } from '../../svelte'
-import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit, LibIcon_Search } from '../LibIcon'
+import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit, LibIcon_Search } from '../../svelte/ui/LibIcon'
 
 export type DialogClasses = {
 	/**
