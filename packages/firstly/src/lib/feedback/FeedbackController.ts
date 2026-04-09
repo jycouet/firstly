@@ -256,8 +256,9 @@ repository(name: $repository, owner: $owner) {
 		for (let i = 0; i < comments.length; i++) {
 			if (comments[i].isMinimized) {
 				const parsed = JSON.parse(comments[i].body.replaceAll('<pre>\n', '').replaceAll('\n</pre>', ''))
-				items.at(-1).who = parsed?.author ?? '???'
-				items.at(-1).public = true
+				const last = items.at(-1)!
+				last.who = parsed?.author ?? '???'
+				last.public = true
 			} else {
 				const nbEye = comments[i].reactionGroups.find((c) => c.content === 'EYES')?.reactors.totalCount
 

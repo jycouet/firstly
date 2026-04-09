@@ -1,7 +1,7 @@
 import { Fields, Validators, type ClassType, type FieldOptions } from 'remult'
 
+import type { BaseEnum } from '../core/BaseEnum'
 import { displayCurrency } from '../formats'
-import type { BaseEnum } from './BaseEnum'
 import { getEnums } from './helper'
 
 // Translate default messages
@@ -103,7 +103,7 @@ export class FF_Fields {
 		})
 	}
 
-	static arrayValueList<enumType = any, entityType = any>(
+	static arrayValueList<entityType = any>(
 		enumClass: ClassType<BaseEnum<any>>,
 		o?: FieldOptions<entityType, any[]>,
 	) {
@@ -158,7 +158,7 @@ export class FF_Fields {
 					// TODO: remove ts-ignore when remult@3.3.0-next.1 is released (that has toDbSql)
 					// @ts-ignore
 					toDbSql: (val) => `vector32(${val})`,
-					fromDb: (val: Buffer) => Array.from(new Float32Array(val)),
+					fromDb: (val: Buffer) => [...new Float32Array(val)],
 				},
 			},
 			...options,

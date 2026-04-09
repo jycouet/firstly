@@ -3,7 +3,7 @@ import { writable } from 'svelte/store'
 
 import { type Repository } from 'remult'
 
-import type { BaseItemLight } from '../../internals/BaseEnum'
+import type { BaseItemLight } from '../../core/BaseEnum'
 import type { CellsInput } from '../../internals/cellsBuildor'
 import type { StoreItem } from '../../internals/storeItem'
 import type { FF_Repo } from '../../svelte'

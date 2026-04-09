@@ -3,8 +3,8 @@ import type { Component, SvelteComponent } from 'svelte'
 import { type ClassType, type EntityFilter, type FieldMetadata, type Repository } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
+import { BaseEnum } from '../core/BaseEnum.js'
 import type { UnArray } from '../utils/types.js'
-import { BaseEnum } from './BaseEnum.js'
 import { getEnum } from './helper.js'
 
 export type VisibilityMode = 'view' | 'edit' | 'hide'
