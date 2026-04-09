@@ -25,6 +25,7 @@ export { FilterEntity } from './virtual/FilterEntity.js'
 export { UIEntity } from './virtual/UIEntity.js'
 
 declare module 'remult' {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	export interface FieldOptions<entityType, valueType> {
 		placeholder?: string
 
