@@ -5,8 +5,6 @@ import { remultApi } from 'remult/remult-sveltekit'
 import { Module, type RemultServerOptions } from 'remult/server'
 import { Log } from '@kitql/helpers'
 
-import { sveltekit } from '../sveltekit/server'
-
 type ModuleInput = {
 	/**
 	 * The name of the module (usefull for logging and debugging purposes)
@@ -55,9 +53,6 @@ declare module 'remult' {
 	export interface RemultContext {
 		// REMULT: it should be there already ?! no?
 		request: RequestEvent
-		setHeaders(headers: Record<string, string>): void
-		setCookie(...args: Parameters<RequestEvent['cookies']['set']>): void
-		deleteCookie(...args: Parameters<RequestEvent['cookies']['delete']>): void
 	}
 }
 
@@ -67,7 +62,7 @@ export let entities: ClassType<any>[] = []
  * @deprecated will be done directly in remult when modules will be in 😉
  */
 export const firstly = (o: Options) => {
-	const modulesSorted = modulesFlatAndOrdered([...[...(o.modulesFF ?? []), sveltekit()]])
+	const modulesSorted = modulesFlatAndOrdered([...(o.modulesFF ?? [])])
 
 	const ffModulesToRemult = modulesSorted.map((m) => {
 		return new Module({
