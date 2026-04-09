@@ -2,7 +2,7 @@
 	import { createEventDispatcher, tick } from 'svelte'
 	import type { HTMLInputAttributes } from 'svelte/elements'
 
-	import { tw } from '../../utils/tailwind'
+	import { tw } from '../../core/tailwind'
 
 	export let value: HTMLInputAttributes['value'] = undefined
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tw } from '../utils/tailwind'
+	import { tw } from '../core/tailwind'
 	import type { Align } from './index.js'
 	import Loading from './Loading.svelte'
 

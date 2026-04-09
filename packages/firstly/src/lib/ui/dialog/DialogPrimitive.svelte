@@ -6,8 +6,8 @@
 	import { tw, type BaseItemLight } from '../../internals'
 	import Icon from '../../svelte/ui/Icon.svelte'
 	import { LibIcon_Cross } from '../../svelte/ui/LibIcon.js'
-	import { flyAndScale } from '../../utils/transition'
 	import LinkPlus from '../link/LinkPlus.svelte'
+	import { flyAndScale } from './transition'
 
 	export let detail: BaseItemLight | undefined = undefined
 	export let open: boolean = false

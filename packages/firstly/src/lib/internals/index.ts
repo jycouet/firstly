@@ -58,7 +58,7 @@ export type { FF_FindOptions } from './storeList.js'
 // export type StoreItem<T> = ReturnType<typeof storeItem<T>>
 export type { StoreItem }
 export type StoreList<T> = ReturnType<typeof storeList<T>>
-export type { ResolvedType, UnArray, RecursivePartial } from '../utils/types.js'
+export type { ResolvedType, UnArray, RecursivePartial } from '../core/types.js'
 
 // ******************************
 // Helpers
@@ -85,7 +85,7 @@ export {
 } from './cellsBuildor.js'
 export { storeItem }
 export { storeList }
-export { tw } from '../utils/tailwind.js'
+export { tw } from '../core/tailwind.js'
 
 // Hummm... I don't know if we should keep it...
 export { FilterEntity } from '../virtual/FilterEntity.js'

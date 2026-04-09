@@ -1,14 +1,6 @@
 import { Allow, BackendMethod, EntityError, remult } from 'remult'
 import { stry } from '@kitql/helpers'
 
-import type { FeedbackOptions } from './types'
-
-declare module 'remult' {
-	export interface RemultContext {
-		feedbackOptions: FeedbackOptions
-	}
-}
-
 async function getGitHub(query: string, variables?: Record<string, any>) {
 	if (import.meta.env.SSR) {
 		if (!remult.context.feedbackOptions.GITHUB_API_TOKEN) {

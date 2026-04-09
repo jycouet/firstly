@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tw } from '../utils/tailwind'
+	import { tw } from '../core/tailwind'
 
 	export { extraClass as class }
 	let extraClass = ''

@@ -1,7 +1,4 @@
-export { BaseEnum } from './BaseEnum.js'
-export type { BaseEnumOptions, BaseItem, BaseItemLight, FF_Icon } from './BaseEnum.js'
-export { FF_Entity } from './FF_Entity.js'
-export { FF_Role } from './common.js'
-export { isError } from './helper.js'
-
-export { tryCatch, tryCatchSync } from './tryCatch.js'
+// Files under lib/core/ are the pure-TS, frontend-safe primitives.
+// They are re-exported from lib/index.ts (the `firstly` root export).
+// Keep this barrel empty — import sources directly from ./BaseEnum,
+// ./FF_Entity, ./common, ./helper, ./tryCatch, ./types, ./tailwind.

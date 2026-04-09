@@ -5,6 +5,7 @@
 	import { type FieldMetadata, type FindOptions } from 'remult'
 	import { midTrim } from '@kitql/helpers'
 
+	import { tw } from '../core/tailwind'
 	import { suffixWithS } from '../formats/strings'
 	import { type BaseItem, type Cell } from '../internals'
 	import {
@@ -16,7 +17,6 @@
 	} from '../internals/helper.js'
 	import Icon from '../svelte/ui/Icon.svelte'
 	import { LibIcon_Eye, LibIcon_EyeOff } from '../svelte/ui/LibIcon'
-	import { tw } from '../utils/tailwind'
 	import Clipboardable from './Clipboardable.svelte'
 	import FieldContainer from './internals/FieldContainer.svelte'
 	import Input from './internals/Input.svelte'

@@ -37,7 +37,7 @@ export const flyAndScale = (node: HTMLElement, options: FlyAndScaleOptions): Tra
 	}
 }
 
-export type StyleObject = Record<string, number | string | undefined>
+type StyleObject = Record<string, number | string | undefined>
 function styleToString(style: StyleObject): string {
 	return Object.keys(style).reduce((str, key) => {
 		if (style[key] === undefined) return str

@@ -4,7 +4,7 @@ import { type ClassType, type EntityFilter, type FieldMetadata, type Repository 
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { BaseEnum } from '../core/BaseEnum.js'
-import type { UnArray } from '../utils/types.js'
+import type { UnArray } from '../core/types.js'
 import { getEnum } from './helper.js'
 
 export type VisibilityMode = 'view' | 'edit' | 'hide'
