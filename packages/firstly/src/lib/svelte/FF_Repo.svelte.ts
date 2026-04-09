@@ -13,7 +13,6 @@ import {
 import { Log } from '@kitql/helpers'
 
 import { tryCatch, tryCatchSync } from './'
-import type { getLayout, getLayoutStrict } from './customField'
 
 // In our case the empty is always the $count (so almost empty :))
 type EmptyAggregateResult = {
@@ -304,22 +303,5 @@ export class FF_Repo<
 			this.aggregates.$count = this.aggregates.$count - 1
 		}
 		return this.loadingEnd()
-	}
-
-	getLayout: getLayoutStrict<Entity> = (o) => {
-		const layout = this.metadata.options.ui?.getLayout?.(o)
-		if (layout) {
-			return layout
-		}
-		return {
-			key: o?.key ?? 'default',
-			type: o?.type ?? 'grid',
-			groups: [
-				{
-					key: o?.key ?? 'default',
-					fields: this.#repo.fields.toArray().filter((c) => c.apiUpdateAllowed()),
-				},
-			],
-		}
 	}
 }

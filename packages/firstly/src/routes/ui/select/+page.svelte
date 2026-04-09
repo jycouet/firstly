@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { repo } from 'remult'
 	import type { BaseItem } from 'firstly/internals'
-	import Select2 from 'firstly/ui/internals/select/Select2.svelte'
 	import SelectMelt from 'firstly/ui/internals/select/SelectMelt.svelte'
 
 	import { cellsBuildor } from '$lib/internals/cellsBuildor'
@@ -27,7 +26,6 @@
 
 <div class="grid grid-cols-3 gap-4">
 	<FieldGroup {cells} {store} />
-	<Select2 bind:value {items} clearable />
 	<SelectMelt bind:value id="whatever" {items} clearable />
 
 	<div>

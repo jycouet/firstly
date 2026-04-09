@@ -1,5 +1,4 @@
 <script lang="ts">
-	// import { mdiHome } from '@mdi/js'
 	import { remult } from 'remult'
 
 	import { page } from '$app/stores'
@@ -8,16 +7,8 @@
 	import { route } from '$lib2/ROUTES'
 
 	import '../app.css'
-	import '../lib/svelte/firstly.css'
 
-	import { createSubscriber } from 'svelte/reactivity'
-
-	import { Remult } from 'remult'
-	import { daisyTheme, defaultTheme, emptyTheme, FF_Config } from 'firstly/svelte'
-	import type { DynamicCustomField, Theme } from 'firstly/svelte'
-
-	import EditCustom from '$modules/task/ui/EditCustom.svelte'
-	import Title from '$modules/task/ui/Title.svelte'
+	import { initRemultSvelteReactivity } from 'firstly/svelte'
 
 	import type { LayoutData } from './$types'
 
@@ -36,11 +27,6 @@
 		{ path: route('/ui/fieldGroup'), text: 'UI / FieldGroup' },
 		{ path: route('/ui/select'), text: 'UI / Select' },
 		{ path: route('/carbone'), text: 'Carbone' },
-		{ path: route('/demo/FF_Simple'), text: 'Demo Simple' },
-		{ path: route('/demo/FF_Form_Grid'), text: 'Demo Form Grid' },
-		{ path: route('/demo/FF_Layout'), text: 'Demo Layout' },
-		{ path: route('/demo/FF_Layout/grid'), text: 'Demo Layout Grid' },
-		{ path: route('/demo/FF_Cell'), text: 'Demo Cell' },
 
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
@@ -51,65 +37,16 @@
 		{ path: route('github'), text: '⭐️ firstly', target: '_blank' },
 	]
 
-	// To be done once in the application.
-	function initRemultSvelteReactivity() {
-		// Auth reactivity (remult.user, remult.authenticated(), ...)
-		{
-			let update = () => {}
-			let s = createSubscriber((u) => {
-				update = u
-			})
-			remult.subscribeAuth({
-				reportObserved: () => s(),
-				reportChanged: () => update(),
-			})
-		}
-
-		// Entities reactivity
-		{
-			Remult.entityRefInit = (x) => {
-				let update = () => {}
-				let s = createSubscriber((u) => {
-					update = u
-				})
-				x.subscribe({
-					reportObserved: () => s(),
-					reportChanged: () => update(),
-				})
-			}
-		}
-	}
 	initRemultSvelteReactivity()
-
-	const dynamicCustomField: DynamicCustomField = ({ field, value, error, mode }) => {
-		if (field.inputType === 'number' && mode === 'display') {
-			return Title
-		}
-		if (field.inputType === 'number' && mode === 'edit') {
-			return EditCustom
-		}
-		return undefined
-	}
-
-	// Set the default theme
-	const themes: Record<string, Theme> = {
-		default: defaultTheme,
-		daisy: daisyTheme,
-		empty: emptyTheme,
-	} as const
-
-	let currentTheme: Theme = $state(themes[remult.user?.theme ?? 'daisy'])
 </script>
 
 <svelte:head>
 	<title>Firstly</title>
 </svelte:head>
 
-<!-- Old stuff -->
 <DialogManagement />
 
-<FF_Config theme={currentTheme} {dynamicCustomField}>
-	<div class="drawer min-h-screen bg-base-200 lg:drawer-open">
+<div class="drawer min-h-screen bg-base-200 lg:drawer-open">
 		<input id="my-drawer" type="checkbox" class="drawer-toggle" />
 		<!-- content -->
 		<main class="drawer-content">
@@ -209,35 +146,6 @@
 								</div>
 							{/if}
 						</div>
-						<ul class="dropdown-content menu mt-3 w-52 rounded-box bg-base-100 p-2 shadow-2xl">
-							<li>
-								<button
-									onclick={async () => {
-										currentTheme = defaultTheme
-									}}
-								>
-									Theme: Default
-								</button>
-							</li>
-							<li>
-								<button
-									onclick={async () => {
-										currentTheme = daisyTheme
-									}}
-								>
-									Theme: Daisy
-								</button>
-							</li>
-							<li>
-								<button
-									onclick={async () => {
-										currentTheme = emptyTheme
-									}}
-								>
-									Theme: Empty
-								</button>
-							</li>
-						</ul>
 					</div>
 					<!-- /dropdown -->
 				</header>
@@ -286,4 +194,3 @@
 			<!-- /sidebar menu -->
 		</aside>
 	</div>
-</FF_Config>

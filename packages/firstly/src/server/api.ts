@@ -1,7 +1,6 @@
 import { carbone } from 'firstly/carbone/server'
 
 import { MailController } from '$modules/mail/MailController'
-import { task } from '$modules/task/server'
 import { mail } from '$lib/mail/server'
 import { firstly, ModuleFF } from '$lib/server'
 
@@ -23,7 +22,5 @@ export const api = firstly({
 			name: 'theEnd',
 			async initApi() {},
 		}),
-
-		task({ specialInfo: 'Hello from the server' }),
 	],
 })
