@@ -11,7 +11,6 @@
 		getFieldLinkDisplayValue,
 		getFieldMetaType,
 	} from '../internals/helper.js'
-	import { LibIcon_Delete, LibIcon_Edit } from '../internals/index.js'
 	import { intersection } from '../svelte/actions/intersection.js'
 	import type { FF_Repo } from '../svelte/FF_Repo.svelte.js'
 	import Button from './Button.svelte'
@@ -21,6 +20,8 @@
 	import { align, baseTable, getAligns } from './index.js'
 	import {
 		LibIcon_Add,
+		LibIcon_Delete,
+		LibIcon_Edit,
 		LibIcon_Settings,
 		LibIcon_Sort,
 		LibIcon_SortAsc,

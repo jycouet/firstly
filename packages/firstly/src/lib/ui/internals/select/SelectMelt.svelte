@@ -3,17 +3,9 @@
 	import { createEventDispatcher, onMount, tick } from 'svelte'
 	import { fly } from 'svelte/transition'
 
-	import {
-		Button,
-		LibIcon_Add,
-		LibIcon_Check,
-		LibIcon_Cross,
-		LibIcon_Search,
-		tw,
-		type BaseItem,
-		type FF_Icon,
-	} from '../../../internals'
+	import { Button, tw, type BaseItem, type FF_Icon } from '../../../internals'
 	import Icon from '../../Icon.svelte'
+	import { LibIcon_Add, LibIcon_Check, LibIcon_Cross, LibIcon_Search } from '../../LibIcon.js'
 
 	export let id: string
 	export let disabled: boolean = false

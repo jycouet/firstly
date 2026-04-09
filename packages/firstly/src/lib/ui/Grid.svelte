@@ -11,7 +11,7 @@
 		getFieldLinkDisplayValue,
 		getFieldMetaType,
 	} from '../internals/helper.js'
-	import { LibIcon_Delete, LibIcon_Edit, type StoreList } from '../internals/index.js'
+	import { type StoreList } from '../internals/index.js'
 	import Button from './Button.svelte'
 	import Clipboardable from './Clipboardable.svelte'
 	import GridLoading from './GridLoading.svelte'
@@ -19,6 +19,8 @@
 	import { align, baseTable, getAligns } from './index.js'
 	import {
 		LibIcon_Add,
+		LibIcon_Delete,
+		LibIcon_Edit,
 		LibIcon_Settings,
 		LibIcon_Sort,
 		LibIcon_SortAsc,

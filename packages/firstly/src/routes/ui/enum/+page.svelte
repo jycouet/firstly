@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getEnum, getEnums, Icon } from '$lib/internals'
+	import { getEnum, getEnums } from '$lib/internals'
+	import { Icon } from '$lib/svelte'
 	import FieldContainer from '$lib/ui/internals/FieldContainer.svelte'
 	import Input from '$lib/ui/internals/Input.svelte'
 	import { StateDemoEnum } from '$lib/virtual/StateDemoEnum'

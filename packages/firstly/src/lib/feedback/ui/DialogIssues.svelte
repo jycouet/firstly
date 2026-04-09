@@ -2,20 +2,12 @@
 	import { onMount } from 'svelte'
 
 	import { FeedbackController } from '..'
-	import {
-		Button,
-		dialog,
-		Icon,
-		LibIcon_Add,
-		LibIcon_Check,
-		LibIcon_Search,
-		Loading,
-		type ResolvedType,
-	} from '../../internals'
+	import { Button, dialog, Loading, type ResolvedType } from '../../internals'
+	import { Icon, LibIcon_Add, LibIcon_Check, LibIcon_Search } from '../../svelte'
 	import DialogIssue from './DialogIssue.svelte'
 
 	export let dialogId: number
-	const rmvWarning = dialogId
+	void dialogId
 
 	export let milestoneNumber: number
 	export let milestoneId: string

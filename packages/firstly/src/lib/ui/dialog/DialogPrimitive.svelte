@@ -3,9 +3,10 @@
 	import { createEventDispatcher } from 'svelte'
 	import { fade } from 'svelte/transition'
 
-	import { LibIcon_Cross, tw, type BaseItemLight } from '../../internals'
+	import { tw, type BaseItemLight } from '../../internals'
 	import { flyAndScale } from '../../utils/transition'
 	import Icon from '../Icon.svelte'
+	import { LibIcon_Cross } from '../LibIcon.js'
 	import LinkPlus from '../link/LinkPlus.svelte'
 
 	export let detail: BaseItemLight | undefined = undefined
@@ -13,7 +14,7 @@
 	export let classes: { root?: string } = {}
 
 	const {
-		elements: { trigger, overlay, content, title: localTitle, description, close, portalled },
+		elements: { overlay, content, title: localTitle, close, portalled },
 		states: { open: localOpen },
 	} = createDialog({
 		forceVisible: true,

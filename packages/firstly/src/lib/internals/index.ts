@@ -12,14 +12,13 @@ import { default as Grid } from '../ui/Grid.svelte'
 import { default as Grid2 } from '../ui/Grid2.svelte'
 import { default as GridPaginate } from '../ui/GridPaginate.svelte'
 import { default as GridPaginate2 } from '../ui/GridPaginate2.svelte'
-import { default as Icon } from '../ui/Icon.svelte'
 import { default as FieldContainer } from '../ui/internals/FieldContainer.svelte'
 import { default as SelectMelt } from '../ui/internals/select/SelectMelt.svelte'
 import { default as Link } from '../ui/link/Link.svelte'
 import { default as LinkPlus } from '../ui/link/LinkPlus.svelte'
 import { default as Loading } from '../ui/Loading.svelte'
 import { default as Tooltip } from '../ui/Tooltip.svelte'
-import type { BaseEnum, BaseItem, BaseItemLight, FF_Icon } from './BaseEnum.js'
+import type { BaseItem, BaseItemLight, FF_Icon } from './BaseEnum.js'
 import type { CellsInput } from './cellsBuildor.js'
 import { FF_Role } from './common.js'
 import { storeItem, type StoreItem } from './storeItem.js'
@@ -36,7 +35,6 @@ export {
 	GridPaginate,
 	GridPaginate2,
 	FieldGroup,
-	Icon,
 	Link,
 	LinkPlus,
 	Loading,
@@ -51,7 +49,6 @@ export {
 // ******************************
 // Helpers types
 // ******************************
-export type { BaseEnumOptions } from './BaseEnum.js'
 export type { BaseItem, BaseItemLight }
 
 export type { DialogMetaDataInternal } from '../ui/dialog/dialog.js'
@@ -68,14 +65,11 @@ export type { ResolvedType, UnArray, RecursivePartial } from '../utils/types.js'
 // Helpers
 // ******************************
 export { FF_Fields } from './FF_Fields.js'
-export { FF_Entity } from './FF_Entity.js'
 export { FF_LogToConsole } from '../SqlDatabase/FF_LogToConsole.js'
-export { BaseEnum } from './BaseEnum.js'
 export { dialog } from '../ui/dialog/dialog.js'
 export {
 	getEntityDisplayValue,
 	displayWithDefaultAndSuffix,
-	isError,
 	getFieldLinkDisplayValue,
 	getEnum,
 	getEnums,
@@ -98,35 +92,6 @@ export { FF_Role }
 // Hummm... I don't know if we should keep it...
 export { FilterEntity } from '../virtual/FilterEntity.js'
 export { UIEntity } from '../virtual/UIEntity.js'
-
-// ******************************
-// Icons
-// ******************************
-export {
-	LibIcon_Empty,
-	LibIcon_Forbidden,
-	LibIcon_ChevronDown,
-	LibIcon_ChevronUp,
-	LibIcon_ChevronLeft,
-	LibIcon_ChevronRight,
-	LibIcon_Search,
-	LibIcon_Check,
-	LibIcon_MultiCheck,
-	LibIcon_Add,
-	LibIcon_MultiAdd,
-	LibIcon_Edit,
-	LibIcon_Delete,
-	LibIcon_Cross,
-	LibIcon_Save,
-	LibIcon_Man,
-	LibIcon_Woman,
-	LibIcon_Send,
-	LibIcon_Load,
-	LibIcon_Settings,
-	LibIcon_Sort,
-	LibIcon_SortAsc,
-	LibIcon_SortDesc,
-} from '../ui/LibIcon.js'
 
 export type { FF_Icon }
 

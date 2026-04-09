@@ -3,7 +3,8 @@ import type { ClassType, ErrorInfo, FieldMetadata, LifecycleEvent, Repository } 
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { suffixWithS } from '../formats/strings.js'
-import type { BaseEnum, BaseItem } from './index.js'
+import type { BaseEnum } from './BaseEnum.js'
+import type { BaseItem } from './index.js'
 
 export function isError<T>(object: any): object is ErrorInfo<T> {
 	return object

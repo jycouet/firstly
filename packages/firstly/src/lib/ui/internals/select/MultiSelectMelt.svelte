@@ -3,16 +3,9 @@
 	import { createEventDispatcher, onMount } from 'svelte'
 	import { fly } from 'svelte/transition'
 
-	import {
-		LibIcon_Check,
-		LibIcon_Cross,
-		LibIcon_MultiCheck,
-		LibIcon_Search,
-		tw,
-		type BaseItem,
-		type FF_Icon,
-	} from '../../../internals'
+	import { tw, type BaseItem, type FF_Icon } from '../../../internals'
 	import Icon from '../../Icon.svelte'
+	import { LibIcon_Check, LibIcon_Cross, LibIcon_MultiCheck, LibIcon_Search } from '../../LibIcon.js'
 
 	export let id: string
 	export let disabled: boolean = false
@@ -69,7 +62,6 @@
 	const {
 		elements: { menu, input, option },
 		states: { open, inputValue, touchedInput, selected: localSelected },
-		helpers: { isSelected },
 	} = createCombobox<BaseItem, true>({
 		forceVisible: true,
 		multiple: true,
