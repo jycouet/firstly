@@ -12,7 +12,7 @@ import {
 } from 'remult'
 import { Log } from '@kitql/helpers'
 
-import { tryCatch, tryCatchSync } from './'
+import { tryCatch, tryCatchSync } from '../core'
 
 // In our case the empty is always the $count (so almost empty :))
 type EmptyAggregateResult = {

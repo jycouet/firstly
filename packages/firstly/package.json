@@ -98,10 +98,6 @@
       "types": "./esm/internals/index.d.ts",
       "default": "./esm/internals/index.js"
     },
-    "./server": {
-      "types": "./esm/server/index.d.ts",
-      "default": "./esm/server/index.js"
-    },
     "./svelte": {
       "types": "./esm/svelte/index.d.ts",
       "svelte": "./esm/svelte/index.js",

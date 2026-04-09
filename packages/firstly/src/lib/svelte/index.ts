@@ -1,6 +1,4 @@
 export { FF_Repo } from './FF_Repo.svelte.js'
-export { tryCatch, tryCatchSync } from './tryCatch'
-export { overwriteOptions, deepMerge, isOfType } from './helpers'
 export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
 export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'

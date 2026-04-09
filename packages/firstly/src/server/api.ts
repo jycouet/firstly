@@ -1,10 +1,10 @@
+import { remultApi } from 'remult/remult-sveltekit'
 import { carbone } from 'firstly/carbone/server'
 
 import { MailController } from '$modules/mail/MailController'
 import { mail } from '$lib/mail/server'
-import { firstly } from '$lib/server'
 
-export const api = firstly({
+export const api = remultApi({
 	controllers: [MailController],
 	modules: [
 		mail({

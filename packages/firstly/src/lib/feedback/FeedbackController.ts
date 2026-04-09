@@ -1,6 +1,14 @@
 import { Allow, BackendMethod, EntityError, remult } from 'remult'
 import { stry } from '@kitql/helpers'
 
+import type { FeedbackOptions } from './types'
+
+declare module 'remult' {
+	export interface RemultContext {
+		feedbackOptions: FeedbackOptions
+	}
+}
+
 async function getGitHub(query: string, variables?: Record<string, any>) {
 	if (import.meta.env.SSR) {
 		if (!remult.context.feedbackOptions.GITHUB_API_TOKEN) {
@@ -248,8 +256,8 @@ repository(name: $repository, owner: $owner) {
 		for (let i = 0; i < comments.length; i++) {
 			if (comments[i].isMinimized) {
 				const parsed = JSON.parse(comments[i].body.replaceAll('<pre>\n', '').replaceAll('\n</pre>', ''))
-				items[items.length - 1].who = parsed?.author ?? '???'
-				items[items.length - 1].public = true
+				items.at(-1).who = parsed?.author ?? '???'
+				items.at(-1).public = true
 			} else {
 				const nbEye = comments[i].reactionGroups.find((c) => c.content === 'EYES')?.reactors.totalCount
 
