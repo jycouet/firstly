@@ -49,9 +49,7 @@ catalogs:
   '@sveltejs/package': 2.5.4
 
  ui:
-  mermaid: 11.14.0
   '@mdi/js': 7.4.47
-  '@melt-ui/svelte': 0.86.6
   tailwindcss: 4.2.2
   '@tailwindcss/vite': 4.2.2
   tailwind-merge: 3.5.0
@@ -63,4 +61,3 @@ catalogs:
   nodemailer: 8.0.5
   cron: 4.4.0
   '@layerstack/utils': 1.0.0
-  '@layerstack/svelte-actions': 1.0.0

@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@kitql/helpers": "catalog:kitql",
+    "daisyui": "catalog:ui",
     "@sveltejs/adapter-node": "catalog:sveltekit",
     "@sveltejs/kit": "catalog:sveltekit",
     "@sveltejs/package": "catalog:sveltekit",
@@ -63,17 +64,13 @@
     "vitest": "catalog:testing"
   },
   "dependencies": {
-    "@layerstack/svelte-actions": "catalog:prod",
     "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
     "@types/nodemailer": "catalog:prod",
-    "@melt-ui/svelte": "catalog:ui",
     "clsx": "catalog:ui",
     "cron": "catalog:prod",
-    "daisyui": "catalog:ui",
     "esm-env": "catalog:tooling",
     "nodemailer": "catalog:prod",
-    "svelecte": "5.3.0",
     "tailwind-merge": "catalog:ui",
     "tailwindcss": "catalog:ui",
     "vite-plugin-kit-routes": "catalog:tooling",
