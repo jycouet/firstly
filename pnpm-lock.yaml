@@ -35,6 +35,9 @@ catalogs:
     '@kitql/helpers':
       specifier: 0.8.13
       version: 0.8.13
+    eslint:
+      specifier: 10.1.0
+      version: 10.1.0
   lib-author-helper:
     '@changesets/changelog-github':
       specifier: 0.6.0
@@ -227,6 +230,9 @@ importers:
       daisyui:
         specifier: catalog:ui
         version: 5.5.3
+      eslint:
+        specifier: catalog:kitql
+        version: 10.1.0(jiti@2.6.1)
       remult:
         specifier: catalog:best
         version: 3.3.7

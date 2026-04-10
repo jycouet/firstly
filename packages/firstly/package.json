@@ -61,6 +61,7 @@
     "svelte-check": "catalog:svelte",
     "tslib": "catalog:tooling",
     "vite": "catalog:tooling",
+    "eslint": "catalog:kitql",
     "vitest": "catalog:testing"
   },
   "dependencies": {

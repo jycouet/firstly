@@ -158,13 +158,13 @@ export class CarboneController {
 
 		const response = templateBase64
 			? await CarboneController.server.fetch({
-				api: `/render/template?download=true`,
-				body: JSON.stringify({ data, template: templateBase64, convertTo: convertTo ?? 'pdf' }),
-			})
+					api: `/render/template?download=true`,
+					body: JSON.stringify({ data, template: templateBase64, convertTo: convertTo ?? 'pdf' }),
+				})
 			: await CarboneController.server.fetch({
-				api: `/render/${templateId}?download=true`,
-				body: JSON.stringify({ data, convertTo: convertTo ?? 'pdf' }),
-			})
+					api: `/render/${templateId}?download=true`,
+					body: JSON.stringify({ data, convertTo: convertTo ?? 'pdf' }),
+				})
 
 		await repo(CarboneLog).insert({
 			templateId: mode === 'templateBase64' ? 'templateBase64' : templateId,
