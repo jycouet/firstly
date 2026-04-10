@@ -10,9 +10,9 @@ jobs:
   # prevents this action from running on forks!
   if: github.repository == 'jycouet/firstly'
   permissions:
-    contents: write # to create release (changesets/action)
-    id-token: write # OpenID Connect token needed for provenance
-    pull-requests: write # to create pull request (changesets/action)
+   contents: write # to create release (changesets/action)
+   id-token: write # OpenID Connect token needed for provenance
+   pull-requests: write # to create pull request (changesets/action)
   name: Release
   runs-on: ubuntu-latest
   steps:
@@ -39,14 +39,14 @@ jobs:
       else
         echo "✅ npm version: $(npm --version) is 11.5.1+ (required for trusted publishing)"
       fi
-      
+
       # Verify OIDC token is available (required for trusted publishing)
       if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
         echo "⚠️  Warning: OIDC token URL not found. Trusted publishing may not work."
       else
         echo "✅ OIDC token URL is available"
       fi
-      
+
       # Trusted publishing setup instructions:
       # 1. Go to https://www.npmjs.com/package/firstly/settings
       # 2. Navigate to "Publishing access" > "Trusted Publishers"

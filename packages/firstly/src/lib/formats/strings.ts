@@ -68,6 +68,8 @@ const rmvChars = (str: string, chars = ['<', '>', ',']) => {
 	return chars.reduce((acc, char) => acc.replaceAll(char, ''), str).trim()
 }
 
+const extractMailRegex = /(.+)\s(.+)\s<(.+)>/i
+
 export const extractMailInfo = (mail: string, withThrow = true) => {
 	if (!mail) {
 		if (withThrow) {
@@ -79,8 +81,7 @@ export const extractMailInfo = (mail: string, withThrow = true) => {
 			email: '',
 		}
 	}
-	const regex = /(.+)\s(.+)\s<(.+)>/i
-	const match = mail.match(regex)
+	const match = mail.match(extractMailRegex)
 	if (match) {
 		const firstName = toTitleCase(rmvChars(match[1].trim())).replaceAll(' ', '-')
 		const lastName = rmvChars(match[2].trim()).toUpperCase()

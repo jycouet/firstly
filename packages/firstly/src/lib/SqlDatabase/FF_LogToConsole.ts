@@ -30,7 +30,7 @@ const typeQuery = new Map<TypeQuery, string>([
 ])
 
 const keys = ['FROM', 'WHERE', 'LIMIT', 'OFFSET']
-const typeQueryKey = Array.from(typeQuery.keys())
+const typeQueryKey = [...typeQuery.keys()]
 
 const log = new Log('')
 
@@ -147,23 +147,19 @@ export const FF_LogToConsole = (
 	// }
 
 	const uniqueTables = [...new Set(tables)]
-	const mainTable = uniqueTables[uniqueTables.length - 1]
+	const mainTable = uniqueTables.at(-1) ?? ''
 	const subTables = uniqueTables.slice(0, -1)
 
 	const time = ` ${bgCyan((duration * 1000).toFixed(0).padStart(3) + ' ms ')}`
 
-	let toLog = ''
 	const withDetails = options?.withDetails === undefined ? true : options?.withDetails
-	if (withDetails) {
-		toLog = `${typeQuery.get(first) || '💢'}` + time + ` ${final_s}`
-	} else {
-		toLog =
-			`${typeQuery.get(first) || '💢'}` +
+	const toLog = withDetails
+		? `${typeQuery.get(first) || '💢'}` + time + ` ${final_s}`
+		: `${typeQuery.get(first) || '💢'}` +
 			`${time}` +
 			` ${cyan(first)} ${green(mainTable?.replaceAll('"', ''))}` +
 			`${listArgs.length > 0 ? ` { ${listArgs.join(', ')} }` : ``}` +
 			`${subTables.length > 0 ? magenta(` (sub: ${subTables.join(', ')})`) : ``}`
-	}
 
 	log.info(toLog)
 
