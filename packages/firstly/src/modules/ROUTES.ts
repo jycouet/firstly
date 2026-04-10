@@ -9,18 +9,7 @@
  * PAGES
  */
 const PAGES = {
-  "/": `/`,
-  "/auth": `/auth`,
-  "/carbone": `/carbone`,
-  "/demo/FF_Cell": `/demo/FF_Cell`,
-  "/demo/FF_Form_Grid": `/demo/FF_Form_Grid`,
-  "/demo/FF_Layout": `/demo/FF_Layout`,
-  "/demo/FF_Layout/grid": `/demo/FF_Layout/grid`,
-  "/demo/FF_Simple": `/demo/FF_Simple`,
-  "/ui/dialog": `/ui/dialog`,
-  "/ui/enum": `/ui/enum`,
-  "/ui/fieldGroup": `/ui/fieldGroup`,
-  "/ui/select": `/ui/select`
+  "/": `/`
 }
 
 /**
@@ -41,12 +30,11 @@ const ACTIONS = {
  * LINKS
  */
 const LINKS = {
-  "firstly_sign_in": `/ff/auth/sign-in`,
   "remult_admin": `/api/admin`,
   "github": (params?: { owner?: (string | number), repo?: (string | number) }) => {
     params = params ?? {}
-    params['owner'] = params['owner'] ?? "\"jycouet\""; 
-    params['repo'] = params['repo'] ?? "\"firstly\""; 
+    params['owner'] = params['owner'] ?? "jycouet"; 
+    params['repo'] = params['repo'] ?? "firstly"; 
     return `https://github.com/${params['owner']}/${params['repo']}`
   }
 }
@@ -156,9 +144,9 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 * ```
 */
 export type KIT_ROUTES = {
-  PAGES: { '/': never, '/auth': never, '/carbone': never, '/demo/FF_Cell': never, '/demo/FF_Form_Grid': never, '/demo/FF_Layout': never, '/demo/FF_Layout/grid': never, '/demo/FF_Simple': never, '/ui/dialog': never, '/ui/enum': never, '/ui/fieldGroup': never, '/ui/select': never }
+  PAGES: { '/': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
-  LINKS: { 'firstly_sign_in': never, 'remult_admin': never, 'github': 'owner' | 'repo' }
+  LINKS: { 'remult_admin': never, 'github': 'owner' | 'repo' }
   Params: { 'owner': never, 'repo': never }
 }
