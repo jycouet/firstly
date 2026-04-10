@@ -1,5 +1,57 @@
 # firstly
 
+## 0.4.0
+
+### Minor Changes
+
+- [#239](https://github.com/jycouet/firstly/pull/239) [`b70967d`](https://github.com/jycouet/firstly/commit/b70967d0536298ec6659653da45eaa9e8b8e7fb0) Thanks [@jycouet](https://github.com/jycouet)! - BREAKING: Remove unused legacy components from `firstly/svelte`: `FF_Cell` (+ `FF_Cell_Caption/Display/Edit/Error/Hint`), `FF_Form`, `FF_Grid`, `FF_Layout`, `FF_Config` (+ `ff_Config.svelte.ts` with `daisyTheme`, `defaultTheme`, `emptyTheme`, `getTheme`, `setTheme`, `getDynamicCustomField`, `setDynamicCustomField`, `getClasses`, `FF_Theme`). Also removed `customField.ts` (`DynamicCustomField`, `CellMetadata`, `FieldGroup`, `getLayout`, and the related `FieldOptions.ui` / `EntityOptions.ui.getLayout` Remult module augmentations). Drops the `FF_Repo.getLayout()` instance method and the `internals/select/Select2.svelte` internal.
+
+  Also deletes the duplicate dead `svelte/dialog/` tree (the canonical `dialog()` API is exported from `firstly/internals` and backed by `ui/dialog/`).
+
+  Internal: removes the `task` demo module and its demo routes (`demo/FF_Cell`, `demo/FF_Form_Grid`, `demo/FF_Layout`, `demo/FF_Simple`).
+
+- [#239](https://github.com/jycouet/firstly/pull/239) [`6589feb`](https://github.com/jycouet/firstly/commit/6589feba930250ffd842891f169faabfa498312b) Thanks [@jycouet](https://github.com/jycouet)! - Move `BaseEnum`, `FF_Entity`, `common` (`FF_Role`) source files from `lib/internals/` to `lib/core/`. The public export path is still `firstly/core`, which now also exports `FF_Role` (previously only available via `firstly/internals`) alongside the existing `BaseEnum`, `BaseEnumOptions`, `FF_Entity`, `isError`, `BaseItem`, `BaseItemLight`, `FF_Icon`. Consumers should migrate remaining `FF_Role` imports from `firstly/internals` to `firstly/core`.
+
+- [#239](https://github.com/jycouet/firstly/pull/239) [`c4d2ee4`](https://github.com/jycouet/firstly/commit/c4d2ee4a4b7a1441c985c62b55f9fbacbfe02b9b) Thanks [@jycouet](https://github.com/jycouet)! - BREAKING: Fold `firstly/core` into the root `firstly` export.
+
+  `lib/utils/` (types + `tw`) moves into `lib/core/`. The `lib/core/index.ts` barrel is now empty — all core, frontend-safe primitives (`BaseEnum`, `BaseEnumOptions`, `BaseItem`, `BaseItemLight`, `FF_Icon`, `FF_Entity`, `FF_Role`, `isError`, `tryCatch`, `tryCatchSync`, `ResolvedType`, `UnArray`, `RecursivePartial`, `tw`) are re-exported from `lib/index.ts`, so consumers should import them from `'firstly'` directly.
+
+  The `./core` subpath is removed from `package.json` exports. Migrate `from 'firstly/core'` -> `from 'firstly'`.
+
+  Also moves the `RemultContext.feedbackOptions` module augmentation from `FeedbackController.ts` into `feedback/index.ts`, because some bundlers mangle `declare module 'remult'` inside a file that also has `@BackendMethod` decorators.
+
+- [#239](https://github.com/jycouet/firstly/pull/239) [`b382619`](https://github.com/jycouet/firstly/commit/b3826192a26e529c45f78dffa59f9955e92f3257) Thanks [@jycouet](https://github.com/jycouet)! - BREAKING: Remove the `firstly` CLI.
+
+  The `bin` entry, the `./bin` export path, and `src/lib/bin/cmd.ts` are gone. Drops the `@clack/prompts` and `@kitql/internals` deps that only the CLI used.
+
+- [#239](https://github.com/jycouet/firstly/pull/239) [`64c4644`](https://github.com/jycouet/firstly/commit/64c4644d8c75d7b757a2d4a4128cd0b4f5799c50) Thanks [@jycouet](https://github.com/jycouet)! - BREAKING: Remove the `firstly({ ... })` server wrapper and the `./server`, let's now just use remult Modules
+
+- [#239](https://github.com/jycouet/firstly/pull/239) [`a784113`](https://github.com/jycouet/firstly/commit/a784113217ba477fc36de3fee7ba6e82c8248cf5) Thanks [@jycouet](https://github.com/jycouet)! - BREAKING: Remove `ModuleFF` and the `modulesFF` option.
+
+  Use `Module` from `remult/server` directly (it has all the same features: `key`, `priority`, `entities`, `controllers`, `initApi`, `initRequest`, nested `modules`). Remult also ships its own `modulesFlatAndOrdered`, so firstly's version is gone too. The `firstly({ ... })` wrapper now only accepts remult's native `modules` option.
+
+  Migration:
+
+  ```ts
+  // before
+  import { ModuleFF } from 'firstly/server'
+  new ModuleFF({ name: 'foo', modulesFF: [...] })
+
+  // after
+  import { Module } from 'remult/server'
+  new Module({ key: 'foo', modules: [...] })
+  ```
+
+  If you used `m.log`, create your own: `const log = new Log(key)` at module scope and reference it from `initApi` / `initRequest`.
+
+- [#239](https://github.com/jycouet/firstly/pull/239) [`7e49152`](https://github.com/jycouet/firstly/commit/7e49152d3af4f2ca40635ec0e1112a7ffa0de786) Thanks [@jycouet](https://github.com/jycouet)! - BREAKING: Remove the deprecated internal `sveltekit` module and the `RemultContext.setHeaders` / `setCookie` / `deleteCookie` augmentation it set up.
+
+  Nothing consumed those context methods. The module itself was marked `@deprecated` and was only auto-wired through `firstly({ ... })`. `remult.context.request` (the `RequestEvent`) is still augmented, so headers and cookies can be set via `remult.context.request.setHeaders(...)` / `remult.context.request.cookies.set(...)` directly.
+
+### Patch Changes
+
+- [#239](https://github.com/jycouet/firstly/pull/239) [`b70967d`](https://github.com/jycouet/firstly/commit/b70967d0536298ec6659653da45eaa9e8b8e7fb0) Thanks [@jycouet](https://github.com/jycouet)! - Bump deps: `nodemailer` 7 → 8 (+ `@types/nodemailer`), `tailwindcss` + `@tailwindcss/vite` 4.1.14 → 4.2.2, `vite-plugin-watch-and-run` 1.7.5 → 1.8.0, `@playwright/test` 1.58.2 → 1.59.1.
+
 ## 0.3.0
 
 ### Minor Changes
