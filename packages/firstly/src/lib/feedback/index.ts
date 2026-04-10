@@ -1,4 +1,10 @@
 import { FeedbackController } from './FeedbackController'
-import { default as Feedback } from './ui/Feedback.svelte'
+import type { FeedbackOptions } from './types'
 
-export { FeedbackController, Feedback }
+export { FeedbackController }
+
+declare module 'remult' {
+	export interface RemultContext {
+		feedbackOptions: FeedbackOptions
+	}
+}

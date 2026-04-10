@@ -20,7 +20,6 @@ export class UIEntity {
 		required: true,
 		caption: "Nom de l'utilisateur",
 		placeholder: 'Jean-Yves',
-		suffix: 'SUF!',
 	})
 	username!: string
 
@@ -57,7 +56,7 @@ export class UIEntity {
 	@Fields.boolean({ allowNull: true })
 	isSubContractor?: boolean
 
-	@Fields.number({ allowNull: true, suffix: '%' })
+	@Fields.number({ allowNull: true })
 	rate?: number
 
 	@Fields.date({ allowNull: true, allowApiUpdate: false })

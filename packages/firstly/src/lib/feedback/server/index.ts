@@ -8,14 +8,8 @@ export const feedback: (o: FeedbackOptions) => Module<unknown> = (o) => {
 	return new Module({
 		key: 'feedback',
 		controllers: [FeedbackController],
-		initRequest: async (kitEvent, op) => {
+		initRequest: async () => {
 			remult.context.feedbackOptions = o
 		},
 	})
-}
-
-declare module 'remult' {
-	export interface RemultContext {
-		feedbackOptions: FeedbackOptions
-	}
 }

@@ -144,7 +144,7 @@ export const cron: (jobsInfos: CronJobParams[]) => Module<unknown> = (jobsInfos)
 					}
 					jobs[topic].concurrentInProgress = jobs[topic].concurrentInProgress - 1
 				} else {
-					const rCron = await repo(Cron).insert({ topic, status: 'skipped' })
+					await repo(Cron).insert({ topic, status: 'skipped' })
 					logJobs(
 						topic,
 						job,

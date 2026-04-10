@@ -1,11 +1,11 @@
 import { ValueListFieldType } from 'remult'
 
-import { BaseEnum } from '../internals/BaseEnum'
-import type { BaseEnumOptions } from '../internals/BaseEnum'
+import { BaseEnum } from '../core/BaseEnum'
+import type { BaseEnumOptions } from '../core/BaseEnum'
 
-import '../ui/LibIcon'
+import '../svelte/ui/LibIcon'
 
-import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '../ui/LibIcon'
+import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '../svelte/ui/LibIcon'
 
 @ValueListFieldType()
 export class StateDemoEnum extends BaseEnum {

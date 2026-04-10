@@ -102,7 +102,7 @@ export class CarboneController {
 	static async deleteTemplate(config: { templateId: string }) {
 		const { templateId } = config
 
-		const response = await CarboneController.server.fetch({
+		await CarboneController.server.fetch({
 			api: `/template/${templateId}`,
 			method: 'DELETE',
 		})
@@ -134,6 +134,7 @@ export class CarboneController {
 		const { templateName, templateBase64, data, filename } = config
 		let { templateId, convertTo } = config
 
+		// eslint-disable-next-line
 		let mode = ''
 		if (templateBase64) {
 			mode = 'templateBase64'

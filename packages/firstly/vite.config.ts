@@ -2,7 +2,7 @@ import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, loadEnv } from 'vite'
 
-import type { KIT_ROUTES } from '$lib2/ROUTES'
+import type { KIT_ROUTES } from '$modules/ROUTES'
 
 import { firstly } from './src/lib/vite'
 
@@ -30,14 +30,15 @@ const config = defineConfig(({ mode }) => {
 		plugins: [
 			firstly<KIT_ROUTES>({
 				kitRoutes: {
-					generated_file_path: 'src/lib2/ROUTES.ts',
+					// It's not something that we want to expose in the lib
+					generated_file_path: 'src/modules/ROUTES.ts',
 					LINKS: {
 						remult_admin: '/api/admin',
 						github: {
 							href: 'https://github.com/[owner]/[repo]',
 							params: {
-								owner: { default: '"jycouet"' },
-								repo: { default: '"firstly"' },
+								owner: { default: 'jycouet' },
+								repo: { default: 'firstly' },
 							},
 						},
 					},

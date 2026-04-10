@@ -23,7 +23,6 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:w": "svelte-check --tsconfig ./tsconfig.json --watch",
     "//// ---- TEST ---- ////": "",
-    "test:bin": "pnpm compile && node ./dist/esm/bin/cmd.js",
     "test:e2e": "CI=true PORT=4142 playwright test",
     "test:unit": "TZ=Europe/Paris vitest",
     "test:unit:ci": "TZ=Europe/Paris vitest run",
@@ -34,7 +33,7 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=1.0.0 <3.0.0",
-    "remult": ">=3.3.2",
+    "remult": ">=3.3.7",
     "svelte": ">=5"
   },
   "peerDependenciesMeta": {
@@ -50,33 +49,29 @@
   },
   "devDependencies": {
     "@kitql/helpers": "catalog:kitql",
+    "daisyui": "catalog:ui",
     "@sveltejs/adapter-node": "catalog:sveltekit",
     "@sveltejs/kit": "catalog:sveltekit",
     "@sveltejs/package": "catalog:sveltekit",
     "@sveltejs/vite-plugin-svelte": "catalog:sveltekit",
     "@tailwindcss/vite": "catalog:ui",
     "@typescript/native-preview": "catalog:tooling",
-    "remult": "3.3.6",
+    "remult": "catalog:best",
     "svelte": "catalog:svelte",
     "svelte-check": "catalog:svelte",
     "tslib": "catalog:tooling",
     "vite": "catalog:tooling",
+    "eslint": "catalog:kitql",
     "vitest": "catalog:testing"
   },
   "dependencies": {
-    "@clack/prompts": "catalog:tooling",
-    "@kitql/internals": "catalog:kitql",
-    "@layerstack/svelte-actions": "catalog:prod",
     "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
     "@types/nodemailer": "catalog:prod",
-    "@melt-ui/svelte": "catalog:ui",
     "clsx": "catalog:ui",
     "cron": "catalog:prod",
-    "daisyui": "catalog:ui",
     "esm-env": "catalog:tooling",
     "nodemailer": "catalog:prod",
-    "svelecte": "5.3.0",
     "tailwind-merge": "catalog:ui",
     "tailwindcss": "catalog:ui",
     "vite-plugin-kit-routes": "catalog:tooling",
@@ -87,20 +82,11 @@
     "directory": "dist",
     "access": "public"
   },
-  "bin": "./esm/bin/cmd.js",
   "exports": {
     ".": {
       "types": "./esm/index.d.ts",
       "svelte": "./esm/index.js",
       "default": "./esm/index.js"
-    },
-    "./internals": {
-      "types": "./esm/internals/index.d.ts",
-      "default": "./esm/internals/index.js"
-    },
-    "./server": {
-      "types": "./esm/server/index.d.ts",
-      "default": "./esm/server/index.js"
     },
     "./svelte": {
       "types": "./esm/svelte/index.d.ts",
@@ -110,9 +96,6 @@
     "./vite": {
       "types": "./esm/vite/index.d.ts",
       "default": "./esm/vite/index.js"
-    },
-    "./bin": {
-      "default": "./esm/bin/cmd.js"
     },
     "./formats": {
       "types": "./esm/formats/index.d.ts",

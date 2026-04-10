@@ -1,11 +1,10 @@
+import { remultApi } from 'remult/remult-sveltekit'
 import { carbone } from 'firstly/carbone/server'
 
 import { MailController } from '$modules/mail/MailController'
-import { task } from '$modules/task/server'
 import { mail } from '$lib/mail/server'
-import { firstly, ModuleFF } from '$lib/server'
 
-export const api = firstly({
+export const api = remultApi({
 	controllers: [MailController],
 	modules: [
 		mail({
@@ -16,14 +15,5 @@ export const api = firstly({
 		carbone({
 			CARBONE_API_KEY: 'test_1234567890',
 		}),
-	],
-
-	modulesFF: [
-		new ModuleFF({
-			name: 'theEnd',
-			async initApi() {},
-		}),
-
-		task({ specialInfo: 'Hello from the server' }),
 	],
 })
