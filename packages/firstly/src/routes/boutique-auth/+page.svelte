@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Auth from '../../boutique/auth/svelte/components/Auth.svelte'
+
 	import '../../boutique/auth/svelte/styles.css'
 </script>
 

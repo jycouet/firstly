@@ -3,6 +3,7 @@ import { carbone } from 'firstly/carbone/server'
 
 import { MailController } from '$modules/mail/MailController'
 import { mail } from '$lib/mail/server'
+
 import { auth } from '../boutique/auth/server/module'
 
 export const api = remultApi({

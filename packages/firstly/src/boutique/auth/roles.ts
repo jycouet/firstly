@@ -1,7 +1,7 @@
-import { Roles_Auth } from "./entities";
+import { Roles_Auth } from './entities'
 
 /** ALL ROLES of your application. [Learn more](https://remult.dev/docs/modules#roles) */
 export const Roles = {
-  Admin: "admin",
-  ...Roles_Auth,
-} as const;
+	Admin: 'admin',
+	...Roles_Auth,
+} as const

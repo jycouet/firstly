@@ -8,15 +8,15 @@ title: Boutique - Auth
 
 ## 📦 What you get
 
-| File | Purpose |
-| --- | --- |
-| `entities.ts` | `User`, `Session`, `Account`, `Verification` + `Roles_Auth` |
-| `roles.ts` | App-wide `Roles` (merges `Roles_Auth`) |
-| `server/auth.ts` | `betterAuth` instance wired to `remultAdapter` |
-| `server/handle.ts` | SvelteKit `handleAuth` |
-| `server/module.ts` | `auth()` remult Module (entities + `initApi` + `initRequest`) |
-| `server/authHelpers.ts` | `addRolesToUser(emails, roles)` |
-| `svelte/components/Auth.svelte` | Sign up / Sign in / Sign out UI |
+| File                            | Purpose                                                       |
+| ------------------------------- | ------------------------------------------------------------- |
+| `entities.ts`                   | `User`, `Session`, `Account`, `Verification` + `Roles_Auth`   |
+| `roles.ts`                      | App-wide `Roles` (merges `Roles_Auth`)                        |
+| `server/auth.ts`                | `betterAuth` instance wired to `remultAdapter`                |
+| `server/handle.ts`              | SvelteKit `handleAuth`                                        |
+| `server/module.ts`              | `auth()` remult Module (entities + `initApi` + `initRequest`) |
+| `server/authHelpers.ts`         | `addRolesToUser(emails, roles)`                               |
+| `svelte/components/Auth.svelte` | Sign up / Sign in / Sign out UI                               |
 
 ## 🚀 Install
 
@@ -47,13 +47,13 @@ Paths below assume `src/modules/auth`. Adjust to taste.
 ```ts
 // src/server/api.ts
 import { remultSveltekit } from 'remult/remult-sveltekit'
-import { auth } from '$lib/modules/auth/server/module'
+
 import { SUPER_ADMIN_EMAILS } from '$env/static/private'
 
+import { auth } from '$lib/modules/auth/server/module'
+
 export const api = remultSveltekit({
-  modules: [
-    auth({ SUPER_ADMIN_EMAILS }),
-  ],
+	modules: [auth({ SUPER_ADMIN_EMAILS })],
 })
 ```
 
@@ -66,7 +66,9 @@ export const api = remultSveltekit({
 ```ts
 // src/hooks.server.ts
 import { sequence } from '@sveltejs/kit/hooks'
+
 import { handleAuth } from '$lib/modules/auth/server/handle'
+
 import { handleRemult } from './api'
 
 export const handle = sequence(handleAuth, handleRemult)
@@ -76,8 +78,9 @@ export const handle = sequence(handleAuth, handleRemult)
 
 ```svelte
 <script lang="ts">
-  import Auth from '$lib/modules/auth/svelte/components/Auth.svelte'
-  import '$lib/modules/auth/svelte/styles.css'
+	import Auth from '$lib/modules/auth/svelte/components/Auth.svelte'
+
+	import '$lib/modules/auth/svelte/styles.css'
 </script>
 
 <Auth />
@@ -105,23 +108,23 @@ Once copied, `server/auth.ts` is yours - wire it to whatever better-auth feature
 ```ts
 // src/modules/auth/server/auth.ts
 export const auth = betterAuth({
-  database: remultAdapter({ authEntities, usePlural: true }),
+	database: remultAdapter({ authEntities, usePlural: true }),
 
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: true,
-  },
+	emailAndPassword: {
+		enabled: true,
+		requireEmailVerification: true,
+	},
 
-  emailVerification: {
-    autoSignInAfterVerification: true,
-    async sendVerificationEmail({ user, url }) {
-      remult.context.sendMail?.('sendVerificationEmail', {
-        to: user.email,
-        subject: 'Welcome to our app!',
-        sections: [{ html: 'Verify your email', cta: { html: 'Verify', link: url } }],
-      })
-    },
-  },
+	emailVerification: {
+		autoSignInAfterVerification: true,
+		async sendVerificationEmail({ user, url }) {
+			remult.context.sendMail?.('sendVerificationEmail', {
+				to: user.email,
+				subject: 'Welcome to our app!',
+				sections: [{ html: 'Verify your email', cta: { html: 'Verify', link: url } }],
+			})
+		},
+	},
 })
 ```
 

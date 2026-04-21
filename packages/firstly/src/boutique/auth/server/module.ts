@@ -1,39 +1,40 @@
-import { Module } from "remult/server";
-import { authEntities } from "../entities";
-import { auth as authConfig } from "./auth";
-import { remult } from "remult";
-import { Roles } from "../roles";
-import { addRolesToUser } from "./authHelpers";
+import { remult } from 'remult'
+import { Module } from 'remult/server'
+
+import { authEntities } from '../entities'
+import { Roles } from '../roles'
+import { auth as authConfig } from './auth'
+import { addRolesToUser } from './authHelpers'
 
 export const auth = (o?: { SUPER_ADMIN_EMAILS?: string }) =>
-  new Module({
-    key: "auth",
+	new Module({
+		key: 'auth',
 
-    entities: Object.values(authEntities),
+		entities: Object.values(authEntities),
 
-    initApi: async () => {
-      // Add some roles to some users.
-      const emails = (o?.SUPER_ADMIN_EMAILS ?? "")
-        .split(",")
-        .map((c) => c.trim())
-        .filter(Boolean);
-      await addRolesToUser(emails, Object.values(Roles));
-    },
+		initApi: async () => {
+			// Add some roles to some users.
+			const emails = (o?.SUPER_ADMIN_EMAILS ?? '')
+				.split(',')
+				.map((c) => c.trim())
+				.filter(Boolean)
+			await addRolesToUser(emails, Object.values(Roles))
+		},
 
-    initRequest: async () => {
-      const s = await authConfig.api.getSession({
-        headers: new Headers(remult.context.headers?.getAll()),
-      });
+		initRequest: async () => {
+			const s = await authConfig.api.getSession({
+				headers: new Headers(remult.context.headers?.getAll()),
+			})
 
-      if (s) {
-        const roles = s.user.roles;
+			if (s) {
+				const roles = s.user.roles
 
-        // Tweak the remult.user object.
-        remult.user = {
-          id: s.user.id,
-          name: s.user.name,
-          roles,
-        };
-      }
-    },
-  });
+				// Tweak the remult.user object.
+				remult.user = {
+					id: s.user.id,
+					name: s.user.name,
+					roles,
+				}
+			}
+		},
+	})

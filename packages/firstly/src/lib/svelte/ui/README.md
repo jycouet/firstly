@@ -73,7 +73,7 @@ effect immediately.
 
 ```svelte
 <script lang="ts">
-	import { Button, Input, Badge, Card } from 'firstly/svelte/ui'
+	import { Badge, Button, Card, Input } from 'firstly/svelte/ui'
 </script>
 
 <Card.Root>
@@ -96,10 +96,10 @@ effect immediately.
 ### Per-component imports (better tree-shaking)
 
 ```ts
-import { Button, buttonVariants, type ButtonProps } from 'firstly/svelte/ui/button'
-import { Input } from 'firstly/svelte/ui/input'
-import * as Card from 'firstly/svelte/ui/card'
 import { Badge, badgeVariants } from 'firstly/svelte/ui/badge'
+import { Button, buttonVariants, type ButtonProps } from 'firstly/svelte/ui/button'
+import * as Card from 'firstly/svelte/ui/card'
+import { Input } from 'firstly/svelte/ui/input'
 ```
 
 ### `cn` utility
@@ -120,13 +120,13 @@ const cls = cn('px-4 py-2', isActive && 'bg-primary', className)
 <Button variant="default" size="default" href="/docs" onclick={fn}>Label</Button>
 ```
 
-| prop      | type                                                                              | default     |
-| --------- | --------------------------------------------------------------------------------- | ----------- |
-| `variant` | `'default' \| 'destructive' \| 'outline' \| 'secondary' \| 'ghost' \| 'link'`     | `'default'` |
-| `size`    | `'default' \| 'sm' \| 'lg' \| 'icon'`                                             | `'default'` |
-| `href`    | `string`                                                                          | —           |
-| `class`   | `string`                                                                          | —           |
-| `ref`     | bindable element ref                                                              | `null`      |
+| prop      | type                                                                          | default     |
+| --------- | ----------------------------------------------------------------------------- | ----------- |
+| `variant` | `'default' \| 'destructive' \| 'outline' \| 'secondary' \| 'ghost' \| 'link'` | `'default'` |
+| `size`    | `'default' \| 'sm' \| 'lg' \| 'icon'`                                         | `'default'` |
+| `href`    | `string`                                                                      | —           |
+| `class`   | `string`                                                                      | —           |
+| `ref`     | bindable element ref                                                          | `null`      |
 
 If `href` is provided the component renders an `<a>`, otherwise a `<button type="button">`.
 All standard button/anchor attributes pass through.

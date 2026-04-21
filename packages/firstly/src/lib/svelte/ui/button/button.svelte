@@ -1,10 +1,11 @@
 <script lang="ts" module>
 	import type { WithElementRef } from 'bits-ui'
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements'
-	import { type VariantProps, tv } from 'tailwind-variants'
+	import { tv, type VariantProps } from 'tailwind-variants'
 
 	export const buttonVariants = tv({
-		base: "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 shrink-0",
+		base:
+			"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 shrink-0",
 		variants: {
 			variant: {
 				default: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -53,12 +54,7 @@
 </script>
 
 {#if href}
-	<a
-		bind:this={ref}
-		class={cn(buttonVariants({ variant, size }), className)}
-		{href}
-		{...restProps}
-	>
+	<a bind:this={ref} class={cn(buttonVariants({ variant, size }), className)} {href} {...restProps}>
 		{@render children?.()}
 	</a>
 {:else}

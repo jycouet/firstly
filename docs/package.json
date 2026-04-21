@@ -3,6 +3,8 @@
   "type": "module",
   "version": "0.0.2",
   "scripts": {
+    "prepare": "node ./scripts/sync-external-docs.mjs",
+    "sync": "node ./scripts/sync-external-docs.mjs",
     "dev": "astro dev",
     "lint": "kitql-lint -d",
     "format": "kitql-lint -f -d",

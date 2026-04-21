@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { remult } from 'remult'
 	import { createAuthClient } from 'better-auth/svelte'
+
+	import { remult } from 'remult'
 
 	import { Button } from '$lib/svelte/ui/button'
 	import { Input } from '$lib/svelte/ui/input'
+
 	import Tile from '../Tile.svelte'
 
 	const authClient = createAuthClient({
@@ -23,7 +25,7 @@
 		<p class="text-sm">
 			You are authenticated as <strong>{remult.user?.name}</strong>
 			<br />
-			<span class="italic text-muted-foreground">Roles:</span>
+			<span class="text-muted-foreground italic">Roles:</span>
 			{roles.length > 0 ? roles.join(', ') : '-'}
 		</p>
 		<div class="flex gap-2">
@@ -40,7 +42,9 @@
 	{:else}
 		<p class="text-sm">You are currently not authenticated</p>
 		{#if messageError}
-			<div class="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+			<div
+				class="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+			>
 				{messageError}
 			</div>
 		{/if}

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import * as Card from '$lib/svelte/ui/card'
 	import { Badge } from '$lib/svelte/ui/badge'
+	import * as Card from '$lib/svelte/ui/card'
 	import { cn } from '$lib/utils'
 
 	interface Props {
@@ -12,7 +12,14 @@
 		children?: import('svelte').Snippet
 	}
 
-	let { title, subtitle = '', status = '', className = '', width = 'full', children }: Props = $props()
+	let {
+		title,
+		subtitle = '',
+		status = '',
+		className = '',
+		width = 'full',
+		children,
+	}: Props = $props()
 
 	const widthClass = {
 		full: 'col-span-12',

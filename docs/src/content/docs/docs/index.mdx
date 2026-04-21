@@ -23,11 +23,16 @@ That's it. No CLI, no scaffolder. Drop it into any remult project.
 Regular [remult Modules](https://remult.dev/docs/modules) published inside `firstly`. Import, register, done. You get updates by bumping the version.
 
 ```ts
-import { mail } from 'firstly/mail/server'
 import { cron } from 'firstly/cron/server'
+import { mail } from 'firstly/mail/server'
 
 export const api = remultApi({
-  modules: [mail(), cron([/* ... */])],
+	modules: [
+		mail(),
+		cron([
+			/* ... */
+		]),
+	],
 })
 ```
 
@@ -44,7 +49,8 @@ npx degit jycouet/firstly/packages/firstly/src/boutique/auth src/modules/auth
 Then wire it up following the boutique's own README (see [Boutique / Auth](/docs/modules/auth)).
 
 <Aside type="tip">
-  Rule of thumb: if you'd want to edit it, take the **boutique** version. If you just want it to work and get updated, take the **module** version.
+	Rule of thumb: if you'd want to edit it, take the **boutique** version. If you just want it to work
+	and get updated, take the **module** version.
 </Aside>
 
 ## We need you 🫵

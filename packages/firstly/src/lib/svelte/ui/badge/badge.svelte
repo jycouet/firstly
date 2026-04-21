@@ -1,10 +1,11 @@
 <script lang="ts" module>
 	import type { WithElementRef } from 'bits-ui'
 	import type { HTMLAnchorAttributes, HTMLAttributes } from 'svelte/elements'
-	import { type VariantProps, tv } from 'tailwind-variants'
+	import { tv, type VariantProps } from 'tailwind-variants'
 
 	export const badgeVariants = tv({
-		base: 'inline-flex items-center justify-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 transition-[color,box-shadow] overflow-hidden',
+		base:
+			'inline-flex items-center justify-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 transition-[color,box-shadow] overflow-hidden',
 		variants: {
 			variant: {
 				default: 'border-transparent bg-primary text-primary-foreground',
