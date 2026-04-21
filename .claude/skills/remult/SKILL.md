@@ -1,235 +1,166 @@
 ---
 name: remult
-description: Remult entity patterns, GridPlus, forms, relations, permissions, enums, and lifecycle hooks for this monorepo. Use this skill whenever writing or modifying Remult entities, creating CRUD pages, building forms with storeItem/FieldGroup/cellsBuildor, configuring GridPlus, adding entity relations, or working with permissions and enums. Also use when the user mentions entities, repo(), fields, or asks how to build a form or list page.
+description: Generic Remult patterns - entities, repo(), relations, permissions, enums, lifecycle hooks, BackendMethods, and migrations. Use whenever writing or modifying Remult entities, controllers, or server config, or when the user mentions `@Entity`, `repo()`, `@Fields`, `@Relations`, `BackendMethod`, `allowApi*`, `ValueListFieldType`, or data migrations. Framework-agnostic (SvelteKit, Next, Express, etc.).
 ---
 
 # Remult Patterns
 
-Patterns for Remult in this monorepo. **Read existing code first before writing new code.**
+Opinionated patterns for Remult. **Read existing code first before writing new code.**
 
-## repo() Usage
+## `repo()` Usage
 
-**NEVER store `repo(Entity)` in a variable.** Always call `repo(Entity)` directly inline.
+**Never store `repo(Entity)` in a variable.** Call it inline - cheap, readable, no staleness risk.
 
-```typescript
+```ts
 // BAD
-const repoXxx = repo(Entity)
-await repoXxx.find(...)
+const repoTask = repo(Task)
+await repoTask.find(...)
 
 // GOOD
-await repo(Entity).find(...)
+await repo(Task).find(...)
 ```
 
 ## Entity ID Field
 
-**ALWAYS use `@Fields.id()` for entity primary keys.** Never use `@Fields.autoIncrement()`.
+**Always use `@Fields.id()` for primary keys.** Never `@Fields.autoIncrement()` - UUIDs avoid collision on merge/replication and don't leak row counts.
 
-## Route Patterns
+```ts
+@Entity('tasks', { allowApiCrud: true })
+export class Task {
+  @Fields.id()
+  id!: string
 
-| Type                | Pattern                  | Example                            |
-| ------------------- | ------------------------ | ---------------------------------- |
-| List                | Generic `[[tab]]/[crud]` | `/app/passations`                  |
-| Detail (integer ID) | `[id=integer]`           | `/app/site/[id=integer]`           |
-| Detail (UUID)       | `[id]`                   | `/app/passation/[id]`              |
-| Filtered tab        | Parent route + entity    | `/app/site/[id=integer]/passation` |
-
-## GridPlus (Always Use This, Never Grid)
-
-**Always use `<GridPlus>`, never `<Grid>`.** GridPlus covers all use cases and integrates with entity `app.list` config.
-
-### For Sub-Entity Lists
-
-**Entity** defines base config:
-
-```typescript
-app: {
-  list: {
-    cells: ['peopleSe', 'isMandatory'],
-    insert: { cells: ['peopleSe', 'isMandatory'] },
-    delete: {},
-  },
+  @Fields.string()
+  title = ''
 }
-```
-
-**Component** passes FK defaults:
-
-```svelte
-<script lang="ts">
-	import { GridPlus, type TCrud } from '@app/common'
-
-	const list: TCrud<Entity> = {
-		where: { parentId },
-		insert: { defaults: { parentId } },
-	}
-</script>
-
-<GridPlus entity={Entity} {list} hideStats />
 ```
 
 ## Entity Lifecycle Hooks
 
-Use `saved` hook for creating related entities on insert:
+Use `saved` for creating related records, `saving` for computing fields from relations.
 
-```typescript
-@FF_Entity<Passation>('passations', {
+```ts
+@Entity<Task>('tasks', {
+  saving: async (entity) => {
+    // Populate derived fields from relations before write
+    if (entity.categoryId) {
+      const cat = await repo(Category).findId(entity.categoryId)
+      if (cat) entity.categoryName = cat.name
+    }
+  },
   saved: async (entity, event) => {
     if (event.isNew) {
-      // Create template items
-      for (const label of LabelEnum.all()) {
-        await repo(Item).insert({ passationId: entity.id, label })
-      }
-      // Add owner as participant
-      const user = await repo(User).findId(entity.ownerId)
-      if (user?.peopleSeId) {
-        await repo(Participant).insert({ passationId: entity.id, peopleSeId: user.peopleSeId })
-      }
+      // Side effects on creation
+      await repo(AuditLog).insert({ entity: 'Task', entityId: entity.id })
     }
   },
 })
 ```
 
-**Client is simple:** `await repo(Passation).insert({ siteId: 123 })`
+**Client stays simple:** `await repo(Task).insert({ title: 'hi' })`.
 
-## When BackendMethod is Actually Needed
+## When `BackendMethod` is Needed
 
-| Use Case                  | Example                                       |
-| ------------------------- | --------------------------------------------- |
-| Multi-entity transactions | Create Quote + Periods + Materials atomically |
-| Complex aggregations      | Stock study with 5 parallel queries           |
-| Cross-entity logic        | Clone quote with all related data             |
-| Server-only data          | Queries on entities not exposed to client     |
+Don't reach for it by default - entity hooks + `allowApi*` cover most cases. Use `BackendMethod` when:
 
-## Remult Enums
+| Use case | Example |
+| --- | --- |
+| Multi-entity transaction | Create Order + OrderLines + charge payment atomically |
+| Complex aggregation | Dashboard with many parallel queries, returned as one payload |
+| Cross-entity workflow | Clone a Quote with all children |
+| Server-only data | Queries on entities not exposed to the client |
 
-```typescript
+## Enums (`ValueListFieldType`)
+
+```ts
+import { ValueListFieldType, getValueList } from 'remult'
+
 @ValueListFieldType()
-export class MyStatusEnum extends BaseEnum {
-	static OK = new MyStatusEnum('OK', { caption: 'Disponible', order: 10 })
-	static NOT_OK = new MyStatusEnum('NOT_OK', { caption: 'Indisponible', order: 20 })
+export class TaskStatus {
+  static Todo = new TaskStatus('todo', { caption: 'To do', order: 10 })
+  static Done = new TaskStatus('done', { caption: 'Done', order: 20 })
+
+  constructor(
+    public id: string,
+    public meta: { caption: string; order: number },
+  ) {}
 }
 ```
 
-### Iterating Enum Values
+**Iterate with `getValueList()` - never hand-roll a static `all()` method.**
 
-Use `getValueList()` from Remult - **never create custom static `all()` methods**:
-
-```typescript
-// Don't create custom static methods
-static all() { return [this.OK, this.NOT_OK] }
-
-// Use getValueList()
-import { getValueList } from 'remult'
-for (const item of getValueList(MyStatusEnum)) {
-  // item.order, item.caption available
+```ts
+for (const s of getValueList(TaskStatus)) {
+  // s.meta.caption, s.meta.order available
 }
 ```
 
-### Order Values
+**Order values in increments of 10** (`10, 20, 30...`) so you can insert between later without renumbering.
 
-Use increments of 10 (10, 20, 30...) to allow inserting items between existing ones later.
+## Permissions - Entity-Level, Not UI-Level
 
-## Permission Checks in UI
+**Define rules once on the entity, read them in the UI via `metadata.*Allowed`.** Never duplicate the logic in components.
 
-**Always use entity-level permissions, never duplicate logic in UI.**
-
-### Entity Definition
-
-```typescript
-@FF_Entity<MyEntity>('my_entities', {
+```ts
+@Entity<Task>('tasks', {
   allowApiUpdate: (item) => item?.ownerId === remult.user?.id,
+  allowApiDelete: Allow.authenticated,
 })
 ```
 
-### UI Check
+In the UI:
 
-```svelte
-<script lang="ts">
-	const canEdit = $derived(
-		$store.item ? repo(MyEntity).metadata.apiUpdateAllowed($store.item) : false,
-	)
-</script>
-
-{#if canEdit}
-	<FormButtons bind:edit />
-{/if}
+```ts
+const canEdit = repo(Task).metadata.apiUpdateAllowed(item)
+const canDelete = repo(Task).metadata.apiDeleteAllowed(item)
+const canInsert = repo(Task).metadata.apiInsertAllowed // no item
 ```
 
-**Available methods:**
+## Relations
 
-- `repo(Entity).metadata.apiUpdateAllowed(item)` - Can update this item?
-- `repo(Entity).metadata.apiDeleteAllowed(item)` - Can delete this item?
-- `repo(Entity).metadata.apiInsertAllowed` - Can insert new items? (no item param)
+```ts
+@Entity('tasks', { allowApiCrud: true })
+export class Task {
+  @Fields.id() id!: string
+  @Fields.string() title = ''
 
-## Form Pattern (storeItem + FieldGroup)
-
-```svelte
-<script lang="ts">
-	import { repo } from 'remult'
-	import { cellsBuildor, FieldGroup, storeItem } from 'firstly/internals'
-
-	const store = storeItem(repo(MyEntity))
-	const cells = cellsBuildor(repo(MyEntity), ['field1', 'field2'])
-
-	$effect(() => {
-		store.fetch(id)
-	})
-</script>
-
-{#if $store.item}
-	<FieldGroup {cells} {store} mode={edit ? 'edit' : 'view'} />
-{/if}
-```
-
-### cellsBuildor Options
-
-```typescript
-const cells = cellsBuildor(repo(Entity), [
-	'field1', // Simple
-	{ col: 'notes', class: 'col-span-2' }, // Grid positioning
-	{ col: 'total', modeEdit: 'view' }, // Read-only in edit
-	{ col: 'relation', clearable: true }, // Optional relation
-])
-```
-
-## Entity Relations = Automatic Dropdowns
-
-```typescript
-@Relations.toOne(() => AccountGroup, { field: 'accountGroupId', caption: 'Groupe' })
-accountGroup?: AccountGroup
-```
-
-Use in cells: `{ col: 'accountGroup', clearable: true }` -> dropdown automatic!
-
-## dialog.form() for Quick Edit Modals
-
-```typescript
-const res = await dialog.form('update', 'Title', repo(Entity), {
-	cells,
-	defaults: entity,
-})
-if (res.success) {
-	/* handle res.item */
+  @Fields.string() categoryId = ''
+  @Relations.toOne(() => Category, 'categoryId')
+  category?: Category
 }
+```
+
+Include in queries:
+
+```ts
+await repo(Task).find({ include: { category: true } })
 ```
 
 ## Junction Tables (Many-to-Many)
 
-Use `saving` hook to auto-populate computed fields from relations:
+Use `saving` to snapshot fields from the related side (denormalize intentionally, avoid extra joins at read time):
 
-```typescript
-async saving(entity) {
-  const related = await repo(Related).findId(entity.relatedId)
-  if (related) entity.price = related.price
-}
+```ts
+@Entity<TaskTag>('task_tags', {
+  saving: async (entity) => {
+    const tag = await repo(Tag).findId(entity.tagId)
+    if (tag) entity.tagName = tag.name
+  },
+})
 ```
 
 ## Migrations
 
-- **Schema changes** (new tables, columns) -> Auto-generated when app runs
-- **Data migrations** -> Manually append to `migrations.ts`
+- **Schema changes** (new tables/columns) - auto-generated at app boot.
+- **Data migrations** - append manually to `migrations.ts`, keyed by number.
 
-```typescript
-40: async ({ sql }) => {
-  await sql(`UPDATE "table" SET "field" = 'value' WHERE ...`)
+```ts
+// migrations.ts
+export const migrations = {
+  40: async ({ sql }) => {
+    await sql(`UPDATE "tasks" SET "status" = 'todo' WHERE "status" IS NULL`)
+  },
 }
 ```
+
+Numbering is monotonic - never reuse or reorder a number once shipped.
