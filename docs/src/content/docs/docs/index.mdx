@@ -2,27 +2,51 @@
 title: Getting Started
 ---
 
+import { Aside } from '@astrojs/starlight/components'
+
+`firstly` rides on top of [remult](https://remult.dev), so it works with **any framework remult supports** (SvelteKit, Next, Nuxt, Express, Fastify...). Our docs, examples and first-class DX lean toward **SvelteKit** - that's where we hang out.
+
+## Install
+
 ```bash
-# Pro tip: replace 'firstly-demo' by your project name!
-npm init remult@latest firstly-demo
-
-# Go to the project // or your project name...
-cd firstly-demo
-
-# add remult & firstly
 npm add firstly@latest -D
-
-# Now you should probably git init & commit.
-# GIT GIT GIT
-
-# Start the dev server
-npm run dev
 ```
 
-Now that you have `firstly` in your project, you can use it's modules!
+That's it. No CLI, no scaffolder. Drop it into any remult project.
+
+## Two flavors
+
+`firstly` ships two kinds of things. Both are optional, mix as you like.
+
+### 📦 Modules
+
+Regular [remult Modules](https://remult.dev/docs/modules) published inside `firstly`. Import, register, done. You get updates by bumping the version.
+
+```ts
+import { mail } from 'firstly/mail/server'
+import { cron } from 'firstly/cron/server'
+
+export const api = remultApi({
+  modules: [mail(), cron([/* ... */])],
+})
+```
+
+### 🛍️ Boutique
+
+Opinionated **recipes** you copy into your repo and own from then on. Great for things you'll inevitably want to tweak (auth flows, UI, providers...). No dependency, no upgrade drama - it's your code.
+
+Grab one with [`degit`](https://github.com/Rich-Harris/degit):
+
+```bash
+npx degit jycouet/firstly/packages/firstly/src/boutique/auth src/modules/auth
+```
+
+Then wire it up following the boutique's own README (see [Boutique / Auth](/docs/modules/auth)).
+
+<Aside type="tip">
+  Rule of thumb: if you'd want to edit it, take the **boutique** version. If you just want it to work and get updated, take the **module** version.
+</Aside>
 
 ## We need you 🫵
 
-It's early and we need you to help us to make it better! If you have any feedback, idea, or just
-want to chat, feel free to join us on [discord](https://discord.gg/GXHk7ZfuG5), there is a dedicated
-channel for `firstly` under **community**.
+It's early and we need you to help us make it better! If you have any feedback, idea, or just want to chat, join us on [discord](https://discord.gg/GXHk7ZfuG5) - there is a dedicated `firstly` channel under **community**.
