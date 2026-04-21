@@ -26,7 +26,7 @@
 
 	const links: { path: string; text: string; target?: string }[] = [
 		{ path: route('/'), text: 'Home' },
-		{ path: route('/boutique-auth'), text: 'Boutique Auth' },
+		{ path: route('/auth'), text: 'Auth' },
 
 		{ path: route('remult_admin'), text: 'Remult Admin', target: '_blank' },
 		{
