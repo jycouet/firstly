@@ -14,9 +14,9 @@ description: Firstly-specific patterns on top of Remult - FF_Entity (with built-
 
 For generic Remult rules (repo, permissions, migrations, etc.), see the `remult` skill.
 
-## `FF_Entity` - Prefer Over `@Entity`
+## Use `FF_Entity`, Not `@Entity`
 
-`FF_Entity` is a drop-in replacement for `@Entity` that auto-wires [changeLog](https://firstly.fun) on every save. Same signature, same options.
+In a firstly project, **always use `FF_Entity`**. It's a drop-in for `@Entity` with the same signature, plus changelog wired in. One more abstraction - just use it.
 
 ```ts
 import { FF_Entity } from 'firstly'
@@ -33,8 +33,6 @@ export class Task {
   @Fields.string() title = ''
 }
 ```
-
-Use `@Entity` directly only when you explicitly want to opt out of changelog tracking (e.g. high-churn tables, junction tables where history has no value).
 
 ## `BaseEnum` - Richer Enums
 

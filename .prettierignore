@@ -27,6 +27,9 @@ packages/firstly/static/favicon.svg
 .astro
 .devbox
 
+# Skill docs - code blocks are illustrative, not project code
+.claude/skills
+
 packages/firstly/src/lib/ui/Tooltip.svelte
 packages/firstly/src/lib/ui/Button.svelte
 packages/firstly/src/routes/+layout.svelte
