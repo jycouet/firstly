@@ -1,4 +1,8 @@
 <script lang="ts">
+	import * as Card from '$lib/svelte/ui/card'
+	import { Badge } from '$lib/svelte/ui/badge'
+	import { cn } from '$lib/utils'
+
 	interface Props {
 		title: string
 		subtitle?: string
@@ -17,21 +21,21 @@
 	}[width]
 </script>
 
-<section class={`card bg-base-100 shadow ${widthClass} ${className}`}>
-	<div class="card-body">
-		<header class="flex items-baseline justify-between gap-2">
-			<div>
-				<h2 class="card-title">{title}</h2>
+<Card.Root class={cn(widthClass, className)}>
+	<Card.Header>
+		<div class="flex items-start justify-between gap-2">
+			<div class="flex flex-col gap-1">
+				<Card.Title>{title}</Card.Title>
 				{#if subtitle}
-					<p class="text-sm opacity-70">{subtitle}</p>
+					<Card.Description>{subtitle}</Card.Description>
 				{/if}
 			</div>
 			{#if status}
-				<span class="badge badge-sm badge-success">{status}</span>
+				<Badge variant="success">{status}</Badge>
 			{/if}
-		</header>
-		<div class="flex flex-col gap-2">
-			{@render children?.()}
 		</div>
-	</div>
-</section>
+	</Card.Header>
+	<Card.Content class="flex flex-col gap-3">
+		{@render children?.()}
+	</Card.Content>
+</Card.Root>
