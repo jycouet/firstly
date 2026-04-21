@@ -17,6 +17,21 @@
 	let password = $state('')
 
 	let messageError = $state('')
+
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault()
+		const action = (e.submitter as HTMLButtonElement | null)?.dataset.action
+		messageError = ''
+		if (action === 'signup') {
+			const res = await authClient.signUp.email({ name, email, password })
+			messageError = res.error?.message ?? ''
+			if (!res.error) remult.initUser()
+		} else if (action === 'signin') {
+			const res = await authClient.signIn.email({ email, password })
+			messageError = res.error?.message ?? ''
+			if (!res.error) remult.initUser()
+		}
+	}
 </script>
 
 <Tile title="Auth" status="Success" subtitle="" className="" width="half">
@@ -41,36 +56,28 @@
 		</div>
 	{:else}
 		<p class="text-sm">You are currently not authenticated</p>
-		{#if messageError}
-			<div
-				class="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-			>
-				{messageError}
+		<form class="flex flex-col gap-3" onsubmit={handleSubmit}>
+			{#if messageError}
+				<div
+					class="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+				>
+					{messageError}
+				</div>
+			{/if}
+			<Input type="text" bind:value={name} placeholder="Name" autocomplete="name" />
+			<Input type="email" bind:value={email} placeholder="Email" autocomplete="email" required />
+			<Input
+				type="password"
+				bind:value={password}
+				placeholder="Password"
+				autocomplete="current-password"
+				required
+			/>
+			<div class="flex flex-wrap gap-2">
+				<Button type="submit" data-action="signup">Sign Up</Button>
+				<Button type="submit" variant="secondary" data-action="signin">Sign In</Button>
+				<Button variant="link" href="https://better-auth.com" target="_blank">Better-Auth Docs</Button>
 			</div>
-		{/if}
-		<Input type="text" bind:value={name} placeholder="Name" />
-		<Input type="email" bind:value={email} placeholder="Email" />
-		<Input type="password" bind:value={password} placeholder="Password" />
-		<div class="flex flex-wrap gap-2">
-			<Button
-				onclick={async () => {
-					const res = await authClient.signUp.email({ name, email, password })
-					messageError = res.error?.message ?? ''
-					remult.initUser()
-				}}
-			>
-				Sign Up
-			</Button>
-			<Button
-				variant="secondary"
-				onclick={async () => {
-					await authClient.signIn.email({ email, password })
-					remult.initUser()
-				}}
-			>
-				Sign In
-			</Button>
-			<Button variant="link" href="https://better-auth.com" target="_blank">Better-Auth Docs</Button>
-		</div>
+		</form>
 	{/if}
 </Tile>
