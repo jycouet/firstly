@@ -96,6 +96,36 @@
       "svelte": "./esm/svelte/index.js",
       "default": "./esm/svelte/index.js"
     },
+    "./svelte/ui": {
+      "types": "./esm/svelte/ui/index.d.ts",
+      "svelte": "./esm/svelte/ui/index.js",
+      "default": "./esm/svelte/ui/index.js"
+    },
+    "./svelte/ui/button": {
+      "types": "./esm/svelte/ui/button/index.d.ts",
+      "svelte": "./esm/svelte/ui/button/index.js",
+      "default": "./esm/svelte/ui/button/index.js"
+    },
+    "./svelte/ui/input": {
+      "types": "./esm/svelte/ui/input/index.d.ts",
+      "svelte": "./esm/svelte/ui/input/index.js",
+      "default": "./esm/svelte/ui/input/index.js"
+    },
+    "./svelte/ui/card": {
+      "types": "./esm/svelte/ui/card/index.d.ts",
+      "svelte": "./esm/svelte/ui/card/index.js",
+      "default": "./esm/svelte/ui/card/index.js"
+    },
+    "./svelte/ui/badge": {
+      "types": "./esm/svelte/ui/badge/index.d.ts",
+      "svelte": "./esm/svelte/ui/badge/index.js",
+      "default": "./esm/svelte/ui/badge/index.js"
+    },
+    "./svelte/ui/theme.css": "./esm/svelte/ui/theme.css",
+    "./utils": {
+      "types": "./esm/utils.d.ts",
+      "default": "./esm/utils.js"
+    },
     "./vite": {
       "types": "./esm/vite/index.d.ts",
       "default": "./esm/vite/index.js"
