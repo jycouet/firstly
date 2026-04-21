@@ -67,7 +67,9 @@
   "dependencies": {
     "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
+    "@nerdfolio/remult-better-auth": "catalog:boutique",
     "@types/nodemailer": "catalog:prod",
+    "better-auth": "catalog:boutique",
     "clsx": "catalog:ui",
     "cron": "catalog:prod",
     "esm-env": "catalog:tooling",

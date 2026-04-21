@@ -62,3 +62,7 @@ catalogs:
   nodemailer: 8.0.5
   cron: 4.4.0
   '@layerstack/utils': 1.0.0
+
+ boutique:
+  better-auth: 1.6.5
+  '@nerdfolio/remult-better-auth': 0.4.3

@@ -2,7 +2,7 @@ import { Module } from "remult/server";
 import { authEntities } from "../entities";
 import { auth as authConfig } from "./auth";
 import { remult } from "remult";
-import { Roles } from "../Roles";
+import { Roles } from "../roles";
 import { addRolesToUser } from "./authHelpers";
 
 export const auth = (o?: { SUPER_ADMIN_EMAILS?: string }) =>
