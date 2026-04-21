@@ -41,7 +41,7 @@ jobs:
    - name: 🚀 compile firstly
      run: pnpm -F firstly compile
 
-   - name: 💪 ts
+   - name: 💪 check
      run: pnpm -r check
 
    - name: 🕹️ test:unit
@@ -52,6 +52,9 @@ jobs:
 
    - name: 🎢 test:e2e
      run: pnpm -r test:e2e
+
+   - name: 📦 publish preview to pkg.pr.new
+     run: pnpx pkg-pr-new publish --pnpm './packages/firstly'
 
  diff_dependencies:
   runs-on: ubuntu-latest

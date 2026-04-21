@@ -29,6 +29,7 @@
     "@changesets/cli": "catalog:lib-author-helper",
     "@kitql/eslint-config": "catalog:kitql",
     "@playwright/test": "catalog:testing",
+    "eslint": "catalog:kitql",
     "prettier": "catalog:tooling"
   },
   "sideEffects": false,

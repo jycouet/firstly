@@ -46,12 +46,18 @@ export default defineConfig({
 					],
 				},
 				{
-					label: 'Modules',
+					label: 'Boutique',
+					badge: { text: 'copy-paste', variant: 'tip' },
 					items: [
 						{
-							label: 'Auth (Better-Auth)',
-							link: '/docs/modules/auth-better',
+							label: 'Auth',
+							link: '/docs/modules/auth',
 						},
+					],
+				},
+				{
+					label: 'Modules',
+					items: [
 						{
 							label: 'Change Log',
 							link: '/docs/modules/changelog',
