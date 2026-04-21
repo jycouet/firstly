@@ -41,7 +41,7 @@ jobs:
    - name: 🚀 compile firstly
      run: pnpm -F firstly compile
 
-   - name: 💪 ts
+   - name: 💪 check
      run: pnpm -r check
 
    - name: 🕹️ test:unit

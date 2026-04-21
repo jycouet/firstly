@@ -1,17 +1,15 @@
 <script lang="ts">
 	import { remult } from 'remult'
+	import { initRemultSvelteReactivity } from 'firstly/svelte'
 
 	import { page } from '$app/stores'
 
 	import { route } from '$modules/ROUTES'
-
-
-	import { initRemultSvelteReactivity } from 'firstly/svelte'
 	import { Button } from '$lib/svelte/ui/button'
 	import { Input } from '$lib/svelte/ui/input'
 	import { cn } from '$lib/utils'
 
-	import type { LayoutData } from '../[demo]/$types'
+	import type { LayoutData } from './$types'
 
 	interface Props {
 		data: LayoutData
@@ -24,8 +22,8 @@
 	let sidebarOpen = $state(false)
 
 	const links: { path: string; text: string; target?: string }[] = [
-		{ path: route('/'), text: 'Home' },
-		{ path: route('/auth'), text: 'Auth' },
+		{ path: route('/(demo)'), text: 'Home' },
+		{ path: route('/(demo)/auth'), text: 'Auth' },
 
 		{ path: route('remult_admin'), text: 'Remult Admin', target: '_blank' },
 		{
@@ -76,7 +74,7 @@
 					onclick={() => (sidebarOpen = false)}
 					class={cn(
 						'rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground',
-						link.path === $page.url.pathname && 'bg-accent text-accent-foreground font-medium',
+						link.path === $page.url.pathname && 'bg-accent font-medium text-accent-foreground',
 					)}
 				>
 					{link.text}
@@ -96,10 +94,16 @@
 
 	<!-- Main -->
 	<main class="lg:pl-72">
-		<header class="sticky top-0 z-10 flex items-center gap-4 border-b border-border bg-background/80 px-4 py-3 backdrop-blur lg:px-8">
+		<header
+			class="sticky top-0 z-10 flex items-center gap-4 border-b border-border bg-background/80 px-4 py-3 backdrop-blur lg:px-8"
+		>
 			<Button variant="ghost" size="icon" class="lg:hidden" onclick={() => (sidebarOpen = true)}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
-					<path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 5A.75.75 0 012.75 9h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 9.75zM2 14.75a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
+					<path
+						fill-rule="evenodd"
+						d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 5A.75.75 0 012.75 9h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 9.75zM2 14.75a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z"
+						clip-rule="evenodd"
+					/>
 				</svg>
 			</Button>
 			<h1 class="grow truncate text-lg font-semibold lg:text-2xl lg:font-light">
