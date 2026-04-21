@@ -49,7 +49,6 @@
   },
   "devDependencies": {
     "@kitql/helpers": "catalog:kitql",
-    "daisyui": "catalog:ui",
     "@sveltejs/adapter-node": "catalog:sveltekit",
     "@sveltejs/kit": "catalog:sveltekit",
     "@sveltejs/package": "catalog:sveltekit",
@@ -67,12 +66,16 @@
   "dependencies": {
     "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
+    "@nerdfolio/remult-better-auth": "catalog:boutique",
     "@types/nodemailer": "catalog:prod",
+    "better-auth": "catalog:boutique",
+    "bits-ui": "catalog:ui",
     "clsx": "catalog:ui",
     "cron": "catalog:prod",
     "esm-env": "catalog:tooling",
     "nodemailer": "catalog:prod",
     "tailwind-merge": "catalog:ui",
+    "tailwind-variants": "catalog:ui",
     "tailwindcss": "catalog:ui",
     "vite-plugin-kit-routes": "catalog:tooling",
     "vite-plugin-stripper": "catalog:tooling"

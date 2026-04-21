@@ -1,78 +1,72 @@
 <script lang="ts">
-  import { remult } from "remult";
-  import Tile from "../Tile.svelte";
+	import { remult } from 'remult'
+	import { createAuthClient } from 'better-auth/svelte'
 
-  import { createAuthClient } from "better-auth/svelte";
+	import { Button } from '$lib/svelte/ui/button'
+	import { Input } from '$lib/svelte/ui/input'
+	import Tile from '../Tile.svelte'
 
-  const authClient = createAuthClient({
-    // you can pass client configuration here
-  });
+	const authClient = createAuthClient({
+		// you can pass client configuration here
+	})
 
-  let name = $state("");
-  let email = $state("");
-  let password = $state("");
+	let name = $state('')
+	let email = $state('')
+	let password = $state('')
 
-  let messageError = $state("");
+	let messageError = $state('')
 </script>
 
-<Tile title="Auth" status="Success" subtitle="" className="auth" width="half">
-  {#if remult.authenticated()}
-    {@const roles = remult.user?.roles ?? []}
-    <p>
-      You are authenticated as <strong>{remult.user?.name}</strong>
-      <br />
-      <i>Roles:</i>
-      {roles.length > 0 ? roles.join(", ") : "-"}
-    </p>
-    <div class="button-row">
-      <button
-        onclick={async () => {
-          await authClient.signOut();
-          remult.user = undefined;
-        }}
-      >
-        Sign Out</button
-      >
-    </div>
-  {:else}
-    <p>You are currently not authenticated</p>
-    {#if messageError}
-      <div class="message error">
-        <p>{messageError}</p>
-      </div>
-    {/if}
-    <input type="text" bind:value={name} placeholder="Name" />
-    <input type="email" bind:value={email} placeholder="Email" />
-    <input type="password" bind:value={password} placeholder="Password" />
-    <div class="button-row">
-      <button
-        class="button"
-        onclick={async () => {
-          const res = await authClient.signUp.email({
-            name,
-            email,
-            password,
-          });
-          messageError = res.error?.message ?? "";
-          remult.initUser();
-        }}
-      >
-        Sign Up
-      </button>
-      <button
-        class="button"
-        onclick={async () => {
-          await authClient.signIn.email({ email, password });
-          remult.initUser();
-        }}
-      >
-        Sign In
-      </button>
-    </div>
-    <div class="button-row">
-      <a class="button" target="_blank" href="https://better-auth.com"
-        >Better-Auth Docs</a
-      >
-    </div>
-  {/if}
+<Tile title="Auth" status="Success" subtitle="" className="" width="half">
+	{#if remult.authenticated()}
+		{@const roles = remult.user?.roles ?? []}
+		<p class="text-sm">
+			You are authenticated as <strong>{remult.user?.name}</strong>
+			<br />
+			<span class="italic text-muted-foreground">Roles:</span>
+			{roles.length > 0 ? roles.join(', ') : '-'}
+		</p>
+		<div class="flex gap-2">
+			<Button
+				variant="outline"
+				onclick={async () => {
+					await authClient.signOut()
+					remult.user = undefined
+				}}
+			>
+				Sign Out
+			</Button>
+		</div>
+	{:else}
+		<p class="text-sm">You are currently not authenticated</p>
+		{#if messageError}
+			<div class="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+				{messageError}
+			</div>
+		{/if}
+		<Input type="text" bind:value={name} placeholder="Name" />
+		<Input type="email" bind:value={email} placeholder="Email" />
+		<Input type="password" bind:value={password} placeholder="Password" />
+		<div class="flex flex-wrap gap-2">
+			<Button
+				onclick={async () => {
+					const res = await authClient.signUp.email({ name, email, password })
+					messageError = res.error?.message ?? ''
+					remult.initUser()
+				}}
+			>
+				Sign Up
+			</Button>
+			<Button
+				variant="secondary"
+				onclick={async () => {
+					await authClient.signIn.email({ email, password })
+					remult.initUser()
+				}}
+			>
+				Sign In
+			</Button>
+			<Button variant="link" href="https://better-auth.com" target="_blank">Better-Auth Docs</Button>
+		</div>
+	{/if}
 </Tile>

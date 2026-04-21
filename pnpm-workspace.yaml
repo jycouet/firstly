@@ -54,11 +54,16 @@ catalogs:
   tailwindcss: 4.2.2
   '@tailwindcss/vite': 4.2.2
   tailwind-merge: 3.5.0
+  tailwind-variants: 3.2.2
   clsx: 2.1.1
-  daisyui: 5.5.3
+  bits-ui: 2.18.0
 
  prod:
   '@types/nodemailer': 8.0.0
   nodemailer: 8.0.5
   cron: 4.4.0
   '@layerstack/utils': 1.0.0
+
+ boutique:
+  better-auth: 1.6.5
+  '@nerdfolio/remult-better-auth': 0.4.3
