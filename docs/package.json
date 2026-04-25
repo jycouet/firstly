@@ -3,11 +3,12 @@
   "type": "module",
   "version": "0.0.2",
   "scripts": {
-    "dev": "astro dev",
+    "sync-skills": "node scripts/sync-skills.mjs",
+    "dev": "pnpm sync-skills && astro dev",
     "lint": "kitql-lint -d",
     "format": "kitql-lint -f -d",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "pnpm sync-skills && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -19,6 +20,7 @@
     "sharp": "catalog:docs"
   },
   "devDependencies": {
+    "eslint": "10.2.1",
     "prettier-plugin-astro": "catalog:docs"
   }
 }
