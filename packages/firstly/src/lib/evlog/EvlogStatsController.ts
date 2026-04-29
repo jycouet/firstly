@@ -1,6 +1,6 @@
-import { Allow, BackendMethod, remult } from 'remult'
+import { BackendMethod, remult } from 'remult'
 
-import { EvlogAudit, EvlogTrace, EvlogTraceQuery } from './evlogEntities.js'
+import { EvlogAudit, EvlogTrace, EvlogTraceQuery, Roles_Evlog } from './evlogEntities.js'
 
 export type MonthlyTraceStat = {
 	month: string
@@ -110,7 +110,7 @@ const topN = <T>(map: Map<string, T>, score: (v: T) => number, n: number): Array
  * by `evlog/enrichers`'s `createUserAgentEnricher()` - see README.
  */
 export class EvlogStatsController {
-	@BackendMethod({ allowed: Allow.everyone })
+	@BackendMethod({ allowed: Roles_Evlog.Evlog_Admin })
 	static async getStats(year: number, rowLimit = 100_000): Promise<EvlogStatsData> {
 		const yearStart = new Date(Date.UTC(year, 0, 1))
 		const yearEnd = new Date(Date.UTC(year + 1, 0, 1))

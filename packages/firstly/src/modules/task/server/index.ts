@@ -10,19 +10,31 @@ import { TaskController } from '../TaskController.js'
 
 const SEED = ['Buy milk', 'Walk the dog', 'Star firstly on GitHub']
 
+export interface TaskModuleOptions {
+	/**
+	 * Wipe `Task` + the evlog tables and re-insert demo seed rows on every
+	 * `initApi`. **Destructive** - opt-in only. Used by the firstly demo to
+	 * keep `/tasks` deterministic. Production usage of this module template
+	 * should leave it `false` (default).
+	 */
+	seed?: boolean
+}
+
 /**
- * Demo bootstrap: read `x-demo-user` header into `remult.user`, and seed a
- * fresh dataset on every server start so the audit / trace tables are
+ * Demo bootstrap: read `x-demo-user` header into `remult.user`, and
+ * (when `seed: true`) wipe + reseed so the audit / trace tables are
  * predictable when you open `/tasks`.
  */
-export const task = () =>
+export const task = (options?: TaskModuleOptions) =>
 	new Module<RequestEvent>({
 		key: 'task',
 		entities: [Task],
 		controllers: [TaskController],
 
 		initApi: async () => {
-			// Wipe + reseed so the demo starts from a known state.
+			if (!options?.seed) return
+			// Demo-only seed path. Don't ship `seed: true` to prod - this wipes
+			// the audit / trace tables along with Task rows.
 			await repo(EvlogAudit)
 				.find()
 				.then((rows) => Promise.all(rows.map((r) => repo(EvlogAudit).delete(r.id))))

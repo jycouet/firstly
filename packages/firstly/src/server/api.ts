@@ -21,7 +21,7 @@ export const api = remultApi({
 	modules: [
 		evlog({ service: 'firstly-demo' }),
 		changeLog(),
-		task(),
+		task({ seed: true }),
 
 		mail({
 			from: 'noreply@firstly.fun',

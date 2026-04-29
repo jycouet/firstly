@@ -31,14 +31,28 @@ export function mountSqlSpans(options?: { tablesToHide?: string[]; minDurationMs
 		),
 	)
 
+	// Chain: preserve any user-set `LogToConsole` (custom slow-query logger,
+	// boolean flags, the built-in `'oneLiner'` mode) and call it after our
+	// own emit. We replace the global so we have to.
+	const previous = SqlDatabase.LogToConsole
+
 	SqlDatabase.LogToConsole = async (duration: number, query: string, args: Record<string, any>) => {
-		if (isLoggingSuppressed()) return
-		if (duration < minDuration) return
+		if (isLoggingSuppressed()) {
+			await callPrevious(previous, duration, query, args)
+			return
+		}
+		if (duration < minDuration) {
+			await callPrevious(previous, duration, query, args)
+			return
+		}
 
 		const sql = query.replace(/\s+/gm, ' ').trim()
 		const lower = sql.toLowerCase()
 		for (const t of hidden) {
-			if (lower.includes(t)) return
+			if (lower.includes(t)) {
+				await callPrevious(previous, duration, query, args)
+				return
+			}
 		}
 
 		try {
@@ -58,5 +72,25 @@ export function mountSqlSpans(options?: { tablesToHide?: string[]; minDurationMs
 		} catch {
 			// outside of any request context (cron, scripts) - silently drop
 		}
+
+		await callPrevious(previous, duration, query, args)
 	}
+}
+
+async function callPrevious(
+	previous: typeof SqlDatabase.LogToConsole,
+	duration: number,
+	query: string,
+	args: Record<string, any>,
+) {
+	if (typeof previous === 'function') {
+		try {
+			await previous(duration, query, args)
+		} catch (err) {
+			console.error('[firstly/evlog] chained LogToConsole handler failed:', err)
+		}
+	}
+	// Boolean / 'oneLiner' modes are handled by remult internally only when
+	// `LogToConsole` is set to those literal values - replacing with a
+	// function disables them by design. Document via README if needed.
 }
