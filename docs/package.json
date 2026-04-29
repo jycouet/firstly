@@ -4,11 +4,12 @@
   "version": "0.0.2",
   "scripts": {
     "sync-docs": "pnpm -F firstly sync-docs",
-    "dev": "pnpm sync-docs && astro dev",
+    "sync-skills": "node scripts/sync-skills.mjs",
+    "dev": "pnpm sync-docs && pnpm sync-skills && astro dev",
     "lint": "kitql-lint -d",
     "format": "kitql-lint -f -d",
-    "start": "pnpm sync-docs && astro dev",
-    "build": "pnpm sync-docs && astro build",
+    "start": "pnpm sync-docs && pnpm sync-skills && astro dev",
+    "build": "pnpm sync-docs && pnpm sync-skills && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -20,6 +21,7 @@
     "sharp": "catalog:docs"
   },
   "devDependencies": {
+    "eslint": "10.2.1",
     "prettier-plugin-astro": "catalog:docs"
   }
 }
