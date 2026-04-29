@@ -1,6 +1,12 @@
 /* Public, frontend-safe exports for `firstly/evlog`. */
 
-export { Roles_Evlog, EvlogAudit, EvlogTrace, evlogEntities } from './evlogEntities.js'
+export {
+	Roles_Evlog,
+	EvlogAudit,
+	EvlogTrace,
+	EvlogTraceQuery,
+	evlogEntities,
+} from './evlogEntities.js'
 
 export { withEvlog } from './withEvlog.js'
 export type { EvlogColumnDeciderArgs } from './withEvlog.js'

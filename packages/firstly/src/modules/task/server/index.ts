@@ -3,7 +3,7 @@ import { log } from 'evlog'
 import { remult, repo } from 'remult'
 import { Module } from 'remult/server'
 
-import { EvlogAudit, EvlogTrace } from 'firstly/evlog'
+import { EvlogAudit, EvlogTrace, EvlogTraceQuery, Roles_Evlog } from 'firstly/evlog'
 
 import { Task } from '../Task.js'
 import { TaskController } from '../TaskController.js'
@@ -29,6 +29,9 @@ export const task = () =>
 			await repo(EvlogTrace)
 				.find()
 				.then((rows) => Promise.all(rows.map((r) => repo(EvlogTrace).delete(r.id))))
+			await repo(EvlogTraceQuery)
+				.find()
+				.then((rows) => Promise.all(rows.map((r) => repo(EvlogTraceQuery).delete(r.id))))
 			await repo(Task)
 				.find()
 				.then((rows) => Promise.all(rows.map((r) => repo(Task).delete(r.id))))
@@ -40,10 +43,17 @@ export const task = () =>
 			// Demo-only auth: the page sends an `x-demo-user` header via
 			// `stackHttpClient(withHeader(...))`. We use it to populate
 			// `remult.user` so audit `actor.id` reflects the chosen identity
-			// instead of `system`.
+			// instead of `system`. Demo users get `Evlog_Admin` so the page can
+			// read the admin-locked audit / trace tables; in real apps this
+			// role should only go to operators.
 			const demoUser = event.request.headers.get('x-demo-user')
 			if (demoUser) {
-				remult.user = { id: demoUser, name: demoUser, theme: 'light' }
+				remult.user = {
+					id: demoUser,
+					name: demoUser,
+					theme: 'light',
+					roles: [Roles_Evlog.Evlog_Admin],
+				}
 			}
 		},
 	})

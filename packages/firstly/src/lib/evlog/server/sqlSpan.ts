@@ -2,6 +2,8 @@ import { SqlDatabase } from 'remult'
 
 import { isLoggingSuppressed } from './suppress.js'
 
+let mounted = false
+
 /**
  * Mount evlog's SQL span emitter on `SqlDatabase.LogToConsole`. Each query
  * becomes a `log.info('db.query', { sql, duration, args })` entry on the
@@ -15,9 +17,18 @@ import { isLoggingSuppressed } from './suppress.js'
  * belt-and-suspenders for unusual code paths).
  */
 export function mountSqlSpans(options?: { tablesToHide?: string[]; minDurationMs?: number }) {
+	if (mounted) {
+		console.warn(
+			'[firstly/evlog] mountSqlSpans called twice - the second call overrides the first. ' +
+				'This usually means evlog() was registered more than once.',
+		)
+	}
+	mounted = true
 	const minDuration = options?.minDurationMs ?? SqlDatabase.durationThreshold ?? 0
 	const hidden = new Set(
-		(options?.tablesToHide ?? ['_ff_evlog_audit', '_ff_evlog_trace']).map((t) => t.toLowerCase()),
+		(options?.tablesToHide ?? ['_ff_evlog_audit', '_ff_evlog_trace', '_ff_evlog_trace_query']).map(
+			(t) => t.toLowerCase(),
+		),
 	)
 
 	SqlDatabase.LogToConsole = async (duration: number, query: string, args: Record<string, any>) => {

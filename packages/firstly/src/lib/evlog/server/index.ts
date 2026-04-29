@@ -1,20 +1,27 @@
 import type { Handle, RequestEvent } from '@sveltejs/kit'
 import { initLogger } from 'evlog'
-import type { DrainFn, EnrichContext } from 'evlog'
+import type { DrainContext, DrainFn, EnrichContext } from 'evlog'
 import { evlog as evlogSvelteKitHandle } from 'evlog/sveltekit'
 import { remult } from 'remult'
 import { Module } from 'remult/server'
 
 import { EvlogClientController } from '../EvlogClientController.js'
 import { EvlogStatsController } from '../EvlogStatsController.js'
-import { EvlogAudit, EvlogTrace } from '../evlogEntities.js'
+import { EvlogAudit, EvlogTrace, EvlogTraceQuery, Roles_Evlog } from '../evlogEntities.js'
 
-import { captureDataProvider, fanout, remultAuditDrain, remultTraceDrain } from './remultDrains.js'
+import { EvlogPurgeController } from './EvlogPurgeController.js'
+import {
+	captureDataProvider,
+	fanout,
+	remultAuditDrain,
+	remultTraceDrain,
+} from './remultDrains.js'
 import { mountSqlSpans } from './sqlSpan.js'
 
 export { withSuppressedLogging, isLoggingSuppressed } from './suppress.js'
-export { remultAuditDrain, remultTraceDrain, fanout } from './remultDrains.js'
+export { remultAuditDrain, remultTraceDrain, fanout, purgeEvlog } from './remultDrains.js'
 export { mountSqlSpans } from './sqlSpan.js'
+export { EvlogPurgeController } from './EvlogPurgeController.js'
 
 export interface EvlogModuleOptions {
 	/** Service name attached to every wide event. */
@@ -26,10 +33,15 @@ export interface EvlogModuleOptions {
 	/**
 	 * Trace storage. `skipPaths` filters noise (default skips
 	 * `/api/_liveQueryKeepAlive` and the evlog tables themselves).
+	 *
+	 * `retentionDays` (default 90) is the cutoff used by both the boot-time
+	 * purge and `EvlogPurgeController.purgeOlderThan()`. Audit rows are
+	 * never purged.
 	 */
 	trace?: {
 		enabled?: boolean
 		entity?: typeof EvlogTrace
+		queryEntity?: typeof EvlogTraceQuery
 		skipPaths?: string[]
 		retentionDays?: number
 	}
@@ -77,8 +89,10 @@ let sharedDrain: DrainFn | undefined
 export const evlog = (options?: EvlogModuleOptions) => {
 	const auditEntity = options?.audit?.entity ?? EvlogAudit
 	const traceEntity = options?.trace?.entity ?? EvlogTrace
+	const queryEntity = options?.trace?.queryEntity ?? EvlogTraceQuery
 	const auditEnabled = options?.audit?.enabled !== false
 	const traceEnabled = options?.trace?.enabled !== false
+	const retentionDays = options?.trace?.retentionDays ?? 90
 
 	const drains: DrainFn[] = []
 	if (auditEnabled) drains.push(remultAuditDrain(auditEntity))
@@ -86,7 +100,8 @@ export const evlog = (options?: EvlogModuleOptions) => {
 		drains.push(
 			remultTraceDrain(traceEntity, {
 				skipPaths: options?.trace?.skipPaths,
-				retentionDays: options?.trace?.retentionDays,
+				retentionDays,
+				queryEntity,
 			}),
 		)
 	if (options?.drains?.length) drains.push(...options.drains)
@@ -96,9 +111,9 @@ export const evlog = (options?: EvlogModuleOptions) => {
 		key: 'evlog',
 		entities: [
 			...(auditEnabled ? [auditEntity] : []),
-			...(traceEnabled ? [traceEntity] : []),
+			...(traceEnabled ? [traceEntity, queryEntity] : []),
 		],
-		controllers: [EvlogClientController, EvlogStatsController],
+		controllers: [EvlogClientController, EvlogStatsController, EvlogPurgeController],
 
 		initApi: async () => {
 			// Capture the configured Remult data provider so drains can re-acquire
@@ -116,6 +131,33 @@ export const evlog = (options?: EvlogModuleOptions) => {
 
 			if (options?.sqlSpans !== false) {
 				mountSqlSpans(typeof options?.sqlSpans === 'object' ? options.sqlSpans : undefined)
+			}
+
+			// One-shot purge at boot. Goes through the BackendMethod (no HTTP
+			// hop server-side) so the same code path runs at boot and when
+			// admins click "purge" in a dashboard. We need an admin role on the
+			// async context for the `allowed` check to pass - use `withRemult`
+			// with a synthetic system user. Don't await: drain inserts during
+			// the first request shouldn't queue behind a large delete.
+			if (traceEnabled) {
+				const { withRemult: wr } = await import('remult')
+				wr(async () => {
+					remult.user = {
+						id: 'system',
+						name: 'evlog-boot',
+						theme: 'light',
+						roles: [Roles_Evlog.Evlog_Admin],
+					}
+					return EvlogPurgeController.purgeOlderThan(retentionDays)
+				})
+					.then(({ traces, queries }) => {
+						if (traces || queries) {
+							console.info(
+								`[firstly/evlog] purged ${traces} traces + ${queries} queries older than ${retentionDays}d`,
+							)
+						}
+					})
+					.catch((err) => console.error('[firstly/evlog] purge failed:', err))
 			}
 		},
 
@@ -166,10 +208,53 @@ export const evlogHandle = (options?: {
 		drain: async (ctx) => {
 			if (options?.drain) await options.drain(ctx)
 			if (sharedDrain) await sharedDrain(ctx)
+			// Permission denials (401/403) on Remult API paths never reach
+			// `withEvlog`'s lifecycle hooks - the API gate fires first. Emit a
+			// `denied` audit row from the request wide event so audit dashboards
+			// see attempted-but-blocked actions, not just successes.
+			await emitDeniedAudit(ctx)
 		},
 		enrich: options?.enrich,
 	})
 	// evlog's SvelteKit types are intentionally framework-agnostic (Promise<Response>);
 	// wrap once so they line up with SvelteKit's `Handle` (MaybePromise<Response>).
 	return inner as unknown as Handle
+}
+
+/**
+ * If the request resolved with 401/403 on an API path, synthesize a `denied`
+ * audit event. The `action` is best-effort derived from the path
+ * (`/api/<entity>` → `<entity>.access`, `/api/<methodName>` for backend
+ * methods → `<methodName>.invoke`).
+ */
+async function emitDeniedAudit(ctx: DrainContext) {
+	const evt = ctx.event as Record<string, unknown>
+	const status = evt.status as number | undefined
+	if (status !== 401 && status !== 403) return
+	const path = (evt.path as string | undefined) ?? ''
+	if (!path.startsWith('/api/')) return
+	// Skip the evlog table reads themselves so a non-admin probe doesn't
+	// flood the audit table.
+	if (path.startsWith('/api/_ff_evlog_')) return
+
+	const segment = path.slice('/api/'.length).split('?')[0].split('/')[0]
+	if (!segment) return
+	const isMethod = !segment.startsWith('_')
+	const action = isMethod ? `${segment}.invoke` : `${segment}.access`
+
+	const { createLogger } = await import('evlog')
+	const { buildAuditFields } = await import('evlog')
+	const fields = buildAuditFields({
+		action,
+		actor: {
+			type: evt.userId ? 'user' : 'system',
+			id: (evt.userId as string) ?? 'anonymous',
+		},
+		target: { type: segment, id: '' },
+		outcome: 'denied',
+		reason: `HTTP ${status} on ${(evt.method as string) ?? 'GET'} ${path}`,
+	})
+	createLogger({ audit: fields, module: (evt.module as string) ?? null }).emit({
+		_forceKeep: true,
+	})
 }

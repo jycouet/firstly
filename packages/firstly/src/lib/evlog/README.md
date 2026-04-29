@@ -5,19 +5,25 @@ Audit + request tracing + structured errors for Remult, built on top of [evlog](
 Replaces the older `firstly/changeLog` table-write pattern with one logging surface that:
 
 - emits **per-action audit events** (one wide event per entity create / update / delete) into `_ff_evlog_audit`
-- emits **per-request wide events** (method, path, status, duration, SQL queries) into `_ff_evlog_trace`
-- captures **client-side SPA navigations** as `source: 'client'` trace rows
+- emits **per-request wide events** (method, path, status, duration) into `_ff_evlog_trace`
+- emits **one row per SQL query** into `_ff_evlog_trace_query`, linked to its parent trace via `traceId`
+- captures **client-side SPA navigations** as `source: 'client'` trace rows, batched in the browser and flushed via `sendBeacon` on `pagehide`
+- emits a **`denied` audit row** when a request gets 401/403 on an `/api/*` path - so audit dashboards see attempts, not just successes
 - supports **structured errors** with `why` / `fix` / `link` so failures stay debuggable
 - supports **fan-out drains** so the same events can also flow to Axiom / OTLP / Datadog / Sentry / file
+- ships a **boot-time purge** that drops trace + trace-query rows older than `retentionDays` (default 90); audit rows are never purged
 
-## Why two tables?
+## Why three tables?
 
-Audit and trace have different retention stories:
+Each has a different retention story:
 
 - `_ff_evlog_audit` - "who did what". Permanent. No TTL. Optionally signed / hash-chained for compliance.
-- `_ff_evlog_trace` - "what hit the server". Operational. Can be TTL'd and sampled.
+- `_ff_evlog_trace` - "what hit the server". Operational. Auto-purged after `retentionDays`.
+- `_ff_evlog_trace_query` - "what SQL ran during that request". Same retention as trace. Split out so the trace's `event` JSON column stays small and dashboards can group queries without JSON path ops.
 
 Mixing them makes retention policies fight each other. Keeping them split keeps the schema legible.
+
+> **Read access is admin-only by default.** Audit rows can leak who-did-what to whom; trace rows leak schema names + parameter values + paths. Both entities default `allowApiRead: Roles_Evlog.Evlog_Admin`. Grant the role to operators / dashboards, or subclass the entity if you need a different policy.
 
 ## Installation
 
@@ -139,16 +145,16 @@ The frontend can read the same fields on the rejected response from the BackendM
 
 ## Usage - SQL spans
 
-Enabled by default. Each query becomes an entry in `event.db_queries[]` on the parent request's wide event:
+Enabled by default. Each query is persisted as a row in `_ff_evlog_trace_query`, linked to its parent trace via `traceId`:
 
-```json
-{
-	"db_queries": [
-		{ "sql": "select ...", "duration": 0.4, "args": {} },
-		{ "sql": "update ...", "duration": 0.6, "args": { ":0": "..." } }
-	]
-}
+```sql
+select sql, duration, args, traceId, path
+from _ff_evlog_trace_query
+order by timestamp desc
+limit 20;
 ```
+
+Triggering route is denormalized onto each query row (`path`) so common aggregations need no join.
 
 Disable or filter:
 
@@ -160,7 +166,21 @@ evlog({
 })
 ```
 
-The audit / trace tables themselves are auto-skipped (and a request-scoped suppression flag stops the drain's own writes from re-emitting and looping).
+The audit / trace / trace-query tables themselves are auto-skipped (and a request-scoped suppression flag stops the drain's own writes from re-emitting and looping).
+
+## Retention
+
+Trace + trace-query rows older than `trace.retentionDays` (default 90) are purged once at every server boot. Audit rows are never purged.
+
+Admins can run an ad-hoc purge:
+
+```ts
+import { EvlogPurgeController } from 'firstly/evlog/server'
+
+const { traces, queries } = await EvlogPurgeController.purgeOlderThan(30)
+```
+
+The BackendMethod is gated by `Roles_Evlog.Evlog_Admin`; surface it from a dashboard button or wire it to a cron of your choice.
 
 ## Configuration
 
@@ -175,8 +195,9 @@ evlog({
 	trace: {
 		enabled: true,
 		entity: MyTraceEntity,
+		queryEntity: MyTraceQueryEntity,          // override for side-by-side migration
 		skipPaths: ['/api/health', '/api/_lq*'],  // exact match or trailing-* prefix match
-		retentionDays: 30,                        // TODO not yet enforced - planned TTL job
+		retentionDays: 90,                        // boot-time purge cutoff (audits unaffected)
 	},
 	drains: [
 		// fan out alongside the Remult drains
@@ -304,33 +325,38 @@ Each panel is a standalone component that takes its data as a prop. Fetch once i
 
 ### SQL query stats - what they tell you
 
-The three `EvlogStatsQueries*` panels read `event.db_queries[]` (populated by `mountSqlSpans`) across the year's traces. Each row shows the parameterized SQL, the relevant metric, count / total / max / avg, and the **top 3 trace paths that triggered it**. So if `update tasks set completed = ... where id = ...` shows up 12 times under `/api/setAllCompleted`, that's a textbook N+1 sitting in plain sight.
+The three `EvlogStatsQueries*` panels read `_ff_evlog_trace_query` rows directly (populated by `mountSqlSpans` writing through the trace drain). Each row shows the parameterized SQL, the relevant metric, count / total / max / avg, and the **top 3 trace paths that triggered it**. So if `update tasks set completed = ... where id = ...` shows up 12 times under `/api/setAllCompleted`, that's a textbook N+1 sitting in plain sight.
 
 Queries are deduped by exact SQL string. Remult emits parameterized SQL (`select ... where id = $1`) with `args` separate, so no normalizer is needed - but if your code does raw `SqlDatabase.execute(`select ... where id = ${userId}`)` interpolation, those rows look unique per call and won't aggregate.
 
 ### Performance
 
-`getStats` does one `repo.find()` per table, capped at `rowLimit` (default 100k). Aggregation is in JS. For high-volume systems where fetching 100k rows is too much, subclass `EvlogStatsController` and replace `getStats` with a dialect-specific SQL view.
+`getStats` does one `repo.find()` per table (audits + traces + trace-queries), capped at `rowLimit` (default 100k). The cap is an arbitrary guardrail to keep an in-JS aggregation from OOM-ing - tune it for your volume. Aggregation is in JS so the same code works on Postgres, SQLite, and anything else Remult drives.
+
+When any of the underlying `find()` calls hit the cap, `getStats` returns `truncated: true` so the dashboard can warn that stats are partial. For high-volume systems where fetching 100k rows is too much, subclass `EvlogStatsController` and replace `getStats` with a dialect-specific SQL view.
 
 ### Side-by-side migration
 
-The default tables are `_ff_evlog_audit` and `_ff_evlog_trace`, which collide with **nothing** in the existing firstly + prevention + dp-my-minion ecosystem. So you can run them in parallel with the legacy `_ff_change_logs` / `_ff_traces` / `traces` setups for as long as you need.
+The default tables are `_ff_evlog_audit`, `_ff_evlog_trace`, and `_ff_evlog_trace_query`, which collide with **nothing** in the existing firstly + prevention + dp-my-minion ecosystem. So you can run them in parallel with the legacy `_ff_change_logs` / `_ff_traces` / `traces` setups for as long as you need.
 
 If you ever do need a different table name, subclass the entity and pass it in:
 
 ```ts
 import { Entity } from 'remult'
-import { EvlogTrace } from 'firstly/evlog'
+import { EvlogTrace, EvlogTraceQuery } from 'firstly/evlog'
 
 @Entity('evlog_traces_v2', { /* ... copy options ... */ })
 class MyTrace extends EvlogTrace {}
 
-evlog({ trace: { entity: MyTrace } })
+@Entity('evlog_trace_queries_v2', { /* ... copy options ... */ })
+class MyTraceQuery extends EvlogTraceQuery {}
+
+evlog({ trace: { entity: MyTrace, queryEntity: MyTraceQuery } })
 ```
 
 ## Roles
 
-`Roles_Evlog.Evlog_Admin` controls **insert** and **delete** on the storage entities. **Read** is open by default so dashboards can surface the data; lock it down by subclassing the entity and adjusting `allowApiRead` if you need to.
+`Roles_Evlog.Evlog_Admin` controls **read**, **insert**, and **delete** on the storage entities. The dashboard panels (`<EvlogStats>`, `<EvlogStatsQueriesHot>`, ...) call into `EvlogStatsController.getStats()` which itself reads through Remult, so the role grant flows through. Grant it to operators, dashboards, or whoever needs to see the data; never default users.
 
 ## Re-exported from `evlog`
 

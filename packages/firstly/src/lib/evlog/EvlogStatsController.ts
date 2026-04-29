@@ -1,6 +1,6 @@
 import { Allow, BackendMethod, remult } from 'remult'
 
-import { EvlogAudit, EvlogTrace } from './evlogEntities.js'
+import { EvlogAudit, EvlogTrace, EvlogTraceQuery } from './evlogEntities.js'
 
 export type MonthlyTraceStat = {
 	month: string
@@ -62,6 +62,8 @@ export type QueryStats = {
 
 export type EvlogStatsData = {
 	year: number
+	/** True when any of the underlying `find()` calls hit `rowLimit` - stats are partial. */
+	truncated: boolean
 	totals: {
 		traces: number
 		audits: number
@@ -92,8 +94,7 @@ const percent = (n: number, total: number) =>
 	total === 0 ? 0 : Math.round((n / total) * 1000) / 10
 
 const topN = <T>(map: Map<string, T>, score: (v: T) => number, n: number): Array<{ key: string; value: T }> =>
-	[...map.entries()]
-		.map(([key, value]) => ({ key, value }))
+	Array.from(map.entries(), ([key, value]) => ({ key, value }))
 		.sort((a, b) => score(b.value) - score(a.value))
 		.slice(0, n)
 
@@ -114,7 +115,7 @@ export class EvlogStatsController {
 		const yearStart = new Date(Date.UTC(year, 0, 1))
 		const yearEnd = new Date(Date.UTC(year + 1, 0, 1))
 
-		const [traces, audits] = await Promise.all([
+		const [traces, audits, queries] = await Promise.all([
 			remult.repo(EvlogTrace).find({
 				where: { timestamp: { $gte: yearStart, $lt: yearEnd } },
 				limit: rowLimit,
@@ -123,7 +124,13 @@ export class EvlogStatsController {
 				where: { timestamp: { $gte: yearStart, $lt: yearEnd } },
 				limit: rowLimit,
 			}),
+			remult.repo(EvlogTraceQuery).find({
+				where: { timestamp: { $gte: yearStart, $lt: yearEnd } },
+				limit: rowLimit,
+			}),
 		])
+		const truncated =
+			traces.length === rowLimit || audits.length === rowLimit || queries.length === rowLimit
 
 		// ── monthly traces (by source) ────────────────────────────────────────
 		const monthlyTracesMap = new Map<string, MonthlyTraceStat>()
@@ -154,9 +161,8 @@ export class EvlogStatsController {
 			const row = monthlyTracesMap.get(k)
 			if (row) row.uniqueUsers = s.size
 		}
-		const monthlyTraces = [...monthlyTracesMap.values()].sort((a, b) =>
-			a.month === b.month ? a.source.localeCompare(b.source) : a.month.localeCompare(b.month),
-		)
+		const monthlyTraces = [...monthlyTracesMap.values()].toSorted((a, b) =>
+			a.month === b.month ? a.source.localeCompare(b.source) : a.month.localeCompare(b.month))
 
 		// ── monthly audits (verb split) ───────────────────────────────────────
 		const monthlyAuditsMap = new Map<string, MonthlyAuditStat>()
@@ -174,9 +180,8 @@ export class EvlogStatsController {
 			else if (verb === 'delete') row.deletes++
 			else row.other++
 		}
-		const monthlyAudits = [...monthlyAuditsMap.values()].sort((a, b) =>
-			a.month.localeCompare(b.month),
-		)
+		const monthlyAudits = [...monthlyAuditsMap.values()].toSorted((a, b) =>
+			a.month.localeCompare(b.month))
 
 		// ── monthly by module (cross-table: reports, mail, ...) ──────────────
 		const monthlyByModuleMap = new Map<string, MonthlyModuleStat>()
@@ -191,9 +196,8 @@ export class EvlogStatsController {
 		}
 		for (const a of audits) bumpModule(a.module, a.timestamp)
 		for (const t of traces) if (t.module) bumpModule(t.module, t.timestamp)
-		const monthlyByModule = [...monthlyByModuleMap.values()].sort((a, b) =>
-			a.month === b.month ? b.count - a.count : a.month.localeCompare(b.month),
-		)
+		const monthlyByModule = [...monthlyByModuleMap.values()].toSorted((a, b) =>
+			a.month === b.month ? b.count - a.count : a.month.localeCompare(b.month))
 
 		// ── top pages (client navs) ───────────────────────────────────────────
 		const pageMap = new Map<string, { count: number; users: Set<string> }>()
@@ -235,8 +239,7 @@ export class EvlogStatsController {
 				flowMap.set(k, (flowMap.get(k) ?? 0) + 1)
 			}
 		}
-		const pageFlows: PageFlow[] = [...flowMap.entries()]
-			.sort((a, b) => b[1] - a[1])
+		const pageFlows: PageFlow[] = [...flowMap.entries()].toSorted((a, b) => b[1] - a[1])
 			.slice(0, 10)
 			.map(([k, count]) => {
 				const [fromPage, toPage] = k.split(' -> ')
@@ -262,13 +265,15 @@ export class EvlogStatsController {
 		}
 		const toUaStats = (m: Map<string, number>): UserAgentStat[] =>
 			[...m.entries()]
-				.sort((a, b) => b[1] - a[1])
+				.toSorted((a, b) => b[1] - a[1])
 				.map(([name, count]) => ({ name, count, percent: percent(count, uaTotal) }))
 
 		// ── SQL queries (slowest / most time / hottest) ──────────────────────
-		// Each trace's `event.db_queries[]` is populated by `mountSqlSpans` -
-		// queries are already parameterized (`select ... where id = $1`), so a
-		// plain string-keyed Map dedupes correctly without normalization.
+		// Pulled straight from `_ff_evlog_trace_query` rows. Remult emits
+		// parameterized SQL (`select ... where id = $1`) so a plain string-keyed
+		// Map dedupes correctly without normalization. Note: raw template-string
+		// interpolation (`SqlDatabase.execute(\`...where id = ${userId}\`)`) will
+		// look unique per call and won't aggregate.
 		type QueryAgg = {
 			sql: string
 			count: number
@@ -277,25 +282,19 @@ export class EvlogStatsController {
 			paths: Map<string, number>
 		}
 		const queryMap = new Map<string, QueryAgg>()
-		for (const t of traces) {
-			const dbq = (t.event as { db_queries?: Array<{ sql?: string; duration?: number }> } | null)
-				?.db_queries
-			if (!dbq?.length) continue
-			const triggerPath = t.path ?? t.operation ?? '(none)'
-			for (const q of dbq) {
-				const sql = q.sql
-				if (!sql) continue
-				let row = queryMap.get(sql)
-				if (!row) {
-					row = { sql, count: 0, totalMs: 0, maxMs: 0, paths: new Map() }
-					queryMap.set(sql, row)
-				}
-				const dur = typeof q.duration === 'number' ? q.duration : 0
-				row.count++
-				row.totalMs += dur
-				if (dur > row.maxMs) row.maxMs = dur
-				row.paths.set(triggerPath, (row.paths.get(triggerPath) ?? 0) + 1)
+		for (const q of queries) {
+			if (!q.sql) continue
+			let row = queryMap.get(q.sql)
+			if (!row) {
+				row = { sql: q.sql, count: 0, totalMs: 0, maxMs: 0, paths: new Map() }
+				queryMap.set(q.sql, row)
 			}
+			const dur = typeof q.duration === 'number' ? q.duration : 0
+			row.count++
+			row.totalMs += dur
+			if (dur > row.maxMs) row.maxMs = dur
+			const triggerPath = q.path ?? '(none)'
+			row.paths.set(triggerPath, (row.paths.get(triggerPath) ?? 0) + 1)
 		}
 		const round2 = (n: number) => Math.round(n * 100) / 100
 		const finalize = (r: QueryAgg): QueryStat => ({
@@ -306,14 +305,14 @@ export class EvlogStatsController {
 			maxMs: round2(r.maxMs),
 			avgMs: round2(r.totalMs / r.count),
 			topPaths: [...r.paths.entries()]
-				.sort((a, b) => b[1] - a[1])
+				.toSorted((a, b) => b[1] - a[1])
 				.slice(0, 3)
 				.map(([path, count]) => ({ path, count })),
 		})
-		const allQueries = [...queryMap.values()].map(finalize)
-		const slowestQueries = [...allQueries].sort((a, b) => b.maxMs - a.maxMs).slice(0, 10)
-		const mostTimeQueries = [...allQueries].sort((a, b) => b.totalMs - a.totalMs).slice(0, 10)
-		const hottestQueries = [...allQueries].sort((a, b) => b.count - a.count).slice(0, 10)
+		const allQueries = Array.from(queryMap.values(), finalize)
+		const slowestQueries = allQueries.toSorted((a, b) => b.maxMs - a.maxMs).slice(0, 10)
+		const mostTimeQueries = allQueries.toSorted((a, b) => b.totalMs - a.totalMs).slice(0, 10)
+		const hottestQueries = allQueries.toSorted((a, b) => b.count - a.count).slice(0, 10)
 
 		// ── totals ────────────────────────────────────────────────────────────
 		const allActors = new Set<string>()
@@ -322,6 +321,7 @@ export class EvlogStatsController {
 
 		return {
 			year,
+			truncated,
 			totals: {
 				traces: traces.length,
 				audits: audits.length,

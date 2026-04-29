@@ -1,4 +1,4 @@
-import { Allow, Entity, Fields } from 'remult'
+import { Entity, Fields } from 'remult'
 
 export const Roles_Evlog = {
 	Evlog_Admin: 'Evlog.Admin',
@@ -6,7 +6,7 @@ export const Roles_Evlog = {
 
 @Entity<EvlogAudit>('_ff_evlog_audit', {
 	caption: 'FF Evlog Audit',
-	allowApiRead: Allow.everyone,
+	allowApiRead: Roles_Evlog.Evlog_Admin,
 	allowApiInsert: Roles_Evlog.Evlog_Admin,
 	allowApiUpdate: false,
 	allowApiDelete: Roles_Evlog.Evlog_Admin,
@@ -62,7 +62,7 @@ export class EvlogAudit {
 
 @Entity<EvlogTrace>('_ff_evlog_trace', {
 	caption: 'FF Evlog Trace',
-	allowApiRead: Allow.everyone,
+	allowApiRead: Roles_Evlog.Evlog_Admin,
 	allowApiInsert: Roles_Evlog.Evlog_Admin,
 	allowApiUpdate: false,
 	allowApiDelete: Roles_Evlog.Evlog_Admin,
@@ -122,7 +122,50 @@ export class EvlogTrace {
 	event?: unknown
 }
 
+/**
+ * One row per SQL query captured by `mountSqlSpans`. Split out from
+ * `EvlogTrace.event.db_queries[]` so:
+ * - the `event` JSON column on `_ff_evlog_trace` stays small,
+ * - aggregate queries (slowest / hottest / most time) need no JSON path ops,
+ * - retention can be tuned independently from the trace table.
+ *
+ * `traceId` references `EvlogTrace.id`. `path` is denormalized from the
+ * parent trace so dashboards can group by triggering route without a join.
+ */
+@Entity<EvlogTraceQuery>('_ff_evlog_trace_query', {
+	caption: 'FF Evlog Trace Query',
+	allowApiRead: Roles_Evlog.Evlog_Admin,
+	allowApiInsert: Roles_Evlog.Evlog_Admin,
+	allowApiUpdate: false,
+	allowApiDelete: Roles_Evlog.Evlog_Admin,
+	defaultOrderBy: { timestamp: 'desc' },
+	changeLog: false,
+})
+export class EvlogTraceQuery {
+	@Fields.id()
+	id = ''
+
+	@Fields.date()
+	timestamp: Date = new Date()
+
+	@Fields.string({ allowNull: true })
+	traceId?: string | null
+
+	@Fields.string({ allowNull: true })
+	path?: string | null
+
+	@Fields.string()
+	sql: string = ''
+
+	@Fields.number()
+	duration: number = 0
+
+	@Fields.json({ allowNull: true })
+	args?: unknown
+}
+
 export const evlogEntities = {
 	EvlogAudit,
 	EvlogTrace,
+	EvlogTraceQuery,
 }

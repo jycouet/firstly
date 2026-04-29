@@ -2,7 +2,6 @@ import {
 	getEntityRef,
 	IdEntity,
 	isBackend,
-	remult,
 	type EntityOptions,
 	type FieldRef,
 	type FieldsRef,
