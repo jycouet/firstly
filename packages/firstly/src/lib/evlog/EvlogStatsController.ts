@@ -93,7 +93,11 @@ const verbOf = (action: string): 'create' | 'update' | 'delete' | 'other' => {
 const percent = (n: number, total: number) =>
 	total === 0 ? 0 : Math.round((n / total) * 1000) / 10
 
-const topN = <T>(map: Map<string, T>, score: (v: T) => number, n: number): Array<{ key: string; value: T }> =>
+const topN = <T>(
+	map: Map<string, T>,
+	score: (v: T) => number,
+	n: number,
+): Array<{ key: string; value: T }> =>
 	Array.from(map.entries(), ([key, value]) => ({ key, value }))
 		.sort((a, b) => score(b.value) - score(a.value))
 		.slice(0, n)
@@ -162,7 +166,8 @@ export class EvlogStatsController {
 			if (row) row.uniqueUsers = s.size
 		}
 		const monthlyTraces = [...monthlyTracesMap.values()].toSorted((a, b) =>
-			a.month === b.month ? a.source.localeCompare(b.source) : a.month.localeCompare(b.month))
+			a.month === b.month ? a.source.localeCompare(b.source) : a.month.localeCompare(b.month),
+		)
 
 		// ── monthly audits (verb split) ───────────────────────────────────────
 		const monthlyAuditsMap = new Map<string, MonthlyAuditStat>()
@@ -181,7 +186,8 @@ export class EvlogStatsController {
 			else row.other++
 		}
 		const monthlyAudits = [...monthlyAuditsMap.values()].toSorted((a, b) =>
-			a.month.localeCompare(b.month))
+			a.month.localeCompare(b.month),
+		)
 
 		// ── monthly by module (cross-table: reports, mail, ...) ──────────────
 		const monthlyByModuleMap = new Map<string, MonthlyModuleStat>()
@@ -197,7 +203,8 @@ export class EvlogStatsController {
 		for (const a of audits) bumpModule(a.module, a.timestamp)
 		for (const t of traces) if (t.module) bumpModule(t.module, t.timestamp)
 		const monthlyByModule = [...monthlyByModuleMap.values()].toSorted((a, b) =>
-			a.month === b.month ? b.count - a.count : a.month.localeCompare(b.month))
+			a.month === b.month ? b.count - a.count : a.month.localeCompare(b.month),
+		)
 
 		// ── top pages (client navs) ───────────────────────────────────────────
 		const pageMap = new Map<string, { count: number; users: Set<string> }>()
@@ -239,7 +246,8 @@ export class EvlogStatsController {
 				flowMap.set(k, (flowMap.get(k) ?? 0) + 1)
 			}
 		}
-		const pageFlows: PageFlow[] = [...flowMap.entries()].toSorted((a, b) => b[1] - a[1])
+		const pageFlows: PageFlow[] = [...flowMap.entries()]
+			.toSorted((a, b) => b[1] - a[1])
 			.slice(0, 10)
 			.map(([k, count]) => {
 				const [fromPage, toPage] = k.split(' -> ')
@@ -252,8 +260,11 @@ export class EvlogStatsController {
 		const deviceMap = new Map<string, number>()
 		let uaTotal = 0
 		for (const t of traces) {
-			const ua = (t.event as { userAgent?: { browser?: { name?: string }; os?: { name?: string }; device?: { type?: string } } } | null)
-				?.userAgent
+			const ua = (
+				t.event as {
+					userAgent?: { browser?: { name?: string }; os?: { name?: string }; device?: { type?: string } }
+				} | null
+			)?.userAgent
 			if (!ua) continue
 			uaTotal++
 			const b = ua.browser?.name ?? '(unknown)'

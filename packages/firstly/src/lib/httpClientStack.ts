@@ -32,7 +32,10 @@ export function stackHttpClient(...middlewares: HttpClientMiddleware[]): HttpCli
  * each time (e.g. a per-navigation correlation id). Returning `undefined` /
  * `null` skips the header.
  */
-export function withHeader(name: string, getValue: () => string | undefined | null): HttpClientMiddleware {
+export function withHeader(
+	name: string,
+	getValue: () => string | undefined | null,
+): HttpClientMiddleware {
 	return (next) => (input, init) => {
 		const value = getValue()
 		if (value === undefined || value === null) return next(input, init)

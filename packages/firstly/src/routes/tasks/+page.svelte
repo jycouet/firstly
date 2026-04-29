@@ -1,22 +1,22 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import { browser } from '$app/environment'
+
 	import { remult, repo } from 'remult'
 	import { stackHttpClient, withHeader } from 'firstly'
+	import { EvlogAudit, EvlogStats, EvlogTrace } from 'firstly/evlog'
+
+	import { browser } from '$app/environment'
 
 	import { Task } from '$modules/task/Task'
 	import { TaskController } from '$modules/task/TaskController'
-	import { EvlogAudit, EvlogStats, EvlogTrace } from 'firstly/evlog'
 
 	let tasks = $state<Task[]>([])
 	let audit = $state<EvlogAudit[]>([])
 	let trace = $state<EvlogTrace[]>([])
 	let newTitle = $state('')
 	let busy = $state(false)
-	let demoUser = $state(browser ? localStorage.getItem('demo-user') ?? 'alice' : 'alice')
-	let lastError = $state<{ message: string; why?: string; fix?: string; link?: string } | null>(
-		null,
-	)
+	let demoUser = $state(browser ? (localStorage.getItem('demo-user') ?? 'alice') : 'alice')
+	let lastError = $state<{ message: string; why?: string; fix?: string; link?: string } | null>(null)
 
 	// Wire the API client so every outbound call carries the chosen actor.
 	if (browser) {
@@ -110,7 +110,7 @@
 
 			<label class="form-control w-full">
 				<span class="label-text text-xs">Acting as (sent via <code>x-demo-user</code> header)</span>
-				<input class="input input-bordered input-sm" bind:value={demoUser} />
+				<input class="input-bordered input input-sm" bind:value={demoUser} />
 			</label>
 
 			<form
@@ -121,12 +121,12 @@
 				}}
 			>
 				<input
-					class="input input-bordered join-item w-full"
+					class="input-bordered input join-item w-full"
 					placeholder="What needs doing?"
 					bind:value={newTitle}
 					disabled={busy}
 				/>
-				<button class="btn btn-primary join-item" type="submit" disabled={busy || !newTitle.trim()}>
+				<button class="btn join-item btn-primary" type="submit" disabled={busy || !newTitle.trim()}>
 					Add
 				</button>
 			</form>
@@ -138,21 +138,20 @@
 				<button class="btn btn-sm" disabled={busy} onclick={() => markAll(false)}>
 					Mark all open
 				</button>
-				<button class="btn btn-sm btn-error" disabled={busy} onclick={deleteAll}>
-					Delete all
-				</button>
+				<button class="btn btn-sm btn-error" disabled={busy} onclick={deleteAll}> Delete all </button>
 				<button class="btn btn-sm btn-warning" disabled={busy} onclick={triggerError}>
 					Trigger error
 				</button>
-				<button class="btn btn-sm btn-ghost ml-auto" onclick={refreshAll}>Refresh</button>
+				<button class="btn ml-auto btn-ghost btn-sm" onclick={refreshAll}>Refresh</button>
 			</div>
 
 			{#if lastError}
-				<div class="alert alert-error mt-3 flex flex-col items-start text-xs">
+				<div class="mt-3 alert flex flex-col items-start text-xs alert-error">
 					<div class="font-bold">{lastError.message}</div>
 					{#if lastError.why}<div><b>Why:</b> {lastError.why}</div>{/if}
 					{#if lastError.fix}<div><b>Fix:</b> {lastError.fix}</div>{/if}
-					{#if lastError.link}<a class="link" href={lastError.link} target="_blank">{lastError.link}</a>{/if}
+					{#if lastError.link}<a class="link" href={lastError.link} target="_blank">{lastError.link}</a
+						>{/if}
 				</div>
 			{/if}
 
@@ -166,7 +165,7 @@
 							onchange={() => toggle(t)}
 						/>
 						<span class:line-through={t.completed} class="grow text-sm">{t.title}</span>
-						<button class="btn btn-xs btn-ghost" onclick={() => remove(t)}>x</button>
+						<button class="btn btn-ghost btn-xs" onclick={() => remove(t)}>x</button>
 					</li>
 				{:else}
 					<li class="py-4 text-sm text-base-content/60">No tasks yet.</li>
@@ -178,7 +177,9 @@
 	<section class="card bg-base-100 shadow">
 		<div class="card-body">
 			<h2 class="card-title">Audit (last 10)</h2>
-			<p class="text-xs text-base-content/60">Persisted via the evlog audit drain into <code>_ff_evlog_audit</code>.</p>
+			<p class="text-xs text-base-content/60">
+				Persisted via the evlog audit drain into <code>_ff_evlog_audit</code>.
+			</p>
 			<div class="overflow-x-auto">
 				<table class="table table-xs">
 					<thead>
@@ -210,8 +211,10 @@
 				</table>
 			</div>
 
-			<h2 class="card-title mt-4">Trace (last 10)</h2>
-			<p class="text-xs text-base-content/60">Request wide events into <code>_ff_evlog_trace</code> (queries from <code>db_queries[]</code>).</p>
+			<h2 class="mt-4 card-title">Trace (last 10)</h2>
+			<p class="text-xs text-base-content/60">
+				Request wide events into <code>_ff_evlog_trace</code> (queries from <code>db_queries[]</code>).
+			</p>
 			<div class="overflow-x-auto">
 				<table class="table table-xs">
 					<thead>
@@ -247,7 +250,7 @@
 								<td>{r.duration?.toFixed?.(0) ?? '-'}</td>
 								<td>
 									{#if queries?.length}
-										<span class="badge badge-info badge-xs">{queries.length}</span>
+										<span class="badge badge-xs badge-info">{queries.length}</span>
 									{:else}
 										<span class="text-base-content/40">-</span>
 									{/if}
@@ -263,7 +266,7 @@
 	</section>
 </div>
 
-<section class="mt-6 card bg-base-100 shadow">
+<section class="card mt-6 bg-base-100 shadow">
 	<div class="card-body">
 		<EvlogStats />
 	</div>

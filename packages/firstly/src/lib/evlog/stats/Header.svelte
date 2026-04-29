@@ -30,7 +30,7 @@
 			<option value={y}>{y}</option>
 		{/each}
 	</select>
-	<button class="btn btn-sm btn-ghost" onclick={() => onRefresh()} disabled={loading}>
+	<button class="btn btn-ghost btn-sm" onclick={() => onRefresh()} disabled={loading}>
 		Refresh
 	</button>
 	{#if loading}<span class="loading loading-sm loading-spinner"></span>{/if}

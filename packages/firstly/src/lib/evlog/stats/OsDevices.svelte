@@ -20,7 +20,7 @@
 		{:else}
 			<div class="grid grid-cols-2 gap-4">
 				<div>
-					<div class="mb-1 text-xs uppercase tracking-wide text-base-content/60">OS</div>
+					<div class="mb-1 text-xs tracking-wide text-base-content/60 uppercase">OS</div>
 					<ul class="space-y-1">
 						{#each os as item (item.name)}
 							<li class="flex items-center gap-2 text-xs">
@@ -32,7 +32,7 @@
 					</ul>
 				</div>
 				<div>
-					<div class="mb-1 text-xs uppercase tracking-wide text-base-content/60">Device</div>
+					<div class="mb-1 text-xs tracking-wide text-base-content/60 uppercase">Device</div>
 					<ul class="space-y-1">
 						{#each devices as item (item.name)}
 							<li class="flex items-center gap-2 text-xs">

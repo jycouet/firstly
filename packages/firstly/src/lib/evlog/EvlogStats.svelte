@@ -2,7 +2,6 @@
 	import { onMount, untrack } from 'svelte'
 
 	import { EvlogStatsController, type EvlogStatsData } from './EvlogStatsController.js'
-
 	import Browsers from './stats/Browsers.svelte'
 	import Crud from './stats/Crud.svelte'
 	import Header from './stats/Header.svelte'
@@ -49,7 +48,7 @@
 	<Header bind:year {loading} onRefresh={load} />
 
 	{#if error}
-		<div class="alert alert-error text-xs">{error}</div>
+		<div class="alert text-xs alert-error">{error}</div>
 	{:else if stats}
 		<Totals data={stats.totals} year={stats.year} />
 

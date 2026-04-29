@@ -1,7 +1,6 @@
 import { BackendMethod } from 'remult'
 
 import { Roles_Evlog } from '../evlogEntities.js'
-
 import { purgeEvlog } from './remultDrains.js'
 
 /**

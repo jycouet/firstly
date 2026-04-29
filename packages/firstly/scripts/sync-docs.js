@@ -12,13 +12,24 @@
  * Wired into `pnpm compile` and `docs:dev` so contributors never edit the
  * generated mdx by hand.
  */
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const libDir = resolve(here, '..', 'src', 'lib')
-const docsModulesDir = resolve(here, '..', '..', '..', 'docs', 'src', 'content', 'docs', 'docs', 'modules')
+const docsModulesDir = resolve(
+	here,
+	'..',
+	'..',
+	'..',
+	'docs',
+	'src',
+	'content',
+	'docs',
+	'docs',
+	'modules',
+)
 
 if (!existsSync(docsModulesDir)) {
 	mkdirSync(docsModulesDir, { recursive: true })
@@ -40,12 +51,12 @@ for (const entry of readdirSync(libDir, { withFileTypes: true })) {
 	const frontmatter = `---\ntitle: ${title}\n---\n\n`
 	const out = join(docsModulesDir, `${entry.name}.mdx`)
 	writeFileSync(out, frontmatter + body)
-	console.log(`  synced ${entry.name}/README.md -> docs/.../${entry.name}.mdx`)
+	console.info(`  synced ${entry.name}/README.md -> docs/.../${entry.name}.mdx`)
 	synced++
 }
 
 if (synced === 0) {
-	console.log('  no module READMEs found in', libDir)
+	console.info('  no module READMEs found in', libDir)
 } else {
-	console.log(`done - ${synced} doc page(s) synced`)
+	console.info(`done - ${synced} doc page(s) synced`)
 }

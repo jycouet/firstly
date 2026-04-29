@@ -27,9 +27,7 @@ export class FieldDecider<entityType> {
 		this.excludedFields.push(
 			...meta.fields.toArray().filter((c) => c.metadata.options.serverExpression),
 		)
-		this.excludedFields.push(
-			...meta.fields.toArray().filter((c) => c.metadata.options.sqlExpression),
-		)
+		this.excludedFields.push(...meta.fields.toArray().filter((c) => c.metadata.options.sqlExpression))
 		this.fields = meta.fields.toArray().filter((f) => !this.excludedFields.includes(f))
 	}
 }

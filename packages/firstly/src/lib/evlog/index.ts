@@ -84,8 +84,6 @@ export type {
 
 declare module 'remult' {
 	export interface EntityOptions<entityType> {
-		evlog?:
-			| false
-			| import('./withEvlog.js').EvlogColumnDeciderArgs<entityType>
+		evlog?: false | import('./withEvlog.js').EvlogColumnDeciderArgs<entityType>
 	}
 }

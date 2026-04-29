@@ -58,7 +58,9 @@ export const api = remultApi({
 ```ts
 // src/hooks.server.ts
 import { sequence } from '@sveltejs/kit/hooks'
+
 import { evlogHandle } from 'firstly/evlog/server'
+
 import { api as handleRemult } from './server/api'
 
 // evlogHandle MUST come before handleRemult so useLogger() resolves
@@ -70,6 +72,7 @@ export const handle = sequence(evlogHandle(), handleRemult)
 <!-- src/routes/+layout.svelte -->
 <script lang="ts">
 	import { initClientTrace } from 'firstly/evlog'
+
 	initClientTrace()
 </script>
 ```
@@ -79,7 +82,7 @@ export const handle = sequence(evlogHandle(), handleRemult)
 Wrap entity options with `withEvlog` (mirrors `withChangeLog`'s shape). Tag the owning module so the audit row carries it:
 
 ```ts
-import { Entity, Fields, Allow } from 'remult'
+import { Allow, Entity, Fields } from 'remult'
 import { withEvlog } from 'firstly/evlog'
 
 @Entity<Task>(
@@ -104,8 +107,8 @@ Every save / delete now produces one `audit()` event with `action: 'tasks.create
 withEvlog({
 	evlog: {
 		module: 'users',
-		excludeColumns: (f) => [f.passwordHash],     // skip entirely
-		excludeValues: (f) => [f.dob, f.ssn],        // log key+op but value -> "[REDACTED]"
+		excludeColumns: (f) => [f.passwordHash], // skip entirely
+		excludeValues: (f) => [f.dob, f.ssn], // log key+op but value -> "[REDACTED]"
 	},
 })
 ```
@@ -160,9 +163,9 @@ Disable or filter:
 
 ```ts
 evlog({
-	sqlSpans: false,                                          // off
+	sqlSpans: false, // off
 	// or:
-	sqlSpans: { tablesToHide: ['cache'], minDurationMs: 1 },  // tune
+	sqlSpans: { tablesToHide: ['cache'], minDurationMs: 1 }, // tune
 })
 ```
 
@@ -187,24 +190,24 @@ The BackendMethod is gated by `Roles_Evlog.Evlog_Admin`; surface it from a dashb
 ```ts
 evlog({
 	service: 'my-app',
-	environment: 'production',                  // defaults to NODE_ENV
+	environment: 'production', // defaults to NODE_ENV
 	audit: {
-		enabled: true,                            // default true; set false to disable audit storage
-		entity: MyAuditEntity,                    // override for side-by-side migration
+		enabled: true, // default true; set false to disable audit storage
+		entity: MyAuditEntity, // override for side-by-side migration
 	},
 	trace: {
 		enabled: true,
 		entity: MyTraceEntity,
-		queryEntity: MyTraceQueryEntity,          // override for side-by-side migration
-		skipPaths: ['/api/health', '/api/_lq*'],  // exact match or trailing-* prefix match
-		retentionDays: 90,                        // boot-time purge cutoff (audits unaffected)
+		queryEntity: MyTraceQueryEntity, // override for side-by-side migration
+		skipPaths: ['/api/health', '/api/_lq*'], // exact match or trailing-* prefix match
+		retentionDays: 90, // boot-time purge cutoff (audits unaffected)
 	},
 	drains: [
 		// fan out alongside the Remult drains
 		// import { createAxiomDrain } from 'evlog/axiom'
 		// createAxiomDrain({ token: process.env.AXIOM_TOKEN, dataset: 'my-app' }),
 	],
-	sqlSpans: true,                             // see above
+	sqlSpans: true, // see above
 })
 ```
 
@@ -215,19 +218,21 @@ evlog({
 ```ts
 // src/hooks.server.ts
 import { sequence } from '@sveltejs/kit/hooks'
-import { evlogHandle } from 'firstly/evlog/server'
 import {
-	createUserAgentEnricher,
 	createGeoEnricher,
 	createRequestSizeEnricher,
 	createTraceContextEnricher,
+	createUserAgentEnricher,
 } from 'evlog/enrichers'
+
+import { evlogHandle } from 'firstly/evlog/server'
+
 import { api as handleRemult } from './server/api'
 
 const enrichers = [
-	createUserAgentEnricher(),    // event.userAgent = { raw, browser, os, device }
-	createGeoEnricher(),          // event.geo       = { country, region, city, ... } (Vercel/CF headers)
-	createRequestSizeEnricher(),  // event.requestSize
+	createUserAgentEnricher(), // event.userAgent = { raw, browser, os, device }
+	createGeoEnricher(), // event.geo       = { country, region, city, ... } (Vercel/CF headers)
+	createRequestSizeEnricher(), // event.requestSize
 	createTraceContextEnricher(), // event.traceContext + event.traceId/spanId
 ]
 
@@ -251,7 +256,7 @@ group by 1 order by 2 desc;
 
 `<EvlogStats>` already does this aggregation in JS, so no SQL needed for the demo dashboard.
 
-> **Note on SPA navigations.** `EvlogClientController.recordNavigation()` emits its own wide event via `createLogger().emit()`. The enrichers above run on the SvelteKit *request*'s aggregate event, so the navigation row may not pick them up depending on how evlog flushes. If you need browser data on client navs specifically, pass `navigator.userAgent` from the client and store it on the event yourself.
+> **Note on SPA navigations.** `EvlogClientController.recordNavigation()` emits its own wide event via `createLogger().emit()`. The enrichers above run on the SvelteKit _request_'s aggregate event, so the navigation row may not pick them up depending on how evlog flushes. If you need browser data on client navs specifically, pass `navigator.userAgent` from the client and store it on the event yourself.
 
 ## Display stats
 
@@ -278,11 +283,12 @@ Each panel is a standalone component that takes its data as a prop. Fetch once i
 ```svelte
 <script lang="ts">
 	import { onMount } from 'svelte'
+
 	import {
 		EvlogStatsController,
 		EvlogStatsHeader,
-		EvlogStatsTotals,
 		EvlogStatsQueriesHot,
+		EvlogStatsTotals,
 		type EvlogStatsData,
 	} from 'firstly/evlog'
 
@@ -308,20 +314,20 @@ Each panel is a standalone component that takes its data as a prop. Fetch once i
 
 ### Available panels
 
-| Component | Data prop | Shows |
-|---|---|---|
-| `<EvlogStatsHeader>` | (own state) | Year selector + Refresh button + spinner. `bind:year`, `loading`, `onRefresh`, optional `title`. |
-| `<EvlogStatsTotals>` | `data: stats.totals`, `year` | Traces, audits, unique actors. |
-| `<EvlogStatsTraces>` | `data: stats.monthlyTraces` | Per-month traces, server vs client (SPA navs) split. |
-| `<EvlogStatsCrud>` | `data: stats.monthlyAudits` | Per-month creates / updates / deletes (parsed from `action` verb suffix). |
-| `<EvlogStatsModules>` | `data: stats.monthlyByModule` | Events per `module` per month - tag emits with `module: 'reports'` to slice. |
-| `<EvlogStatsTopPages>` | `data: stats.topPages` | Most-visited pathnames (client navs). |
-| `<EvlogStatsPageFlows>` | `data: stats.pageFlows` | Top from→to navigation pairs (LAG by `actorId`). |
-| `<EvlogStatsBrowsers>` | `data: stats.browsers` | Browser %, requires `createUserAgentEnricher()` wired. |
-| `<EvlogStatsOsDevices>` | `os`, `devices` | OS + device breakdown (same enricher). |
-| `<EvlogStatsQueriesSlowest>` | `data: stats.queries.slowest` | Top 10 SQL by `max(duration)` - one-off pathological queries. |
-| `<EvlogStatsQueriesTopTime>` | `data: stats.queries.mostTime` | Top 10 SQL by `sum(duration)` - fast-but-frequent killers. |
-| `<EvlogStatsQueriesHot>` | `data: stats.queries.hottest` | Top 10 SQL by call count - good for spotting N+1. |
+| Component                    | Data prop                      | Shows                                                                                            |
+| ---------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `<EvlogStatsHeader>`         | (own state)                    | Year selector + Refresh button + spinner. `bind:year`, `loading`, `onRefresh`, optional `title`. |
+| `<EvlogStatsTotals>`         | `data: stats.totals`, `year`   | Traces, audits, unique actors.                                                                   |
+| `<EvlogStatsTraces>`         | `data: stats.monthlyTraces`    | Per-month traces, server vs client (SPA navs) split.                                             |
+| `<EvlogStatsCrud>`           | `data: stats.monthlyAudits`    | Per-month creates / updates / deletes (parsed from `action` verb suffix).                        |
+| `<EvlogStatsModules>`        | `data: stats.monthlyByModule`  | Events per `module` per month - tag emits with `module: 'reports'` to slice.                     |
+| `<EvlogStatsTopPages>`       | `data: stats.topPages`         | Most-visited pathnames (client navs).                                                            |
+| `<EvlogStatsPageFlows>`      | `data: stats.pageFlows`        | Top from→to navigation pairs (LAG by `actorId`).                                                 |
+| `<EvlogStatsBrowsers>`       | `data: stats.browsers`         | Browser %, requires `createUserAgentEnricher()` wired.                                           |
+| `<EvlogStatsOsDevices>`      | `os`, `devices`                | OS + device breakdown (same enricher).                                                           |
+| `<EvlogStatsQueriesSlowest>` | `data: stats.queries.slowest`  | Top 10 SQL by `max(duration)` - one-off pathological queries.                                    |
+| `<EvlogStatsQueriesTopTime>` | `data: stats.queries.mostTime` | Top 10 SQL by `sum(duration)` - fast-but-frequent killers.                                       |
+| `<EvlogStatsQueriesHot>`     | `data: stats.queries.hottest`  | Top 10 SQL by call count - good for spotting N+1.                                                |
 
 ### SQL query stats - what they tell you
 
@@ -345,10 +351,14 @@ If you ever do need a different table name, subclass the entity and pass it in:
 import { Entity } from 'remult'
 import { EvlogTrace, EvlogTraceQuery } from 'firstly/evlog'
 
-@Entity('evlog_traces_v2', { /* ... copy options ... */ })
+@Entity('evlog_traces_v2', {
+	/* ... copy options ... */
+})
 class MyTrace extends EvlogTrace {}
 
-@Entity('evlog_trace_queries_v2', { /* ... copy options ... */ })
+@Entity('evlog_trace_queries_v2', {
+	/* ... copy options ... */
+})
 class MyTraceQuery extends EvlogTraceQuery {}
 
 evlog({ trace: { entity: MyTrace, queryEntity: MyTraceQuery } })
@@ -364,13 +374,26 @@ evlog({ trace: { entity: MyTrace, queryEntity: MyTraceQuery } })
 
 ```ts
 import {
-	createError, parseError,
-	auditDiff, defineAuditAction, AuditDeniedError, AUDIT_SCHEMA_VERSION,
+	AUDIT_SCHEMA_VERSION,
+	AuditDeniedError,
+	auditDiff,
+	createError,
+	defineAuditAction,
+	parseError,
 } from 'firstly/evlog'
 import type {
-	WideEvent, BaseWideEvent, AuditFields, AuditInput, AuditActor,
-	AuditTarget, AuditPatchOp, AuditDiffOptions, DrainContext, DrainFn,
-	ErrorOptions, LogLevel,
+	AuditActor,
+	AuditDiffOptions,
+	AuditFields,
+	AuditInput,
+	AuditPatchOp,
+	AuditTarget,
+	BaseWideEvent,
+	DrainContext,
+	DrainFn,
+	ErrorOptions,
+	LogLevel,
+	WideEvent,
 } from 'firstly/evlog'
 ```
 

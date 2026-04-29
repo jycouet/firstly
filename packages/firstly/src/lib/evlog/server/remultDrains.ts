@@ -1,9 +1,9 @@
 import { buildAuditFields, createLogger, type DrainContext, type DrainFn } from 'evlog'
+
 import { remult, SqlDatabase, withRemult } from 'remult'
 import type { DataProvider } from 'remult'
 
 import { EvlogAudit, EvlogTrace, EvlogTraceQuery } from '../evlogEntities.js'
-
 import { withSuppressedLogging } from './suppress.js'
 
 /**
@@ -289,4 +289,3 @@ export function fanout(...drains: DrainFn[]): DrainFn {
 		await Promise.allSettled(drains.map((d) => d(ctx)))
 	}
 }
-
