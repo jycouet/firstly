@@ -3,11 +3,12 @@
   "type": "module",
   "version": "0.0.2",
   "scripts": {
-    "dev": "astro dev",
+    "sync-docs": "pnpm -F firstly sync-docs",
+    "dev": "pnpm sync-docs && astro dev",
     "lint": "kitql-lint -d",
     "format": "kitql-lint -f -d",
-    "start": "astro dev",
-    "build": "astro build",
+    "start": "pnpm sync-docs && astro dev",
+    "build": "pnpm sync-docs && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
