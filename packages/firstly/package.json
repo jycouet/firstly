@@ -75,7 +75,7 @@
     "clsx": "catalog:ui",
     "cron": "catalog:prod",
     "esm-env": "catalog:tooling",
-    "evlog": "^2.14.0",
+    "evlog": "^2.15.0",
     "nodemailer": "catalog:prod",
     "tailwind-merge": "catalog:ui",
     "tailwindcss": "catalog:ui",

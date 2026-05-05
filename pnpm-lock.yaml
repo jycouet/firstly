@@ -200,8 +200,8 @@ importers:
         specifier: catalog:tooling
         version: 1.2.2
       evlog:
-        specifier: ^2.14.0
-        version: 2.14.0(h3@1.15.11)(ofetch@1.5.1)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
+        specifier: ^2.15.0
+        version: 2.15.0(h3@1.15.11)(ofetch@1.5.1)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
       nodemailer:
         specifier: catalog:prod
         version: 8.0.5
@@ -2332,25 +2332,24 @@ packages:
   eventemitter3@5.0.4:
     resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
 
-  evlog@2.14.0:
-    resolution: {integrity: sha512-DoL3g8L4N4ZaGEdA7C3QW4yUZ7Em6GU8Fe6uKOf4/1m6+bqKlnKSYiInH6DYhNMncK45xsi+H11spJ6Il1+N2w==}
+  evlog@2.15.0:
+    resolution: {integrity: sha512-X5blRbDJqr1ZozYfKGzYfpWMyokDvUCo8sqlqxGTLuWjkdWRgwlMigyN3RqJuLAEtuR+6p3AUdwKi63CkVzaaQ==}
     peerDependencies:
-      '@nestjs/common': '>=11.1.18'
+      '@nestjs/common': '>=11.1.19'
       '@nuxt/kit': ^4.4.2
-      '@tanstack/start-client-core': ^1.167.9
-      ai: '>=6.0.154'
-      better-auth: '>=1.2.0'
+      '@tanstack/start-client-core': ^1.167.20
+      ai: '>=6.0.168'
       elysia: '>=1.4.28'
       express: '>=5.2.1'
-      fastify: '>=5.8.4'
+      fastify: '>=5.8.5'
       h3: ^1.15.11
       hono: ''
-      next: '>=16.2.3'
+      next: '>=16.2.4'
       nitro: ^3.0.260311-beta
       nitropack: ^2.13.3
       ofetch: ^1.5.1
       react: '>=19.2.5'
-      react-router: '>=7.14.0'
+      react-router: '>=7.14.2'
       vite: ^7.0.0 || ^8.0.0
     peerDependenciesMeta:
       '@nestjs/common':
@@ -2360,8 +2359,6 @@ packages:
       '@tanstack/start-client-core':
         optional: true
       ai:
-        optional: true
-      better-auth:
         optional: true
       elysia:
         optional: true
@@ -6590,7 +6587,7 @@ snapshots:
 
   eventemitter3@5.0.4: {}
 
-  evlog@2.14.0(h3@1.15.11)(ofetch@1.5.1)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3)):
+  evlog@2.15.0(h3@1.15.11)(ofetch@1.5.1)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3)):
     optionalDependencies:
       h3: 1.15.11
       ofetch: 1.5.1
