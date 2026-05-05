@@ -37,19 +37,27 @@ npm add firstly@latest
 
 Three pieces:
 
-1. Register the module in your `remultApi` config
-2. Wire the SvelteKit handle so `useLogger()` resolves inside route handlers
+1. Construct the `evlog()` setup once
+2. Register `ev.module` in your `remultApi` and place `ev.handle` in your SvelteKit hooks
 3. (Optional) Hook client-side navigations from your root layout
+
+```ts
+// src/server/_evlog.ts
+import { evlog } from 'firstly/evlog/server'
+
+export const ev = evlog({ service: 'my-app' })
+```
 
 ```ts
 // src/server/api.ts
 import { remultApi } from 'remult/remult-sveltekit'
-import { evlog } from 'firstly/evlog/server'
+
+import { ev } from './_evlog'
 
 export const api = remultApi({
 	dataProvider: /* your provider */,
 	modules: [
-		evlog({ service: 'my-app' }),
+		ev.module,
 		// ...other modules
 	],
 })
@@ -59,13 +67,12 @@ export const api = remultApi({
 // src/hooks.server.ts
 import { sequence } from '@sveltejs/kit/hooks'
 
-import { evlogHandle } from 'firstly/evlog/server'
-
+import { ev } from './server/_evlog'
 import { api as handleRemult } from './server/api'
 
-// evlogHandle MUST come before handleRemult so useLogger() resolves
+// ev.handle MUST come before handleRemult so useLogger() resolves
 // inside Remult lifecycle hooks and BackendMethod handlers.
-export const handle = sequence(evlogHandle(), handleRemult)
+export const handle = sequence(ev.handle, handleRemult)
 ```
 
 ```svelte
@@ -75,6 +82,30 @@ export const handle = sequence(evlogHandle(), handleRemult)
 
 	initClientTrace()
 </script>
+```
+
+## Power-user composition
+
+If you want to swap individual pieces or interleave a custom plugin, skip the
+mega-call and compose plugins yourself with `defineEvlog` from `evlog/toolkit`
+(re-exported via `firstly/evlog/server`):
+
+```ts
+import { createAxiomDrain } from 'evlog/axiom'
+
+import { defineEvlog, firstlyAuditPlugin, firstlyTracePlugin } from 'firstly/evlog/server'
+
+const config = defineEvlog({
+	service: 'my-app',
+	plugins: [firstlyAuditPlugin(), firstlyTracePlugin({ retentionDays: 30 }), myCustomPlugin()],
+	drain: createAxiomDrain({
+		token: process.env.AXIOM_TOKEN!,
+		dataset: 'my-app',
+	}),
+})
+
+// Pass the config into evlog/sveltekit + Remult yourself, or feed individual
+// fields back into the standard `evlog({ ... })` call.
 ```
 
 ## Usage - audit on entities
@@ -133,15 +164,20 @@ throw createError({
 })
 ```
 
-Remult turns thrown errors into JSON responses, which means `evlog`'s SvelteKit handle never sees the throw. To get the structured fields onto the trace wide event, attach them explicitly inside the controller before throwing:
+Remult turns thrown errors into JSON responses, which means `evlog`'s SvelteKit handle never sees the throw. Use the `throwLogged` helper to attach the structured fields onto the active wide event before the throw bubbles up:
 
 ```ts
-import { useLogger } from 'evlog/sveltekit'
+import { createError, throwLogged } from 'firstly/evlog/server'
 
-const err = createError({ ... })
-useLogger().error(err)
-useLogger().set({ error: { why: err.why, fix: err.fix, link: err.link, status: err.status } })
-throw err
+throwLogged(
+	createError({
+		status: 403,
+		message: 'Cannot refund - invoice already settled',
+		why: 'Settlement runs nightly; once an invoice is in the batch it cannot be reversed.',
+		fix: 'Issue a credit note instead via /admin/credit-notes.',
+		link: 'https://docs.example.com/refunds#post-settlement',
+	}),
+)
 ```
 
 The frontend can read the same fields on the rejected response from the BackendMethod call.
@@ -213,11 +249,10 @@ evlog({
 
 ### Enrich events (browser, geo, request size, ...)
 
-`evlog` ships built-in enrichers that mutate every wide event before it reaches the drain. Wire them through `evlogHandle({ enrich })` - nothing is on by default.
+`evlog` ships built-in enrichers that mutate every wide event before it reaches the drain. Wire them through the `enrich` option of `evlog()` - nothing is on by default.
 
 ```ts
-// src/hooks.server.ts
-import { sequence } from '@sveltejs/kit/hooks'
+// src/server/_evlog.ts
 import {
 	createGeoEnricher,
 	createRequestSizeEnricher,
@@ -225,9 +260,7 @@ import {
 	createUserAgentEnricher,
 } from 'evlog/enrichers'
 
-import { evlogHandle } from 'firstly/evlog/server'
-
-import { api as handleRemult } from './server/api'
+import { evlog } from 'firstly/evlog/server'
 
 const enrichers = [
 	createUserAgentEnricher(), // event.userAgent = { raw, browser, os, device }
@@ -236,14 +269,12 @@ const enrichers = [
 	createTraceContextEnricher(), // event.traceContext + event.traceId/spanId
 ]
 
-export const handle = sequence(
-	evlogHandle({
-		enrich: (ctx) => {
-			for (const e of enrichers) e(ctx)
-		},
-	}),
-	handleRemult,
-)
+export const ev = evlog({
+	service: 'my-app',
+	enrich: (ctx) => {
+		for (const e of enrichers) e(ctx)
+	},
+})
 ```
 
 The fields land on `_ff_evlog_trace.event` (JSON column). Query them with the JSON ops your dialect provides - in Postgres:
