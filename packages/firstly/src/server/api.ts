@@ -5,11 +5,12 @@ import { BetterSqlite3DataProvider } from 'remult/remult-better-sqlite3'
 import { remultApi } from 'remult/remult-sveltekit'
 import { carbone } from 'firstly/carbone/server'
 import { changeLog } from 'firstly/changeLog/server'
-import { evlog } from 'firstly/evlog/server'
 
 import { MailController } from '$modules/mail/MailController'
 import { task } from '$modules/task/server'
 import { mail } from '$lib/mail/server'
+
+import { ev } from './_evlog'
 
 // File-based SQLite so SQL spans, durations, and persistence are visible in dev.
 // Drop the file or use ':memory:' for a fresh slate every restart.
@@ -32,7 +33,7 @@ export const api = remultApi({
 	admin: true,
 	controllers: [MailController],
 	modules: [
-		evlog({ service: 'firstly-demo' }),
+		ev.module,
 		changeLog(),
 		task({ seed: true }),
 
