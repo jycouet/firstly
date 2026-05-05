@@ -1,5 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
+import { svelteTesting } from '@testing-library/svelte/vite'
 import { defineConfig, loadEnv } from 'vite'
 
 import type { KIT_ROUTES } from '$modules/ROUTES'
@@ -48,8 +49,27 @@ const config = defineConfig(({ mode }) => {
 			tailwindcss(),
 		],
 		test: {
-			include: ['src/**/*.{test,spec}.{js,ts}'],
-			setupFiles: ['./src/test-setup.ts'],
+			projects: [
+				{
+					extends: true,
+					test: {
+						name: 'node',
+						include: ['src/**/*.{test,spec}.{js,ts}'],
+						exclude: ['src/lib/evlog/stats/**/*.spec.ts', 'src/lib/evlog/EvlogStats.spec.ts'],
+						setupFiles: ['./src/test-setup.ts'],
+						environment: 'node',
+					},
+				},
+				{
+					extends: true,
+					plugins: [svelteTesting()],
+					test: {
+						name: 'svelte',
+						include: ['src/lib/evlog/stats/**/*.spec.ts', 'src/lib/evlog/EvlogStats.spec.ts'],
+						environment: 'jsdom',
+					},
+				},
+			],
 		},
 	}
 })

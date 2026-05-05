@@ -7,14 +7,14 @@ import { withEvlog } from './withEvlog.js'
 
 // Capture audit() calls by stubbing evlog::createLogger
 // (recordAudit uses createLogger, not useLogger).
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const audits: any[] = []
 
 vi.mock('evlog', async (orig) => {
 	const mod = await orig<typeof import('evlog')>()
 	return {
 		...mod,
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		createLogger: (init: any) => ({
 			emit: () => {
 				if (init.audit) audits.push(init.audit)
@@ -33,9 +33,9 @@ class User {
 	email = ''
 }
 
-@Entity(
+@Entity<UserSecret>(
 	'test_users_excluded',
-	withEvlog({
+	withEvlog<UserSecret>({
 		allowApiCrud: true,
 		evlog: {
 			module: 'users',
@@ -76,7 +76,7 @@ describe('withEvlog', () => {
 		})
 		expect(audits).toHaveLength(1)
 		expect(audits[0].action).toBe('test_users.create')
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		expect(audits[0].changes.patch).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({ op: 'add', path: '/id', value: 'u1' }),
@@ -124,7 +124,7 @@ describe('withEvlog', () => {
 				password: 'secret123',
 			})
 		})
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		const paths = audits[0].changes.patch.map((p: any) => p.path)
 		expect(paths).not.toContain('/password')
 		expect(paths).toContain('/email')
@@ -140,7 +140,7 @@ describe('withEvlog', () => {
 				password: 'hidden',
 			})
 		})
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		const emailEntry = audits[0].changes.patch.find((p: any) => p.path === '/email')
 		expect(emailEntry?.value).toBe('[REDACTED]')
 	})
