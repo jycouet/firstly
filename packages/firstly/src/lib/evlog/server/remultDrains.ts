@@ -1,39 +1,12 @@
 import { buildAuditFields, createLogger, type DrainContext, type DrainFn } from 'evlog'
 
-import { remult, SqlDatabase, withRemult } from 'remult'
-import type { DataProvider } from 'remult'
+import { remult, SqlDatabase } from 'remult'
 
 import { EvlogAudit, EvlogTrace, EvlogTraceQuery } from '../evlogEntities.js'
+import { captureDataProvider, inDetachedContext } from './dataProviderCapture.js'
 import { withSuppressedLogging } from './suppress.js'
 
-/**
- * Captured at `evlog()` `initApi` so drains can run AFTER the request's
- * Remult async context has been torn down (the SvelteKit handle calls drains
- * post-`resolve()`, by which point `remult.dataProvider` is no longer
- * accessible from the current async scope).
- */
-let capturedDataProvider: DataProvider | undefined
-
-export function captureDataProvider(dp: DataProvider) {
-	capturedDataProvider = dp
-}
-
-async function inDetachedContext<T>(fn: () => Promise<T>): Promise<T> {
-	// Lazy capture: in dev, vite HMR can wipe `capturedDataProvider`. If we're
-	// still inside a Remult request scope (audit drains often are), grab the
-	// provider opportunistically before falling back.
-	if (!capturedDataProvider) {
-		try {
-			if (remult.dataProvider) capturedDataProvider = remult.dataProvider
-		} catch {
-			// `remult.dataProvider` access throws when no async context exists
-		}
-	}
-	if (!capturedDataProvider) {
-		return fn()
-	}
-	return withRemult(fn, { dataProvider: capturedDataProvider }) as Promise<T>
-}
+export { captureDataProvider }
 
 /**
  * Drain that persists `audit`-bearing wide events into a Remult-backed entity
