@@ -34,6 +34,7 @@ export { firstlyAuditPlugin } from './plugins/audit.js'
 export { firstlyTracePlugin } from './plugins/trace.js'
 export { defineEvlog, composePlugins, composeDrains } from 'evlog/toolkit'
 export { purgeEvlog } from './remultDrains.js'
+export { throwLogged } from './throwLogged.js'
 
 export interface EvlogModuleOptions {
 	service?: string
