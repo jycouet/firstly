@@ -1,11 +1,5 @@
 import type { Handle, RequestEvent } from '@sveltejs/kit'
-import {
-	initLogger,
-	type DrainFn,
-	type EnrichContext,
-	type EvlogPlugin,
-	type PluginSetupContext,
-} from 'evlog'
+import { initLogger, type DrainFn, type EnrichContext, type EvlogPlugin } from 'evlog'
 import { evlog as evlogSvelteKitHandle } from 'evlog/sveltekit'
 import {
 	composeDrains,
@@ -139,18 +133,10 @@ export const evlog = (options: EvlogModuleOptions = {}): FirstlyEvlog => {
 
 		initApi: async () => {
 			if (remult.dataProvider) captureDataProvider(remult.dataProvider)
+			// `initLogger` calls `runSetup` on registered plugins automatically,
+			// which is how `firstlyTracePlugin` mounts SQL spans and kicks off
+			// the boot purge. Don't double-call setup here.
 			initLogger({ ...toLoggerConfig(config), _suppressDrainWarning: true })
-			// Run each plugin's setup at boot (SQL span mounting, retention purge).
-			// The toolkit's plugin runner inside the SvelteKit middleware also calls
-			// setup, but we mirror it here so server-startup tasks happen before
-			// the first request, not on it.
-			for (const p of plugins) {
-				try {
-					await p.setup?.({} as PluginSetupContext)
-				} catch (err) {
-					console.error(`[evlog/${p.name}] setup failed:`, err)
-				}
-			}
 		},
 
 		initRequest: async () => {
