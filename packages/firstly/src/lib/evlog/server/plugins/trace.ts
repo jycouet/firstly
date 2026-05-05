@@ -4,11 +4,10 @@ import { definePlugin } from 'evlog/toolkit'
 import { remult, withRemult } from 'remult'
 
 import { EvlogTrace, EvlogTraceQuery, Roles_Evlog } from '../../evlogEntities.js'
+import { captureDataProvider, inDetachedContext } from '../dataProviderCapture.js'
 import { EvlogPurgeController } from '../EvlogPurgeController.js'
-import { captureDataProvider } from '../dataProviderCapture.js'
 import { mountSqlSpans } from '../sqlSpan.js'
 import { withSuppressedLogging } from '../suppress.js'
-import { inDetachedContext } from '../dataProviderCapture.js'
 
 const DEFAULT_SKIP_PATHS = [
 	'/api/_liveQueryKeepAlive',

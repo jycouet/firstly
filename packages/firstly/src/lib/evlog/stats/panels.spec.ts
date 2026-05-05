@@ -41,7 +41,6 @@ const SAMPLE_TRACE_MONTH = {
 }
 
 describe('stats panels render with non-empty data', () => {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const cases: Array<[string, any, Record<string, unknown>]> = [
 		['Browsers', Browsers, { data: [{ name: 'chrome', count: 3, percent: 75 }] }],
 		['Crud', Crud, { data: [SAMPLE_AUDIT_MONTH] }],
@@ -73,7 +72,6 @@ describe('stats panels render with non-empty data', () => {
 })
 
 describe('stats panels render empty state', () => {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const empties: Array<[string, any, Record<string, unknown>]> = [
 		['Browsers', Browsers, { data: [] }],
 		['Crud', Crud, { data: [] }],

@@ -5,7 +5,6 @@ import type { DataProvider } from 'remult'
 
 import { EvlogTrace, EvlogTraceQuery } from '../../evlogEntities.js'
 import { captureDataProvider } from '../dataProviderCapture.js'
-
 import { firstlyTracePlugin } from './trace.js'
 
 async function withInMemory<T>(fn: () => Promise<T>): Promise<T> {
@@ -34,7 +33,7 @@ describe('firstlyTracePlugin', () => {
 				duration: '12ms',
 				module: 'tasks',
 			}
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 			await plugin.drain!({ event } as any)
 			const traces = await remult.repo(EvlogTrace).find()
 			expect(traces).toHaveLength(1)
@@ -55,7 +54,7 @@ describe('firstlyTracePlugin', () => {
 					outcome: 'success',
 				},
 			}
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 			await plugin.drain!({ event } as any)
 			expect(await remult.repo(EvlogTrace).find()).toHaveLength(0)
 		})
@@ -75,7 +74,7 @@ describe('firstlyTracePlugin', () => {
 					{ sql: 'update tasks set completed = ? where id = ?', duration: 7, args: [true, 't1'] },
 				],
 			}
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 			await plugin.drain!({ event } as any)
 			const traces = await remult.repo(EvlogTrace).find()
 			const queries = await remult.repo(EvlogTraceQuery).find()
@@ -85,7 +84,7 @@ describe('firstlyTracePlugin', () => {
 			expect(queries[0].sql).toBe('select * from tasks where id = ?')
 			expect(queries[1].duration).toBe(7)
 			// db_queries should not be persisted on the trace's event JSON
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 			expect((traces[0].event as any).db_queries).toBeUndefined()
 		})
 	})
@@ -97,7 +96,6 @@ describe('firstlyTracePlugin', () => {
 			})
 			for (const path of ['/api/health', '/api/_internal/foo']) {
 				await plugin.drain!({
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					event: { timestamp: new Date().toISOString(), path } as any,
 				})
 			}

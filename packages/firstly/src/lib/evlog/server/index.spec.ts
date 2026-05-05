@@ -1,6 +1,5 @@
-import { describe, expect, it } from 'vitest'
-
 import type { EvlogPlugin } from 'evlog'
+import { describe, expect, it } from 'vitest'
 
 import { evlog } from './index.js'
 

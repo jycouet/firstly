@@ -1,5 +1,8 @@
-import { render, fireEvent } from '@testing-library/svelte'
+import { fireEvent, render } from '@testing-library/svelte'
 import { describe, expect, it, vi } from 'vitest'
+
+import EvlogStats from './EvlogStats.svelte'
+import { EvlogStatsController } from './EvlogStatsController.js'
 
 vi.mock('./EvlogStatsController.js', () => ({
 	EvlogStatsController: {
@@ -19,9 +22,6 @@ vi.mock('./EvlogStatsController.js', () => ({
 		})),
 	},
 }))
-
-import EvlogStats from './EvlogStats.svelte'
-import { EvlogStatsController } from './EvlogStatsController.js'
 
 describe('<EvlogStats>', () => {
 	it('calls getStats on mount', async () => {

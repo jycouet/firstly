@@ -1,6 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
-
 import { createError } from 'evlog'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('throwLogged', () => {
 	it('sets error fields on the active wide event then throws the error', async () => {
@@ -20,7 +19,6 @@ describe('throwLogged', () => {
 			link: 'https://x.example/why',
 		})
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		expect(() => throwLogged(err as any)).toThrow('denied')
 		expect(errorSpy).toHaveBeenCalledOnce()
 		expect(setSpy).toHaveBeenCalledWith({

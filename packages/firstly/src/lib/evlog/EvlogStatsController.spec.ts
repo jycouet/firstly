@@ -25,15 +25,12 @@ async function seedAndAggregate(
 				roles: [Roles_Evlog.Evlog_Admin],
 			}
 			for (const r of rows.audits ?? []) {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				await remult.repo(EvlogAudit).insert(r as any)
 			}
 			for (const r of rows.traces ?? []) {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				await remult.repo(EvlogTrace).insert(r as any)
 			}
 			for (const r of rows.queries ?? []) {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				await remult.repo(EvlogTraceQuery).insert(r as any)
 			}
 			return EvlogStatsController.getStats(year, rowLimit)

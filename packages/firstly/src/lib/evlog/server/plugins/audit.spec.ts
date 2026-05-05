@@ -34,7 +34,7 @@ describe('firstlyAuditPlugin', () => {
 					context: { traceId: 'trace-abc' },
 				},
 			}
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 			await plugin.drain!({ event } as any)
 			const rows = await remult.repo(EvlogAudit).find()
 			expect(rows).toHaveLength(1)
@@ -50,7 +50,7 @@ describe('firstlyAuditPlugin', () => {
 			const { firstlyAuditPlugin } = await import('./audit.js')
 			const plugin = firstlyAuditPlugin()
 			const event = { timestamp: new Date().toISOString() }
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 			await plugin.drain!({ event } as any)
 			const rows = await remult.repo(EvlogAudit).find()
 			expect(rows).toHaveLength(0)
@@ -58,16 +58,14 @@ describe('firstlyAuditPlugin', () => {
 	})
 
 	it('onRequestFinish emits a denied audit on 401 of /api/foo', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const emitted: any[] = []
 		vi.resetModules()
 		vi.doMock('evlog', async (orig) => {
 			const mod = await orig<typeof import('evlog')>()
 			return {
 				...mod,
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 				createLogger: (init: any) => ({
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					emit: (extra: any) => emitted.push({ ...init, ...extra }),
 				}),
 			}
@@ -75,10 +73,8 @@ describe('firstlyAuditPlugin', () => {
 		const { firstlyAuditPlugin } = await import('./audit.js')
 		const p = firstlyAuditPlugin()
 		await p.onRequestFinish!({
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			event: { status: 401, path: '/api/refund', method: 'POST', userId: 'u9' } as any,
 			durationMs: 5,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} as any)
 		expect(emitted).toHaveLength(1)
 		expect(emitted[0].audit.action).toBe('refund.invoke')
@@ -89,24 +85,21 @@ describe('firstlyAuditPlugin', () => {
 	})
 
 	it('onRequestFinish does NOT emit on 200 status', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const emitted: any[] = []
 		vi.resetModules()
 		vi.doMock('evlog', async (orig) => {
 			const mod = await orig<typeof import('evlog')>()
 			return {
 				...mod,
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 				createLogger: (init: any) => ({ emit: () => emitted.push(init) }),
 			}
 		})
 		const { firstlyAuditPlugin } = await import('./audit.js')
 		const p = firstlyAuditPlugin()
 		await p.onRequestFinish!({
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			event: { status: 200, path: '/api/refund', method: 'POST' } as any,
 			durationMs: 5,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} as any)
 		expect(emitted).toHaveLength(0)
 		vi.doUnmock('evlog')
@@ -114,24 +107,21 @@ describe('firstlyAuditPlugin', () => {
 	})
 
 	it('onRequestFinish does NOT emit on 401 of non-/api path', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const emitted: any[] = []
 		vi.resetModules()
 		vi.doMock('evlog', async (orig) => {
 			const mod = await orig<typeof import('evlog')>()
 			return {
 				...mod,
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 				createLogger: (init: any) => ({ emit: () => emitted.push(init) }),
 			}
 		})
 		const { firstlyAuditPlugin } = await import('./audit.js')
 		const p = firstlyAuditPlugin()
 		await p.onRequestFinish!({
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			event: { status: 401, path: '/login', method: 'POST' } as any,
 			durationMs: 5,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} as any)
 		expect(emitted).toHaveLength(0)
 		vi.doUnmock('evlog')
