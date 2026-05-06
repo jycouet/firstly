@@ -106,24 +106,25 @@ The component ships prefilled queries (DB size, table sizes, indexes, default `S
 
 ## `FF_Allow` / `FF_Filter` - row-level helpers
 
-Two tiny helpers for the common "owner-only" / "admin or owner" patterns. `FF_Allow` is for `allowApi*` (per-row predicates), `FF_Filter` is for `apiPrefilter` / `backendPrefilter` (where-clauses). Both default the column name to `userId`.
+Tiny helpers for the common "owner-only" / "admin or owner" patterns. `FF_Allow` is for `allowApi*` (per-row predicates), `FF_Filter` is for `apiPrefilter` / `backendPrefilter` (where-clauses). Both default the column name to `'userId'`.
+
+**Pass the entity as a generic** (`FF_Allow.owner<Task>(...)`) for autocomplete and type-safety on the column name.
 
 ```ts
-import { remult } from 'remult'
 import { Fields } from 'remult'
 import { FF_Entity, FF_Allow, FF_Filter } from 'firstly'
 import { Roles } from '$lib/roles'
 
 @FF_Entity<Task>('tasks', {
   // Owner-only writes:
-  allowApiUpdate: FF_Allow.owner('userId'),
-  allowApiDelete: FF_Allow.owner(),
+  allowApiUpdate: FF_Allow.owner<Task>('userId'),
+  allowApiDelete: FF_Allow.owner<Task>(), // defaults to 'userId'
+
+  // Admin OR owner on writes:
+  // allowApiUpdate: FF_Allow.ownerOr<Task>({ roles: [Roles.Admin] }),
 
   // Admin sees all, anyone else only their own:
-  apiPrefilter: () => {
-    if (remult.isAllowed(Roles.Admin)) return {}
-    return FF_Filter.owner<Task>()
-  },
+  apiPrefilter: () => FF_Filter.ownerOr<Task>({ roles: [Roles.Admin] }),
 })
 export class Task {
   @Fields.id() id!: string
@@ -131,10 +132,9 @@ export class Task {
 }
 ```
 
-For "admin OR owner" on a row check, combine inline:
-```ts
-allowApiUpdate: (t) => remult.isAllowed(Roles.Admin) || FF_Allow.owner<Task>()(t)
-```
+API:
+- `FF_Allow.owner<T>(col?)` / `FF_Filter.owner<T>(col?)` - owner-only.
+- `FF_Allow.ownerOr<T>({ col?, roles })` / `FF_Filter.ownerOr<T>({ col?, roles })` - admin (or any of `roles`) OR owner.
 
 ## 🛍️ Boutique (copy-paste)
 
