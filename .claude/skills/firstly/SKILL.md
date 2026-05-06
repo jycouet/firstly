@@ -82,7 +82,59 @@ export const api = remultApi({
 })
 ```
 
-Available today: `mail`, `cron`, `changeLog`. See [firstly.fun](https://firstly.fun) for the full list.
+Available today: `mail`, `cron`, `changeLog`, `sqlAdmin`. See [firstly.fun](https://firstly.fun) for the full list.
+
+### `sqlAdmin` - drop-in raw SQL page
+
+A backend `BackendMethod` + a `<SqlAdmin />` Svelte component, both shipped from one module. Gated by `Roles_SqlAdmin.SqlAdmin_Admin` (or the global `FF_Role.FF_Role_Admin`).
+
+```ts
+// api.ts
+import { sqlAdmin } from 'firstly/sqlAdmin/server'
+export const api = remultApi({ modules: [sqlAdmin({ path: '/sql/admin' })] })
+```
+
+```svelte
+<!-- routes/sql/admin/+page.svelte -->
+<script>
+  import { SqlAdmin } from 'firstly/sqlAdmin'
+</script>
+<SqlAdmin />
+```
+
+The component ships prefilled queries (DB size, table sizes, indexes, default `SELECT`) and logs results as `for AI: <rows>` in the browser console - so chrome-devtools / AI agents can grab them with `list_console_messages`.
+
+## `FF_Allow` / `FF_Filter` - row-level helpers
+
+Tiny helpers for the common "owner-only" / "admin or owner" patterns. `FF_Allow` is for `allowApi*` (per-row predicates), `FF_Filter` is for `apiPrefilter` / `backendPrefilter` (where-clauses). Both default the column name to `'userId'`.
+
+**Pass the entity as a generic** (`FF_Allow.owner<Task>(...)`) for autocomplete and type-safety on the column name.
+
+```ts
+import { Fields } from 'remult'
+import { FF_Entity, FF_Allow, FF_Filter } from 'firstly'
+import { Roles } from '$lib/roles'
+
+@FF_Entity<Task>('tasks', {
+  // Owner-only writes:
+  allowApiUpdate: FF_Allow.owner<Task>('userId'),
+  allowApiDelete: FF_Allow.owner<Task>(), // defaults to 'userId'
+
+  // Admin OR owner on writes:
+  // allowApiUpdate: FF_Allow.ownerOr<Task>({ roles: [Roles.Admin] }),
+
+  // Admin sees all, anyone else only their own:
+  apiPrefilter: () => FF_Filter.ownerOr<Task>({ roles: [Roles.Admin] }),
+})
+export class Task {
+  @Fields.id() id!: string
+  @Fields.string() userId = ''
+}
+```
+
+API:
+- `FF_Allow.owner<T>(col?)` / `FF_Filter.owner<T>(col?)` - owner-only.
+- `FF_Allow.ownerOr<T>({ col?, roles })` / `FF_Filter.ownerOr<T>({ col?, roles })` - admin (or any of `roles`) OR owner.
 
 ## 🛍️ Boutique (copy-paste)
 
@@ -110,12 +162,14 @@ Each module exposes a `Roles_<ModuleName>` object and users merge them into one 
 import { Roles_Auth } from '$lib/modules/auth/entities'
 import { Roles_Mail } from 'firstly/mail'
 import { Roles_Cron } from 'firstly/cron'
+import { Roles_SqlAdmin } from 'firstly/sqlAdmin'
 
 export const Roles = {
   Admin: 'admin',
-  ...Roles_Auth,  // Auth.Admin
-  ...Roles_Mail,  // Mail.Admin
-  ...Roles_Cron,  // Cron.Admin
+  ...Roles_Auth,      // Auth.Admin
+  ...Roles_Mail,      // Mail.Admin
+  ...Roles_Cron,      // Cron.Admin
+  ...Roles_SqlAdmin,  // SqlAdmin.Admin
 } as const
 ```
 
@@ -123,4 +177,4 @@ Use `Roles.*` in `allowApi*` decorators and assign them to users via the auth bo
 
 ## Naming - `FF_` Prefix
 
-Types and helpers exported by firstly that could collide with user code use the `FF_` prefix: `FF_Entity`, `FF_Role`, `FF_Icon`, `FF_LogToConsole`. If you see it in an import path, it's firstly's.
+Types and helpers exported by firstly that could collide with user code use the `FF_` prefix: `FF_Entity`, `FF_Role`, `FF_Allow`, `FF_Filter`, `FF_Icon`, `FF_LogToConsole`. If you see it in an import path, it's firstly's.
