@@ -15,18 +15,6 @@ Replaces the older `firstly/changeLog` table-write pattern with one logging surf
 - supports **fan-out drains** so the same events can also flow to Axiom / OTLP / Datadog / Sentry / file
 - ships a **boot-time purge** that drops trace + trace-query rows older than `retentionDays` (default 90); audit rows are never purged
 
-## Why three tables?
-
-Each has a different retention story:
-
-- `_ff_evlog_audit` - "who did what". Permanent. No TTL. Optionally signed / hash-chained for compliance.
-- `_ff_evlog_trace` - "what hit the server". Operational. Auto-purged after `retentionDays`.
-- `_ff_evlog_trace_query` - "what SQL ran during that request". Same retention as trace. Split out so the trace's `event` JSON column stays small and dashboards can group queries without JSON path ops.
-
-Mixing them makes retention policies fight each other. Keeping them split keeps the schema legible.
-
-> **Read access is admin-only by default.** Audit rows can leak who-did-what to whom; trace rows leak schema names + parameter values + paths. Both entities default `allowApiRead: Roles_Evlog.Evlog_Admin`. Grant the role to operators / dashboards, or subclass the entity if you need a different policy.
-
 ## Installation
 
 ```bash
@@ -86,28 +74,59 @@ export const handle = sequence(ev.handle, handleRemult)
 </script>
 ```
 
-## Power-user composition
+## Usage - logging from your code
 
-If you want to swap individual pieces or interleave a custom plugin, skip the
-mega-call and compose plugins yourself with `defineEvlog` from `evlog/toolkit`
-(re-exported via `firstly/evlog/server`):
+This is the **everyday API**. Anywhere reachable from a request (`+page.server.ts` actions/loaders, `BackendMethod`s, Remult hooks), call `useLogger()` to grab the request-scoped logger.
+
+**You do not call `emit()`.** `ev.handle` emits exactly one wide event at the end of every request - your job is just to attach data to it.
 
 ```ts
-import { createAxiomDrain } from 'evlog/axiom'
+import { useLogger } from 'evlog/sveltekit'
 
-import { defineEvlog, firstlyAuditPlugin, firstlyTracePlugin } from 'firstly/evlog/server'
+import { BackendMethod } from 'remult'
 
-const config = defineEvlog({
-	service: 'my-app',
-	plugins: [firstlyAuditPlugin(), firstlyTracePlugin({ retentionDays: 30 }), myCustomPlugin()],
-	drain: createAxiomDrain({
-		token: process.env.AXIOM_TOKEN!,
-		dataset: 'my-app',
-	}),
-})
+export class OrderController {
+	@BackendMethod({ allowed: true })
+	static async refund(orderId: string, amount: number) {
+		const log = useLogger()
 
-// Pass the config into evlog/sveltekit + Remult yourself, or feed individual
-// fields back into the standard `evlog({ ... })` call.
+		// Attach fields to the request's wide event (the 80% case)
+		log.set({ orderId, amount, channel: 'admin' })
+
+		// Capture an info message on the same wide event
+		log.info('refund.started')
+
+		// ... do the work ...
+
+		log.set({ refunded: true })
+	}
+}
+```
+
+After the request, **one row** lands in `_ff_evlog_trace` carrying `orderId`, `amount`, `channel`, `refunded`, plus the standard method/path/status/duration fields. No extra calls.
+
+### The four tools, one event
+
+| Call                       | What it does                                                              |
+| -------------------------- | ------------------------------------------------------------------------- |
+| `log.set({ ... })`         | Merge fields into the wide event. Plain objects are merged recursively.   |
+| `log.info('msg', { ... })` | Capture an info-level message + optional fields on the same wide event.   |
+| `log.warn('msg', { ... })` | Same, warn level.                                                         |
+| `log.error(err, { ... })`  | Capture an `Error` (or string) + optional fields. Adds `error.stack` etc. |
+
+`set` accumulates. Calling it twice with `{ user: { id: '123' } }` then `{ user: { plan: 'pro' } }` ends up as `user: { id: '123', plan: 'pro' }` on the row.
+
+### Standalone events (cron, queue, CLI - outside a request)
+
+`useLogger()` only resolves inside a SvelteKit request. For background work, use `createLogger` from `evlog` and emit explicitly:
+
+```ts
+import { createLogger } from 'evlog'
+
+const log = createLogger({ jobId: 'nightly-billing', queue: 'cron' })
+log.set({ batch: { size: 50 } })
+log.info('billing.run.started')
+log.emit() // <- explicit emit; the request-handle auto-emit is not available here
 ```
 
 ## Usage - audit on entities
@@ -362,72 +381,16 @@ Each panel is a standalone component that takes its data as a prop. Fetch once i
 | `<EvlogStatsQueriesTopTime>` | `data: stats.queries.mostTime` | Top 10 SQL by `sum(duration)` - fast-but-frequent killers.                                       |
 | `<EvlogStatsQueriesHot>`     | `data: stats.queries.hottest`  | Top 10 SQL by call count - good for spotting N+1.                                                |
 
-### SQL query stats - what they tell you
-
-The three `EvlogStatsQueries*` panels read `_ff_evlog_trace_query` rows directly (populated by `mountSqlSpans` writing through the trace drain). Each row shows the parameterized SQL, the relevant metric, count / total / max / avg, and the **top 3 trace paths that triggered it**. So if `update tasks set completed = ... where id = ...` shows up 12 times under `/api/setAllCompleted`, that's a textbook N+1 sitting in plain sight.
-
-Queries are deduped by exact SQL string. Remult emits parameterized SQL (`select ... where id = $1`) with `args` separate, so no normalizer is needed - but if your code does raw `SqlDatabase.execute(`select ... where id = ${userId}`)` interpolation, those rows look unique per call and won't aggregate.
-
-### Performance
-
-`getStats` does one `repo.find()` per table (audits + traces + trace-queries), capped at `rowLimit` (default 100k). The cap is an arbitrary guardrail to keep an in-JS aggregation from OOM-ing - tune it for your volume. Aggregation is in JS so the same code works on Postgres, SQLite, and anything else Remult drives.
-
-When any of the underlying `find()` calls hit the cap, `getStats` returns `truncated: true` so the dashboard can warn that stats are partial. For high-volume systems where fetching 100k rows is too much, subclass `EvlogStatsController` and replace `getStats` with a dialect-specific SQL view.
-
-### Side-by-side migration
-
-The default tables are `_ff_evlog_audit`, `_ff_evlog_trace`, and `_ff_evlog_trace_query`, which collide with **nothing** in the existing firstly + prevention + dp-my-minion ecosystem. So you can run them in parallel with the legacy `_ff_change_logs` / `_ff_traces` / `traces` setups for as long as you need.
-
-If you ever do need a different table name, subclass the entity and pass it in:
-
-```ts
-import { Entity } from 'remult'
-import { EvlogTrace, EvlogTraceQuery } from 'firstly/evlog'
-
-@Entity('evlog_traces_v2', {
-	/* ... copy options ... */
-})
-class MyTrace extends EvlogTrace {}
-
-@Entity('evlog_trace_queries_v2', {
-	/* ... copy options ... */
-})
-class MyTraceQuery extends EvlogTraceQuery {}
-
-evlog({ trace: { entity: MyTrace, queryEntity: MyTraceQuery } })
-```
+`getStats` does one `repo.find()` per table, capped at `rowLimit` (default 100k); aggregation is in JS so it works on Postgres / SQLite / anything Remult drives. Above that volume, subclass `EvlogStatsController` and replace `getStats` with a dialect-specific SQL view.
 
 ## Roles
 
-`Roles_Evlog.Evlog_Admin` controls **read**, **insert**, and **delete** on the storage entities. The dashboard panels (`<EvlogStats>`, `<EvlogStatsQueriesHot>`, ...) call into `EvlogStatsController.getStats()` which itself reads through Remult, so the role grant flows through. Grant it to operators, dashboards, or whoever needs to see the data; never default users.
+`Roles_Evlog.Evlog_Admin` controls **read**, **insert**, and **delete** on the storage entities. The dashboard panels read through `EvlogStatsController.getStats()`, so the role grant flows through. Grant it to operators / dashboards; never default users.
 
-## Re-exported from `evlog`
+> **Read access is admin-only by default.** Audit rows leak who-did-what to whom; trace rows leak schema names + parameter values + paths. Both entities default `allowApiRead: Roles_Evlog.Evlog_Admin`.
 
-`firstly/evlog` re-exports the bits you are most likely to want:
+## Re-exports from `evlog`
 
-```ts
-import {
-	AUDIT_SCHEMA_VERSION,
-	AuditDeniedError,
-	auditDiff,
-	createError,
-	defineAuditAction,
-	parseError,
-} from 'firstly/evlog'
-import type {
-	AuditActor,
-	AuditDiffOptions,
-	AuditFields,
-	AuditInput,
-	AuditPatchOp,
-	AuditTarget,
-	BaseWideEvent,
-	DrainContext,
-	DrainFn,
-	ErrorOptions,
-	LogLevel,
-	WideEvent,
-} from 'firstly/evlog'
-```
+`firstly/evlog` re-exports the common evlog APIs (`createError`, `parseError`, `auditDiff`, `defineAuditAction`, plus the `AuditInput` / `WideEvent` / `DrainFn` types). You should not need to install `evlog` separately.
 
 You should not need to install `evlog` separately.
