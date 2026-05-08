@@ -13,12 +13,19 @@
 
 	let mails: Mail[] = $state([])
 	let isLoading = $state(false)
+	let error = $state('')
 
 	export async function refresh() {
-		if (!hasAccess) return
+		// We don't gate on client-side `hasAccess` (it's only a UX hint): the
+		// server cookie-auths the entity. If forbidden, .find() throws and we
+		// surface the message; the amber notice in the template handles the
+		// "user signed out" case visually.
 		isLoading = true
+		error = ''
 		try {
 			mails = await repo(Mail).find({ limit })
+		} catch (e) {
+			error = e instanceof Error ? e.message : String(e)
 		} finally {
 			isLoading = false
 		}
@@ -50,23 +57,18 @@
 	}
 </script>
 
-<div class="flex flex-col gap-4 p-4">
-	<div class="flex flex-col gap-2">
-		<h2 class="text-2xl font-bold">Last mails</h2>
-		<p class="text-sm text-zinc-600">Recent mails sent through this app.</p>
-	</div>
-
-	{#if !hasAccess}
-		<div class="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-			You need the <code class="rounded bg-amber-100 px-1 py-0.5 text-xs">Mail.Admin</code> role to use this.
+<div class="border border-zinc-300 bg-white">
+	<header class="flex flex-wrap items-center gap-3 border-b border-zinc-200 px-5 py-4">
+		<div class="flex flex-col">
+			<h2 class="text-lg font-semibold text-zinc-900">Last mails</h2>
+			<p class="text-sm text-zinc-600">Recent mails sent through this app.</p>
 		</div>
-	{:else}
-		<div class="flex items-center gap-3">
+		{#if hasAccess}
 			<button
 				type="button"
 				onclick={refresh}
 				disabled={isLoading}
-				class="inline-flex items-center gap-2 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 hover:bg-zinc-100 disabled:opacity-50"
+				class="ml-auto inline-flex items-center gap-2 border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:opacity-50"
 			>
 				{#if isLoading}
 					<svg
@@ -84,25 +86,30 @@
 				{/if}
 				Refresh
 			</button>
-			<span class="text-xs text-zinc-500">{mails.length} mail{mails.length === 1 ? '' : 's'}</span>
-		</div>
+			<span class="text-xs text-zinc-500">
+				{mails.length} mail{mails.length === 1 ? '' : 's'}
+			</span>
+		{/if}
+	</header>
 
-		{#if mails.length === 0}
-			<div class="rounded-md border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-600">
-				No mails yet.
+	<div class="p-5">
+		{#if !hasAccess}
+			<div class="border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+				You need the <code class="bg-amber-100 px-1 py-0.5 text-xs">Mail.Admin</code> role to use this.
 			</div>
+		{:else if error}
+			<div class="border border-red-200 bg-red-50 p-3 text-sm text-red-900">{error}</div>
+		{:else if mails.length === 0}
+			<div class="border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-600">No mails yet.</div>
 		{:else}
 			<div class="flex flex-col gap-3">
 				{#each mails as m (m.id)}
 					{@const subject = m.metadata?.subject as string | undefined}
 					{@const messageId = m.metadata?.transport?.messageId as string | undefined}
-					<div class="flex flex-col gap-2 rounded-md border border-zinc-200 bg-white p-4">
+					<article class="flex flex-col gap-2 border border-zinc-200 bg-white p-4">
 						<div class="flex flex-wrap items-center gap-2">
-							<span class="rounded border px-2 py-0.5 text-xs font-medium {badgeClass(m.status)}"
-								>{m.status}</span
-							>
-							<span
-								class="rounded border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-xs font-medium text-zinc-700"
+							<span class="border px-2 py-0.5 text-xs font-medium {badgeClass(m.status)}">{m.status}</span>
+							<span class="border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-xs font-medium text-zinc-700"
 								>{m.topic}</span
 							>
 							<span class="text-xs text-zinc-600">{parseTo(m.to)}</span>
@@ -117,11 +124,11 @@
 
 						{#if m.status === 'error' && m.errorInfo}
 							<pre
-								class="rounded border border-red-200 bg-red-50 p-2 text-xs whitespace-pre-wrap text-red-900">{m.errorInfo}</pre>
+								class="border border-red-200 bg-red-50 p-2 text-xs whitespace-pre-wrap text-red-900">{m.errorInfo}</pre>
 						{/if}
-					</div>
+					</article>
 				{/each}
 			</div>
 		{/if}
-	{/if}
+	</div>
 </div>

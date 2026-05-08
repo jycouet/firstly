@@ -20,6 +20,9 @@
 		result = null
 		error = ''
 		isLoading = true
+		// We don't gate the request on `hasAccess` (it's a client-only signal):
+		// the server cookie-auths via the BackendMethod's `allowed`. The amber
+		// notice in the template is for UX only.
 		try {
 			const r = await MailController.sendTest({ to, subject, body })
 			if (r.ok) {
@@ -35,94 +38,103 @@
 	}
 </script>
 
-<div class="flex flex-col gap-4 p-4">
-	<div class="flex flex-col gap-2">
-		<h2 class="text-2xl font-bold">Write mail</h2>
-		<p class="text-sm text-zinc-600">Send a test mail through the configured transport.</p>
-	</div>
+<div class="border border-zinc-300 bg-white">
+	<header class="border-b border-zinc-200 px-5 py-4">
+		<h2 class="text-lg font-semibold text-zinc-900">Write mail</h2>
+		<p class="mt-1 text-sm text-zinc-600">Send a test mail through the configured transport.</p>
+	</header>
 
-	{#if hasAccess}
-		<form onsubmit={handleSubmit} class="flex flex-col gap-4">
-			<div class="flex flex-col gap-1">
-				<label for="write-mail-to" class="text-sm font-medium text-zinc-700">To</label>
-				<input
-					id="write-mail-to"
-					type="email"
-					bind:value={to}
-					disabled={isLoading}
-					required
-					placeholder="someone@example.com"
-					class="rounded-md border border-zinc-300 bg-white p-3 text-sm text-zinc-900 focus:border-zinc-500 focus:outline-none disabled:opacity-50"
-				/>
+	<div class="p-5">
+		{#if !hasAccess}
+			<div class="border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+				You need the <code class="bg-amber-100 px-1 py-0.5 text-xs">Mail.Admin</code> role to use this.
 			</div>
+		{:else}
+			<form onsubmit={handleSubmit} class="flex flex-col gap-4">
+				<div class="flex flex-col gap-1">
+					<label for="write-mail-to" class="text-xs font-medium tracking-wide text-zinc-700 uppercase"
+						>To</label
+					>
+					<input
+						id="write-mail-to"
+						type="email"
+						bind:value={to}
+						disabled={isLoading}
+						required
+						placeholder="someone@example.com"
+						class="border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-900 focus:outline-none disabled:opacity-50"
+					/>
+				</div>
 
-			<div class="flex flex-col gap-1">
-				<label for="write-mail-subject" class="text-sm font-medium text-zinc-700">Subject</label>
-				<input
-					id="write-mail-subject"
-					type="text"
-					bind:value={subject}
-					disabled={isLoading}
-					required
-					placeholder="Subject"
-					class="rounded-md border border-zinc-300 bg-white p-3 text-sm text-zinc-900 focus:border-zinc-500 focus:outline-none disabled:opacity-50"
-				/>
-			</div>
+				<div class="flex flex-col gap-1">
+					<label
+						for="write-mail-subject"
+						class="text-xs font-medium tracking-wide text-zinc-700 uppercase">Subject</label
+					>
+					<input
+						id="write-mail-subject"
+						type="text"
+						bind:value={subject}
+						disabled={isLoading}
+						required
+						placeholder="Subject"
+						class="border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-900 focus:outline-none disabled:opacity-50"
+					/>
+				</div>
 
-			<div class="flex flex-col gap-1">
-				<label for="write-mail-body" class="text-sm font-medium text-zinc-700">Body</label>
-				<textarea
-					id="write-mail-body"
-					bind:value={body}
-					disabled={isLoading}
-					placeholder="Write your message..."
-					class="h-40 w-full rounded-md border border-zinc-300 bg-white p-3 text-sm text-zinc-900 focus:border-zinc-500 focus:outline-none disabled:opacity-50"
-				></textarea>
-			</div>
+				<div class="flex flex-col gap-1">
+					<label for="write-mail-body" class="text-xs font-medium tracking-wide text-zinc-700 uppercase"
+						>Body</label
+					>
+					<textarea
+						id="write-mail-body"
+						bind:value={body}
+						disabled={isLoading}
+						placeholder="Write your message..."
+						class="h-40 w-full border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-900 focus:outline-none disabled:opacity-50"
+					></textarea>
+				</div>
 
-			<div class="flex items-center gap-4">
-				<button
-					type="submit"
-					disabled={isLoading}
-					class="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
-				>
-					{#if isLoading}
-						<svg
-							class="h-4 w-4 animate-spin"
-							viewBox="0 0 24 24"
-							fill="none"
-							xmlns="http://www.w3.org/2000/svg"
-							aria-hidden="true"
+				<div class="flex items-center gap-4 border-t border-zinc-200 pt-4">
+					<button
+						type="submit"
+						disabled={isLoading}
+						class="inline-flex items-center gap-2 bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+					>
+						{#if isLoading}
+							<svg
+								class="h-4 w-4 animate-spin"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+								aria-hidden="true"
+							>
+								<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.25" stroke-width="4"
+								></circle>
+								<path d="M4 12a8 8 0 0 1 8-8" stroke="currentColor" stroke-width="4" stroke-linecap="round"
+								></path>
+							</svg>
+						{/if}
+						Send
+					</button>
+
+					{#if result}
+						<div
+							class="flex flex-1 items-center gap-2 border border-green-200 bg-green-50 px-3 py-1.5 text-sm text-green-900"
 						>
-							<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.25" stroke-width="4"
-							></circle>
-							<path d="M4 12a8 8 0 0 1 8-8" stroke="currentColor" stroke-width="4" stroke-linecap="round"
-							></path>
-						</svg>
+							<span class="font-medium">Sent</span>
+							{#if result.messageId}
+								<code class="ml-auto text-xs break-all">{result.messageId}</code>
+							{/if}
+						</div>
 					{/if}
-					Send
-				</button>
-			</div>
-		</form>
 
-		{#if result}
-			<div
-				class="flex flex-col gap-1 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-900"
-			>
-				<span class="font-medium">Sent</span>
-				{#if result.messageId}
-					<span class="text-xs break-all">id: <code>{result.messageId}</code></span>
-				{/if}
-			</div>
+					{#if error}
+						<pre
+							class="flex-1 overflow-auto border border-red-200 bg-red-50 px-3 py-1.5 text-xs whitespace-pre-wrap text-red-900">{error}</pre>
+					{/if}
+				</div>
+			</form>
 		{/if}
-
-		{#if error}
-			<pre
-				class="overflow-auto rounded-md border border-red-200 bg-red-50 p-3 text-sm whitespace-pre-wrap text-red-900">{error}</pre>
-		{/if}
-	{:else}
-		<div class="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-			You need the <code class="rounded bg-amber-100 px-1 py-0.5 text-xs">Mail.Admin</code> role to use this.
-		</div>
-	{/if}
+	</div>
 </div>

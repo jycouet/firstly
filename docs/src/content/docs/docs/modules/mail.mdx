@@ -137,6 +137,20 @@ Tailwind only, no plugin required.
 <LastMails limit={30} />
 ```
 
+<Aside type="caution">
+	**Tailwind v4 does not scan `node_modules` by default.** Without telling it
+	to, the utility classes used inside firstly components won't be generated
+	and the buttons / inputs render unstyled. Add this to your stylesheet (the
+	one with `@import 'tailwindcss';`):
+
+```css
+@source '../../node_modules/firstly';
+```
+
+Same deal for `<SqlAdmin />` and any other component shipped from this package.
+
+</Aside>
+
 Both gate on the `Mail.Admin` role (assigned via the auth boutique's
 `addRolesToUser` helper or `SUPER_ADMIN_EMAILS`). Users without the role see an
 inline notice instead of the form / list, so it's safe to land on a route any
@@ -160,8 +174,10 @@ Send.
 
 </Aside>
 
-`<LastMails />` is a `repo(Mail).liveQuery` sorted by `createdAt desc` (entity
-default).
+`<LastMails />` calls `repo(Mail).find({ limit })` on mount and on a Refresh
+button click - sorted `createdAt desc` (entity default). It exposes
+`refresh()` so you can `bind:this` and call it from a sibling after a manual
+send if you want.
 
 ## Global params
 
