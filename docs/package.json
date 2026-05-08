@@ -21,7 +21,7 @@
     "sharp": "catalog:docs"
   },
   "devDependencies": {
-    "eslint": "10.2.1",
+    "eslint": "10.3.0",
     "prettier-plugin-astro": "catalog:docs"
   }
 }

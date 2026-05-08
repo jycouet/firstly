@@ -31,7 +31,7 @@ catalogs:
  kitql:
   '@kitql/helpers': 0.8.13
   '@kitql/eslint-config': 0.8.1
-  eslint: 10.1.0
+  eslint: 10.3.0
 
  testing:
   '@playwright/test': 1.59.1
@@ -39,11 +39,11 @@ catalogs:
 
  lib-author-helper:
   '@changesets/changelog-github': 0.6.0
-  '@changesets/cli': 2.30.0
+  '@changesets/cli': 2.31.0
 
  svelte:
   'svelte': 5.40.0
-  svelte-check: 4.3.0
+  svelte-check: 4.4.8
   svelte-micro: 2.5.7
 
  sveltekit:

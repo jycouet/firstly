@@ -1,6 +1,6 @@
 {
   "name": "firstly",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "type": "module",
   "description": "Firstly, an opinionated Remult setup!",
   "funding": "https://github.com/sponsors/jycouet",
@@ -151,6 +151,15 @@
     "./carbone/server": {
       "types": "./esm/carbone/server/index.d.ts",
       "default": "./esm/carbone/server/index.js"
+    },
+    "./sqlAdmin": {
+      "types": "./esm/sqlAdmin/index.d.ts",
+      "svelte": "./esm/sqlAdmin/index.js",
+      "default": "./esm/sqlAdmin/index.js"
+    },
+    "./sqlAdmin/server": {
+      "types": "./esm/sqlAdmin/server/index.d.ts",
+      "default": "./esm/sqlAdmin/server/index.js"
     }
   },
   "files": [
