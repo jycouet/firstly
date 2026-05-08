@@ -165,8 +165,16 @@ ORDER BY tablename, indexname`,
 									 composite every cell on every scroll frame. -->
 								<tr class="even:bg-slate-900">
 									{#each Object.values(row) as cell, c (c)}
-										<td class="border-b border-slate-700 px-3 py-2 align-top text-slate-200">
-											{#if typeof cell === 'object'}<pre class="text-xs text-slate-400">{JSON.stringify(
+										<!-- max-w-xs + break-all: long unbroken strings (URLs,
+											 DIDs) used to make a single cell ~940px wide and the
+											 table 2.5kpx total - that's what made horizontal
+											 scroll feel laggy. Cap each cell at 20rem and let the
+											 long content wrap inside. -->
+										<td
+											class="max-w-xs border-b border-slate-700 px-3 py-2 align-top text-sm break-all text-slate-200"
+										>
+											{#if typeof cell === 'object'}<pre
+													class="text-xs whitespace-pre-wrap text-slate-400">{JSON.stringify(
 														cell,
 														null,
 														2,

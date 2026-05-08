@@ -21,51 +21,89 @@ const BLOCKED_EMAIL_TLDS = new Set(['test', 'example', 'invalid', 'localhost', '
 
 const EMAIL_SHAPE_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-/**
- * Pure email check. Returns `true` on valid, or a short error message string
- * on invalid. Empty string is considered valid (so a default-empty optional
- * field doesn't fail validation).
- *
- * - Validates RFC-ish syntax via regex
- * - Rejects placeholder/test domains (`@example.com`, `*.test`, ...)
- *
- * Use directly in UI for live feedback, or wrap with `FF_Validators.email()`
- * for an entity-level Remult validator.
- */
-export function checkEmail(value: string): true | string {
-	if (value === '') return true
-	if (!EMAIL_SHAPE_RE.test(value)) return 'Invalid email'
-	const at = value.lastIndexOf('@')
-	const domain = value.slice(at + 1).toLowerCase()
-	if (!domain || domain.includes('..') || domain.startsWith('.') || domain.endsWith('.')) {
-		return 'Invalid domain'
-	}
-	if (BLOCKED_EMAIL_DOMAINS.has(domain)) {
-		return 'Test/example email not accepted'
-	}
-	const tld = domain.split('.').pop() ?? ''
-	if (BLOCKED_EMAIL_TLDS.has(tld)) {
-		return 'Test/example TLD not accepted'
-	}
-	if (!domain.includes('.') || tld.length < 2) {
-		return 'Invalid domain'
-	}
-	return true
+export type EmailMessages = {
+	/** Returned when the value doesn't match the basic email shape regex. */
+	invalid?: string
+	/** Returned when the domain is malformed (`..`, leading/trailing dot, missing TLD). */
+	invalidDomain?: string
+	/** Returned when the domain is on the blocked list (`example.com`, `test.com`, ...). */
+	blockedDomain?: string
+	/** Returned when the TLD is on the blocked list (`.test`, `.example`, `.invalid`, ...). */
+	blockedTld?: string
+}
+
+export type ValidatorMessages = {
+	email?: EmailMessages
+}
+
+const DEFAULT_EMAIL_MESSAGES: Required<EmailMessages> = {
+	invalid: 'Invalid email',
+	invalidDomain: 'Invalid domain',
+	blockedDomain: 'Test/example email not accepted',
+	blockedTld: 'Test/example TLD not accepted',
 }
 
 /**
- * Strong email validator. Drop-in replacement for `Validators.email()` from
- * remult: allows empty string (so default-empty optional fields don't fail
- * validation), validates RFC syntax, and rejects placeholder/test domains.
+ * Build a project-localized set of validators. Override any subset of
+ * messages; defaults are English.
+ *
+ * Each validator group exposes two members:
+ * - `checkXxx(value)` - pure function, returns `true` on valid or a localized
+ *   error message string. Use directly in UI for live inline feedback.
+ * - `xxx` - a Remult `Validator` wrapping the same `checkXxx`. Use as
+ *   `@Fields.string({ validate: app.email })`.
  *
  * ```ts
- * @Fields.string({ validate: FF_Validators.email() })
+ * // src/lib/App_Validators.ts (typical kimbia-style French project)
+ * import { createValidators } from 'firstly'
+ *
+ * export const App_Validators = createValidators({
+ *   email: {
+ *     invalid: 'Email invalide',
+ *     invalidDomain: 'Domaine invalide',
+ *     blockedDomain: 'Email de test/exemple non accepté',
+ *     blockedTld: 'TLD de test/exemple non accepté',
+ *   },
+ * })
+ *
+ * // usage:
+ * @Fields.string({ validate: App_Validators.email })
  * email = ''
+ *
+ * // live UI feedback:
+ * const verdict = App_Validators.checkEmail(typed)
+ * if (verdict !== true) showInlineError(verdict)
  * ```
  */
-const email = createValueValidator(checkEmail, 'Invalid email')
+export function createValidators(messages: ValidatorMessages = {}) {
+	const m: Required<EmailMessages> = { ...DEFAULT_EMAIL_MESSAGES, ...messages.email }
 
-export const FF_Validators = {
-	email,
-	checkEmail,
+	function checkEmail(value: string): true | string {
+		if (value === '') return true
+		if (!EMAIL_SHAPE_RE.test(value)) return m.invalid
+		const at = value.lastIndexOf('@')
+		const domain = value.slice(at + 1).toLowerCase()
+		if (!domain || domain.includes('..') || domain.startsWith('.') || domain.endsWith('.')) {
+			return m.invalidDomain
+		}
+		if (BLOCKED_EMAIL_DOMAINS.has(domain)) return m.blockedDomain
+		const tld = domain.split('.').pop() ?? ''
+		if (BLOCKED_EMAIL_TLDS.has(tld)) return m.blockedTld
+		if (!domain.includes('.') || tld.length < 2) return m.invalidDomain
+		return true
+	}
+
+	return {
+		checkEmail,
+		email: createValueValidator(checkEmail, m.invalid),
+	}
 }
+
+/**
+ * Default English validators. For a localized variant, build your own with
+ * `createValidators(messages)` and import that one in your project instead.
+ */
+export const FF_Validators = createValidators()
+
+/** Convenience direct export of `FF_Validators.checkEmail` for ad-hoc use. */
+export const checkEmail = FF_Validators.checkEmail
