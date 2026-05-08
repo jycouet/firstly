@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { remult } from 'remult'
+	import { errorMessage } from 'firstly'
 
 	import { MailController } from '../MailController'
 	import { Roles_Mail } from '../Roles_Mail'
@@ -14,24 +15,6 @@
 	let result: { ok: boolean; messageId: string | null } | null = $state(null)
 	let error = $state('')
 
-	function extractErrorMessage(err: unknown): string {
-		if (typeof err === 'string') return err
-		if (err instanceof Error && err.message) return err.message
-		if (err && typeof err === 'object') {
-			const o = err as { message?: unknown; modelState?: Record<string, unknown> }
-			if (typeof o.message === 'string' && o.message) return o.message
-			if (o.modelState && typeof o.modelState === 'object') {
-				const first = Object.values(o.modelState).find((v) => typeof v === 'string' && v)
-				if (typeof first === 'string') return first
-			}
-		}
-		try {
-			return JSON.stringify(err)
-		} catch {
-			return String(err)
-		}
-	}
-
 	async function handleSubmit(e: Event) {
 		e.preventDefault()
 		result = null
@@ -45,7 +28,7 @@
 				error = r.error ?? 'Unknown error'
 			}
 		} catch (e) {
-			error = extractErrorMessage(e)
+			error = errorMessage(e)
 		} finally {
 			isLoading = false
 		}

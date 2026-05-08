@@ -57,6 +57,14 @@ export type MailOptions = GlobalEasyOptions & {
 		transport?: TransportTypes
 		defaults?: DefaultOptions
 	}
+	/**
+	 * Register `MailController.sendTest` (the BackendMethod that drives the
+	 * bundled `<WriteMail />` component). Off by default - exposing a
+	 * "send any mail to anyone" endpoint should be an explicit opt-in.
+	 *
+	 * Gated by `Roles_Mail.Mail_Admin` regardless.
+	 */
+	enableTest?: boolean
 }
 
 let transporter: ReturnType<typeof typeNodemailer.createTransport>
@@ -287,22 +295,20 @@ function extractTransportInfo(
 	}
 }
 
-const mailModule = new Module({
-	key: 'mail',
-	priority: -888,
-	entities: Object.values(mailEntities),
-	controllers: [MailController],
-})
-
-export const mail: (o?: MailOptions) => Module<unknown> = (o) => {
-	mailModule.initApi = () => {
-		initMail(o)
-		// Need to init in the 2 places!
-		remult.context.sendMail = sendMail
-	}
-	mailModule.initRequest = async () => {
-		// Need to init in the 2 places!
-		remult.context.sendMail = sendMail
-	}
-	return mailModule
-}
+export const mail: (o?: MailOptions) => Module<unknown> = (o) =>
+	new Module({
+		key: 'mail',
+		priority: -888,
+		entities: Object.values(mailEntities),
+		// Opt-in: only register the test endpoint when the consumer asks for it.
+		controllers: o?.enableTest ? [MailController] : [],
+		initApi: () => {
+			initMail(o)
+			// Need to init in the 2 places!
+			remult.context.sendMail = sendMail
+		},
+		initRequest: async () => {
+			// Need to init in the 2 places!
+			remult.context.sendMail = sendMail
+		},
+	})

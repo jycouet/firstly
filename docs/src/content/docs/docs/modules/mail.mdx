@@ -142,8 +142,24 @@ Both gate on the `Mail.Admin` role (assigned via the auth boutique's
 inline notice instead of the form / list, so it's safe to land on a route any
 authenticated user can reach.
 
-`<WriteMail />` calls `MailController.sendTest` under the hood - real send
-through the configured transport, same code path as your other mails.
+<Aside type="caution">
+	`<WriteMail />` calls a `MailController.sendTest` BackendMethod that is **off
+	by default** - exposing a "send any mail to anyone" endpoint should be an
+	explicit opt-in. Pass `enableTest: true` to `mail()` when you want it:
+
+```ts
+mail({
+	enableTest: true,
+	// ...transport config
+})
+```
+
+Without `enableTest`, `<LastMails />` still works (it just reads from the
+`Mail` entity), but the `<WriteMail />` form will get a `404` when you click
+Send.
+
+</Aside>
+
 `<LastMails />` is a `repo(Mail).liveQuery` sorted by `createdAt desc` (entity
 default).
 
