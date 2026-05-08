@@ -123,6 +123,30 @@ export const api = remultApi({
 	the `messageId`, so you can recover it from the DB without calling Resend back.
 </Aside>
 
+## Demo admin UI (Svelte)
+
+Two drop-in Svelte 5 components for a quick "send + browse" admin page. Raw
+Tailwind only, no plugin required.
+
+```svelte
+<script lang="ts">
+	import { LastMails, WriteMail } from 'firstly/mail'
+</script>
+
+<WriteMail />
+<LastMails limit={30} />
+```
+
+Both gate on the `Mail.Admin` role (assigned via the auth boutique's
+`addRolesToUser` helper or `SUPER_ADMIN_EMAILS`). Users without the role see an
+inline notice instead of the form / list, so it's safe to land on a route any
+authenticated user can reach.
+
+`<WriteMail />` calls `MailController.sendTest` under the hood - real send
+through the configured transport, same code path as your other mails.
+`<LastMails />` is a `repo(Mail).liveQuery` sorted by `createdAt desc` (entity
+default).
+
 ## Global params
 
 Global params are applied to all mails by default and can be overridden for each mail _(handy!)_
