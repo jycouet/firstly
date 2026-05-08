@@ -21,86 +21,101 @@ const BLOCKED_EMAIL_TLDS = new Set(['test', 'example', 'invalid', 'localhost', '
 
 const EMAIL_SHAPE_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+/**
+ * A localized message. Either a literal string (single-locale projects) or a
+ * function called at validation time (multi-locale projects - typically a
+ * paraglide / i18next / lingui message function that resolves against the
+ * current request's locale).
+ */
+export type LocalizedMessage = string | (() => string)
+
 export type EmailMessages = {
 	/** Returned when the value doesn't match the basic email shape regex. */
-	invalid?: string
+	invalid?: LocalizedMessage
 	/** Returned when the domain is malformed (`..`, leading/trailing dot, missing TLD). */
-	invalidDomain?: string
+	invalidDomain?: LocalizedMessage
 	/** Returned when the domain is on the blocked list (`example.com`, `test.com`, ...). */
-	blockedDomain?: string
+	blockedDomain?: LocalizedMessage
 	/** Returned when the TLD is on the blocked list (`.test`, `.example`, `.invalid`, ...). */
-	blockedTld?: string
+	blockedTld?: LocalizedMessage
 }
 
 export type ValidatorMessages = {
 	email?: EmailMessages
 }
 
-const DEFAULT_EMAIL_MESSAGES: Required<EmailMessages> = {
+const DEFAULT_EMAIL_MESSAGES: Required<Record<keyof EmailMessages, string>> = {
 	invalid: 'Invalid email',
 	invalidDomain: 'Invalid domain',
 	blockedDomain: 'Test/example email not accepted',
 	blockedTld: 'Test/example TLD not accepted',
 }
 
+/** Resolve a `LocalizedMessage` to its current string value. */
+function resolve(m: LocalizedMessage): string {
+	return typeof m === 'function' ? m() : m
+}
+
 /**
  * Build a project-localized set of validators. Override any subset of
  * messages; defaults are English.
  *
- * Each validator group exposes two members:
- * - `checkXxx(value)` - pure function, returns `true` on valid or a localized
- *   error message string. Use directly in UI for live inline feedback.
- * - `xxx` - a Remult `Validator` wrapping the same `checkXxx`. Use as
- *   `@Fields.string({ validate: app.email })`.
+ * Each message can be a literal string OR a function returning a string.
+ * Function form is called at validation time (NOT at factory call time), so
+ * pass paraglide / i18next / lingui message functions to get per-request
+ * locale resolution:
  *
  * ```ts
- * // src/lib/App_Validators.ts (typical kimbia-style French project)
  * import { createValidators } from 'firstly'
+ * import * as m from '$lib/paraglide/messages'
  *
  * export const App_Validators = createValidators({
  *   email: {
- *     invalid: 'Email invalide',
- *     invalidDomain: 'Domaine invalide',
- *     blockedDomain: 'Email de test/exemple non accepté',
- *     blockedTld: 'TLD de test/exemple non accepté',
+ *     invalid:        () => m.email_invalid(),
+ *     invalidDomain:  () => m.email_invalid_domain(),
+ *     blockedDomain:  () => m.email_blocked_domain(),
+ *     blockedTld:     () => m.email_blocked_tld(),
  *   },
  * })
- *
- * // usage:
- * @Fields.string({ validate: App_Validators.email })
- * email = ''
- *
- * // live UI feedback:
- * const verdict = App_Validators.checkEmail(typed)
- * if (verdict !== true) showInlineError(verdict)
  * ```
+ *
+ * Each validator group exposes two members:
+ * - `checkXxx(value)` - pure function, returns `true` on valid or a
+ *   localized error message string. Use for live UI feedback.
+ * - `xxx` - a Remult `Validator` wrapping the same `checkXxx`. Use as
+ *   `@Fields.string({ validate: app.email })`.
  */
 export function createValidators(messages: ValidatorMessages = {}) {
-	const m: Required<EmailMessages> = { ...DEFAULT_EMAIL_MESSAGES, ...messages.email }
+	const m: Required<Record<keyof EmailMessages, LocalizedMessage>> = {
+		...DEFAULT_EMAIL_MESSAGES,
+		...messages.email,
+	}
 
 	function checkEmail(value: string): true | string {
 		if (value === '') return true
-		if (!EMAIL_SHAPE_RE.test(value)) return m.invalid
+		if (!EMAIL_SHAPE_RE.test(value)) return resolve(m.invalid)
 		const at = value.lastIndexOf('@')
 		const domain = value.slice(at + 1).toLowerCase()
 		if (!domain || domain.includes('..') || domain.startsWith('.') || domain.endsWith('.')) {
-			return m.invalidDomain
+			return resolve(m.invalidDomain)
 		}
-		if (BLOCKED_EMAIL_DOMAINS.has(domain)) return m.blockedDomain
+		if (BLOCKED_EMAIL_DOMAINS.has(domain)) return resolve(m.blockedDomain)
 		const tld = domain.split('.').pop() ?? ''
-		if (BLOCKED_EMAIL_TLDS.has(tld)) return m.blockedTld
-		if (!domain.includes('.') || tld.length < 2) return m.invalidDomain
+		if (BLOCKED_EMAIL_TLDS.has(tld)) return resolve(m.blockedTld)
+		if (!domain.includes('.') || tld.length < 2) return resolve(m.invalidDomain)
 		return true
 	}
 
 	return {
 		checkEmail,
-		email: createValueValidator(checkEmail, m.invalid),
+		// Pass a function so the per-request locale is resolved when the
+		// validator actually fires, not when the validator is built.
+		email: createValueValidator(checkEmail, () => resolve(m.invalid)),
 	}
 }
 
 /**
- * Default English validators. For a localized variant, build your own with
+ * Default English validators. For localized messages, build your own with
  * `createValidators(messages)` and import that one in your project instead.
  */
 export const FF_Validators = createValidators()

@@ -1,0 +1,83 @@
+---
+title: Common - Validators
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Reusable input validators - currently just `email`. More to come.
+
+## `FF_Validators` (English defaults)
+
+Drop-in for ad-hoc use:
+
+```ts
+import { FF_Validators } from 'firstly'
+
+// In a Remult entity:
+@Fields.string({ validate: FF_Validators.email })
+email = ''
+
+// Or as a pure check, e.g. in a UI for live inline feedback:
+const verdict = FF_Validators.checkEmail(typed)
+if (verdict !== true) showError(verdict)
+```
+
+What `email` accepts:
+
+- the empty string is **valid** (so a default-empty optional field doesn't fail)
+- otherwise, RFC-ish syntax check via regex
+- rejects placeholder / test domains: `@example.com`, `*.test`, `*.invalid`, `localhost`, etc.
+
+## `createValidators(messages?)` for localized messages
+
+The default `FF_Validators` returns English messages. For a project that
+speaks something else - or, more interestingly, for an app that needs to
+return a message in **the current user's locale at validation time** - build
+your own validators with `createValidators`:
+
+```ts
+// src/lib/App_Validators.ts
+import { createValidators } from 'firstly'
+
+export const App_Validators = createValidators({
+	email: {
+		invalid: 'Email invalide',
+		invalidDomain: 'Domaine invalide',
+		blockedDomain: 'Email de test/exemple non accepté',
+		blockedTld: 'TLD de test/exemple non accepté',
+	},
+})
+```
+
+## Per-request locale (i18n)
+
+Each message can be **a literal string** OR **a function returning a string**.
+The function form is called at validation time, so it picks up the current
+request's locale every time the validator fires - perfect for paraglide,
+i18next, lingui, etc.
+
+```ts
+import { createValidators } from 'firstly'
+import * as m from '$lib/paraglide/messages'
+
+export const App_Validators = createValidators({
+	email: {
+		invalid: () => m.email_invalid(),
+		invalidDomain: () => m.email_invalid_domain(),
+		blockedDomain: () => m.email_blocked_domain(),
+		blockedTld: () => m.email_blocked_tld(),
+	},
+})
+```
+
+A user with `lang: 'fr'` calling the same validator gets the French message;
+a user with `lang: 'en'` gets the English one - because each call to
+`m.email_invalid()` resolves the locale from your i18n lib's current context
+(cookies, AsyncLocalStorage, etc.).
+
+<Aside type="note">
+	`checkEmail(value)` returns `true` when valid, or the message string when
+	invalid. `email` is the same logic wrapped as a Remult `Validator` so it
+	plugs into `@Fields.string({ validate: ... })`. Same source of truth, two
+	shapes for two consumers.
+</Aside>
