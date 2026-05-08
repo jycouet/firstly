@@ -34,20 +34,16 @@
 		}
 	}
 
-	function asTime(d: unknown): number {
-		const t = d instanceof Date ? d.getTime() : new Date(d as string).getTime()
-		return isNaN(t) ? 0 : t
-	}
-
 	onMount(() => {
 		if (live) {
+			// Pass `orderBy` explicitly: remult keeps the live state sorted on
+			// incremental adds/replaces only when `query.options.orderBy` is
+			// set (the entity's `defaultOrderBy` only applies to the initial
+			// fetch). Without this, new SSE rows would land at the bottom.
 			unsubscribe = repo(Mail)
-				.liveQuery({ limit })
+				.liveQuery({ limit, orderBy: { createdAt: 'desc' } })
 				.subscribe((res) => {
-					// remult appends new items at the end of res.items as they
-					// arrive over SSE; re-sort to keep the entity's intent
-					// (createdAt desc) so the newest mail stays at the top.
-					mails = res.items.toSorted((a, b) => asTime(b.createdAt) - asTime(a.createdAt))
+					mails = res.items
 					error = ''
 				})
 		} else {
