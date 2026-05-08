@@ -34,12 +34,20 @@
 		}
 	}
 
+	function asTime(d: unknown): number {
+		const t = d instanceof Date ? d.getTime() : new Date(d as string).getTime()
+		return isNaN(t) ? 0 : t
+	}
+
 	onMount(() => {
 		if (live) {
 			unsubscribe = repo(Mail)
 				.liveQuery({ limit })
 				.subscribe((res) => {
-					mails = res.items
+					// remult appends new items at the end of res.items as they
+					// arrive over SSE; re-sort to keep the entity's intent
+					// (createdAt desc) so the newest mail stays at the top.
+					mails = res.items.toSorted((a, b) => asTime(b.createdAt) - asTime(a.createdAt))
 					error = ''
 				})
 		} else {

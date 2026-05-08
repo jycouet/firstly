@@ -15,8 +15,22 @@
 	let result: { ok: boolean; messageId: string | null } | null = $state(null)
 	let error = $state('')
 
+	/** Split a `to` input on commas, trim each entry, drop empties. */
+	function parseRecipients(raw: string): string[] {
+		return raw
+			.split(',')
+			.map((s) => s.trim())
+			.filter(Boolean)
+	}
+
+	const recipients = $derived(parseRecipients(to))
+	const canSend = $derived(
+		recipients.length > 0 && recipients.every((r) => r.includes('@')) && subject.trim().length > 0,
+	)
+
 	async function handleSubmit(e: Event) {
 		e.preventDefault()
+		if (!canSend) return
 		result = null
 		error = ''
 		isLoading = true
@@ -24,7 +38,11 @@
 		// the server cookie-auths via the BackendMethod's `allowed`. The amber
 		// notice in the template is for UX only.
 		try {
-			const r = await MailController.sendTest({ to, subject, body })
+			const r = await MailController.sendTest({
+				to: recipients.length === 1 ? recipients[0] : recipients,
+				subject,
+				body,
+			})
 			if (r.ok) {
 				result = { ok: true, messageId: r.messageId }
 			} else {
@@ -59,13 +77,14 @@
 					>
 					<input
 						id="write-mail-to"
-						type="email"
+						type="text"
 						bind:value={to}
 						disabled={isLoading}
 						required
-						placeholder="someone@example.com"
+						placeholder="someone@example.com, other@example.com"
 						class="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
 					/>
+					<p class="text-xs text-zinc-500">Comma-separate to send to multiple recipients.</p>
 				</div>
 
 				<div class="flex flex-col gap-1">
@@ -100,7 +119,7 @@
 				<div class="flex items-center gap-4 border-t border-zinc-800 pt-4">
 					<button
 						type="submit"
-						disabled={isLoading}
+						disabled={isLoading || !canSend}
 						class="inline-flex items-center gap-2 bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-400 disabled:opacity-50"
 					>
 						{#if isLoading}
@@ -119,6 +138,12 @@
 						{/if}
 						Send
 					</button>
+
+					{#if !canSend && !result && !error}
+						<span class="text-xs text-zinc-500">
+							Add a recipient with <code>@</code> and a subject to enable Send.
+						</span>
+					{/if}
 
 					{#if result}
 						<div

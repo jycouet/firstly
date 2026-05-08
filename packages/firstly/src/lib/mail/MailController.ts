@@ -9,7 +9,7 @@ export class MailController {
 	 * returns the provider's `messageId` when available.
 	 */
 	@BackendMethod({ allowed: Roles_Mail.Mail_Admin })
-	static async sendTest(input: { to: string; subject: string; body: string }) {
+	static async sendTest(input: { to: string | string[]; subject: string; body: string }) {
 		if (import.meta.env.SSR) {
 			if (!remult.context.sendMail) {
 				throw new Error('mail module not registered (call mail() in remultApi.modules)')
