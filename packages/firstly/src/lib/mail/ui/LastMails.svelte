@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte'
+	import { onDestroy, onMount } from 'svelte'
 
 	import { remult, repo } from 'remult'
 
@@ -8,18 +8,21 @@
 
 	const hasAccess = $derived(remult.user?.roles?.includes(Roles_Mail.Mail_Admin) ?? false)
 
-	type Props = { limit?: number }
-	let { limit = 30 }: Props = $props()
+	type Props = {
+		limit?: number
+		/** Subscribe to a remult `liveQuery` so the list updates over SSE.
+		 * Default `true`. Set to `false` to fall back to a one-shot fetch on
+		 * mount (the Refresh button still works either way). */
+		live?: boolean
+	}
+	let { limit = 30, live = true }: Props = $props()
 
 	let mails: Mail[] = $state([])
 	let isLoading = $state(false)
 	let error = $state('')
+	let unsubscribe: (() => void) | null = null
 
 	export async function refresh() {
-		// We don't gate on client-side `hasAccess` (it's only a UX hint): the
-		// server cookie-auths the entity. If forbidden, .find() throws and we
-		// surface the message; the amber notice in the template handles the
-		// "user signed out" case visually.
 		isLoading = true
 		error = ''
 		try {
@@ -31,7 +34,20 @@
 		}
 	}
 
-	onMount(refresh)
+	onMount(() => {
+		if (live) {
+			unsubscribe = repo(Mail)
+				.liveQuery({ limit })
+				.subscribe((res) => {
+					mails = res.items
+					error = ''
+				})
+		} else {
+			refresh()
+		}
+	})
+
+	onDestroy(() => unsubscribe?.())
 
 	function parseTo(raw: string): string {
 		try {
@@ -51,24 +67,25 @@
 	}
 
 	function badgeClass(status: Mail['status']): string {
-		if (status === 'sent') return 'bg-green-50 border-green-200 text-green-900'
-		if (status === 'transport_not_configured') return 'bg-amber-50 border-amber-200 text-amber-900'
-		return 'bg-red-50 border-red-200 text-red-900'
+		if (status === 'sent') return 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300'
+		if (status === 'transport_not_configured')
+			return 'bg-amber-500/10 border-amber-500/40 text-amber-300'
+		return 'bg-red-500/10 border-red-500/40 text-red-300'
 	}
 </script>
 
-<div class="border border-zinc-300 bg-white">
-	<header class="flex flex-wrap items-center gap-3 border-b border-zinc-200 px-5 py-4">
+<div class="border border-zinc-800 bg-zinc-900 text-zinc-200">
+	<header class="flex flex-wrap items-center gap-3 border-b border-zinc-800 px-5 py-4">
 		<div class="flex flex-col">
-			<h2 class="text-lg font-semibold text-zinc-900">Last mails</h2>
-			<p class="text-sm text-zinc-600">Recent mails sent through this app.</p>
+			<h2 class="text-lg font-semibold text-zinc-100">Last mails</h2>
+			<p class="text-sm text-zinc-400">Recent mails sent through this app.</p>
 		</div>
 		{#if hasAccess}
 			<button
 				type="button"
 				onclick={refresh}
 				disabled={isLoading}
-				class="ml-auto inline-flex items-center gap-2 border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:opacity-50"
+				class="ml-auto inline-flex items-center gap-2 border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
 			>
 				{#if isLoading}
 					<svg
@@ -88,35 +105,51 @@
 			</button>
 			<span class="text-xs text-zinc-500">
 				{mails.length} mail{mails.length === 1 ? '' : 's'}
+				{#if live}<span class="text-indigo-400">· live</span>{/if}
 			</span>
 		{/if}
 	</header>
 
 	<div class="p-5">
 		{#if !hasAccess}
-			<div class="border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-				You need the <code class="bg-amber-100 px-1 py-0.5 text-xs">Mail.Admin</code> role to use this.
+			<div class="border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
+				You need the
+				<code class="bg-amber-500/20 px-1 py-0.5 text-xs text-amber-100">Mail.Admin</code>
+				role to use this.
 			</div>
 		{:else if error}
-			<div class="border border-red-200 bg-red-50 p-3 text-sm text-red-900">{error}</div>
+			<div class="border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>
 		{:else if mails.length === 0}
-			<div class="border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-600">No mails yet.</div>
+			<div class="border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-400">No mails yet.</div>
 		{:else}
 			<div class="flex flex-col gap-3">
 				{#each mails as m (m.id)}
 					{@const subject = m.metadata?.subject as string | undefined}
 					{@const messageId = m.metadata?.transport?.messageId as string | undefined}
-					<article class="flex flex-col gap-2 border border-zinc-200 bg-white p-4">
+					{@const preview = m.metadata?.transport?.preview as string | undefined}
+					<article class="flex flex-col gap-2 border border-zinc-800 bg-zinc-950 p-4">
 						<div class="flex flex-wrap items-center gap-2">
 							<span class="border px-2 py-0.5 text-xs font-medium {badgeClass(m.status)}">{m.status}</span>
-							<span class="border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-xs font-medium text-zinc-700"
+							<span
+								class="border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-300"
 								>{m.topic}</span
 							>
-							<span class="text-xs text-zinc-600">{parseTo(m.to)}</span>
+							<span class="text-xs text-zinc-400">{parseTo(m.to)}</span>
 							<span class="ml-auto text-xs text-zinc-500">{formatDate(m.createdAt)}</span>
 						</div>
 
-						<div class="text-base font-medium text-zinc-900">{subject || '(no subject)'}</div>
+						<div class="text-base font-medium text-zinc-100">{subject || '(no subject)'}</div>
+
+						{#if preview}
+							<div class="text-xs">
+								<a
+									href={preview}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="text-indigo-400 underline hover:text-indigo-300">preview (mail not really sent)</a
+								>
+							</div>
+						{/if}
 
 						{#if messageId}
 							<div class="text-xs break-all text-zinc-500">id: <code>{messageId}</code></div>
@@ -124,7 +157,7 @@
 
 						{#if m.status === 'error' && m.errorInfo}
 							<pre
-								class="border border-red-200 bg-red-50 p-2 text-xs whitespace-pre-wrap text-red-900">{m.errorInfo}</pre>
+								class="border border-red-500/40 bg-red-500/10 p-2 text-xs whitespace-pre-wrap text-red-200">{m.errorInfo}</pre>
 						{/if}
 					</article>
 				{/each}
