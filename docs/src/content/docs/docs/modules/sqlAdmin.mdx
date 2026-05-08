@@ -26,16 +26,15 @@ import { remultApi } from 'remult/remult-sveltekit'
 import { sqlAdmin } from 'firstly/sqlAdmin/server'
 
 export const api = remultApi({
-  modules: [
-    sqlAdmin({
-      // OPTIONAL - the route where you mount <SqlAdmin />, used in the AI hint logged on boot.
-      // path: '/sql/admin',
-
-      // OPTIONAL - override the SqlDatabase used to execute queries.
-      // Defaults to `SqlDatabase.getDb()` (the active Remult data provider).
-      // dp: async () => myCustomSqlDatabase,
-    }),
-  ],
+	modules: [
+		sqlAdmin({
+			// OPTIONAL - the route where you mount <SqlAdmin />, used in the AI hint logged on boot.
+			// path: '/sql/admin',
+			// OPTIONAL - override the SqlDatabase used to execute queries.
+			// Defaults to `SqlDatabase.getDb()` (the active Remult data provider).
+			// dp: async () => myCustomSqlDatabase,
+		}),
+	],
 })
 ```
 
@@ -47,7 +46,7 @@ your project needs Tailwind set up - nothing else.
 ```svelte
 <!-- src/routes/(admin)/sql/admin/+page.svelte -->
 <script lang="ts">
-  import { SqlAdmin } from 'firstly/sqlAdmin'
+	import { SqlAdmin } from 'firstly/sqlAdmin'
 </script>
 
 <SqlAdmin />
