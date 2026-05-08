@@ -13,6 +13,7 @@ import { Module } from 'remult/server'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
 import { log, mailEntities } from '../index'
+import { MailController } from '../MailController'
 import type { MailSection } from '../types'
 import { toHtml, type MailStyle } from './formatMailHelper'
 
@@ -290,6 +291,7 @@ const mailModule = new Module({
 	key: 'mail',
 	priority: -888,
 	entities: Object.values(mailEntities),
+	controllers: [MailController],
 })
 
 export const mail: (o?: MailOptions) => Module<unknown> = (o) => {
