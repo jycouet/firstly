@@ -25,6 +25,8 @@ export { tw } from './core/tailwind.js'
 export { FF_LogToConsole } from './SqlDatabase/FF_LogToConsole.js'
 export { FilterEntity } from './virtual/FilterEntity.js'
 export { UIEntity } from './virtual/UIEntity.js'
+export { stackHttpClient, withHeader, withTraceparent } from './httpClientStack.js'
+export type { HttpClientFetch, HttpClientMiddleware } from './httpClientStack.js'
 
 declare module 'remult' {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars

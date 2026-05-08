@@ -7,6 +7,7 @@
 
 	import '../app.css'
 
+	import { initClientTrace } from 'firstly/evlog'
 	import { initRemultSvelteReactivity } from 'firstly/svelte'
 
 	import type { LayoutData } from './$types'
@@ -19,8 +20,11 @@
 	let { children, data }: Props = $props()
 	remult.user = data.user
 
+	initClientTrace()
+
 	const links = [
 		{ path: route('/'), text: 'Home' },
+		{ path: '/tasks', text: '📝 Tasks (evlog demo)' },
 
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
