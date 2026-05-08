@@ -13,6 +13,7 @@ import { Module } from 'remult/server'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
 import { log, mailEntities } from '../index'
+import type { MailSection } from '../types'
 import { toHtml, type MailStyle } from './formatMailHelper'
 
 declare module 'remult' {
@@ -119,10 +120,7 @@ export const sendMail: (
 		to: Required<DefaultOptions>['to']
 		subject: Required<DefaultOptions>['subject']
 		title?: string
-		sections: {
-			html: string
-			cta?: { html: string; link: string } | undefined
-		}[]
+		sections: MailSection[]
 	},
 	options?: { nodemailer?: MailOptions['nodemailer'] },
 ) => Promise<SendMailResult> = async (topic, easyOptions, options) => {
@@ -177,18 +175,32 @@ export const sendMail: (
 	try {
 		if (!globalOptions?.nodemailer?.transport) {
 			const data = await transporter.sendMail({ ...nodemailerOptions.defaults })
-			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
-		We are still nice and generated you an email preview link (the mail we not really sent): 
-		👉 ${cyan(String(nodemailer.getTestMessageUrl(data)))}
-			
-		To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
+			const previewUrl = nodemailer.getTestMessageUrl(data) || undefined
+			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️
+		No transport set - generated a preview link instead (the mail was NOT really sent):
+		👉 ${cyan(String(previewUrl))}
+
+		To send for real, set a transport. Likely you're missing the API key / password for your provider.
+		Quick path with Resend (https://resend.com):
+		${cyan(`mail({
+		  nodemailer: {
+		    transport: {
+		      host: 'smtp.resend.com',
+		      port: 465,
+		      secure: true,
+		      auth: { user: 'resend', pass: process.env.RESEND_API_KEY },
+		    },
+		  },
+		})`)}
+
+		Full docs: ${white(`https://firstly.fun/docs/modules/mail`)}.
       `)
 			await repo(mailEntities.Mail).insert({
 				status: 'transport_not_configured',
 				to: JSON.stringify(to),
 				html: easyOptionsToUse.saveHtml ? html : '',
 				topic,
-				metadata,
+				metadata: { ...metadata, transport: extractTransportInfo(data, previewUrl) },
 			})
 			return { data }
 		} else {
@@ -201,15 +213,18 @@ export const sendMail: (
 				to: JSON.stringify(to),
 				html: easyOptionsToUse.saveHtml ? html : '',
 				topic,
-				metadata,
+				metadata: { ...metadata, transport: extractTransportInfo(data) },
 			})
 			return { data }
 		}
 	} catch (error) {
 		if (error instanceof Error && error.message.includes('Missing credentials for "PLAIN"')) {
-			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not well configured`)} ⚠️ 
+			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not well configured`)} ⚠️
 👉 transport used:
 ${cyan(JSON.stringify(globalOptions?.nodemailer?.transport, null, 2))}
+
+The transport refused the auth - the API key / password is missing or wrong.
+For Resend, ${white(`auth.pass`)} must be your ${white(`RESEND_API_KEY`)} (the literal user is ${white(`'resend'`)}).
 			`)
 		} else {
 			log.error(`${magenta(`[${topic}]`)} - Error`, error)
@@ -256,6 +271,32 @@ ${cyan(JSON.stringify(globalOptions?.nodemailer?.transport, null, 2))}
 		})
 
 		return { error }
+	}
+}
+
+/**
+ * Captured nodemailer-side metadata persisted on every send. This makes
+ * provider-side IDs (e.g. Resend's `re_...` returned via SMTP `messageId`)
+ * recoverable from the DB without an extra round-trip to the provider.
+ */
+function extractTransportInfo(
+	data: SMTPTransport.SentMessageInfo,
+	preview?: string,
+): {
+	messageId?: string
+	response?: string
+	accepted?: unknown
+	rejected?: unknown
+	envelope?: unknown
+	preview?: string
+} {
+	return {
+		messageId: data.messageId,
+		response: data.response,
+		accepted: data.accepted,
+		rejected: data.rejected,
+		envelope: data.envelope,
+		preview,
 	}
 }
 

@@ -86,6 +86,41 @@ export const api = remultApi({
 })
 ```
 
+## Send via Resend
+
+[Resend](https://resend.com) speaks SMTP, so it drops in as a regular nodemailer
+transport. Sign up, verify your sending domain (Resend gives you the SPF / DKIM /
+DMARC DNS records to paste into your registrar), grab an API key, then:
+
+```ts
+import { RESEND_API_KEY } from '$env/static/private'
+
+export const api = remultApi({
+	modules: [
+		mail({
+			from: { name: 'My Cool App', address: 'noreply@mycoolapp.com' },
+			nodemailer: {
+				transport: {
+					host: 'smtp.resend.com',
+					port: 465,
+					secure: true,
+					auth: {
+						user: 'resend', // literal string, not your account email
+						pass: RESEND_API_KEY,
+					},
+				},
+			},
+		}),
+	],
+})
+```
+
+<Aside type="tip">
+	After every send, firstly persists nodemailer's response (`messageId`, `response`, `accepted`,
+	`rejected`, `envelope`) into `Mail.metadata.transport`. The Resend dashboard ID arrives via SMTP as
+	the `messageId`, so you can recover it from the DB without calling Resend back.
+</Aside>
+
 ## Global params
 
 Global params are applied to all mails by default and can be overridden for each mail _(handy!)_
