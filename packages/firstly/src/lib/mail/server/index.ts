@@ -127,6 +127,8 @@ export const sendMail: (
 	topic: string,
 	easyOptions: GlobalEasyOptions & {
 		to: Required<DefaultOptions>['to']
+		cc?: DefaultOptions['cc']
+		bcc?: DefaultOptions['bcc']
 		subject: Required<DefaultOptions>['subject']
 		title?: string
 		sections: MailSection[]
@@ -144,7 +146,7 @@ export const sendMail: (
 	}
 
 	let { primaryColor, secondaryColor, title, footer, service } = easyOptionsToUse
-	const { subject, sections, to } = easyOptionsToUse
+	const { subject, sections, to, cc, bcc } = easyOptionsToUse
 
 	service = service ?? 'service'
 	primaryColor = primaryColor ?? '#0d0f70'
@@ -160,6 +162,8 @@ export const sendMail: (
 		title,
 		footer,
 		sections,
+		cc,
+		bcc,
 	}
 	const html = easyOptionsToUse.toHtml ? easyOptionsToUse.toHtml(metadata) : toHtml(metadata)
 
@@ -167,6 +171,8 @@ export const sendMail: (
 		defaults: {
 			...globalOptions?.nodemailer?.defaults,
 			to,
+			cc,
+			bcc,
 			subject,
 			html,
 			...nodemailerOptions?.defaults,

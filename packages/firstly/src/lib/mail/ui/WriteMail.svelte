@@ -8,6 +8,8 @@
 	const hasAccess = $derived(remult.user?.roles?.includes(Roles_Mail.Mail_Admin) ?? false)
 
 	let to = $state('')
+	let cc = $state('')
+	let bcc = $state('')
 	let subject = $state('')
 	let body = $state('')
 	let isLoading = $state(false)
@@ -15,7 +17,11 @@
 	let result: { ok: boolean; messageId: string | null } | null = $state(null)
 	let error = $state('')
 
-	const canSend = $derived(to.includes('@') && subject.trim().length > 0)
+	// Bare-minimum client gate: subject + at least one recipient slot has
+	// content. Server splits, trims, lowercases, and validates each entry.
+	const canSend = $derived(
+		subject.trim().length > 0 && (to.trim() || cc.trim() || bcc.trim()).length > 0,
+	)
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault()
@@ -27,7 +33,7 @@
 		// the server cookie-auths via the BackendMethod's `allowed`. The amber
 		// notice in the template is for UX only.
 		try {
-			const r = await MailController.sendTest({ to, subject, body })
+			const r = await MailController.sendTest({ to, cc, bcc, subject, body })
 			if (r.ok) {
 				result = { ok: true, messageId: r.messageId }
 			} else {
@@ -62,13 +68,41 @@
 					>
 					<input
 						id="write-mail-to"
-						type="email"
+						type="text"
 						bind:value={to}
 						disabled={isLoading}
-						required
-						placeholder="someone@example.com"
+						placeholder="someone@example.com, other@example.com"
 						class="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
 					/>
+				</div>
+
+				<div class="grid grid-cols-2 gap-4 max-md:grid-cols-1">
+					<div class="flex flex-col gap-1">
+						<label for="write-mail-cc" class="text-xs font-medium tracking-wide text-zinc-400 uppercase"
+							>Cc</label
+						>
+						<input
+							id="write-mail-cc"
+							type="text"
+							bind:value={cc}
+							disabled={isLoading}
+							placeholder="optional, comma-separated"
+							class="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+						/>
+					</div>
+					<div class="flex flex-col gap-1">
+						<label for="write-mail-bcc" class="text-xs font-medium tracking-wide text-zinc-400 uppercase"
+							>Bcc</label
+						>
+						<input
+							id="write-mail-bcc"
+							type="text"
+							bind:value={bcc}
+							disabled={isLoading}
+							placeholder="optional, comma-separated"
+							class="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+						/>
+					</div>
 				</div>
 
 				<div class="flex flex-col gap-1">
@@ -124,9 +158,7 @@
 					</button>
 
 					{#if !canSend && !result && !error}
-						<span class="text-xs text-zinc-500">
-							Add a recipient with <code>@</code> and a subject to enable Send.
-						</span>
+						<span class="text-xs text-zinc-500"> Add a subject and at least one recipient. </span>
 					{/if}
 
 					{#if result}

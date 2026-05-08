@@ -53,11 +53,15 @@
 
 	onDestroy(() => unsubscribe?.())
 
+	function formatList(v: unknown): string {
+		if (v == null) return ''
+		if (Array.isArray(v)) return v.join(', ')
+		return String(v)
+	}
+
 	function parseTo(raw: string): string {
 		try {
-			const v = JSON.parse(raw)
-			if (Array.isArray(v)) return v.join(', ')
-			return String(v)
+			return formatList(JSON.parse(raw))
 		} catch {
 			return raw
 		}
@@ -129,6 +133,8 @@
 			<div class="flex flex-col gap-3">
 				{#each mails as m (m.id)}
 					{@const subject = m.metadata?.subject as string | undefined}
+					{@const cc = formatList(m.metadata?.cc)}
+					{@const bcc = formatList(m.metadata?.bcc)}
 					{@const messageId = m.metadata?.transport?.messageId as string | undefined}
 					{@const preview = m.metadata?.transport?.preview as string | undefined}
 					<article class="flex flex-col gap-2 border border-zinc-800 bg-zinc-950 p-4">
@@ -143,6 +149,13 @@
 						</div>
 
 						<div class="text-base font-medium text-zinc-100">{subject || '(no subject)'}</div>
+
+						{#if cc}
+							<div class="text-xs text-zinc-500">cc: {cc}</div>
+						{/if}
+						{#if bcc}
+							<div class="text-xs text-zinc-500">bcc: {bcc}</div>
+						{/if}
 
 						{#if preview}
 							<div class="text-xs">
