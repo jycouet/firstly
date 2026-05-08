@@ -15,18 +15,7 @@
 	let result: { ok: boolean; messageId: string | null } | null = $state(null)
 	let error = $state('')
 
-	/** Split a `to` input on commas, trim each entry, drop empties. */
-	function parseRecipients(raw: string): string[] {
-		return raw
-			.split(',')
-			.map((s) => s.trim())
-			.filter(Boolean)
-	}
-
-	const recipients = $derived(parseRecipients(to))
-	const canSend = $derived(
-		recipients.length > 0 && recipients.every((r) => r.includes('@')) && subject.trim().length > 0,
-	)
+	const canSend = $derived(to.includes('@') && subject.trim().length > 0)
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault()
@@ -38,11 +27,7 @@
 		// the server cookie-auths via the BackendMethod's `allowed`. The amber
 		// notice in the template is for UX only.
 		try {
-			const r = await MailController.sendTest({
-				to: recipients.length === 1 ? recipients[0] : recipients,
-				subject,
-				body,
-			})
+			const r = await MailController.sendTest({ to, subject, body })
 			if (r.ok) {
 				result = { ok: true, messageId: r.messageId }
 			} else {
@@ -77,14 +62,13 @@
 					>
 					<input
 						id="write-mail-to"
-						type="text"
+						type="email"
 						bind:value={to}
 						disabled={isLoading}
 						required
-						placeholder="someone@example.com, other@example.com"
+						placeholder="someone@example.com"
 						class="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
 					/>
-					<p class="text-xs text-zinc-500">Comma-separate to send to multiple recipients.</p>
 				</div>
 
 				<div class="flex flex-col gap-1">
