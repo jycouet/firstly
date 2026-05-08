@@ -1,5 +1,6 @@
 import { BackendMethod, remult } from 'remult'
 
+import { checkEmail } from '../core/FF_Validators'
 import { Roles_Mail } from './Roles_Mail'
 
 /** Split on commas, trim, lowercase, drop empties. */
@@ -41,9 +42,9 @@ export class MailController {
 			if (tos.length === 0 && ccs.length === 0 && bccs.length === 0) {
 				throw new Error('At least one recipient is required (to, cc, or bcc).')
 			}
-			const invalid = [...tos, ...ccs, ...bccs].find((e) => !e.includes('@'))
-			if (invalid) {
-				throw new Error(`Invalid email: "${invalid}"`)
+			for (const entry of [...tos, ...ccs, ...bccs]) {
+				const verdict = checkEmail(entry)
+				if (verdict !== true) throw new Error(`${verdict}: "${entry}"`)
 			}
 
 			const safe = (s: string) =>

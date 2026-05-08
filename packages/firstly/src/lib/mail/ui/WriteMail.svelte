@@ -47,10 +47,10 @@
 	}
 </script>
 
-<div class="border border-zinc-800 bg-zinc-900 text-zinc-200">
-	<header class="border-b border-zinc-800 px-5 py-4">
-		<h2 class="text-lg font-semibold text-zinc-100">Write mail</h2>
-		<p class="mt-1 text-sm text-zinc-400">Send a test mail through the configured transport.</p>
+<div class="border border-slate-700 bg-slate-800 text-slate-200">
+	<header class="border-b border-slate-700 px-5 py-4">
+		<h2 class="text-lg font-semibold text-slate-100">Write mail</h2>
+		<p class="mt-1 text-sm text-slate-400">Send a test mail through the configured transport.</p>
 	</header>
 
 	<div class="p-5">
@@ -63,7 +63,7 @@
 		{:else}
 			<form onsubmit={handleSubmit} class="flex flex-col gap-4">
 				<div class="flex flex-col gap-1">
-					<label for="write-mail-to" class="text-xs font-medium tracking-wide text-zinc-400 uppercase"
+					<label for="write-mail-to" class="text-xs font-medium tracking-wide text-slate-400 uppercase"
 						>To</label
 					>
 					<input
@@ -72,13 +72,13 @@
 						bind:value={to}
 						disabled={isLoading}
 						placeholder="someone@example.com, other@example.com"
-						class="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+						class="border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
 					/>
 				</div>
 
 				<div class="grid grid-cols-2 gap-4 max-md:grid-cols-1">
 					<div class="flex flex-col gap-1">
-						<label for="write-mail-cc" class="text-xs font-medium tracking-wide text-zinc-400 uppercase"
+						<label for="write-mail-cc" class="text-xs font-medium tracking-wide text-slate-400 uppercase"
 							>Cc</label
 						>
 						<input
@@ -87,11 +87,11 @@
 							bind:value={cc}
 							disabled={isLoading}
 							placeholder="optional, comma-separated"
-							class="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+							class="border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
 						/>
 					</div>
 					<div class="flex flex-col gap-1">
-						<label for="write-mail-bcc" class="text-xs font-medium tracking-wide text-zinc-400 uppercase"
+						<label for="write-mail-bcc" class="text-xs font-medium tracking-wide text-slate-400 uppercase"
 							>Bcc</label
 						>
 						<input
@@ -100,7 +100,7 @@
 							bind:value={bcc}
 							disabled={isLoading}
 							placeholder="optional, comma-separated"
-							class="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+							class="border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
 						/>
 					</div>
 				</div>
@@ -108,7 +108,7 @@
 				<div class="flex flex-col gap-1">
 					<label
 						for="write-mail-subject"
-						class="text-xs font-medium tracking-wide text-zinc-400 uppercase">Subject</label
+						class="text-xs font-medium tracking-wide text-slate-400 uppercase">Subject</label
 					>
 					<input
 						id="write-mail-subject"
@@ -117,12 +117,12 @@
 						disabled={isLoading}
 						required
 						placeholder="Subject"
-						class="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+						class="border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
 					/>
 				</div>
 
 				<div class="flex flex-col gap-1">
-					<label for="write-mail-body" class="text-xs font-medium tracking-wide text-zinc-400 uppercase"
+					<label for="write-mail-body" class="text-xs font-medium tracking-wide text-slate-400 uppercase"
 						>Body</label
 					>
 					<textarea
@@ -130,11 +130,11 @@
 						bind:value={body}
 						disabled={isLoading}
 						placeholder="Write your message..."
-						class="h-40 w-full border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+						class="h-40 w-full border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
 					></textarea>
 				</div>
 
-				<div class="flex items-center gap-4 border-t border-zinc-800 pt-4">
+				<div class="flex items-center gap-4 border-t border-slate-700 pt-4">
 					<button
 						type="submit"
 						disabled={isLoading || !canSend}
@@ -158,7 +158,7 @@
 					</button>
 
 					{#if !canSend && !result && !error}
-						<span class="text-xs text-zinc-500"> Add a subject and at least one recipient. </span>
+						<span class="text-xs text-slate-500"> Add a subject and at least one recipient. </span>
 					{/if}
 
 					{#if result}

@@ -78,10 +78,10 @@ ORDER BY tablename, indexname`,
 	}
 </script>
 
-<div class="border border-zinc-800 bg-zinc-900 text-zinc-200">
-	<header class="border-b border-zinc-800 px-5 py-4">
-		<h2 class="text-lg font-semibold text-zinc-100">SQL Admin</h2>
-		<p class="mt-1 text-sm text-zinc-400">
+<div class="border border-slate-700 bg-slate-800 text-slate-200">
+	<header class="border-b border-slate-700 px-5 py-4">
+		<h2 class="text-lg font-semibold text-slate-100">SQL Admin</h2>
+		<p class="mt-1 text-sm text-slate-400">
 			Execute SQL queries directly on the database. Results are displayed below and also logged to the
 			browser console.
 		</p>
@@ -92,7 +92,7 @@ ORDER BY tablename, indexname`,
 			{#each Object.entries(queries) as [id, query] (id)}
 				<button
 					type="button"
-					class="border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
+					class="border border-slate-600 bg-slate-700 px-3 py-1.5 text-sm font-medium text-slate-100 hover:bg-slate-600 disabled:opacity-50"
 					onclick={() => setPresetQuery(id as keyof typeof queries)}>{query.label}</button
 				>
 			{/each}
@@ -100,7 +100,7 @@ ORDER BY tablename, indexname`,
 		<form onsubmit={handleSubmit} class="flex flex-col gap-4">
 			<textarea
 				bind:value={sqlInput}
-				class="h-52 w-full border border-zinc-700 bg-zinc-950 p-3 font-mono text-sm text-zinc-100 placeholder-zinc-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+				class="h-52 w-full border border-slate-700 bg-slate-900 p-3 font-mono text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
 				placeholder="Enter SQL command..."
 				disabled={isLoading}
 			></textarea>
@@ -144,13 +144,16 @@ ORDER BY tablename, indexname`,
 			</div>
 		</form>
 		{#if result}
-			<div class="max-h-[600px] overflow-auto border border-zinc-800">
+			<!-- contain: paint isolates the scroll container's repaint area; without
+				 it, scrolling a wide result table forces the whole page to repaint
+				 every frame, which is what made horizontal scroll feel laggy. -->
+			<div class="max-h-[600px] overflow-auto border border-slate-700 [contain:paint]">
 				{#if result.r.rows && result.r.rows.length > 0}
 					<table class="w-full border-collapse text-sm">
-						<thead class="sticky top-0 z-10 bg-zinc-800">
+						<thead class="sticky top-0 z-10 bg-slate-700">
 							<tr>
 								{#each getHeaders(result.r.rows) as header, i (i)}
-									<th class="border-b border-zinc-700 px-3 py-2 text-left font-semibold text-zinc-200"
+									<th class="border-b border-slate-600 px-3 py-2 text-left font-semibold text-slate-100"
 										>{header}</th
 									>
 								{/each}
@@ -158,10 +161,12 @@ ORDER BY tablename, indexname`,
 						</thead>
 						<tbody>
 							{#each result.r.rows as row, r (r)}
-								<tr class="even:bg-zinc-900/50">
+								<!-- Solid stripe (no /50 alpha) so the GPU doesn't have to alpha-
+									 composite every cell on every scroll frame. -->
+								<tr class="even:bg-slate-900">
 									{#each Object.values(row) as cell, c (c)}
-										<td class="border-b border-zinc-800 px-3 py-2 align-top text-zinc-300">
-											{#if typeof cell === 'object'}<pre class="text-xs text-zinc-400">{JSON.stringify(
+										<td class="border-b border-slate-700 px-3 py-2 align-top text-slate-200">
+											{#if typeof cell === 'object'}<pre class="text-xs text-slate-400">{JSON.stringify(
 														cell,
 														null,
 														2,
@@ -174,7 +179,7 @@ ORDER BY tablename, indexname`,
 						</tbody>
 					</table>
 				{:else}
-					<div class="border border-zinc-700 bg-zinc-900 p-3 text-sm text-zinc-300">
+					<div class="border border-slate-700 bg-slate-800 p-3 text-sm text-slate-300">
 						No rows returned
 					</div>
 				{/if}

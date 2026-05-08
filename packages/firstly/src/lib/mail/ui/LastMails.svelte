@@ -82,18 +82,18 @@
 	}
 </script>
 
-<div class="border border-zinc-800 bg-zinc-900 text-zinc-200">
-	<header class="flex flex-wrap items-center gap-3 border-b border-zinc-800 px-5 py-4">
+<div class="border border-slate-700 bg-slate-800 text-slate-200">
+	<header class="flex flex-wrap items-center gap-3 border-b border-slate-700 px-5 py-4">
 		<div class="flex flex-col">
-			<h2 class="text-lg font-semibold text-zinc-100">Last mails</h2>
-			<p class="text-sm text-zinc-400">Recent mails sent through this app.</p>
+			<h2 class="text-lg font-semibold text-slate-100">Last mails</h2>
+			<p class="text-sm text-slate-400">Recent mails sent through this app.</p>
 		</div>
 		{#if hasAccess}
 			<button
 				type="button"
 				onclick={refresh}
 				disabled={isLoading}
-				class="ml-auto inline-flex items-center gap-2 border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
+				class="ml-auto inline-flex items-center gap-2 border border-slate-600 bg-slate-700 px-3 py-1.5 text-sm font-medium text-slate-100 hover:bg-slate-600 disabled:opacity-50"
 			>
 				{#if isLoading}
 					<svg
@@ -111,7 +111,7 @@
 				{/if}
 				Refresh
 			</button>
-			<span class="text-xs text-zinc-500">
+			<span class="text-xs text-slate-500">
 				{mails.length} mail{mails.length === 1 ? '' : 's'}
 				{#if live}<span class="text-indigo-400">· live</span>{/if}
 			</span>
@@ -128,7 +128,7 @@
 		{:else if error}
 			<div class="border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>
 		{:else if mails.length === 0}
-			<div class="border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-400">No mails yet.</div>
+			<div class="border border-slate-700 bg-slate-900 p-3 text-sm text-slate-400">No mails yet.</div>
 		{:else}
 			<div class="flex flex-col gap-3">
 				{#each mails as m (m.id)}
@@ -137,24 +137,24 @@
 					{@const bcc = formatList(m.metadata?.bcc)}
 					{@const messageId = m.metadata?.transport?.messageId as string | undefined}
 					{@const preview = m.metadata?.transport?.preview as string | undefined}
-					<article class="flex flex-col gap-2 border border-zinc-800 bg-zinc-950 p-4">
+					<article class="flex flex-col gap-2 border border-slate-700 bg-slate-900 p-4">
 						<div class="flex flex-wrap items-center gap-2">
 							<span class="border px-2 py-0.5 text-xs font-medium {badgeClass(m.status)}">{m.status}</span>
 							<span
-								class="border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-300"
+								class="border border-slate-600 bg-slate-700/50 px-2 py-0.5 text-xs font-medium text-slate-200"
 								>{m.topic}</span
 							>
-							<span class="text-xs text-zinc-400">{parseTo(m.to)}</span>
-							<span class="ml-auto text-xs text-zinc-500">{formatDate(m.createdAt)}</span>
+							<span class="text-xs text-slate-400">{parseTo(m.to)}</span>
+							<span class="ml-auto text-xs text-slate-500">{formatDate(m.createdAt)}</span>
 						</div>
 
-						<div class="text-base font-medium text-zinc-100">{subject || '(no subject)'}</div>
+						<div class="text-base font-medium text-slate-100">{subject || '(no subject)'}</div>
 
 						{#if cc}
-							<div class="text-xs text-zinc-500">cc: {cc}</div>
+							<div class="text-xs text-slate-500">cc: {cc}</div>
 						{/if}
 						{#if bcc}
-							<div class="text-xs text-zinc-500">bcc: {bcc}</div>
+							<div class="text-xs text-slate-500">bcc: {bcc}</div>
 						{/if}
 
 						{#if preview}
@@ -169,7 +169,7 @@
 						{/if}
 
 						{#if messageId}
-							<div class="text-xs break-all text-zinc-500">id: <code>{messageId}</code></div>
+							<div class="text-xs break-all text-slate-500">id: <code>{messageId}</code></div>
 						{/if}
 
 						{#if m.status === 'error' && m.errorInfo}
