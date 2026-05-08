@@ -64,6 +64,10 @@ export default defineConfig({
 							label: 'Mail',
 							link: '/docs/modules/mail',
 						},
+						{
+							label: 'SQL Admin',
+							link: '/docs/modules/sqlAdmin',
+						},
 					],
 				},
 			],

@@ -1,0 +1,65 @@
+---
+title: Module - SQL Admin
+---
+
+A drop-in SQL console to run raw queries against your database, gated by a role. Comes with a
+companion `<SqlAdmin />` Svelte component styled with raw Tailwind utilities (no daisyUI / shadcn
+plugin needed).
+
+Once you have it setup, assign you the role `"SqlAdmin.Admin"` _(You can get it via
+`Roles_SqlAdmin.SqlAdmin_Admin`)_, or rely on the global `FF_Role.FF_Role_Admin`.
+
+Results of every query are also logged to the browser console as `for AI: <json rows>` - handy for
+chrome-devtools / AI agents inspecting the page via `list_console_messages`.
+
+## Installation
+
+```bash
+npm add firstly@latest -D
+```
+
+## Setup
+
+```ts
+// src/server/api.ts
+import { remultApi } from 'remult/remult-sveltekit'
+import { sqlAdmin } from 'firstly/sqlAdmin/server'
+
+export const api = remultApi({
+  modules: [
+    sqlAdmin({
+      // OPTIONAL - the route where you mount <SqlAdmin />, used in the AI hint logged on boot.
+      // path: '/sql/admin',
+
+      // OPTIONAL - override the SqlDatabase used to execute queries.
+      // Defaults to `SqlDatabase.getDb()` (the active Remult data provider).
+      // dp: async () => myCustomSqlDatabase,
+    }),
+  ],
+})
+```
+
+## Usage
+
+Mount the component on a protected route. The component is styled with raw Tailwind utilities, so
+your project needs Tailwind set up - nothing else.
+
+```svelte
+<!-- src/routes/(admin)/sql/admin/+page.svelte -->
+<script lang="ts">
+  import { SqlAdmin } from 'firstly/sqlAdmin'
+</script>
+
+<SqlAdmin />
+```
+
+Then assign the role to your user:
+
+```ts
+import { Roles_SqlAdmin } from 'firstly/sqlAdmin'
+
+// somewhere where you grant roles
+user.roles = [Roles_SqlAdmin.SqlAdmin_Admin]
+```
+
+That's it! 🎉

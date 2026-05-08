@@ -9,6 +9,7 @@
 	 * each successful query - chrome-devtools / AI agents inspecting the page
 	 * can read them with `list_console_messages`.
 	 */
+	import { log } from '../index'
 	import { SqlAdminController } from '../SqlAdminController'
 
 	const defaultQuery = `SELECT *
@@ -49,9 +50,7 @@ ORDER BY tablename, indexname`,
 		},
 	} as const
 
-	console.info(
-		'[firstly/SqlAdmin] AI Hint: results are also logged as "for AI:" JSON after each query.',
-	)
+	log.info('AI Hint: results are also logged as "for AI:" JSON after each query.')
 
 	function setPresetQuery(queryId: keyof typeof queries) {
 		sqlInput = queries[queryId].sql
@@ -63,8 +62,8 @@ ORDER BY tablename, indexname`,
 			error = ''
 			isLoading = true
 			result = { ...(await SqlAdminController.exec(sqlInput)) }
-			console.info('for AI:', JSON.stringify(result.r.rows))
-			console.info('for humans:', result)
+			log.info('for AI:', JSON.stringify(result.r.rows))
+			log.info('for humans:', result)
 		} catch (e) {
 			error = JSON.stringify(e, null, 2)
 		} finally {
