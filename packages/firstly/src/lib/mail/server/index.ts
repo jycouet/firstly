@@ -177,23 +177,10 @@ export const sendMail: (
 			const data = await transporter.sendMail({ ...nodemailerOptions.defaults })
 			const previewUrl = nodemailer.getTestMessageUrl(data) || undefined
 			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️
-		No transport set - generated a preview link instead (the mail was NOT really sent):
+		We are still nice and generated you an email preview link (the mail was NOT really sent):
 		👉 ${cyan(String(previewUrl))}
 
-		To send for real, set a transport. Likely you're missing the API key / password for your provider.
-		Quick path with Resend (https://resend.com):
-		${cyan(`mail({
-		  nodemailer: {
-		    transport: {
-		      host: 'smtp.resend.com',
-		      port: 465,
-		      secure: true,
-		      auth: { user: 'resend', pass: RESEND_API_KEY }, // load from your framework's env helper
-		    },
-		  },
-		})`)}
-
-		Full docs: ${white(`https://firstly.fun/docs/modules/mail`)}.
+		To really send mails (likely a missing provider API key), see ${white(`https://firstly.fun/docs/modules/mail`)}.
       `)
 			await repo(mailEntities.Mail).insert({
 				status: 'transport_not_configured',
@@ -223,8 +210,7 @@ export const sendMail: (
 👉 transport used:
 ${cyan(JSON.stringify(globalOptions?.nodemailer?.transport, null, 2))}
 
-The transport refused the auth - the API key / password is missing or wrong.
-For Resend, ${white(`auth.pass`)} must be your ${white(`RESEND_API_KEY`)} (the literal user is ${white(`'resend'`)}).
+Auth was refused - check your provider's API key. Docs: ${white(`https://firstly.fun/docs/modules/mail`)}.
 			`)
 		} else {
 			log.error(`${magenta(`[${topic}]`)} - Error`, error)
