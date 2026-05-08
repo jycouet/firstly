@@ -188,7 +188,7 @@ export const sendMail: (
 		      host: 'smtp.resend.com',
 		      port: 465,
 		      secure: true,
-		      auth: { user: 'resend', pass: process.env.RESEND_API_KEY },
+		      auth: { user: 'resend', pass: RESEND_API_KEY }, // load from your framework's env helper
 		    },
 		  },
 		})`)}

@@ -93,7 +93,9 @@ transport. Sign up, verify your sending domain (Resend gives you the SPF / DKIM 
 DMARC DNS records to paste into your registrar), grab an API key, then:
 
 ```ts
-import { RESEND_API_KEY } from '$env/static/private'
+// Load RESEND_API_KEY from your framework's env helper:
+//   SvelteKit:   import { RESEND_API_KEY } from '$env/static/private'
+//   Next / Node: const RESEND_API_KEY = process.env.RESEND_API_KEY!
 
 export const api = remultApi({
 	modules: [
