@@ -123,6 +123,7 @@
     },
     "./mail": {
       "types": "./esm/mail/index.d.ts",
+      "svelte": "./esm/mail/index.js",
       "default": "./esm/mail/index.js"
     },
     "./mail/server": {

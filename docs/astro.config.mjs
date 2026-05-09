@@ -46,6 +46,15 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'Common',
+					items: [
+						{
+							label: 'Validators',
+							link: '/docs/common/validators',
+						},
+					],
+				},
+				{
 					label: 'Modules',
 					items: [
 						{
