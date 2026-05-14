@@ -1,5 +1,15 @@
 # firstly
 
+## 0.4.2
+
+### Patch Changes
+
+- [#258](https://github.com/jycouet/firstly/pull/258) [`43f3f77`](https://github.com/jycouet/firstly/commit/43f3f77aa34f064720c90cdd240ac050a360ecf6) Thanks [@jycouet](https://github.com/jycouet)! - `firstly/changeLog`: export the `ChangeLog` entity class so apps can declare `@Relations` to it (e.g. linking changelog rows back to a `User`).
+
+- [#253](https://github.com/jycouet/firstly/pull/253) [`6e203da`](https://github.com/jycouet/firstly/commit/6e203dab7bcbfe043c087703e8c199d42916015f) Thanks [@jycouet](https://github.com/jycouet)! - `firstly/mail`: export `MailSection`, persist nodemailer response into `Mail.metadata.transport` (so provider IDs like Resend's `re_...` are recoverable from the DB), ship drop-in `<WriteMail />` + `<LastMails />` admin components and an opt-in `MailController.sendTest` BackendMethod (`mail({ enableTest: true })`), plus a Resend docs section. Root: new `errorMessage(err)` helper that handles native `Error`, remult `ErrorInfo` rejections, and falls back to JSON instead of `[object Object]`.
+
+- [#252](https://github.com/jycouet/firstly/pull/252) [`a4ee628`](https://github.com/jycouet/firstly/commit/a4ee628262ac290901039eba77cdf508dde48a2e) Thanks [@jycouet](https://github.com/jycouet)! - `firstly/sqlAdmin`: drop daisyUI dep, style with raw Tailwind, and add docs page.
+
 ## 0.4.1
 
 ### Patch Changes
