@@ -27,7 +27,7 @@ catalogs:
 
  kitql:
   '@kitql/helpers': 0.8.13
-  '@kitql/eslint-config': 0.8.1
+  '@kitql/eslint-config': 0.8.3
   eslint: 10.3.0
 
  testing:
