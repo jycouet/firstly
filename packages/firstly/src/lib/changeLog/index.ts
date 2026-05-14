@@ -12,7 +12,7 @@ import {
 
 import { ChangeLog, Roles_ChangeLog, type change } from './changeLogEntities'
 
-export { Roles_ChangeLog }
+export { ChangeLog, Roles_ChangeLog }
 
 export type { change }
 
