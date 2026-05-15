@@ -12,7 +12,7 @@ catalogs:
   prettier-plugin-astro: 0.14.1
 
  best:
-  remult: 3.3.8
+  remult: 3.3.9
 
  tooling:
   '@typescript/native-preview': 7.0.0-dev.20260112.1
