@@ -1,5 +1,11 @@
 # firstly
 
+## 0.4.3
+
+### Patch Changes
+
+- [#265](https://github.com/jycouet/firstly/pull/265) [`9105a8b`](https://github.com/jycouet/firstly/commit/9105a8b4ee47121fdfd8c33419c43bfa75f75c5c) Thanks [@jycouet](https://github.com/jycouet)! - mail: store `attachments` count in `Mail.metadata` so the admin UI can show how many files were sent.
+
 ## 0.4.2
 
 ### Patch Changes
