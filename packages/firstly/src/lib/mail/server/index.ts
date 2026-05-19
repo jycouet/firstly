@@ -154,6 +154,10 @@ export const sendMail: (
 	title = title ?? subject ?? 'subject'
 	footer = footer ?? 'The team wishes you a great day 🚀'
 
+	const mergedAttachments =
+		options?.nodemailer?.defaults?.attachments ?? globalOptions?.nodemailer?.defaults?.attachments
+	const attachments = Array.isArray(mergedAttachments) ? mergedAttachments.length : 0
+
 	const metadata = {
 		service,
 		primaryColor,
@@ -164,6 +168,7 @@ export const sendMail: (
 		sections,
 		cc,
 		bcc,
+		attachments,
 	}
 	const html = easyOptionsToUse.toHtml ? easyOptionsToUse.toHtml(metadata) : toHtml(metadata)
 
