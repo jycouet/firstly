@@ -1,6 +1,6 @@
 {
   "name": "firstly",
-  "version": "0.4.1",
+  "version": "0.4.4",
   "type": "module",
   "description": "Firstly, an opinionated Remult setup!",
   "funding": "https://github.com/sponsors/jycouet",
@@ -138,6 +138,7 @@
     },
     "./mail": {
       "types": "./esm/mail/index.d.ts",
+      "svelte": "./esm/mail/index.js",
       "default": "./esm/mail/index.js"
     },
     "./mail/server": {

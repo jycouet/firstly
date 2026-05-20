@@ -13,6 +13,8 @@ import { Module } from 'remult/server'
 import { cyan, green, magenta, red, sleep, white } from '@kitql/helpers'
 
 import { log, mailEntities } from '../index'
+import { MailController } from '../MailController'
+import type { MailSection } from '../types'
 import { toHtml, type MailStyle } from './formatMailHelper'
 
 declare module 'remult' {
@@ -55,6 +57,14 @@ export type MailOptions = GlobalEasyOptions & {
 		transport?: TransportTypes
 		defaults?: DefaultOptions
 	}
+	/**
+	 * Register `MailController.sendTest` (the BackendMethod that drives the
+	 * bundled `<WriteMail />` component). Off by default - exposing a
+	 * "send any mail to anyone" endpoint should be an explicit opt-in.
+	 *
+	 * Gated by `Roles_Mail.Mail_Admin` regardless.
+	 */
+	enableTest?: boolean
 }
 
 let transporter: ReturnType<typeof typeNodemailer.createTransport>
@@ -117,12 +127,11 @@ export const sendMail: (
 	topic: string,
 	easyOptions: GlobalEasyOptions & {
 		to: Required<DefaultOptions>['to']
+		cc?: DefaultOptions['cc']
+		bcc?: DefaultOptions['bcc']
 		subject: Required<DefaultOptions>['subject']
 		title?: string
-		sections: {
-			html: string
-			cta?: { html: string; link: string } | undefined
-		}[]
+		sections: MailSection[]
 	},
 	options?: { nodemailer?: MailOptions['nodemailer'] },
 ) => Promise<SendMailResult> = async (topic, easyOptions, options) => {
@@ -137,13 +146,17 @@ export const sendMail: (
 	}
 
 	let { primaryColor, secondaryColor, title, footer, service } = easyOptionsToUse
-	const { subject, sections, to } = easyOptionsToUse
+	const { subject, sections, to, cc, bcc } = easyOptionsToUse
 
 	service = service ?? 'service'
 	primaryColor = primaryColor ?? '#0d0f70'
 	secondaryColor = secondaryColor ?? '#653eae'
 	title = title ?? subject ?? 'subject'
 	footer = footer ?? 'The team wishes you a great day 🚀'
+
+	const mergedAttachments =
+		options?.nodemailer?.defaults?.attachments ?? globalOptions?.nodemailer?.defaults?.attachments
+	const attachments = Array.isArray(mergedAttachments) ? mergedAttachments.length : 0
 
 	const metadata = {
 		service,
@@ -153,6 +166,9 @@ export const sendMail: (
 		title,
 		footer,
 		sections,
+		cc,
+		bcc,
+		attachments,
 	}
 	const html = easyOptionsToUse.toHtml ? easyOptionsToUse.toHtml(metadata) : toHtml(metadata)
 
@@ -160,6 +176,8 @@ export const sendMail: (
 		defaults: {
 			...globalOptions?.nodemailer?.defaults,
 			to,
+			cc,
+			bcc,
 			subject,
 			html,
 			...nodemailerOptions?.defaults,
@@ -177,18 +195,19 @@ export const sendMail: (
 	try {
 		if (!globalOptions?.nodemailer?.transport) {
 			const data = await transporter.sendMail({ ...nodemailerOptions.defaults })
-			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️ 
-		We are still nice and generated you an email preview link (the mail we not really sent): 
-		👉 ${cyan(String(nodemailer.getTestMessageUrl(data)))}
-			
-		To really send mails, check out the doc ${white(`https://firstly.fun/modules/mail`)}. 
+			const previewUrl = nodemailer.getTestMessageUrl(data) || undefined
+			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not configured`)} ⚠️
+		We are still nice and generated you an email preview link (the mail was NOT really sent):
+		👉 ${cyan(String(previewUrl))}
+
+		To really send mails (likely a missing provider API key), see ${white(`https://firstly.fun/docs/modules/mail`)}.
       `)
 			await repo(mailEntities.Mail).insert({
 				status: 'transport_not_configured',
 				to: JSON.stringify(to),
 				html: easyOptionsToUse.saveHtml ? html : '',
 				topic,
-				metadata,
+				metadata: { ...metadata, transport: extractTransportInfo(data, previewUrl) },
 			})
 			return { data }
 		} else {
@@ -201,15 +220,17 @@ export const sendMail: (
 				to: JSON.stringify(to),
 				html: easyOptionsToUse.saveHtml ? html : '',
 				topic,
-				metadata,
+				metadata: { ...metadata, transport: extractTransportInfo(data) },
 			})
 			return { data }
 		}
 	} catch (error) {
 		if (error instanceof Error && error.message.includes('Missing credentials for "PLAIN"')) {
-			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not well configured`)} ⚠️ 
+			log.error(`${magenta(`[${topic}]`)} - ⚠️  ${red(`mail not well configured`)} ⚠️
 👉 transport used:
 ${cyan(JSON.stringify(globalOptions?.nodemailer?.transport, null, 2))}
+
+Auth was refused - check your provider's API key. Docs: ${white(`https://firstly.fun/docs/modules/mail`)}.
 			`)
 		} else {
 			log.error(`${magenta(`[${topic}]`)} - Error`, error)
@@ -259,21 +280,46 @@ ${cyan(JSON.stringify(globalOptions?.nodemailer?.transport, null, 2))}
 	}
 }
 
-const mailModule = new Module({
-	key: 'mail',
-	priority: -888,
-	entities: Object.values(mailEntities),
-})
-
-export const mail: (o?: MailOptions) => Module<unknown> = (o) => {
-	mailModule.initApi = () => {
-		initMail(o)
-		// Need to init in the 2 places!
-		remult.context.sendMail = sendMail
+/**
+ * Captured nodemailer-side metadata persisted on every send. This makes
+ * provider-side IDs (e.g. Resend's `re_...` returned via SMTP `messageId`)
+ * recoverable from the DB without an extra round-trip to the provider.
+ */
+function extractTransportInfo(
+	data: SMTPTransport.SentMessageInfo,
+	preview?: string,
+): {
+	messageId?: string
+	response?: string
+	accepted?: unknown
+	rejected?: unknown
+	envelope?: unknown
+	preview?: string
+} {
+	return {
+		messageId: data.messageId,
+		response: data.response,
+		accepted: data.accepted,
+		rejected: data.rejected,
+		envelope: data.envelope,
+		preview,
 	}
-	mailModule.initRequest = async () => {
-		// Need to init in the 2 places!
-		remult.context.sendMail = sendMail
-	}
-	return mailModule
 }
+
+export const mail: (o?: MailOptions) => Module<unknown> = (o) =>
+	new Module({
+		key: 'mail',
+		priority: -888,
+		entities: Object.values(mailEntities),
+		// Opt-in: only register the test endpoint when the consumer asks for it.
+		controllers: o?.enableTest ? [MailController] : [],
+		initApi: () => {
+			initMail(o)
+			// Need to init in the 2 places!
+			remult.context.sendMail = sendMail
+		},
+		initRequest: async () => {
+			// Need to init in the 2 places!
+			remult.context.sendMail = sendMail
+		},
+	})

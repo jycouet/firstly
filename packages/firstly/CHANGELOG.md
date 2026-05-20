@@ -1,5 +1,29 @@
 # firstly
 
+## 0.4.4
+
+### Patch Changes
+
+- [#268](https://github.com/jycouet/firstly/pull/268) [`deb2aa3`](https://github.com/jycouet/firstly/commit/deb2aa3b2ad48e346e902812a4b22cba2e0c74ce) Thanks [@jycouet](https://github.com/jycouet)! - fix(carbone): export `Roles_Carbon` under its real name (was wrongly aliased to `Roles_Mail`, colliding with `firstly/mail`).
+
+  Also expose `CarboneController` and the carbone entity classes from `firstly/carbone`, and `changeLogEntities` from `firstly/changeLog`, so consumers no longer need deep file imports.
+
+## 0.4.3
+
+### Patch Changes
+
+- [#265](https://github.com/jycouet/firstly/pull/265) [`9105a8b`](https://github.com/jycouet/firstly/commit/9105a8b4ee47121fdfd8c33419c43bfa75f75c5c) Thanks [@jycouet](https://github.com/jycouet)! - mail: store `attachments` count in `Mail.metadata` so the admin UI can show how many files were sent.
+
+## 0.4.2
+
+### Patch Changes
+
+- [#258](https://github.com/jycouet/firstly/pull/258) [`43f3f77`](https://github.com/jycouet/firstly/commit/43f3f77aa34f064720c90cdd240ac050a360ecf6) Thanks [@jycouet](https://github.com/jycouet)! - `firstly/changeLog`: export the `ChangeLog` entity class so apps can declare `@Relations` to it (e.g. linking changelog rows back to a `User`).
+
+- [#253](https://github.com/jycouet/firstly/pull/253) [`6e203da`](https://github.com/jycouet/firstly/commit/6e203dab7bcbfe043c087703e8c199d42916015f) Thanks [@jycouet](https://github.com/jycouet)! - `firstly/mail`: export `MailSection`, persist nodemailer response into `Mail.metadata.transport` (so provider IDs like Resend's `re_...` are recoverable from the DB), ship drop-in `<WriteMail />` + `<LastMails />` admin components and an opt-in `MailController.sendTest` BackendMethod (`mail({ enableTest: true })`), plus a Resend docs section. Root: new `errorMessage(err)` helper that handles native `Error`, remult `ErrorInfo` rejections, and falls back to JSON instead of `[object Object]`.
+
+- [#252](https://github.com/jycouet/firstly/pull/252) [`a4ee628`](https://github.com/jycouet/firstly/commit/a4ee628262ac290901039eba77cdf508dde48a2e) Thanks [@jycouet](https://github.com/jycouet)! - `firstly/sqlAdmin`: drop daisyUI dep, style with raw Tailwind, and add docs page.
+
 ## 0.4.1
 
 ### Patch Changes

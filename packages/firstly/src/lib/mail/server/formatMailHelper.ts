@@ -1,3 +1,5 @@
+import type { MailSection } from '../types'
+
 export type MailStyle = {
 	service: string
 	primaryColor: string
@@ -5,10 +7,7 @@ export type MailStyle = {
 
 	subject: string
 	title: string
-	sections: {
-		html: string
-		cta?: { html: string; link: string } | undefined
-	}[]
+	sections: MailSection[]
 	footer: string
 }
 
@@ -84,10 +83,7 @@ const sectionToHtml = (
 	i: number,
 	primaryColor: string,
 	secondaryColor: string,
-	section: {
-		html: string
-		cta?: { html: string; link: string } | undefined
-	},
+	section: MailSection,
 ) => `
 <tr>
   <td bgcolor="#ffffff" align="left">

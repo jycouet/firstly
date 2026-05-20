@@ -86,6 +86,99 @@ export const api = remultApi({
 })
 ```
 
+## Send via Resend
+
+[Resend](https://resend.com) speaks SMTP, so it drops in as a regular nodemailer
+transport. Sign up, verify your sending domain (Resend gives you the SPF / DKIM /
+DMARC DNS records to paste into your registrar), grab an API key, then:
+
+```ts
+// Load RESEND_API_KEY from your framework's env helper:
+//   SvelteKit:   import { RESEND_API_KEY } from '$env/static/private'
+//   Next / Node: const RESEND_API_KEY = process.env.RESEND_API_KEY!
+
+export const api = remultApi({
+	modules: [
+		mail({
+			from: { name: 'My Cool App', address: 'noreply@mycoolapp.com' },
+			nodemailer: {
+				transport: {
+					host: 'smtp.resend.com',
+					port: 465,
+					secure: true,
+					auth: {
+						user: 'resend', // literal string, not your account email
+						pass: RESEND_API_KEY,
+					},
+				},
+			},
+		}),
+	],
+})
+```
+
+<Aside type="tip">
+	After every send, firstly persists nodemailer's response (`messageId`, `response`, `accepted`,
+	`rejected`, `envelope`) into `Mail.metadata.transport`. The Resend dashboard ID arrives via SMTP as
+	the `messageId`, so you can recover it from the DB without calling Resend back.
+</Aside>
+
+## Demo admin UI (Svelte)
+
+Two drop-in Svelte 5 components for a quick "send + browse" admin page. Raw
+Tailwind only, no plugin required.
+
+```svelte
+<script lang="ts">
+	import { LastMails, WriteMail } from 'firstly/mail'
+</script>
+
+<WriteMail />
+<LastMails limit={30} />
+```
+
+<Aside type="caution">
+	**Tailwind v4 does not scan `node_modules` by default.** Without telling it
+	to, the utility classes used inside firstly components won't be generated
+	and the buttons / inputs render unstyled. Add this to your stylesheet (the
+	one with `@import 'tailwindcss';`):
+
+```css
+@source '../../node_modules/firstly';
+```
+
+Same deal for `<SqlAdmin />` and any other component shipped from this package.
+
+</Aside>
+
+Both gate on the `Mail.Admin` role (assigned via the auth boutique's
+`addRolesToUser` helper or `SUPER_ADMIN_EMAILS`). Users without the role see an
+inline notice instead of the form / list, so it's safe to land on a route any
+authenticated user can reach.
+
+<Aside type="caution">
+	`<WriteMail />` calls a `MailController.sendTest` BackendMethod that is **off
+	by default** - exposing a "send any mail to anyone" endpoint should be an
+	explicit opt-in. Pass `enableTest: true` to `mail()` when you want it:
+
+```ts
+mail({
+	enableTest: true,
+	// ...transport config
+})
+```
+
+Without `enableTest`, `<LastMails />` still works (it just reads from the
+`Mail` entity), but the `<WriteMail />` form will get a `404` when you click
+Send.
+
+</Aside>
+
+`<LastMails />` calls `repo(Mail).find({ limit })` on mount and on a Refresh
+button click - sorted `createdAt desc` (entity default). It exposes
+`refresh()` so you can `bind:this` and call it from a sibling after a manual
+send if you want.
+
 ## Global params
 
 Global params are applied to all mails by default and can be overridden for each mail _(handy!)_
