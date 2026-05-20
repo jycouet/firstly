@@ -1,5 +1,13 @@
 # firstly
 
+## 0.4.5
+
+### Patch Changes
+
+- [#270](https://github.com/jycouet/firstly/pull/270) [`ba5eec6`](https://github.com/jycouet/firstly/commit/ba5eec6b0099127c9b5424dd3fb44184b4c70b28) Thanks [@jycouet](https://github.com/jycouet)! - fix(core): add explicit return type to `FF_Entity` so its `.d.ts` is emitted.
+
+  The inferred return type referenced a non-portable remult internal, so svelte-package silently skipped generating `FF_Entity.d.ts`. Consumers using the published package got `FF_Entity` typed as `any`, which made every entity option callback (`saving`, `displayValue`, ...) implicitly `any`.
+
 ## 0.4.4
 
 ### Patch Changes
