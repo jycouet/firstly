@@ -1,5 +1,13 @@
 # firstly
 
+## 0.4.4
+
+### Patch Changes
+
+- [#268](https://github.com/jycouet/firstly/pull/268) [`deb2aa3`](https://github.com/jycouet/firstly/commit/deb2aa3b2ad48e346e902812a4b22cba2e0c74ce) Thanks [@jycouet](https://github.com/jycouet)! - fix(carbone): export `Roles_Carbon` under its real name (was wrongly aliased to `Roles_Mail`, colliding with `firstly/mail`).
+
+  Also expose `CarboneController` and the carbone entity classes from `firstly/carbone`, and `changeLogEntities` from `firstly/changeLog`, so consumers no longer need deep file imports.
+
 ## 0.4.3
 
 ### Patch Changes
