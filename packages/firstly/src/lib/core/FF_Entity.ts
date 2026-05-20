@@ -7,6 +7,6 @@ export function FF_Entity<entityType>(
 	options?: EntityOptions<
 		entityType extends new (...args: any) => any ? InstanceType<entityType> : entityType
 	>,
-) {
+): ReturnType<typeof Entity<entityType>> {
 	return Entity(key, withChangeLog({ ...options }))
 }
