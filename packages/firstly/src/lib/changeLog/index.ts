@@ -10,9 +10,9 @@ import {
 	type LifecycleEvent,
 } from 'remult'
 
-import { ChangeLog, Roles_ChangeLog, type change } from './changeLogEntities'
+import { ChangeLog, changeLogEntities, Roles_ChangeLog, type change } from './changeLogEntities'
 
-export { ChangeLog, Roles_ChangeLog }
+export { ChangeLog, Roles_ChangeLog, changeLogEntities }
 
 export type { change }
 

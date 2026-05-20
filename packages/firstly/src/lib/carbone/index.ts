@@ -2,7 +2,9 @@ import { Log } from '@kitql/helpers'
 
 import { CarboneLog, CarboneTemplate } from './carboneEntities'
 
-export { Roles_Carbon as Roles_Mail } from './Roles_Carbon'
+export { Roles_Carbon } from './Roles_Carbon'
+export { CarboneController } from './CarboneController'
+export { CarbonLogAction, CarboneTemplate, CarboneLog } from './carboneEntities'
 
 export const key = 'carbone'
 
