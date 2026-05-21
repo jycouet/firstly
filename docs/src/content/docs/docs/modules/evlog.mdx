@@ -270,28 +270,46 @@ evlog({
 
 ### Enrich events (browser, geo, request size, ...)
 
-`evlog` ships built-in enrichers that mutate every wide event before it reaches the drain. Wire them through the `enrich` option of `evlog()` - nothing is on by default.
+#### Browser / OS / device - the `context` option
+
+To populate the **Browsers / OS / Devices** dashboard panels, opt into user-agent parsing:
 
 ```ts
 // src/server/_evlog.ts
+import { evlog } from 'firstly/evlog/server'
+
+export const ev = evlog({
+	service: 'my-app',
+	context: { userAgent: true }, // off by default
+})
+```
+
+That wires evlog's user-agent enricher, writing `event.userAgent = { raw, browser:{name,version}, os:{name,version}, device:{type} }` onto each request. The panels group by **name + major version** (e.g. `Chrome 120`, `macOS 14`); device shows the UA `device.type`.
+
+> Client-side SPA navigation rows (`source: 'client'`) are emitted without the server enricher, so browser stats come from server request rows. The aggregation skips rows that have no `event.userAgent`.
+
+#### Other enrichers - the `enrich` option
+
+For geo / request size / trace context, wire evlog's other enrichers through `enrich` (composed alongside `context`):
+
+```ts
 import {
 	createGeoEnricher,
 	createRequestSizeEnricher,
 	createTraceContextEnricher,
-	createUserAgentEnricher,
 } from 'evlog/enrichers'
 
 import { evlog } from 'firstly/evlog/server'
 
 const enrichers = [
-	createUserAgentEnricher(), // event.userAgent = { raw, browser, os, device }
-	createGeoEnricher(), // event.geo       = { country, region, city, ... } (Vercel/CF headers)
+	createGeoEnricher(), // event.geo = { country, region, city, ... } (Vercel/CF headers)
 	createRequestSizeEnricher(), // event.requestSize
 	createTraceContextEnricher(), // event.traceContext + event.traceId/spanId
 ]
 
 export const ev = evlog({
 	service: 'my-app',
+	context: { userAgent: true },
 	enrich: (ctx) => {
 		for (const e of enrichers) e(ctx)
 	},
@@ -307,8 +325,6 @@ group by 1 order by 2 desc;
 ```
 
 `<EvlogStats>` already does this aggregation in JS, so no SQL needed for the demo dashboard.
-
-> **Note on SPA navigations.** `EvlogClientController.recordNavigation()` emits its own wide event via `createLogger().emit()`. The enrichers above run on the SvelteKit _request_'s aggregate event, so the navigation row may not pick them up depending on how evlog flushes. If you need browser data on client navs specifically, pass `navigator.userAgent` from the client and store it on the event yourself.
 
 ## Display stats
 

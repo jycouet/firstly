@@ -12,8 +12,9 @@
 		<h3 class="card-title text-base">Browsers</h3>
 		{#if data.length === 0}
 			<p class="text-xs text-base-content/60">
-				No <code>event.userAgent</code> on traces. Wire <code>createUserAgentEnricher()</code> from
-				<code>evlog/enrichers</code> in your <code>evlogHandle</code> - see the firstly/evlog README.
+				No <code>event.userAgent</code> on traces. Set
+				<code>context: &lbrace; userAgent: true &rbrace;</code>
+				in <code>evlog()</code> - see the firstly/evlog README.
 			</p>
 		{:else}
 			<ul class="space-y-1">

@@ -54,4 +54,36 @@ describe('evlog() factory', () => {
 		expect(names).toContain('firstly-audit')
 		expect(names).not.toContain('firstly-trace')
 	})
+
+	it('no context leaves config.enrich undefined', () => {
+		const ev = evlog({ service: 'x' })
+		expect(ev.config.enrich).toBeUndefined()
+	})
+
+	it('context.userAgent wires an enricher that populates event.userAgent', async () => {
+		const ev = evlog({ service: 'x', context: { userAgent: true } })
+		expect(ev.config.enrich).toBeTypeOf('function')
+		const ctx = {
+			event: {} as Record<string, unknown>,
+			headers: {
+				'user-agent':
+					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+			},
+		}
+		await ev.config.enrich!(ctx as never)
+		expect((ctx.event.userAgent as { browser?: { name?: string } }).browser?.name).toBe('Chrome')
+	})
+
+	it('context.userAgent still runs the user-supplied enrich', async () => {
+		let called = false
+		const ev = evlog({
+			service: 'x',
+			context: { userAgent: true },
+			enrich: () => {
+				called = true
+			},
+		})
+		await ev.config.enrich!({ event: {}, headers: {} } as never)
+		expect(called).toBe(true)
+	})
 })

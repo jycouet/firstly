@@ -138,6 +138,59 @@ describe('EvlogStatsController.getStats(year)', () => {
 		expect(top.count).toBe(2)
 	})
 
+	it('browsers/os buckets include the major version', async () => {
+		const stats = await seedAndAggregate({
+			traces: [
+				{
+					timestamp: new Date('2026-02-01'),
+					source: 'server',
+					event: {
+						userAgent: {
+							browser: { name: 'Chrome', version: '120.0.6099' },
+							os: { name: 'macOS', version: '14.4.1' },
+							device: { type: 'desktop' },
+						},
+					},
+				},
+			],
+		})
+		expect(stats.browsers.find((b) => b.name === 'Chrome 120')).toBeDefined()
+		expect(stats.os.find((o) => o.name === 'macOS 14')).toBeDefined()
+		expect(stats.devices.find((d) => d.name === 'desktop')).toBeDefined()
+	})
+
+	it('falls back to the bare name when no version is present', async () => {
+		const stats = await seedAndAggregate({
+			traces: [
+				{
+					timestamp: new Date('2026-02-01'),
+					source: 'server',
+					event: { userAgent: { browser: { name: 'Safari' }, os: { name: 'iOS' } } },
+				},
+			],
+		})
+		expect(stats.browsers.find((b) => b.name === 'Safari')).toBeDefined()
+		expect(stats.os.find((o) => o.name === 'iOS')).toBeDefined()
+	})
+
+	it('counts the same browser+version into one bucket', async () => {
+		const ua = {
+			userAgent: {
+				browser: { name: 'Chrome', version: '120.1' },
+				os: { name: 'Windows', version: '11' },
+			},
+		}
+		const stats = await seedAndAggregate({
+			traces: [
+				{ timestamp: new Date('2026-02-01'), source: 'server', event: ua },
+				{ timestamp: new Date('2026-02-02'), source: 'server', event: ua },
+			],
+		})
+		const chrome = stats.browsers.find((b) => b.name === 'Chrome 120')
+		expect(chrome).toBeDefined()
+		expect(chrome!.count).toBe(2)
+	})
+
 	it('returns truncated:false for small datasets', async () => {
 		const stats = await seedAndAggregate({
 			traces: [{ timestamp: new Date('2026-01-01'), source: 'server' }],

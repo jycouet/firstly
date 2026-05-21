@@ -1,8 +1,10 @@
 import type { Handle, RequestEvent } from '@sveltejs/kit'
 import { initLogger, type DrainFn, type EnrichContext, type EvlogPlugin } from 'evlog'
+import { createUserAgentEnricher } from 'evlog/enrichers'
 import { evlog as evlogSvelteKitHandle } from 'evlog/sveltekit'
 import {
 	composeDrains,
+	composeEnrichers,
 	defineEvlog,
 	toLoggerConfig,
 	toMiddlewareOptions,
@@ -49,6 +51,17 @@ export interface EvlogModuleOptions {
 	sqlSpans?: boolean | { tablesToHide?: string[]; minDurationMs?: number }
 	/** Enrichers (event mutators) wired into the SvelteKit handle. */
 	enrich?: (ctx: EnrichContext) => void | Promise<void>
+	/** Opt into request-context enrichment. Off by default. */
+	context?: EvlogContextOptions
+}
+
+export interface EvlogContextOptions {
+	/**
+	 * Parse the `User-Agent` header into `event.userAgent`
+	 * (`{ raw, browser:{name,version}, os:{name,version}, device:{type} }`),
+	 * which powers the Browsers / OS / Devices dashboard panels.
+	 */
+	userAgent?: boolean
 }
 
 export interface FirstlyEvlog {
@@ -113,12 +126,24 @@ export const evlog = (options: EvlogModuleOptions = {}): FirstlyEvlog => {
 				? composeDrains(options.drains, { name: 'firstly-user-drains' })
 				: undefined
 
+	// Built-in enrichers requested via `context`, composed before the user's
+	// `enrich` so user code can override what they set.
+	const contextEnrichers: ((ctx: EnrichContext) => void | Promise<void>)[] = []
+	if (options.context?.userAgent) contextEnrichers.push(createUserAgentEnricher())
+	if (options.enrich) contextEnrichers.push(options.enrich)
+	const composedEnrich =
+		contextEnrichers.length === 0
+			? undefined
+			: contextEnrichers.length === 1
+				? contextEnrichers[0]
+				: composeEnrichers(contextEnrichers, { name: 'firstly-context' })
+
 	const config = defineEvlog({
 		service: options.service ?? 'firstly',
 		environment: options.environment ?? process.env.NODE_ENV ?? 'development',
 		plugins,
 		drain: composedDrain,
-		enrich: options.enrich,
+		enrich: composedEnrich,
 	} as EvlogConfig)
 
 	const module = new Module<RequestEvent>({

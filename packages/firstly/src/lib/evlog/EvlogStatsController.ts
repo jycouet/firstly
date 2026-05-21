@@ -259,16 +259,25 @@ export class EvlogStatsController {
 		const osMap = new Map<string, number>()
 		const deviceMap = new Map<string, number>()
 		let uaTotal = 0
+		// "Chrome" + "120.0.6099" -> "Chrome 120"; bare name when no version.
+		const withVersion = (name: string, version?: string) => {
+			const major = version?.split('.')[0]
+			return major ? `${name} ${major}` : name
+		}
 		for (const t of traces) {
 			const ua = (
 				t.event as {
-					userAgent?: { browser?: { name?: string }; os?: { name?: string }; device?: { type?: string } }
+					userAgent?: {
+						browser?: { name?: string; version?: string }
+						os?: { name?: string; version?: string }
+						device?: { type?: string }
+					}
 				} | null
 			)?.userAgent
 			if (!ua) continue
 			uaTotal++
-			const b = ua.browser?.name ?? '(unknown)'
-			const o = ua.os?.name ?? '(unknown)'
+			const b = withVersion(ua.browser?.name ?? '(unknown)', ua.browser?.version)
+			const o = withVersion(ua.os?.name ?? '(unknown)', ua.os?.version)
 			const d = ua.device?.type ?? 'unknown'
 			browserMap.set(b, (browserMap.get(b) ?? 0) + 1)
 			osMap.set(o, (osMap.get(o) ?? 0) + 1)

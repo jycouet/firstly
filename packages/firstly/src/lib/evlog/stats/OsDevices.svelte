@@ -15,7 +15,8 @@
 		<h3 class="card-title text-base">OS &amp; devices</h3>
 		{#if os.length === 0 && devices.length === 0}
 			<p class="text-xs text-base-content/60">
-				Same enricher gives you <code>event.userAgent.os</code> and <code>.device</code>.
+				Set <code>context: &lbrace; userAgent: true &rbrace;</code> in <code>evlog()</code> to populate
+				<code>event.userAgent.os</code> and <code>.device</code>.
 			</p>
 		{:else}
 			<div class="grid grid-cols-2 gap-4">
