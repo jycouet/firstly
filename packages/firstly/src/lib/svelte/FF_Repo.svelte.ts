@@ -396,6 +396,45 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		)
 	}
 
+	// Client-side list reconcilers (no server I/O) - reflect a change you made
+	// elsewhere (e.g. via `.repo`) in the reactive `items`. `load`/`paginate` only;
+	// `listen` reconciles itself via the liveQuery. `add`/`remove` also adjust
+	// `aggregates.$count` (not the other aggregates - pass `{ refetch: true }` to
+	// re-pull authoritative items + aggregates from the server afterwards).
+
+	/** Insert into `items` at `top` (default) / `bottom` / an index (`-1` = last). +1 to `$count`. */
+	addItem(item: Entity, options?: { at?: 'top' | 'bottom' | number; refetch?: boolean }) {
+		const at = options?.at ?? 'top'
+		const list = this.items
+		const idx =
+			at === 'top'
+				? 0
+				: at === 'bottom'
+					? list.length
+					: at < 0
+						? Math.max(0, list.length + at + 1)
+						: Math.min(at, list.length)
+		this.items = [...list.slice(0, idx), item, ...list.slice(idx)]
+		if (this.aggregates) this.aggregates.$count += 1
+		if (options?.refetch) return this.refresh()
+	}
+
+	/** Replace the row whose id matches `item`'s id (no `$count` change). */
+	updateItem(item: Entity, options?: { refetch?: boolean }) {
+		const id = this.#repo.metadata.idMetadata.getId(item)
+		this.items = this.items.map((x) => (this.#repo.metadata.idMetadata.getId(x) === id ? item : x))
+		if (options?.refetch) return this.refresh()
+	}
+
+	/** Drop the matching row (pass an id or the item). -1 to `$count`. */
+	removeItem(
+		idOrItem: Parameters<Repository<Entity>['delete']>[0],
+		options?: { refetch?: boolean },
+	) {
+		this.#removeLocal(idOrItem)
+		if (options?.refetch) return this.refresh()
+	}
+
 	#removeLocal(idOrItem: unknown) {
 		const id =
 			idOrItem != null && typeof idOrItem === 'object'
@@ -433,20 +472,20 @@ export type FF_RepoLoad<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOption
 	FF_RepoHandle<Entity, O>,
 	'more' | 'hasNextPage' | 'aggregates'
 >
-/** live: reactive subscription, auto-updates. No manual refresh / paging / aggregates. */
+/** live: reactive subscription, auto-updates. No manual refresh / paging / aggregates / list reconcilers (the liveQuery does it). */
 export type FF_RepoLive<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_RepoHandle<Entity, O>,
-	'refresh' | 'more' | 'hasNextPage' | 'aggregates'
+	'refresh' | 'more' | 'hasNextPage' | 'aggregates' | 'addItem' | 'updateItem' | 'removeItem'
 >
 /** paginate: `more()` / `hasNextPage` / `aggregates`. No `first`/`firstOnce`/`draft` (paged ≠ latest). */
 export type FF_RepoPaginate<
 	Entity,
 	O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>,
 > = Omit<FF_RepoHandle<Entity, O>, 'first' | 'firstOnce' | 'draft'>
-/** one: a single reactive record in `item` (+ `first`). No paging / aggregates. */
+/** one: a single reactive record in `item` (+ `first`). No paging / aggregates / list reconcilers. */
 export type FF_RepoOne<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_RepoHandle<Entity, O>,
-	'more' | 'hasNextPage' | 'aggregates'
+	'more' | 'hasNextPage' | 'aggregates' | 'addItem' | 'updateItem' | 'removeItem'
 >
 
 /**
@@ -454,7 +493,7 @@ export type FF_RepoOne<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions
  * `load`/`listen`/`paginate`/`one` handle (`r: FF_Repo<T>`). It exposes the surface
  * common to every mode (`items`/`item`/`loading`/`error`/`meta`/`repo` + the writes);
  * mode-specific members (`more`/`hasNextPage`/`aggregates`/`refresh`/`first`/`firstOnce`/
- * `draft`) require the matching per-mode type.
+ * `draft`/`addItem`/`updateItem`/`removeItem`) require the matching per-mode type.
  */
 export type FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> =
 	| FF_RepoLoad<Entity, O>

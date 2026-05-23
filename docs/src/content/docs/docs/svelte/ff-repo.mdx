@@ -185,6 +185,30 @@ write that syncs nothing, use `.repo` (e.g. `ffRepo(E).repo.insert(...)`).
 Called with no argument, `save()` and `delete()` target the current `item` (handy with `one` /
 `create()`); a missing `item` throws.
 
+## Reconciling the list (client-side)
+
+After a mutation you did elsewhere - via `.repo`, a controller, a confirm dialog - reflect it in the
+reactive `items` without a round-trip. These are **client-only** (no server I/O) and live on
+`load`/`paginate` (a `listen` handle reconciles itself through its liveQuery):
+
+```ts
+r.addItem(item) // insert at top (default)
+r.addItem(item, { at: 'bottom' }) // or 'top' | an index | -1 (= last)
+r.updateItem(updated) // replace the row with the same id
+r.removeItem(idOrItem) // drop the row (id or item; composite ids ok)
+```
+
+`addItem`/`removeItem` also adjust `aggregates.$count` (+1 / -1); the other aggregates aren't
+recomputed. Pass `{ refetch: true }` to re-pull authoritative items + aggregates from the server
+after the local change:
+
+```ts
+await MyController.deleteWithSideEffects(id) // your server-side flow
+if (ok) r.removeItem(id) // instant UX, client-only
+// or, to also refresh totals/ordering from the server:
+await r.removeItem(id, { refetch: true })
+```
+
 ## Permissions - via `r.meta`
 
 There are no `can*` wrappers. Use remult's own metadata, which reflects the current `remult.user`:

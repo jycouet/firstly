@@ -268,6 +268,74 @@ describe('ffRepo - one: composite (2-field) id', () => {
 	})
 })
 
+describe('ffRepo - client list reconcilers (load/paginate)', () => {
+	it('addItem inserts at top by default; at: bottom / index / -1 (last)', async () => {
+		await seed(3) // items: r3, r2, r1
+		const r = root(() => ffRepo(Row).load(() => ({})))
+		await vi.waitFor(() => expect(r.items.length).toBe(3))
+
+		r.addItem(repo(Row).create({ order: 10, name: 'a' }))
+		expect(r.items.map((x) => x.name)).toEqual(['a', 'r3', 'r2', 'r1'])
+
+		r.addItem(repo(Row).create({ order: 11, name: 'b' }), { at: 'bottom' })
+		expect(r.items.at(-1)?.name).toBe('b')
+
+		r.addItem(repo(Row).create({ order: 12, name: 'c' }), { at: 1 })
+		expect(r.items[1]?.name).toBe('c')
+
+		r.addItem(repo(Row).create({ order: 13, name: 'd' }), { at: -1 })
+		expect(r.items.at(-1)?.name).toBe('d')
+	})
+
+	it('removeItem drops the row and decrements aggregates.$count', async () => {
+		await seed(3)
+		const r = root(() => ffRepo(Row).paginate(() => ({ pageSize: 10 })))
+		await vi.waitFor(() => expect(r.aggregates?.$count).toBe(3))
+		r.removeItem(r.items[0])
+		expect(r.items.length).toBe(2)
+		expect(r.aggregates?.$count).toBe(2)
+	})
+
+	it('addItem increments aggregates.$count', async () => {
+		await seed(2)
+		const r = root(() => ffRepo(Row).paginate(() => ({ pageSize: 10 })))
+		await vi.waitFor(() => expect(r.aggregates?.$count).toBe(2))
+		r.addItem(repo(Row).create({ order: 9, name: 'x' }))
+		expect(r.aggregates?.$count).toBe(3)
+		expect(r.items[0]?.name).toBe('x')
+	})
+
+	it('updateItem replaces the matching row by id', async () => {
+		await seed(2) // r2, r1
+		const r = root(() => ffRepo(Row).load(() => ({})))
+		await vi.waitFor(() => expect(r.items.length).toBe(2))
+		const target = { ...r.items[0], name: 'renamed' } as Row
+		r.updateItem(target)
+		expect(r.items[0]?.name).toBe('renamed')
+	})
+
+	it('removeItem resolves a composite (2-field) id', async () => {
+		await repo(Pair).insert([
+			{ a: 'x', b: '1', label: 'p1' },
+			{ a: 'x', b: '2', label: 'p2' },
+		])
+		const r = root(() => ffRepo(Pair).load(() => ({})))
+		await vi.waitFor(() => expect(r.items.length).toBe(2))
+		r.removeItem(r.items[0])
+		expect(r.items.length).toBe(1)
+	})
+
+	it('refetch: true re-syncs items + aggregates from the server', async () => {
+		await seed(3)
+		const r = root(() => ffRepo(Row).paginate(() => ({ pageSize: 10 })))
+		await vi.waitFor(() => expect(r.aggregates?.$count).toBe(3))
+		// drop locally without touching the DB; refetch -> server truth wins (row returns)
+		await r.removeItem(r.items[0], { refetch: true })
+		expect(r.items.length).toBe(3)
+		expect(r.aggregates?.$count).toBe(3)
+	})
+})
+
 describe('ffRepo - mode guards', () => {
 	it('more() throws outside paginate mode', async () => {
 		const r = root(() => ffRepo(Row).load(() => ({})))
