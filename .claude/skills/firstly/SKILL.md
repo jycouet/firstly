@@ -169,12 +169,25 @@ Key rules:
   dropped). `orderBy` defaults to the entity's `defaultOrderBy`. Read SvelteKit `load` data through a
   `$derived`, never raw in the getter (raw re-fetches on every revalidation).
 - **`enabled: false`** skips the query (keeps the last result) until it flips true.
-- **Mutations on a handle** (`insert`/`update`/`save`/`delete`/`deleteMany`) keep state in sync and
-  re-throw on failure (also filling `error`). No-arg `save()`/`delete()` target the loaded `item`
-  (pairs with `one`/`create()`). For a raw write, use `ffRepo(E).repo.insert(...)`.
+- **Mutations**: only the **record handle** (`one`/`create()`) writes - argless `save()`/`delete()`
+  act on its `item` (re-sync + re-throw, filling `error`). **List handles** (`load`/`listen`/`paginate`)
+  are read-only; write through `.repo` (`ffRepo(E).repo.insert`/`update`/`save`/`delete`/`deleteMany`),
+  then on `load`/`paginate` reconcile with `addItem`/`updateItem`/`removeItem` (a `listen` list self-syncs).
 - **Client-side list reconcilers** (`load`/`paginate`): `addItem(item, { at? })` / `updateItem(item)` /
   `removeItem(idOrItem)` reflect a change you made elsewhere in `items` with no server I/O. `add`/`remove`
   adjust `aggregates.$count`; for authoritative state call `refresh()`. (`listen` self-reconciles.)
+- **Latest row & seeding**: the newest row (with `orderBy: { ...: 'desc' }`) is `items[0]`; for
+  read-only display use `$derived(r.items[0])`. To seed editable `$state` from it once, call
+  `onFirst((latest) => ...)` - it fires a single time when the first row lands, so the input then
+  owns the value and a later live tick won't overwrite an in-progress edit.
+- **Labels come from remult metadata** - don't hardcode them: `r.meta.fields.<f>.caption` for a
+  field label/placeholder, `r.meta.caption` for the entity. `r.meta` is the entity's remult metadata
+  (also `apiInsertAllowed()` / `fields` / `idMetadata`); `r.repo` is the full remult repo. ffRepo
+  only adds Svelte reactivity - reach through `.meta` / `.repo` for everything else remult already does.
+- **Make `items[0]` reliable**: "latest" follows your `orderBy` and the real SQL column type. Keep a
+  datetime as `timestamptz` (a `@Fields.date()` stored as SQL `date` ties same-day rows and makes
+  `date desc` non-deterministic; Remult won't ALTER an existing column, so verify at the DB). Drive
+  the grid, the edited row, and the latest from one live source.
 - **Permissions: no `can*` helpers** - use `r.meta.apiInsertAllowed()` / `apiUpdateAllowed(item)` /
   `apiDeleteAllowed(item)` / `apiReadAllowed`. `r.repo` / `r.meta` are the escape hatches.
 - **Reactive vs imperative**: reactive verbs build an `$effect`, so create them at component init.
