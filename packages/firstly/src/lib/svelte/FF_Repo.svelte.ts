@@ -134,12 +134,11 @@ export type FF_RepoLoading = {
 type Mode = 'live' | 'load' | 'paginate' | 'one'
 
 /**
- * The reactive handle returned by `load`/`listen`/`paginate`/`one`. Exported as the
- * umbrella type for components that accept any mode (`r: FF_Repo<T>`); the per-mode
- * aliases below (`FF_RepoLoad`/`FF_RepoLive`/`FF_RepoPaginate`/`FF_RepoOne`) narrow
- * it for strict call sites.
+ * The reactive handle implementation. Not exported directly - consumers use a per-mode
+ * alias (`FF_RepoLoad`/`FF_RepoLive`/`FF_RepoPaginate`/`FF_RepoOne`) or the umbrella
+ * union `FF_Repo` (any mode). Each verb returns the Omit'd per-mode view of this.
  */
-export class FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> {
+class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> {
 	#repo: Repository<Entity>
 	#opts: Getter<Entity, O>
 	#mode: Mode
@@ -409,24 +408,37 @@ export class FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<E
 
 /** load: one-shot list; `refresh()` to re-run. No paging / aggregates. */
 export type FF_RepoLoad<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
-	FF_Repo<Entity, O>,
+	FF_RepoHandle<Entity, O>,
 	'more' | 'hasNextPage' | 'aggregates'
 >
 /** live: reactive subscription, auto-updates. No manual refresh / paging / aggregates. */
 export type FF_RepoLive<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
-	FF_Repo<Entity, O>,
+	FF_RepoHandle<Entity, O>,
 	'refresh' | 'more' | 'hasNextPage' | 'aggregates'
 >
 /** paginate: `more()` / `hasNextPage` / `aggregates`. No `first`/`firstOnce`/`draft` (paged ≠ latest). */
 export type FF_RepoPaginate<
 	Entity,
 	O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>,
-> = Omit<FF_Repo<Entity, O>, 'first' | 'firstOnce' | 'draft'>
+> = Omit<FF_RepoHandle<Entity, O>, 'first' | 'firstOnce' | 'draft'>
 /** one: a single reactive record in `item` (+ `first`). No paging / aggregates. */
 export type FF_RepoOne<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
-	FF_Repo<Entity, O>,
+	FF_RepoHandle<Entity, O>,
 	'more' | 'hasNextPage' | 'aggregates'
 >
+
+/**
+ * Umbrella handle type - any mode. Use for a component prop that accepts a
+ * `load`/`listen`/`paginate`/`one` handle (`r: FF_Repo<T>`). It exposes the surface
+ * common to every mode (`items`/`item`/`loading`/`error`/`meta`/`repo` + the writes);
+ * mode-specific members (`more`/`hasNextPage`/`aggregates`/`refresh`/`first`/`firstOnce`/
+ * `draft`) require the matching per-mode type.
+ */
+export type FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> =
+	| FF_RepoLoad<Entity, O>
+	| FF_RepoLive<Entity, O>
+	| FF_RepoPaginate<Entity, O>
+	| FF_RepoOne<Entity, O>
 
 // A thunk skips TS's excess-property check on its returned object literal (the
 // return type is inferred, then assignability-checked, which allows extra keys).
@@ -459,16 +471,16 @@ export function ffRepo<Entity>(entity: ClassType<Entity>): FF_RepoBuilder<Entity
 	const r = remultRepo(entity)
 	const builder: FF_RepoBuilder<Entity> = {
 		load<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
-			return new FF_Repo(r, o as Getter<Entity, O>, 'load') as FF_RepoLoad<Entity, O>
+			return new FF_RepoHandle(r, o as Getter<Entity, O>, 'load') as FF_RepoLoad<Entity, O>
 		},
 		listen<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
-			return new FF_Repo(r, o as Getter<Entity, O>, 'live') as FF_RepoLive<Entity, O>
+			return new FF_RepoHandle(r, o as Getter<Entity, O>, 'live') as FF_RepoLive<Entity, O>
 		},
 		paginate<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
-			return new FF_Repo(r, o as Getter<Entity, O>, 'paginate') as FF_RepoPaginate<Entity, O>
+			return new FF_RepoHandle(r, o as Getter<Entity, O>, 'paginate') as FF_RepoPaginate<Entity, O>
 		},
 		one<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
-			return new FF_Repo(r, o as Getter<Entity, O>, 'one') as FF_RepoOne<Entity, O>
+			return new FF_RepoHandle(r, o as Getter<Entity, O>, 'one') as FF_RepoOne<Entity, O>
 		},
 		get meta() {
 			return r.metadata
