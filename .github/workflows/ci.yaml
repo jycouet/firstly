@@ -44,11 +44,11 @@ jobs:
    - name: 💪 ts
      run: pnpm -r check
 
-   - name: 🕹️ test:unit
-     run: pnpm -r test:unit:ci
-
    - name: 🧑‍💻 Install playwright
      run: npx playwright install
+
+   - name: 🕹️ test:unit
+     run: pnpm -r test:unit:ci
 
    - name: 🎢 test:e2e
      run: pnpm -r test:e2e

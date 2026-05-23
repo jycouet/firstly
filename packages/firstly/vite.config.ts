@@ -48,7 +48,34 @@ const config = defineConfig(({ mode }) => {
 			tailwindcss(),
 		],
 		test: {
-			include: ['src/**/*.{test,spec}.{js,ts}'],
+			projects: [
+				{
+					// Pure-TS tests run in node.
+					extends: true,
+					test: {
+						name: 'node',
+						environment: 'node',
+						include: ['src/**/*.{test,spec}.{js,ts}'],
+						exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+					},
+				},
+				{
+					// Svelte rune tests ($state/$effect) need a real browser - in node/SSR
+					// mode `$effect` compiles to a no-op and never runs. Uses the same
+					// playwright/chromium that CI already installs for e2e.
+					extends: true,
+					test: {
+						name: 'svelte',
+						include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+						browser: {
+							enabled: true,
+							provider: 'playwright',
+							headless: true,
+							instances: [{ browser: 'chromium' }],
+						},
+					},
+				},
+			],
 		},
 	}
 })

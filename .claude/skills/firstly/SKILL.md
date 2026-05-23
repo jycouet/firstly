@@ -1,6 +1,6 @@
 ---
 name: firstly
-description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth). Use when the user mentions firstly, FF_Entity, BaseEnum, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
+description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, ffRepo (reactive Svelte repo wrapper), published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth). Use when the user mentions firstly, FF_Entity, BaseEnum, ffRepo/FF_Repo, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
 ---
 
 # Firstly Patterns
@@ -19,18 +19,20 @@ For generic Remult rules (repo, permissions, migrations, etc.), see the `remult`
 In a firstly project, **always use `FF_Entity`**. It's a drop-in for `@Entity` with the same signature, plus changelog wired in. One more abstraction - just use it.
 
 ```ts
-import { FF_Entity } from 'firstly'
 import { Fields } from 'remult'
+import { FF_Entity } from 'firstly'
 
 @FF_Entity<Task>('tasks', {
-  allowApiCrud: true,
-  saved: async (entity, event) => {
-    if (event.isNew) { /* ... */ }
-  },
+	allowApiCrud: true,
+	saved: async (entity, event) => {
+		if (event.isNew) {
+			/* ... */
+		}
+	},
 })
 export class Task {
-  @Fields.id() id!: string
-  @Fields.string() title = ''
+	@Fields.id() id!: string
+	@Fields.string() title = ''
 }
 ```
 
@@ -39,17 +41,17 @@ export class Task {
 Extends the `@ValueListFieldType` pattern with `caption`, `icon`, filter `where`, and a `hide` flag - useful when enums drive UI directly.
 
 ```ts
+import { getValueList, ValueListFieldType } from 'remult'
 import { BaseEnum } from 'firstly'
-import { ValueListFieldType, getValueList } from 'remult'
 
 @ValueListFieldType()
 export class TaskStatus extends BaseEnum {
-  static Todo = new TaskStatus('todo', { caption: 'To do' })
-  static Done = new TaskStatus('done', { caption: 'Done', hide: true })
+	static Todo = new TaskStatus('todo', { caption: 'To do' })
+	static Done = new TaskStatus('done', { caption: 'Done', hide: true })
 }
 
 for (const s of getValueList(TaskStatus)) {
-  // s.id, s.caption, s.icon, s.hide...
+	// s.id, s.caption, s.icon, s.hide...
 }
 ```
 
@@ -69,16 +71,15 @@ Register like any Remult module.
 
 ```ts
 import { remultApi } from 'remult/remult-sveltekit' // or remult-next, remult-express...
-import { mail } from 'firstly/mail/server'
+
 import { cron } from 'firstly/cron/server'
+import { mail } from 'firstly/mail/server'
 
 export const api = remultApi({
-  modules: [
-    mail(),
-    cron([
-      { topic: 'nightly', cronTime: '0 3 * * *', onTick: () => ({ status: 'ok' }) },
-    ]),
-  ],
+	modules: [
+		mail(),
+		cron([{ topic: 'nightly', cronTime: '0 3 * * *', onTick: () => ({ status: 'ok' }) }]),
+	],
 })
 ```
 
@@ -91,14 +92,16 @@ A backend `BackendMethod` + a `<SqlAdmin />` Svelte component, both shipped from
 ```ts
 // api.ts
 import { sqlAdmin } from 'firstly/sqlAdmin/server'
+
 export const api = remultApi({ modules: [sqlAdmin({ path: '/sql/admin' })] })
 ```
 
 ```svelte
 <!-- routes/sql/admin/+page.svelte -->
 <script>
-  import { SqlAdmin } from 'firstly/sqlAdmin'
+	import { SqlAdmin } from 'firstly/sqlAdmin'
 </script>
+
 <SqlAdmin />
 ```
 
@@ -112,29 +115,76 @@ Tiny helpers for the common "owner-only" / "admin or owner" patterns. `FF_Allow`
 
 ```ts
 import { Fields } from 'remult'
-import { FF_Entity, FF_Allow, FF_Filter } from 'firstly'
+import { FF_Allow, FF_Entity, FF_Filter } from 'firstly'
+
 import { Roles } from '$lib/roles'
 
 @FF_Entity<Task>('tasks', {
-  // Owner-only writes:
-  allowApiUpdate: FF_Allow.owner<Task>('userId'),
-  allowApiDelete: FF_Allow.owner<Task>(), // defaults to 'userId'
+	// Owner-only writes:
+	allowApiUpdate: FF_Allow.owner<Task>('userId'),
+	allowApiDelete: FF_Allow.owner<Task>(), // defaults to 'userId'
 
-  // Admin OR owner on writes:
-  // allowApiUpdate: FF_Allow.ownerOr<Task>({ roles: [Roles.Admin] }),
+	// Admin OR owner on writes:
+	// allowApiUpdate: FF_Allow.ownerOr<Task>({ roles: [Roles.Admin] }),
 
-  // Admin sees all, anyone else only their own:
-  apiPrefilter: () => FF_Filter.ownerOr<Task>({ roles: [Roles.Admin] }),
+	// Admin sees all, anyone else only their own:
+	apiPrefilter: () => FF_Filter.ownerOr<Task>({ roles: [Roles.Admin] }),
 })
 export class Task {
-  @Fields.id() id!: string
-  @Fields.string() userId = ''
+	@Fields.id() id!: string
+	@Fields.string() userId = ''
 }
 ```
 
 API:
+
 - `FF_Allow.owner<T>(col?)` / `FF_Filter.owner<T>(col?)` - owner-only.
 - `FF_Allow.ownerOr<T>({ col?, roles })` / `FF_Filter.ownerOr<T>({ col?, roles })` - admin (or any of `roles`) OR owner.
+
+## `ffRepo` - reactive Remult repo (Svelte 5)
+
+`ffRepo` (from `firstly/svelte`) wraps a Remult `repo` as Svelte runes. Pick a mode with a verb and
+hand it a **reactive options getter**; read reactive state (`items`/`loading`/`error`/...) in markup.
+Full chapter: [firstly.fun /docs/svelte/ff-repo](https://firstly.fun/docs/svelte/ff-repo).
+
+```svelte
+<script lang="ts">
+	import { ffRepo } from 'firstly/svelte'
+
+	const tasks = ffRepo(Task).load(() => ({ where: { done: false } })) // load (one-shot list)
+	// .listen(getter)   - liveQuery, auto-updates
+	// .paginate(getter) - more() / hasNextPage / aggregates.$count (pairs with `infiniteScroll`)
+	// .one(getter)      - a single reactive record in `item` (bind a form to it)
+</script>
+
+{#each tasks.items as t (t.id)}{t.title}{/each}
+```
+
+Key rules:
+
+- **One rule for the surface**: anything **not** under `.repo` is reactive (a verb returns a runes
+  handle whose writes sync its own state); anything under **`.repo`** is the plain remult repo -
+  imperative, returns Promises, touches no runes state.
+- **The getter is reactive** - change `where`/`orderBy`/`enabled` and it re-fetches (stale responses
+  dropped). `orderBy` defaults to the entity's `defaultOrderBy`. Read SvelteKit `load` data through a
+  `$derived`, never raw in the getter (raw re-fetches on every revalidation).
+- **`enabled: false`** skips the query (keeps the last result) until it flips true.
+- **Mutations on a handle** (`insert`/`update`/`save`/`delete`/`deleteMany`) keep state in sync and
+  re-throw on failure (also filling `error`). No-arg `save()`/`delete()` target the loaded `item`
+  (pairs with `one`/`create()`). For a raw write, use `ffRepo(E).repo.insert(...)`.
+- **Client-side list reconcilers** (`load`/`paginate`): `addItem(item, { at? })` / `updateItem(item)` /
+  `removeItem(idOrItem)` reflect a change you made elsewhere in `items` with no server I/O. `add`/`remove`
+  adjust `aggregates.$count`; for authoritative state call `refresh()`. (`listen` self-reconciles.)
+- **Permissions: no `can*` helpers** - use `r.meta.apiInsertAllowed()` / `apiUpdateAllowed(item)` /
+  `apiDeleteAllowed(item)` / `apiReadAllowed`. `r.repo` / `r.meta` are the escape hatches.
+- **Reactive vs imperative**: reactive verbs build an `$effect`, so create them at component init.
+  For a click handler / async fn (no runes context) go through `.repo` (plain remult, takes plain
+  values, returns a Promise): `ffRepo(E).repo.findFirst(where)`, `.repo.findId(id)`, `.repo.insert(...)`.
+- **Counts**: only `paginate` exposes `aggregates.$count` (free, same request). For a one-off count
+  use `ffRepo(E).repo.count(where)`.
+
+Types: umbrella `FF_Repo<T>` (any handle), per-mode `FF_RepoLoad`/`FF_RepoLive`/`FF_RepoPaginate`/
+`FF_RepoOne`, plus `FF_RepoBuilder`/`FF_RepoOptions`.
 
 ## 🛍️ Boutique (copy-paste)
 
@@ -148,6 +198,7 @@ Once copied, **it's your code**. Rewire imports (use your framework's env conven
 
 ```ts
 import { auth } from '$lib/modules/auth/server/module'
+
 export const api = remultApi({ modules: [auth({ SUPER_ADMIN_EMAILS })] })
 ```
 
@@ -159,17 +210,18 @@ Each module exposes a `Roles_<ModuleName>` object and users merge them into one 
 
 ```ts
 // app/roles.ts
-import { Roles_Auth } from '$lib/modules/auth/entities'
-import { Roles_Mail } from 'firstly/mail'
 import { Roles_Cron } from 'firstly/cron'
+import { Roles_Mail } from 'firstly/mail'
 import { Roles_SqlAdmin } from 'firstly/sqlAdmin'
 
+import { Roles_Auth } from '$lib/modules/auth/entities'
+
 export const Roles = {
-  Admin: 'admin',
-  ...Roles_Auth,      // Auth.Admin
-  ...Roles_Mail,      // Mail.Admin
-  ...Roles_Cron,      // Cron.Admin
-  ...Roles_SqlAdmin,  // SqlAdmin.Admin
+	Admin: 'admin',
+	...Roles_Auth, // Auth.Admin
+	...Roles_Mail, // Mail.Admin
+	...Roles_Cron, // Cron.Admin
+	...Roles_SqlAdmin, // SqlAdmin.Admin
 } as const
 ```
 
@@ -177,4 +229,4 @@ Use `Roles.*` in `allowApi*` decorators and assign them to users via the auth bo
 
 ## Naming - `FF_` Prefix
 
-Types and helpers exported by firstly that could collide with user code use the `FF_` prefix: `FF_Entity`, `FF_Role`, `FF_Allow`, `FF_Filter`, `FF_Icon`, `FF_LogToConsole`. If you see it in an import path, it's firstly's.
+Types and helpers exported by firstly that could collide with user code use the `FF_` prefix: `FF_Entity`, `FF_Role`, `FF_Allow`, `FF_Filter`, `FF_Icon`, `FF_LogToConsole`, `FF_Repo*` (handle/option types). If you see it in an import path, it's firstly's. Factory functions stay camelCase (e.g. `ffRepo`).
