@@ -199,15 +199,15 @@ r.removeItem(idOrItem) // drop the row (id or item; composite ids ok)
 ```
 
 `addItem`/`removeItem` also adjust `aggregates.$count` (+1 / -1); the other aggregates aren't
-recomputed. Pass `{ refetch: true }` to re-pull authoritative items + aggregates from the server
-after the local change:
+recomputed. Typical flow:
 
 ```ts
 await MyController.deleteWithSideEffects(id) // your server-side flow
-if (ok) r.removeItem(id) // instant UX, client-only
-// or, to also refresh totals/ordering from the server:
-await r.removeItem(id, { refetch: true })
+if (ok) r.removeItem(id) // instant, keeps your loaded pages
 ```
+
+Want authoritative totals/ordering instead? Call `refresh()` (it re-pulls and, for `paginate`,
+resets to the first page).
 
 ## Permissions - via `r.meta`
 

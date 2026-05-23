@@ -2,7 +2,7 @@
 'firstly': minor
 ---
 
-**BREAKING (svelte): `FF_Repo` class -> `ffRepo()` factory.** The reactive repo wrapper now takes a reactive options getter and a mode (`load` / `listen` / `paginate` / `one`), with built-in mutations (no-arg `save()`/`delete()` target the loaded `item`), client-side list reconcilers (`addItem`/`updateItem`/`removeItem`, with positioning + optional `refetch`), `firstOnce`/`draft`, and permissions via `r.meta`. The old `new FF_Repo(E, { findOptions })` class is removed.
+**BREAKING (svelte): `FF_Repo` class -> `ffRepo()` factory.** The reactive repo wrapper now takes a reactive options getter and a mode (`load` / `listen` / `paginate` / `one`), with built-in mutations (no-arg `save()`/`delete()` target the loaded `item`), client-side list reconcilers (`addItem`/`updateItem`/`removeItem`, with `addItem` positioning), `firstOnce`/`draft`, and permissions via `r.meta`. The old `new FF_Repo(E, { findOptions })` class is removed.
 
 One rule: anything not under `.repo` is reactive; every imperative read/write lives on `.repo` (the plain remult repo). The builder no longer hoists `findFirst`/`findId`/`insert`/... - use `ffRepo(E).repo.*`.
 

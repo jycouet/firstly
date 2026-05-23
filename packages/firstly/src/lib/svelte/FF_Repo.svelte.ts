@@ -399,11 +399,11 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	// Client-side list reconcilers (no server I/O) - reflect a change you made
 	// elsewhere (e.g. via `.repo`) in the reactive `items`. `load`/`paginate` only;
 	// `listen` reconciles itself via the liveQuery. `add`/`remove` also adjust
-	// `aggregates.$count` (not the other aggregates - pass `{ refetch: true }` to
-	// re-pull authoritative items + aggregates from the server afterwards).
+	// `aggregates.$count` (not the other aggregates). For authoritative state, call
+	// `refresh()` (it re-pulls and, for paginate, resets to the first page).
 
 	/** Insert into `items` at `top` (default) / `bottom` / an index (`-1` = last). +1 to `$count`. */
-	addItem(item: Entity, options?: { at?: 'top' | 'bottom' | number; refetch?: boolean }) {
+	addItem(item: Entity, options?: { at?: 'top' | 'bottom' | number }) {
 		const at = options?.at ?? 'top'
 		const list = this.items
 		const idx =
@@ -416,23 +416,17 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 						: Math.min(at, list.length)
 		this.items = [...list.slice(0, idx), item, ...list.slice(idx)]
 		if (this.aggregates) this.aggregates.$count += 1
-		if (options?.refetch) return this.refresh()
 	}
 
 	/** Replace the row whose id matches `item`'s id (no `$count` change). */
-	updateItem(item: Entity, options?: { refetch?: boolean }) {
+	updateItem(item: Entity) {
 		const id = this.#repo.metadata.idMetadata.getId(item)
 		this.items = this.items.map((x) => (this.#repo.metadata.idMetadata.getId(x) === id ? item : x))
-		if (options?.refetch) return this.refresh()
 	}
 
 	/** Drop the matching row (pass an id or the item). -1 to `$count`. */
-	removeItem(
-		idOrItem: Parameters<Repository<Entity>['delete']>[0],
-		options?: { refetch?: boolean },
-	) {
+	removeItem(idOrItem: Parameters<Repository<Entity>['delete']>[0]) {
 		this.#removeLocal(idOrItem)
-		if (options?.refetch) return this.refresh()
 	}
 
 	#removeLocal(idOrItem: unknown) {

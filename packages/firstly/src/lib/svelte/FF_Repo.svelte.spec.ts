@@ -324,16 +324,6 @@ describe('ffRepo - client list reconcilers (load/paginate)', () => {
 		r.removeItem(r.items[0])
 		expect(r.items.length).toBe(1)
 	})
-
-	it('refetch: true re-syncs items + aggregates from the server', async () => {
-		await seed(3)
-		const r = root(() => ffRepo(Row).paginate(() => ({ pageSize: 10 })))
-		await vi.waitFor(() => expect(r.aggregates?.$count).toBe(3))
-		// drop locally without touching the DB; refetch -> server truth wins (row returns)
-		await r.removeItem(r.items[0], { refetch: true })
-		expect(r.items.length).toBe(3)
-		expect(r.aggregates?.$count).toBe(3)
-	})
 })
 
 describe('ffRepo - mode guards', () => {

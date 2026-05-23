@@ -174,7 +174,7 @@ Key rules:
   (pairs with `one`/`create()`). For a raw write, use `ffRepo(E).repo.insert(...)`.
 - **Client-side list reconcilers** (`load`/`paginate`): `addItem(item, { at? })` / `updateItem(item)` /
   `removeItem(idOrItem)` reflect a change you made elsewhere in `items` with no server I/O. `add`/`remove`
-  adjust `aggregates.$count`; pass `{ refetch: true }` to re-pull from the server. (`listen` self-reconciles.)
+  adjust `aggregates.$count`; for authoritative state call `refresh()`. (`listen` self-reconciles.)
 - **Permissions: no `can*` helpers** - use `r.meta.apiInsertAllowed()` / `apiUpdateAllowed(item)` /
   `apiDeleteAllowed(item)` / `apiReadAllowed`. `r.repo` / `r.meta` are the escape hatches.
 - **Reactive vs imperative**: reactive verbs build an `$effect`, so create them at component init.
