@@ -31,13 +31,13 @@ Pick the mode that matches what you need. The return type is **mode-specific** -
 only exists on a `paginate()` handle.
 
 ```ts
-ffRepo(E, () => ({ where })) // find (default) - one-shot list + refresh()
+ffRepo(E).find(() => ({ where })) // find - one-shot list + refresh()
 ffRepo(E).listen(() => ({ where })) // live - liveQuery, auto-updates
 ffRepo(E).paginate(() => ({ where })) // paginate - more() / hasNextPage / aggregates
 ffRepo(E).one(() => ({ where })) // one - a single reactive record in `item`
 ```
 
-`ffRepo(E, getter)` is shorthand for `ffRepo(E).find(getter)`.
+Always pick a verb - there is no bare two-arg form.
 
 ### The options getter is reactive
 
@@ -196,7 +196,7 @@ call, so you usually delete the `$effect` you used to write by hand.
 
 | Old (`FF_Repo` class)                        | New (`ffRepo`)                             |
 | -------------------------------------------- | ------------------------------------------ |
-| `new FF_Repo(E, { findOptions: { where } })` | `ffRepo(E, () => ({ where }))`             |
+| `new FF_Repo(E, { findOptions: { where } })` | `ffRepo(E).find(() => ({ where }))`        |
 | `new FF_Repo(E, { queryOptions: {...} })`    | `ffRepo(E).paginate(() => ({ ... }))`      |
 | `r.query({ where })` / `r.queryMore()`       | reactive getter + `r.more()`               |
 | `r.queryRefresh()`                           | `r.refresh()`                              |

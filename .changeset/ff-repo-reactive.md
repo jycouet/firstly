@@ -8,7 +8,7 @@ Also new: `infiniteScroll` (svelte attachment, pairs with `paginate`), `stackHtt
 
 Migration (see `/docs/svelte/ff-repo`):
 
-- `new FF_Repo(E, { findOptions: { where } })` -> `ffRepo(E, () => ({ where }))`
+- `new FF_Repo(E, { findOptions: { where } })` -> `ffRepo(E).find(() => ({ where }))`
 - `new FF_Repo(E, { queryOptions })` + `.query()/.queryMore()/.queryRefresh()` -> `ffRepo(E).paginate(() => ({ ... }))` + `.more()/.refresh()`
 - `r.globalError` -> `r.error`
 - `r.fields` -> `r.meta.fields`; `r.metadata.apiInsertAllowed()` -> `r.meta.apiInsertAllowed()`

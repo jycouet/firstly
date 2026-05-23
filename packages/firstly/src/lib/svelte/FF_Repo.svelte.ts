@@ -18,7 +18,7 @@ import {
  * `ffRepo` - thin reactive wrapper around a Remult `repo`, exposing its results as
  * Svelte runes. Pick the mode with a verb:
  *
- *   ffRepo(E, () => ({ where }))            // find  (default) - one-shot list + refresh()
+ *   ffRepo(E).find(() => ({ where }))       // find  - one-shot list + refresh()
  *   ffRepo(E).listen(() => ({ where }))     // live  - liveQuery, auto-updates
  *   ffRepo(E).paginate(() => ({ where }))   // paginate - more() / hasNextPage / aggregates
  *   ffRepo(E).one(() => ({ where }))        // one   - reactive single record in `item`
@@ -454,14 +454,8 @@ export type FF_RepoBuilder<Entity> = StandaloneRepo<Entity> & {
 	one: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoOne<Entity, O>
 }
 
-export function ffRepo<Entity, O extends FF_RepoOptions<Entity>>(
-	entity: ClassType<Entity>,
-	opts: StrictGetter<Entity, O>,
-): FF_RepoFind<Entity, O>
-export function ffRepo<Entity>(entity: ClassType<Entity>): FF_RepoBuilder<Entity>
-export function ffRepo<Entity>(entity: ClassType<Entity>, opts?: Getter<Entity>) {
+export function ffRepo<Entity>(entity: ClassType<Entity>): FF_RepoBuilder<Entity> {
 	const r = remultRepo(entity)
-	if (opts) return new FF_Repo(r, opts, 'find') as FF_RepoFind<Entity>
 	const builder: FF_RepoBuilder<Entity> = {
 		find<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
 			return new FF_Repo(r, o as Getter<Entity, O>, 'find') as FF_RepoFind<Entity, O>

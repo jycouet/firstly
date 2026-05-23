@@ -54,10 +54,10 @@ afterEach(() => {
 	stops = []
 })
 
-describe('ffRepo - find (default)', () => {
+describe('ffRepo - find', () => {
 	it('loads items in the entity defaultOrderBy', async () => {
 		await seed(3)
-		const r = root(() => ffRepo(Row, () => ({})))
+		const r = root(() => ffRepo(Row).find(() => ({})))
 		await vi.waitFor(() => expect(r.loading.init).toBe(false))
 		expect(r.items.map((x) => x.order)).toEqual([3, 2, 1])
 		expect(r.first?.order).toBe(3)
@@ -205,7 +205,7 @@ describe('ffRepo - one (single record)', () => {
 
 describe('ffRepo - mode guards', () => {
 	it('more() throws outside paginate mode', async () => {
-		const r = root(() => ffRepo(Row, () => ({})))
+		const r = root(() => ffRepo(Row).find(() => ({})))
 		await expect((r as unknown as { more: () => Promise<void> }).more()).rejects.toThrow('paginate')
 	})
 
@@ -224,14 +224,14 @@ describe('ffRepo - mode guards', () => {
 
 describe('ffRepo - permissions via meta', () => {
 	it('expose the entity api permissions through r.meta', () => {
-		const r = root(() => ffRepo(Row, () => ({})))
+		const r = root(() => ffRepo(Row).find(() => ({})))
 		expect(r.meta.apiInsertAllowed()).toBe(true)
 		expect(r.meta.apiUpdateAllowed()).toBe(true)
 		expect(r.meta.apiDeleteAllowed()).toBe(true)
 		expect(r.meta.apiReadAllowed).toBe(true)
 		expect(r.meta.key).toBe('ff_repo_test_rows')
 
-		const locked = root(() => ffRepo(Locked, () => ({})))
+		const locked = root(() => ffRepo(Locked).find(() => ({})))
 		expect(locked.meta.apiInsertAllowed()).toBe(false)
 		expect(locked.meta.apiReadAllowed).toBe(true)
 	})
