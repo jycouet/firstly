@@ -27,6 +27,17 @@ class Locked {
 	id = ''
 }
 
+// Composite (2-field) primary key, to exercise no-arg save/delete on `.item`.
+@Entity<Pair>('ff_repo_pairs', { allowApiCrud: true, id: ['a', 'b'] })
+class Pair {
+	@Fields.string()
+	a = ''
+	@Fields.string()
+	b = ''
+	@Fields.string()
+	label = ''
+}
+
 const rowRepo = () => repo(Row)
 
 async function seed(n: number) {
@@ -227,6 +238,33 @@ describe('ffRepo - one: no-arg save/delete target item', () => {
 		const r = root(() => ffRepo(Row).one(() => ({ where: { order: 999 } })))
 		await vi.waitFor(() => expect(r.loading.init).toBe(false))
 		await expect(r.save()).rejects.toThrow(/item/)
+	})
+})
+
+describe('ffRepo - one: composite (2-field) id', () => {
+	it('save() inserts the first time, then updates the same row (no duplicate)', async () => {
+		const r = root(() => ffRepo(Pair).one(() => ({ where: { a: 'x', b: '1' } })))
+		await vi.waitFor(() => expect(r.loading.init).toBe(false))
+		expect(r.item).toBeUndefined()
+
+		r.create({ a: 'x', b: '1', label: 'first' })
+		await r.save() // first save -> INSERT
+		await vi.waitFor(() => expect(r.item?.label).toBe('first'))
+		expect(await repo(Pair).count()).toBe(1)
+
+		r.item!.label = 'second'
+		await r.save() // second save -> UPDATE (must not insert a duplicate)
+		await vi.waitFor(() => expect(r.item?.label).toBe('second'))
+		expect(await repo(Pair).count()).toBe(1)
+	})
+
+	it('delete() removes the current item by its composite id', async () => {
+		await repo(Pair).insert({ a: 'y', b: '2', label: 'z' })
+		const r = root(() => ffRepo(Pair).one(() => ({ where: { a: 'y', b: '2' } })))
+		await vi.waitFor(() => expect(r.item?.label).toBe('z'))
+		await r.delete() // no-arg -> deletes .item by (a, b)
+		await vi.waitFor(() => expect(r.item).toBeUndefined())
+		expect(await repo(Pair).count()).toBe(0)
 	})
 })
 
