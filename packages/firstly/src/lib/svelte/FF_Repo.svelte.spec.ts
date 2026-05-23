@@ -54,10 +54,10 @@ afterEach(() => {
 	stops = []
 })
 
-describe('ffRepo - find', () => {
+describe('ffRepo - load', () => {
 	it('loads items in the entity defaultOrderBy', async () => {
 		await seed(3)
-		const r = root(() => ffRepo(Row).find(() => ({})))
+		const r = root(() => ffRepo(Row).load(() => ({})))
 		await vi.waitFor(() => expect(r.loading.init).toBe(false))
 		expect(r.items.map((x) => x.order)).toEqual([3, 2, 1])
 		expect(r.first?.order).toBe(3)
@@ -65,14 +65,14 @@ describe('ffRepo - find', () => {
 
 	it('honours limit', async () => {
 		await seed(5)
-		const r = root(() => ffRepo(Row).find(() => ({ limit: 2 })))
+		const r = root(() => ffRepo(Row).load(() => ({ limit: 2 })))
 		await vi.waitFor(() => expect(r.items.length).toBe(2))
 	})
 
 	it('re-fetches when where changes (and drops stale results)', async () => {
 		await seed(3)
 		let min = $state(0)
-		const r = root(() => ffRepo(Row).find(() => ({ where: { order: { $gt: min } } })))
+		const r = root(() => ffRepo(Row).load(() => ({ where: { order: { $gt: min } } })))
 		await vi.waitFor(() => expect(r.items.length).toBe(3))
 		min = 2
 		flushSync()
@@ -84,7 +84,7 @@ describe('ffRepo - enabled gate', () => {
 	it('skips while disabled, runs when it flips true', async () => {
 		await seed(2)
 		let on = $state(false)
-		const r = root(() => ffRepo(Row).find(() => ({ enabled: on })))
+		const r = root(() => ffRepo(Row).load(() => ({ enabled: on })))
 		flushSync()
 		expect(r.items).toEqual([])
 		on = true
@@ -99,7 +99,7 @@ describe('ffRepo - firstOnce / draft', () => {
 		let seen: Row | null = null
 		let calls = 0
 		const r = root(() => {
-			const a = ffRepo(Row).find(() => ({}))
+			const a = ffRepo(Row).load(() => ({}))
 			a.firstOnce((latest) => {
 				seen = latest
 				calls++
@@ -117,17 +117,17 @@ describe('ffRepo - firstOnce / draft', () => {
 		await seed(2)
 		const d = root(() =>
 			ffRepo(Row)
-				.find(() => ({}))
+				.load(() => ({}))
 				.draft((l) => ({ name: l?.name ?? '' })),
 		)
 		await vi.waitFor(() => expect(d.name).toBe('r2'))
 	})
 })
 
-describe('ffRepo - mutation sync (find)', () => {
+describe('ffRepo - mutation sync (load)', () => {
 	it('insert re-fetches and re-sorts', async () => {
 		await seed(3)
-		const r = root(() => ffRepo(Row).find(() => ({})))
+		const r = root(() => ffRepo(Row).load(() => ({})))
 		await vi.waitFor(() => expect(r.items.length).toBe(3))
 		await r.insert({ order: 9, name: 'r9' })
 		await vi.waitFor(() => expect(r.items.length).toBe(4))
@@ -136,7 +136,7 @@ describe('ffRepo - mutation sync (find)', () => {
 
 	it('delete removes the row locally', async () => {
 		await seed(3)
-		const r = root(() => ffRepo(Row).find(() => ({})))
+		const r = root(() => ffRepo(Row).load(() => ({})))
 		await vi.waitFor(() => expect(r.items.length).toBe(3))
 		await r.delete(r.items[0])
 		await vi.waitFor(() => expect(r.items.length).toBe(2))
@@ -205,57 +205,57 @@ describe('ffRepo - one (single record)', () => {
 
 describe('ffRepo - mode guards', () => {
 	it('more() throws outside paginate mode', async () => {
-		const r = root(() => ffRepo(Row).find(() => ({})))
+		const r = root(() => ffRepo(Row).load(() => ({})))
 		await expect((r as unknown as { more: () => Promise<void> }).more()).rejects.toThrow('paginate')
 	})
 
 	// Reactive modes build an $effect, so they need a runes context (component init
-	// or $effect.root). In a click handler / async fn use the imperative builder.
+	// or $effect.root). In a click handler / async fn use the imperative repo (.repo).
 	it('a reactive mode constructed outside an effect context throws', () => {
-		expect(() => ffRepo(Row).find(() => ({}))).toThrow()
+		expect(() => ffRepo(Row).load(() => ({}))).toThrow()
 	})
 
-	it('the imperative builder works with no runes context', async () => {
+	it('the imperative repo works with no runes context', async () => {
 		await seed(1)
-		const found = await ffRepo(Row).findFirst({ order: 1 })
+		const found = await ffRepo(Row).repo.findFirst({ order: 1 })
 		expect(found?.name).toBe('r1')
 	})
 })
 
 describe('ffRepo - permissions via meta', () => {
 	it('expose the entity api permissions through r.meta', () => {
-		const r = root(() => ffRepo(Row).find(() => ({})))
+		const r = root(() => ffRepo(Row).load(() => ({})))
 		expect(r.meta.apiInsertAllowed()).toBe(true)
 		expect(r.meta.apiUpdateAllowed()).toBe(true)
 		expect(r.meta.apiDeleteAllowed()).toBe(true)
 		expect(r.meta.apiReadAllowed).toBe(true)
 		expect(r.meta.key).toBe('ff_repo_test_rows')
 
-		const locked = root(() => ffRepo(Locked).find(() => ({})))
+		const locked = root(() => ffRepo(Locked).load(() => ({})))
 		expect(locked.meta.apiInsertAllowed()).toBe(false)
 		expect(locked.meta.apiReadAllowed).toBe(true)
 	})
 })
 
-describe('ffRepo - standalone builder (no query, no runes)', () => {
-	it('insert / findFirst / findId / save / delete / deleteMany', async () => {
+describe('ffRepo - imperative repo (no query, no runes)', () => {
+	it('repo.insert / findFirst / findId / save / delete / deleteMany', async () => {
 		const r = ffRepo(Row)
-		const a = await r.insert({ order: 1, name: 'a' })
-		expect((await r.findFirst({ name: 'a' }))?.order).toBe(1)
-		expect((await r.findId(a.id))?.name).toBe('a')
+		const a = await r.repo.insert({ order: 1, name: 'a' })
+		expect((await r.repo.findFirst({ name: 'a' }))?.order).toBe(1)
+		expect((await r.repo.findId(a.id))?.name).toBe('a')
 		a.name = 'a2'
-		await r.save(a)
-		expect((await r.findId(a.id))?.name).toBe('a2')
-		await r.insert({ order: 2, name: 'b' })
-		await r.delete(a)
+		await r.repo.save(a)
+		expect((await r.repo.findId(a.id))?.name).toBe('a2')
+		await r.repo.insert({ order: 2, name: 'b' })
+		await r.repo.delete(a)
 		expect(await r.repo.count()).toBe(1)
-		await r.deleteMany({ where: { order: { $gte: 0 } } })
+		await r.repo.deleteMany({ where: { order: { $gte: 0 } } })
 		expect(await r.repo.count()).toBe(0)
 	})
 
-	it('create returns an unsaved entity; meta / permissions available', () => {
+	it('create via repo; meta / permissions available', () => {
 		const r = ffRepo(Row)
-		expect(r.create({ name: 'x' }).name).toBe('x')
+		expect(r.repo.create({ name: 'x' }).name).toBe('x')
 		expect(r.meta.key).toBe('ff_repo_test_rows')
 		expect(r.meta.apiInsertAllowed()).toBe(true)
 	})
@@ -264,7 +264,7 @@ describe('ffRepo - standalone builder (no query, no runes)', () => {
 describe('ffRepo - mutation error handling', () => {
 	it('a failed delete re-throws, fills error, and leaves items intact', async () => {
 		await seed(2)
-		const r = root(() => ffRepo(Row).find(() => ({})))
+		const r = root(() => ffRepo(Row).load(() => ({})))
 		await vi.waitFor(() => expect(r.items.length).toBe(2))
 		await expect(r.delete({ id: 'does-not-exist' })).rejects.toThrow()
 		expect(r.items.length).toBe(2) // not optimistically removed

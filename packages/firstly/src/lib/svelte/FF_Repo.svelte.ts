@@ -18,14 +18,18 @@ import {
  * `ffRepo` - thin reactive wrapper around a Remult `repo`, exposing its results as
  * Svelte runes. Pick the mode with a verb:
  *
- *   ffRepo(E).find(() => ({ where }))       // find  - one-shot list + refresh()
+ *   ffRepo(E).load(() => ({ where }))       // load  - one-shot list + refresh()
  *   ffRepo(E).listen(() => ({ where }))     // live  - liveQuery, auto-updates
  *   ffRepo(E).paginate(() => ({ where }))   // paginate - more() / hasNextPage / aggregates
  *   ffRepo(E).one(() => ({ where }))        // one   - reactive single record in `item`
  *
+ * Two surfaces, one rule: anything NOT under `.repo` is reactive (a verb returns a
+ * runes handle; that handle's writes sync its own state). Anything under `.repo` is
+ * the plain remult repo - imperative, returns Promises, touches no runes state.
+ *
  * The options getter is reactive: change `where` (e.g. a search box), `orderBy`,
  * `enabled`, etc. and the query re-runs - `listen` re-subscribes (the old
- * subscription is torn down), `find`/`paginate`/`one` re-fetch and ignore any
+ * subscription is torn down), `load`/`paginate`/`one` re-fetch and ignore any
  * stale in-flight response. `orderBy` defaults to the entity's `defaultOrderBy`.
  *
  * Getter hygiene: read SvelteKit load `data` through a `$derived`
@@ -40,23 +44,23 @@ import {
  * the moment it flips true - use it for search-min-length, tab visibility,
  * dependent queries, or a manual button trigger.
  *
- * Mutations: `insert`/`update`/`save`/`delete` flip `loading` and keep the result
- * in sync - in `live` mode the liveQuery does it; in `find`/`paginate` a delete is
- * removed locally and an insert/update triggers a keep-count re-fetch; in `one`
- * any write re-fetches the single record.
+ * Mutations on a handle (`insert`/`update`/`save`/`delete`) flip `loading` and keep
+ * the result in sync - in `live` mode the liveQuery does it; in `load`/`paginate` a
+ * delete is removed locally and an insert/update triggers a keep-count re-fetch; in
+ * `one` any write re-fetches the single record. For a raw write that syncs nothing,
+ * use `.repo` (e.g. `ffRepo(E).repo.insert(...)`).
  *
  * The factory's return type is mode-specific, so e.g. `.more()` doesn't exist on
  * a `listen()` handle. Methods also throw if reached via a cast in the wrong mode.
  *
- * Reactive vs imperative: the reactive modes take a *getter* (`() => ({ ... })`)
- * and return a runes handle; the imperative builder methods take plain *values* and
- * return a Promise. Reactive modes build an `$effect`, so they must be created during
- * component init. For a one-off load in a click handler / async fn (no runes context)
- * use the imperative builder: `ffRepo(E).findFirst(where)`, `ffRepo(E).findId(id)`,
- * `ffRepo(E).repo.find(...)`.
+ * Reactive vs imperative: the reactive verbs take a *getter* (`() => ({ ... })`) and
+ * return a runes handle; they build an `$effect`, so they must be created during
+ * component init. For a one-off read/write in a click handler / async fn (no runes
+ * context) go through `.repo` (plain remult): `ffRepo(E).repo.findFirst(where)`,
+ * `ffRepo(E).repo.findId(id)`, `ffRepo(E).repo.find(...)`.
  *
  * Tip: prefer `.paginate()` whenever you want a total - it returns `aggregates.$count`
- * for free in the same request. `find`/`listen`/`one` don't count; for a one-off count
+ * for free in the same request. `load`/`listen`/`one` don't count; for a one-off count
  * use `ffRepo(E).repo.count(where)`.
  */
 
@@ -127,9 +131,15 @@ export type FF_RepoLoading = {
 	deleting: boolean // delete in flight
 }
 
-type Mode = 'live' | 'find' | 'paginate' | 'one'
+type Mode = 'live' | 'load' | 'paginate' | 'one'
 
-class FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> {
+/**
+ * The reactive handle returned by `load`/`listen`/`paginate`/`one`. Exported as the
+ * umbrella type for components that accept any mode (`r: FF_Repo<T>`); the per-mode
+ * aliases below (`FF_RepoLoad`/`FF_RepoLive`/`FF_RepoPaginate`/`FF_RepoOne`) narrow
+ * it for strict call sites.
+ */
+export class FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> {
 	#repo: Repository<Entity>
 	#opts: Getter<Entity, O>
 	#mode: Mode
@@ -182,7 +192,7 @@ class FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>>
 					})
 				return () => unsub()
 			}
-			// find | paginate | one: (re)fetch; a newer opts() invalidates older responses.
+			// load | paginate | one: (re)fetch; a newer opts() invalidates older responses.
 			void this.#load(o, ++this.#seq)
 		})
 	}
@@ -245,7 +255,7 @@ class FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>>
 		}
 	}
 
-	/** Re-run the current query (find/paginate/one), back to the first page. */
+	/** Re-run the current query (load/paginate/one), back to the first page. */
 	async refresh() {
 		if (this.#mode === 'live') throw new Error('FF_Repo: refresh() is not available in live mode')
 		await this.#load(this.#resolve(), ++this.#seq)
@@ -397,8 +407,8 @@ class FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>>
 	}
 }
 
-/** find: one-shot list; `refresh()` to re-run. No paging / aggregates. */
-export type FF_RepoFind<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
+/** load: one-shot list; `refresh()` to re-run. No paging / aggregates. */
+export type FF_RepoLoad<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_Repo<Entity, O>,
 	'more' | 'hasNextPage' | 'aggregates'
 >
@@ -427,38 +437,29 @@ type StrictGetter<Entity, O extends FF_RepoOptions<Entity>> = () => O &
 	Record<Exclude<keyof O, keyof FF_RepoOptions<Entity>>, never>
 
 /**
- * Imperative, non-reactive repo methods - thin pass-throughs to the underlying
- * repo, usable anywhere (e.g. a click handler, no runes context needed). They take
- * plain values and return Promises (the reactive modes take a `() => ({ ... })`
- * getter). Use these for one-off writes/reads; use `listen`/`find`/`paginate`/`one`
- * for reactive results. For a one-off list fetch use `.repo.find(...)`.
+ * The builder returned by `ffRepo(E)`. Two surfaces only: the reactive verbs
+ * (`load`/`listen`/`paginate`/`one`), and `.repo` - the plain remult repo for every
+ * imperative read/write (`findFirst`, `findId`, `find`, `insert`, `update`, `save`,
+ * `delete`, `count`, `upsert`, ...). `.meta` is a shortcut to `repo.metadata`.
  */
-type StandaloneRepo<Entity> = {
-	insert: Repository<Entity>['insert']
-	update: Repository<Entity>['update']
-	save: Repository<Entity>['save']
-	delete: Repository<Entity>['delete']
-	deleteMany: Repository<Entity>['deleteMany']
-	create: Repository<Entity>['create']
-	findFirst: Repository<Entity>['findFirst']
-	findId: Repository<Entity>['findId']
-	readonly meta: EntityMetadata<Entity>
-	readonly repo: Repository<Entity>
-}
-export type FF_RepoBuilder<Entity> = StandaloneRepo<Entity> & {
-	find: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoFind<Entity, O>
+export type FF_RepoBuilder<Entity> = {
+	load: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoLoad<Entity, O>
 	listen: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoLive<Entity, O>
 	paginate: <O extends FF_RepoOptions<Entity>>(
 		opts: StrictGetter<Entity, O>,
 	) => FF_RepoPaginate<Entity, O>
 	one: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoOne<Entity, O>
+	/** The entity's remult metadata (permissions, fields, key). Shortcut to `repo.metadata`. */
+	readonly meta: EntityMetadata<Entity>
+	/** The underlying remult repo - every imperative read/write lives here. */
+	readonly repo: Repository<Entity>
 }
 
 export function ffRepo<Entity>(entity: ClassType<Entity>): FF_RepoBuilder<Entity> {
 	const r = remultRepo(entity)
 	const builder: FF_RepoBuilder<Entity> = {
-		find<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
-			return new FF_Repo(r, o as Getter<Entity, O>, 'find') as FF_RepoFind<Entity, O>
+		load<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
+			return new FF_Repo(r, o as Getter<Entity, O>, 'load') as FF_RepoLoad<Entity, O>
 		},
 		listen<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
 			return new FF_Repo(r, o as Getter<Entity, O>, 'live') as FF_RepoLive<Entity, O>
@@ -469,14 +470,6 @@ export function ffRepo<Entity>(entity: ClassType<Entity>): FF_RepoBuilder<Entity
 		one<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
 			return new FF_Repo(r, o as Getter<Entity, O>, 'one') as FF_RepoOne<Entity, O>
 		},
-		insert: r.insert.bind(r) as Repository<Entity>['insert'],
-		update: r.update.bind(r) as Repository<Entity>['update'],
-		save: r.save.bind(r) as Repository<Entity>['save'],
-		delete: r.delete.bind(r) as Repository<Entity>['delete'],
-		deleteMany: r.deleteMany.bind(r) as Repository<Entity>['deleteMany'],
-		create: r.create.bind(r) as Repository<Entity>['create'],
-		findFirst: r.findFirst.bind(r) as Repository<Entity>['findFirst'],
-		findId: r.findId.bind(r) as Repository<Entity>['findId'],
 		get meta() {
 			return r.metadata
 		},

@@ -9,7 +9,7 @@ import type { EntityFilter, FieldMetadata } from 'remult'
  *
  * So word order and which field holds which word don't matter - handy for
  * "NOM Prénom" style search across several columns. Pairs with `ffRepo`:
- * `ffRepo(User).find(() => ({ where: containsWords([f.name, f.sesa], q) }))`.
+ * `ffRepo(User).load(() => ({ where: containsWords([f.name, f.sesa], q) }))`.
  */
 export const containsWords = <Entity>(
 	fields: FieldMetadata<unknown, Entity>[],

@@ -1,8 +1,9 @@
 export { ffRepo } from './FF_Repo.svelte.js'
 export type {
+	FF_Repo,
 	FF_RepoOptions,
 	FF_RepoLoading,
-	FF_RepoFind,
+	FF_RepoLoad,
 	FF_RepoLive,
 	FF_RepoPaginate,
 	FF_RepoOne,

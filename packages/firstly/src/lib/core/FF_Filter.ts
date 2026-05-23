@@ -7,7 +7,7 @@ import { containsWords } from './containsWords.js'
  *
  * `owner` / `ownerOr` are prefilters (for `apiPrefilter`, `backendPrefilter`) -
  * pair with `FF_Allow` (the equivalent for `allowApi*` row checks). `containsWords`
- * is a search-box helper (pairs with `ffRepo(...).find/paginate`).
+ * is a search-box helper (pairs with `ffRepo(...).load/paginate`).
  *
  * Pass the entity type as a generic (`FF_Filter.owner<Task>('userId')`) to get
  * autocompletion and type-safety on the column name. Without a generic the
@@ -74,7 +74,7 @@ export const FF_Filter = {
 	 *
 	 * @example
 	 * ```ts
-	 * const r = ffRepo(User).find(() => ({
+	 * const r = ffRepo(User).load(() => ({
 	 *   where: FF_Filter.containsWords([repo(User).fields.name, repo(User).fields.sesa], q),
 	 * }))
 	 * ```
