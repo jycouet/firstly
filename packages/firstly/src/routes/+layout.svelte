@@ -21,7 +21,7 @@
 
 	const links = [
 		{ path: route('/'), text: 'Home' },
-
+		{ path: route('/ff-repo'), text: 'Demo Grid' },
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
 			path: route('github', { owner: 'remult', repo: 'remult' }),

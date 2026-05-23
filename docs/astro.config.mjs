@@ -75,7 +75,7 @@ export default defineConfig({
 						},
 						{
 							label: 'SQL Admin',
-							link: '/docs/modules/sqlAdmin',
+							link: '/docs/modules/sql-admin',
 						},
 					],
 				},

@@ -44,12 +44,12 @@ import {
  * the moment it flips true - use it for search-min-length, tab visibility,
  * dependent queries, or a manual button trigger.
  *
- * Mutations on a handle (`insert`/`update`/`save`/`delete`) flip `loading` and keep
- * the result in sync - in `live` mode the liveQuery does it; in `load`/`paginate` a
- * delete is removed locally and an insert/update triggers a keep-count re-fetch; in
- * `one` any write re-fetches the single record. `save()`/`delete()` with no argument
- * target the current `item` (pairs with `one`/`create()`). For a raw write that syncs
- * nothing, use `.repo` (e.g. `ffRepo(E).repo.insert(...)`).
+ * Writes: only the record handle (`one` / `create()`) writes - argless `save()` / `delete()`
+ * act on its `item` and re-sync it. List handles (`load` / `listen` / `paginate`) don't write;
+ * go through `.repo` (the plain remult repo: `insert` / `update` / `save` / `delete` /
+ * `deleteMany`), then reflect it in a `load` / `paginate` list with the local reconcilers
+ * (`addItem` / `updateItem` / `removeItem`) - a `listen` list re-syncs itself via the liveQuery.
+ * A failed write fills `error` and re-throws.
  *
  * The factory's return type is mode-specific, so e.g. `.more()` doesn't exist on
  * a `listen()` handle. Methods also throw if reached via a cast in the wrong mode.
@@ -161,7 +161,6 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	hasNextPage = $state(false)
 	/** Aggregations for the whole query (paginate mode). `aggregates.$count` is the total row count. */
 	aggregates = $state<ExtractAggregateResult<Entity, O> | undefined>(undefined)
-	first = $derived<Entity | null>(this.items[0] ?? null)
 
 	constructor(r: Repository<Entity>, opts: Getter<Entity, O>, mode: Mode) {
 		this.#repo = r
@@ -177,7 +176,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 			}
 			if (mode === 'live') {
 				// Pass orderBy so liveQuery re-sorts incrementally-added rows too;
-				// without it a freshly inserted row is appended and `first` goes stale.
+				// without it a freshly inserted row is appended and `items[0]` (the latest) goes stale.
 				const unsub = this.#repo
 					.liveQuery({ where: o.where, orderBy: o.orderBy, limit: o.limit, include: o.include })
 					.subscribe({
@@ -277,26 +276,32 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	}
 
 	/**
-	 * Run `fn` once, the first time a row is known (first non-null `first`).
-	 * Never fires while the result is empty - so it's robust to liveQuery emitting
-	 * an empty snapshot before the data lands. Nothing to seed from an empty result.
+	 * Run `fn` once - the first time a row exists (`items[0]`).
+	 *
+	 * The point: seed editable UI state from the latest row WITHOUT a live query
+	 * clobbering in-progress edits. It fires a single time, on the first non-empty
+	 * result, and never again - later ticks (an edit, a delete, a re-sort) are
+	 * ignored. Empty snapshots are skipped (a liveQuery often emits one before the
+	 * data lands; there is nothing to seed from an empty result).
+	 *
+	 * For pure derived state prefer `$derived`; reach for `onFirst` only when the
+	 * seed must become independently editable (a draft the user then mutates).
+	 *
+	 * ```svelte
+	 * const list = ffRepo(Plan).listen(() => ({ where: { ownerDid } }))
+	 * let draft = $state({ title: '' })
+	 * list.onFirst((latest) => (draft.title = latest.title)) // seed once, then edit freely
+	 * ```
 	 */
-	firstOnce(fn: (latest: Entity) => void) {
+	onFirst(fn: (latest: Entity) => void) {
 		let done = false
 		$effect(() => {
 			if (done) return
-			const latest = this.first
+			const latest = this.items[0]
 			if (latest == null) return
 			fn(latest)
 			done = true
 		})
-	}
-
-	/** Reactive, bindable editor state seeded once from the latest row. */
-	draft<D extends Record<string, unknown>>(seed: (latest: Entity | null) => D): D {
-		const values = $state(seed(null))
-		this.firstOnce((latest) => Object.assign(values, seed(latest)))
-		return values
 	}
 
 	/** Create a new unsaved entity into the `item` slot (for an edit form). */
@@ -329,46 +334,21 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		}
 	}
 
-	insert(...args: Parameters<Repository<Entity>['insert']>) {
+	/** Save the current `item` (from `one` / `create()`). To save a specific row, use `.repo.save(row)`. */
+	save() {
 		return this.#write(
 			'saving',
-			() => this.#repo.insert(...args),
+			() => this.#repo.save(this.#requireItem()),
 			() => this.#resync(),
 		)
 	}
 
-	update(...args: Parameters<Repository<Entity>['update']>) {
-		return this.#write(
-			'saving',
-			() => this.#repo.update(...args),
-			() => this.#resync(),
-		)
-	}
-
-	/** Save. With no argument, saves the current `item` (e.g. a bound `one`/`create` form). */
-	save(...args: [] | Parameters<Repository<Entity>['save']>) {
-		return this.#write(
-			'saving',
-			() =>
-				this.#repo.save(
-					...((args.length ? args : [this.#requireItem()]) as Parameters<Repository<Entity>['save']>),
-				),
-			() => this.#resync(),
-		)
-	}
-
-	/** Delete. With no argument, deletes the current `item`. */
-	delete(...args: [] | Parameters<Repository<Entity>['delete']>) {
-		let target: unknown
+	/** Delete the current `item`. To delete a specific row/id, use `.repo.delete(idOrRow)`. */
+	delete() {
+		const target = this.#requireItem()
 		return this.#write(
 			'deleting',
-			() => {
-				const a = (args.length ? args : [this.#requireItem()]) as Parameters<
-					Repository<Entity>['delete']
-				>
-				target = a[0]
-				return this.#repo.delete(...a)
-			},
+			() => this.#repo.delete(target),
 			() => {
 				// live: liveQuery removes it. one: re-fetch (likely empty now).
 				// load/paginate: drop it locally (no refetch).
@@ -379,21 +359,13 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		)
 	}
 
-	/** The current `item` (or throw) - backs the no-arg `save()`/`delete()` forms. */
+	/** The current `item` (or throw) - backs the argless `save()`/`delete()`. */
 	#requireItem(): Entity {
 		if (this.item === undefined)
 			throw new Error(
-				'FF_Repo: no `item` to save/delete - pass an explicit argument, or load one first (`one` mode or `create()`).',
+				'FF_Repo: no `item` to save/delete - load one first (`one` mode or `create()`), or write a specific row through `.repo`.',
 			)
 		return this.item
-	}
-
-	deleteMany(...args: Parameters<Repository<Entity>['deleteMany']>) {
-		return this.#write(
-			'deleting',
-			() => this.#repo.deleteMany(...args),
-			() => this.#resync(),
-		)
 	}
 
 	// Client-side list reconcilers (no server I/O) - reflect a change you made
@@ -461,22 +433,32 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	}
 }
 
-/** load: one-shot list; `refresh()` to re-run. No paging / aggregates. */
+/** load: one-shot list (`refresh()` to re-run) - a read+reconcile view. No paging/aggregates, and no `item`/`save`/`delete`/`create` (edit via `one`, write via `.repo`). */
 export type FF_RepoLoad<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_RepoHandle<Entity, O>,
-	'more' | 'hasNextPage' | 'aggregates'
+	'more' | 'hasNextPage' | 'aggregates' | 'item' | 'save' | 'delete' | 'create'
 >
-/** live: reactive subscription, auto-updates. No manual refresh / paging / aggregates / list reconcilers (the liveQuery does it). */
+/** live: reactive subscription, auto-updates - a read view. No refresh/paging/aggregates/reconcilers (the liveQuery does it), and no `item`/`save`/`delete`/`create`. */
 export type FF_RepoLive<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_RepoHandle<Entity, O>,
-	'refresh' | 'more' | 'hasNextPage' | 'aggregates' | 'addItem' | 'updateItem' | 'removeItem'
+	| 'refresh'
+	| 'more'
+	| 'hasNextPage'
+	| 'aggregates'
+	| 'addItem'
+	| 'updateItem'
+	| 'removeItem'
+	| 'item'
+	| 'save'
+	| 'delete'
+	| 'create'
 >
-/** paginate: `more()` / `hasNextPage` / `aggregates`. No `first`/`firstOnce`/`draft` (paged ≠ latest). */
+/** paginate: `more()` / `hasNextPage` / `aggregates` - a read+reconcile view. No `onFirst` (paged ≠ latest), and no `item`/`save`/`delete`/`create`. */
 export type FF_RepoPaginate<
 	Entity,
 	O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>,
-> = Omit<FF_RepoHandle<Entity, O>, 'first' | 'firstOnce' | 'draft'>
-/** one: a single reactive record in `item` (+ `first`). No paging / aggregates / list reconcilers. */
+> = Omit<FF_RepoHandle<Entity, O>, 'onFirst' | 'item' | 'save' | 'delete' | 'create'>
+/** one: a single reactive record in `item`. No paging / aggregates / list reconcilers. */
 export type FF_RepoOne<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_RepoHandle<Entity, O>,
 	'more' | 'hasNextPage' | 'aggregates' | 'addItem' | 'updateItem' | 'removeItem'
@@ -485,9 +467,9 @@ export type FF_RepoOne<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions
 /**
  * Umbrella handle type - any mode. Use for a component prop that accepts a
  * `load`/`listen`/`paginate`/`one` handle (`r: FF_Repo<T>`). It exposes the surface
- * common to every mode (`items`/`item`/`loading`/`error`/`meta`/`repo` + the writes);
- * mode-specific members (`more`/`hasNextPage`/`aggregates`/`refresh`/`first`/`firstOnce`/
- * `draft`/`addItem`/`updateItem`/`removeItem`) require the matching per-mode type.
+ * common to every mode (`items`/`loading`/`error`/`meta`/`repo`); mode-specific members
+ * (`item`/`save`/`delete`/`create` on `one`; `more`/`hasNextPage`/`aggregates`/`refresh`/
+ * `onFirst`/`addItem`/`updateItem`/`removeItem`) require the matching per-mode type.
  */
 export type FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> =
 	| FF_RepoLoad<Entity, O>

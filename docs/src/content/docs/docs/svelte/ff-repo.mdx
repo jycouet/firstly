@@ -108,7 +108,6 @@ matter:
 | Property      | Type                                         | Modes             |
 | ------------- | -------------------------------------------- | ----------------- |
 | `items`       | `Entity[]`                                   | all               |
-| `first`       | `Entity \| null`                             | all               |
 | `item`        | `Entity \| undefined`                        | one / create slot |
 | `loading`     | `{ init, fetching, more, saving, deleting }` | all               |
 | `error`       | `string \| undefined`                        | all               |
@@ -171,19 +170,43 @@ argument, `save()` and `delete()` operate on the current `item` - so a bound for
 ```
 
 This pairs with `create()` (which seeds a new draft into `item`): `r.create()` -> bind the form to
-`r.item` -> `r.save()`. The explicit-argument forms (`r.save(item)`, `r.delete(id)`) still work
-everywhere.
+`r.item` -> `r.save()`. To save or delete a _specific_ row instead of `item`, go through `.repo`
+(`r.repo.save(row)`, `r.repo.delete(id)`).
+
+## Seed editable state once - `onFirst`
+
+`onFirst(fn)` runs `fn` a single time - the moment the first row lands (`items[0]`). Use it to seed
+editable `$state` from the latest saved row without a live tick clobbering edits mid-typing: it never
+re-fires on later changes (an edit, a delete, a re-sort), and empty snapshots are skipped.
+
+```svelte
+<script lang="ts">
+	const tasks = ffRepo(Task).listen(() => ({ orderBy: { createdAt: 'desc' } }))
+	let draft = $state({ title: '' })
+	tasks.onFirst((latest) => (draft.title = latest.title)) // seed once, then the input owns it
+</script>
+
+<input bind:value={draft.title} />
+```
+
+Prefer `$derived` for read-only state; reach for `onFirst` only when the seed must become
+**independently editable**. Not available on `paginate` (a page isn't "the latest").
 
 ## Mutations
 
-A handle's `insert` / `update` / `save` / `delete` / `deleteMany` flip `loading` and keep the
-result in sync: in `live` mode the liveQuery does it; in `load`/`paginate` a delete is dropped
-locally and an insert/update triggers a keep-count re-fetch; in `one` any write re-fetches the
-record. A failed write fills `error` **and** re-throws (so a `try/catch` still works). For a raw
-write that syncs nothing, use `.repo` (e.g. `ffRepo(E).repo.insert(...)`).
+Only the **record handle** (`one` / `create()`) writes: `save()` / `delete()` are **argless** - they
+act on the current `item` (a missing `item` throws), flip `loading`, re-sync after, and re-throw on
+failure (filling `error`, so a `try/catch` still works).
 
-Called with no argument, `save()` and `delete()` target the current `item` (handy with `one` /
-`create()`); a missing `item` throws.
+**List handles** (`load` / `listen` / `paginate`) are read-only - they expose no `save`/`delete`/
+`insert`/`update`. Write through `.repo`, the plain remult repo:
+
+```ts
+await r.repo.insert(data) // or .update(id, data) / .save(row) / .delete(id) / .deleteMany(where)
+```
+
+Then reflect it: a `listen` list re-syncs itself via the liveQuery; on `load` / `paginate` use the
+client reconcilers below (`addItem` / `updateItem` / `removeItem`) or `refresh()`.
 
 ## Reconciling the list (client-side)
 
@@ -208,6 +231,63 @@ if (ok) r.removeItem(id) // instant, keeps your loaded pages
 
 Want authoritative totals/ordering instead? Call `refresh()` (it re-pulls and, for `paginate`,
 resets to the first page).
+
+## Putting it together - an inline CRUD grid
+
+A `listen` handle for the list (live - any write re-emits it, so no reconcile code) and a `one`
+handle for the row being edited or created. The input label comes from remult metadata, not a
+hardcoded string. Edit mode is keyed off `editingId` (not `editor.item`, which lingers after a save).
+
+```svelte
+<script lang="ts">
+	import { ffRepo } from 'firstly/svelte'
+
+	import { Task } from '$lib/Task'
+
+	const list = ffRepo(Task).listen(() => ({ orderBy: { createdAt: 'desc' } }))
+
+	// the row being edited (by id) or a fresh draft for "new" - one reactive slot
+	let editingId = $state<string | null>(null)
+	const editor = ffRepo(Task).one(() => ({ where: { id: editingId ?? '' }, enabled: !!editingId }))
+
+	function edit(id: string) {
+		editingId = id // → editor.item loads that row
+	}
+	function add() {
+		editingId = null
+		editor.create({ title: '' }) // blank draft into editor.item
+	}
+	function cancel() {
+		editingId = null
+		editor.item = undefined // drop the draft / stop editing
+	}
+	async function save() {
+		await editor.save() // insert (a draft) or update (the loaded row); the live list self-syncs
+		cancel()
+	}
+	async function remove(task: Task) {
+		await list.repo.delete(task.id) // raw delete via .repo; the live list drops the row
+	}
+</script>
+
+<button onclick={add}>+ New</button>
+
+{#if editor.item}
+	<input bind:value={editor.item.title} placeholder={editor.meta.fields.title.caption} />
+	<button disabled={editor.loading.saving} onclick={save}>Save</button>
+	<button onclick={cancel}>Cancel</button>
+{/if}
+
+{#each list.items as task (task.id)}
+	{#if editingId !== task.id}
+		<li>
+			{task.title}
+			<button onclick={() => edit(task.id)}>Edit</button>
+			<button onclick={() => remove(task)}>Delete</button>
+		</li>
+	{/if}
+{/each}
+```
 
 ## Permissions - via `r.meta`
 

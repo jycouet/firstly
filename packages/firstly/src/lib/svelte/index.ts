@@ -17,6 +17,7 @@ export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
 export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
 
+export { default as DemoGrid } from './DemoGrid.svelte'
 export { default as Icon } from './ui/Icon.svelte'
 export {
 	LibIcon_Empty,

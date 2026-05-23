@@ -12,7 +12,11 @@ class Row {
 	id = ''
 	@Fields.number()
 	order = 0
-	@Fields.string()
+	@Fields.string<Row>({
+		validate: (row) => {
+			if (row.name === 'BOOM') throw new Error('name cannot be BOOM')
+		},
+	})
 	name = ''
 }
 
@@ -71,7 +75,7 @@ describe('ffRepo - load', () => {
 		const r = root(() => ffRepo(Row).load(() => ({})))
 		await vi.waitFor(() => expect(r.loading.init).toBe(false))
 		expect(r.items.map((x) => x.order)).toEqual([3, 2, 1])
-		expect(r.first?.order).toBe(3)
+		expect(r.items[0]?.order).toBe(3)
 	})
 
 	it('honours limit', async () => {
@@ -104,14 +108,14 @@ describe('ffRepo - enabled gate', () => {
 	})
 })
 
-describe('ffRepo - firstOnce / draft', () => {
-	it('firstOnce fires once with the latest row', async () => {
+describe('ffRepo - onFirst', () => {
+	it('onFirst fires once with the latest row', async () => {
 		await seed(3)
 		let seen: Row | null = null
 		let calls = 0
 		const r = root(() => {
 			const a = ffRepo(Row).load(() => ({}))
-			a.firstOnce((latest) => {
+			a.onFirst((latest) => {
 				seen = latest
 				calls++
 			})
@@ -119,38 +123,32 @@ describe('ffRepo - firstOnce / draft', () => {
 		})
 		await vi.waitFor(() => expect(seen).not.toBeNull())
 		expect(seen!.order).toBe(3)
-		await r.insert({ order: 4, name: 'r4' })
-		await vi.waitFor(() => expect(r.first?.order).toBe(4))
+		await r.repo.insert({ order: 4, name: 'r4' })
+		await r.refresh()
+		await vi.waitFor(() => expect(r.items[0]?.order).toBe(4))
 		expect(calls).toBe(1) // seeded once, not re-fired on later changes
-	})
-
-	it('draft seeds editable state from the first row, once', async () => {
-		await seed(2)
-		const d = root(() =>
-			ffRepo(Row)
-				.load(() => ({}))
-				.draft((l) => ({ name: l?.name ?? '' })),
-		)
-		await vi.waitFor(() => expect(d.name).toBe('r2'))
 	})
 })
 
 describe('ffRepo - mutation sync (load)', () => {
-	it('insert re-fetches and re-sorts', async () => {
+	it('refresh re-fetches and re-sorts (after a .repo insert)', async () => {
 		await seed(3)
 		const r = root(() => ffRepo(Row).load(() => ({})))
 		await vi.waitFor(() => expect(r.items.length).toBe(3))
-		await r.insert({ order: 9, name: 'r9' })
+		await r.repo.insert({ order: 9, name: 'r9' })
+		await r.refresh()
 		await vi.waitFor(() => expect(r.items.length).toBe(4))
-		expect(r.first?.order).toBe(9)
+		expect(r.items[0]?.order).toBe(9)
 	})
 
-	it('delete removes the row locally', async () => {
+	it('removeItem drops a row locally (after a .repo delete)', async () => {
 		await seed(3)
 		const r = root(() => ffRepo(Row).load(() => ({})))
 		await vi.waitFor(() => expect(r.items.length).toBe(3))
-		await r.delete(r.items[0])
-		await vi.waitFor(() => expect(r.items.length).toBe(2))
+		const gone = r.items[0]
+		await r.repo.delete(gone)
+		r.removeItem(gone)
+		expect(r.items.length).toBe(2)
 		expect(r.items.map((x) => x.order)).toEqual([2, 1])
 	})
 })
@@ -173,22 +171,24 @@ describe('ffRepo - paginate', () => {
 		expect(r.aggregates?.order.sum).toBe(15)
 	})
 
-	it('keeps aggregates.$count in sync after a delete', async () => {
+	it('removeItem keeps aggregates.$count in sync', async () => {
 		await seed(3)
 		const r = root(() => ffRepo(Row).paginate(() => ({ pageSize: 10 })))
 		await vi.waitFor(() => expect(r.aggregates?.$count).toBe(3))
-		await r.delete(r.items[0])
-		await vi.waitFor(() => expect(r.aggregates?.$count).toBe(2))
+		const gone = r.items[0]
+		await r.repo.delete(gone)
+		r.removeItem(gone)
+		expect(r.aggregates?.$count).toBe(2)
 	})
 })
 
 describe('ffRepo - one (single record)', () => {
-	it('loads one record into item (+ first), reactive on where change', async () => {
+	it('loads one record into item, reactive on where change', async () => {
 		await seed(3)
 		let pick = $state(1)
 		const r = root(() => ffRepo(Row).one(() => ({ where: { order: pick } })))
 		await vi.waitFor(() => expect(r.item?.order).toBe(1))
-		expect(r.first?.order).toBe(1)
+		expect(r.items[0]?.order).toBe(1)
 		pick = 3
 		flushSync()
 		await vi.waitFor(() => expect(r.item?.order).toBe(3))
@@ -199,7 +199,7 @@ describe('ffRepo - one (single record)', () => {
 		const r = root(() => ffRepo(Row).one(() => ({ where: { order: 2 } })))
 		await vi.waitFor(() => expect(r.item?.name).toBe('r2'))
 		r.item!.name = 'edited'
-		await r.save(r.item!)
+		await r.save()
 		await vi.waitFor(() => expect(r.item?.name).toBe('edited'))
 		expect((await repo(Row).findFirst({ order: 2 }))?.name).toBe('edited')
 	})
@@ -208,7 +208,7 @@ describe('ffRepo - one (single record)', () => {
 		await seed(1)
 		const r = root(() => ffRepo(Row).one(() => ({ where: { order: 1 } })))
 		await vi.waitFor(() => expect(r.item?.order).toBe(1))
-		await r.delete(r.item!)
+		await r.delete()
 		await vi.waitFor(() => expect(r.item).toBeUndefined())
 		expect(r.items.length).toBe(0)
 	})
@@ -385,12 +385,11 @@ describe('ffRepo - imperative repo (no query, no runes)', () => {
 })
 
 describe('ffRepo - mutation error handling', () => {
-	it('a failed delete re-throws, fills error, and leaves items intact', async () => {
-		await seed(2)
-		const r = root(() => ffRepo(Row).load(() => ({})))
-		await vi.waitFor(() => expect(r.items.length).toBe(2))
-		await expect(r.delete({ id: 'does-not-exist' })).rejects.toThrow()
-		expect(r.items.length).toBe(2) // not optimistically removed
+	it('a failed save re-throws and fills error', async () => {
+		const r = root(() => ffRepo(Row).one(() => ({ where: { order: -999 } })))
+		await vi.waitFor(() => expect(r.loading.init).toBe(false))
+		r.create({ order: 1, name: 'BOOM' }) // rejected by the field validation
+		await expect(r.save()).rejects.toThrow()
 		expect(r.error).toBeTruthy() // surfaced reactively too
 	})
 })
