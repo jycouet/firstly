@@ -64,6 +64,29 @@ getter. A derived only propagates on value change, so a parent layout revalidati
 re-fetches on every revalidation (a duplicate request per filter).
 :::
 
+### Search across fields
+
+For a "NOM Prénom" style search box (every word must match, in any of the fields), use
+`FF_Filter.containsWords` to build the `where` - word order and which field holds which word don't
+matter:
+
+```svelte
+<script lang="ts">
+	import { repo } from 'remult'
+	import { FF_Filter } from 'firstly'
+	import { ffRepo } from 'firstly/svelte'
+
+	let q = $state('')
+	const f = repo(User).fields
+	const r = ffRepo(User).paginate(() => ({
+		where: FF_Filter.containsWords([f.name, f.email], q),
+		enabled: q.length >= 2,
+	}))
+</script>
+
+<input bind:value={q} />
+```
+
 ## Options
 
 | Option      | Modes             | Notes                                                            |

@@ -4,7 +4,7 @@
 
 **BREAKING (svelte): `FF_Repo` class -> `ffRepo()` factory.** The reactive repo wrapper now takes a reactive options getter and a mode (`find` / `listen` / `paginate` / `one`), with built-in mutations, `firstOnce`/`draft`, and permissions via `r.meta`. The old `new FF_Repo(E, { findOptions })` class is removed.
 
-Also new: `infiniteScroll` (svelte attachment, pairs with `paginate`), `stackHttpClient`/`withHeader` + `containsWords` (core), `splitTrim` (formats), and exported `QueryOptionsHelper`/`AggregateOptions`/`FF_Repo*` types.
+Also new: `infiniteScroll` (svelte attachment, pairs with `paginate`), `stackHttpClient`/`withHeader` (core), `FF_Filter.containsWords` (multi-field search filter), `splitTrim` (formats), and exported `QueryOptionsHelper`/`AggregateOptions`/`FF_Repo*` types.
 
 Migration (see `/docs/svelte/ff-repo`):
 

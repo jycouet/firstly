@@ -2,14 +2,16 @@ import { describe, expect, it } from 'vitest'
 
 import type { FieldMetadata } from 'remult'
 
-import { containsWords } from './containsWords'
+import { FF_Filter } from './FF_Filter'
+
+const containsWords = FF_Filter.containsWords
 
 // Minimal stand-ins for field metadata: containsWords only reads `.key`.
 const f = (key: string) => ({ key }) as FieldMetadata<unknown, unknown>
 const name = f('name')
 const sesa = f('sesa')
 
-describe('containsWords', () => {
+describe('FF_Filter.containsWords', () => {
 	it('returns {} for empty / whitespace-only search, or no fields', () => {
 		expect(containsWords([name, sesa], '')).toEqual({})
 		expect(containsWords([name, sesa], '   ')).toEqual({})
