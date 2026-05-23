@@ -170,7 +170,8 @@ Key rules:
   `$derived`, never raw in the getter (raw re-fetches on every revalidation).
 - **`enabled: false`** skips the query (keeps the last result) until it flips true.
 - **Mutations on a handle** (`insert`/`update`/`save`/`delete`/`deleteMany`) keep state in sync and
-  re-throw on failure (also filling `error`). For a raw write, use `ffRepo(E).repo.insert(...)`.
+  re-throw on failure (also filling `error`). No-arg `save()`/`delete()` target the loaded `item`
+  (pairs with `one`/`create()`). For a raw write, use `ffRepo(E).repo.insert(...)`.
 - **Permissions: no `can*` helpers** - use `r.meta.apiInsertAllowed()` / `apiUpdateAllowed(item)` /
   `apiDeleteAllowed(item)` / `apiReadAllowed`. `r.repo` / `r.meta` are the escape hatches.
 - **Reactive vs imperative**: reactive verbs build an `$effect`, so create them at component init.

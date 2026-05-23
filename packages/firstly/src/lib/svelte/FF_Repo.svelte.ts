@@ -47,8 +47,9 @@ import {
  * Mutations on a handle (`insert`/`update`/`save`/`delete`) flip `loading` and keep
  * the result in sync - in `live` mode the liveQuery does it; in `load`/`paginate` a
  * delete is removed locally and an insert/update triggers a keep-count re-fetch; in
- * `one` any write re-fetches the single record. For a raw write that syncs nothing,
- * use `.repo` (e.g. `ffRepo(E).repo.insert(...)`).
+ * `one` any write re-fetches the single record. `save()`/`delete()` with no argument
+ * target the current `item` (pairs with `one`/`create()`). For a raw write that syncs
+ * nothing, use `.repo` (e.g. `ffRepo(E).repo.insert(...)`).
  *
  * The factory's return type is mode-specific, so e.g. `.more()` doesn't exist on
  * a `listen()` handle. Methods also throw if reached via a cast in the wrong mode.
@@ -344,26 +345,47 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		)
 	}
 
-	save(...args: Parameters<Repository<Entity>['save']>) {
+	/** Save. With no argument, saves the current `item` (e.g. a bound `one`/`create` form). */
+	save(...args: [] | Parameters<Repository<Entity>['save']>) {
 		return this.#write(
 			'saving',
-			() => this.#repo.save(...args),
+			() =>
+				this.#repo.save(
+					...((args.length ? args : [this.#requireItem()]) as Parameters<Repository<Entity>['save']>),
+				),
 			() => this.#resync(),
 		)
 	}
 
-	delete(...args: Parameters<Repository<Entity>['delete']>) {
+	/** Delete. With no argument, deletes the current `item`. */
+	delete(...args: [] | Parameters<Repository<Entity>['delete']>) {
+		let target: unknown
 		return this.#write(
 			'deleting',
-			() => this.#repo.delete(...args),
+			() => {
+				const a = (args.length ? args : [this.#requireItem()]) as Parameters<
+					Repository<Entity>['delete']
+				>
+				target = a[0]
+				return this.#repo.delete(...a)
+			},
 			() => {
 				// live: liveQuery removes it. one: re-fetch (likely empty now).
-				// find/paginate: drop it locally (no refetch).
+				// load/paginate: drop it locally (no refetch).
 				if (this.#mode === 'live') return
 				if (this.#mode === 'one') return this.#resync()
-				this.#removeLocal(args[0])
+				this.#removeLocal(target)
 			},
 		)
+	}
+
+	/** The current `item` (or throw) - backs the no-arg `save()`/`delete()` forms. */
+	#requireItem(): Entity {
+		if (this.item === undefined)
+			throw new Error(
+				'FF_Repo: no `item` to save/delete - pass an explicit argument, or load one first (`one` mode or `create()`).',
+			)
+		return this.item
 	}
 
 	deleteMany(...args: Parameters<Repository<Entity>['deleteMany']>) {

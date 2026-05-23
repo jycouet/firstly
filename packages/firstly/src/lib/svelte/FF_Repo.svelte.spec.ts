@@ -203,6 +203,33 @@ describe('ffRepo - one (single record)', () => {
 	})
 })
 
+describe('ffRepo - one: no-arg save/delete target item', () => {
+	it('save() with no args persists the current item', async () => {
+		await seed(2)
+		const r = root(() => ffRepo(Row).one(() => ({ where: { order: 2 } })))
+		await vi.waitFor(() => expect(r.item?.name).toBe('r2'))
+		r.item!.name = 'edited'
+		await r.save()
+		await vi.waitFor(() => expect(r.item?.name).toBe('edited'))
+		expect((await repo(Row).findFirst({ order: 2 }))?.name).toBe('edited')
+	})
+
+	it('delete() with no args removes the current item', async () => {
+		await seed(1)
+		const r = root(() => ffRepo(Row).one(() => ({ where: { order: 1 } })))
+		await vi.waitFor(() => expect(r.item?.order).toBe(1))
+		await r.delete()
+		await vi.waitFor(() => expect(r.item).toBeUndefined())
+		expect(await repo(Row).count()).toBe(0)
+	})
+
+	it('save() with no item rejects with a helpful error', async () => {
+		const r = root(() => ffRepo(Row).one(() => ({ where: { order: 999 } })))
+		await vi.waitFor(() => expect(r.loading.init).toBe(false))
+		await expect(r.save()).rejects.toThrow(/item/)
+	})
+})
+
 describe('ffRepo - mode guards', () => {
 	it('more() throws outside paginate mode', async () => {
 		const r = root(() => ffRepo(Row).load(() => ({})))

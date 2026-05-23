@@ -154,7 +154,8 @@ const r = ffRepo(Order).paginate(() => ({ aggregate: { sum: ['total'] } }))
 
 ## A single record - `one`
 
-For an edit page: load one record reactively into `item`, bind a form to it, save.
+For an edit page: load one record reactively into `item`, bind a form to it, save. Called with no
+argument, `save()` and `delete()` operate on the current `item` - so a bound form needs no plumbing.
 
 ```svelte
 <script lang="ts">
@@ -164,9 +165,14 @@ For an edit page: load one record reactively into `item`, bind a form to it, sav
 
 {#if r.item}
 	<input bind:value={r.item.title} />
-	<button disabled={r.loading.saving} onclick={() => r.save(r.item!)}>Save</button>
+	<button disabled={r.loading.saving} onclick={() => r.save()}>Save</button>
+	<button disabled={r.loading.deleting} onclick={() => r.delete()}>Delete</button>
 {/if}
 ```
+
+This pairs with `create()` (which seeds a new draft into `item`): `r.create()` -> bind the form to
+`r.item` -> `r.save()`. The explicit-argument forms (`r.save(item)`, `r.delete(id)`) still work
+everywhere.
 
 ## Mutations
 
@@ -175,6 +181,9 @@ result in sync: in `live` mode the liveQuery does it; in `load`/`paginate` a del
 locally and an insert/update triggers a keep-count re-fetch; in `one` any write re-fetches the
 record. A failed write fills `error` **and** re-throws (so a `try/catch` still works). For a raw
 write that syncs nothing, use `.repo` (e.g. `ffRepo(E).repo.insert(...)`).
+
+Called with no argument, `save()` and `delete()` target the current `item` (handy with `one` /
+`create()`); a missing `item` throws.
 
 ## Permissions - via `r.meta`
 
