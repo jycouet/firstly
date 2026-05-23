@@ -38,7 +38,7 @@ catalogs:
   prettier: 3.8.1
 
  kitql:
-  '@kitql/helpers': 0.8.14
+  '@kitql/helpers': 0.8.15
   '@kitql/eslint-config': 0.8.3
   eslint: 10.4.0
 
