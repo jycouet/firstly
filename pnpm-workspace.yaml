@@ -40,7 +40,7 @@ catalogs:
  kitql:
   '@kitql/helpers': 0.8.14
   '@kitql/eslint-config': 0.8.3
-  eslint: 10.3.0
+  eslint: 10.4.0
 
  testing:
   '@playwright/test': 1.60.0
