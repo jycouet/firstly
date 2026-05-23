@@ -22,6 +22,8 @@ export { errorMessage, isError } from './core/helper.js'
 export { tryCatch, tryCatchSync } from './core/tryCatch.js'
 export type { ResolvedType, UnArray, RecursivePartial } from './core/types.js'
 export { tw } from './core/tailwind.js'
+export { stackHttpClient, withHeader } from './core/httpClientStack.js'
+export type { HttpClientFetch, HttpClientMiddleware } from './core/httpClientStack.js'
 
 // Misc primitives still exposed from the root.
 export { FF_LogToConsole } from './SqlDatabase/FF_LogToConsole.js'

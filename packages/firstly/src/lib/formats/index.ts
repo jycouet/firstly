@@ -15,6 +15,7 @@ export {
 	arrToStr,
 	mask,
 	toTitleCase,
+	splitTrim,
 } from './strings.js'
 
 export { offsetedToPlainDate, plainDateCompare, isBetween, dateISOToPlainDate } from './dates.js'

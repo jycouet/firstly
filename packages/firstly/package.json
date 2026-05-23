@@ -49,19 +49,20 @@
   },
   "devDependencies": {
     "@kitql/helpers": "catalog:kitql",
-    "daisyui": "catalog:ui",
     "@sveltejs/adapter-node": "catalog:sveltekit",
     "@sveltejs/kit": "catalog:sveltekit",
     "@sveltejs/package": "catalog:sveltekit",
     "@sveltejs/vite-plugin-svelte": "catalog:sveltekit",
     "@tailwindcss/vite": "catalog:ui",
     "@typescript/native-preview": "catalog:tooling",
+    "daisyui": "catalog:ui",
+    "eslint": "catalog:kitql",
+    "happy-dom": "20.9.0",
     "remult": "catalog:best",
     "svelte": "catalog:svelte",
     "svelte-check": "catalog:svelte",
     "tslib": "catalog:tooling",
     "vite": "catalog:tooling",
-    "eslint": "catalog:kitql",
     "vitest": "catalog:testing"
   },
   "dependencies": {

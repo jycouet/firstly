@@ -79,6 +79,15 @@ export default defineConfig({
 						},
 					],
 				},
+				{
+					label: 'Svelte',
+					items: [
+						{
+							label: 'ffRepo (FF_Repo)',
+							link: '/docs/svelte/ff-repo',
+						},
+					],
+				},
 			],
 			customCss: ['./src/styles/custom.css'],
 		}),

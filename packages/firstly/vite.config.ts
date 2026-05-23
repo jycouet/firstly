@@ -48,7 +48,28 @@ const config = defineConfig(({ mode }) => {
 			tailwindcss(),
 		],
 		test: {
-			include: ['src/**/*.{test,spec}.{js,ts}'],
+			projects: [
+				{
+					// Pure-TS tests run in node.
+					extends: true,
+					test: {
+						name: 'node',
+						environment: 'node',
+						include: ['src/**/*.{test,spec}.{js,ts}'],
+						exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+					},
+				},
+				{
+					// Svelte rune tests ($state/$effect) need a client/DOM environment -
+					// in node/SSR mode `$effect` compiles to a no-op and never runs.
+					extends: true,
+					test: {
+						name: 'svelte',
+						environment: 'happy-dom',
+						include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+					},
+				},
+			],
 		},
 	}
 })

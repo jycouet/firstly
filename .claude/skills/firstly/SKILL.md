@@ -1,6 +1,6 @@
 ---
 name: firstly
-description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth). Use when the user mentions firstly, FF_Entity, BaseEnum, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
+description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, ffRepo (reactive Svelte repo wrapper), published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth). Use when the user mentions firstly, FF_Entity, BaseEnum, ffRepo/FF_Repo, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
 ---
 
 # Firstly Patterns
@@ -136,6 +136,43 @@ API:
 - `FF_Allow.owner<T>(col?)` / `FF_Filter.owner<T>(col?)` - owner-only.
 - `FF_Allow.ownerOr<T>({ col?, roles })` / `FF_Filter.ownerOr<T>({ col?, roles })` - admin (or any of `roles`) OR owner.
 
+## `ffRepo` - reactive Remult repo (Svelte 5)
+
+`ffRepo` (from `firstly/svelte`) wraps a Remult `repo` as Svelte runes. Pick a mode with a verb and
+hand it a **reactive options getter**; read reactive state (`items`/`loading`/`error`/...) in markup.
+Full chapter: [firstly.fun /docs/svelte/ff-repo](https://firstly.fun/docs/svelte/ff-repo).
+
+```svelte
+<script lang="ts">
+  import { ffRepo } from 'firstly/svelte'
+
+  const tasks = ffRepo(Task).find(() => ({ where: { done: false } }))   // find (one-shot list)
+  // .listen(getter)   - liveQuery, auto-updates
+  // .paginate(getter) - more() / hasNextPage / aggregates.$count (pairs with `infiniteScroll`)
+  // .one(getter)      - a single reactive record in `item` (bind a form to it)
+</script>
+
+{#each tasks.items as t (t.id)}{t.title}{/each}
+```
+
+Key rules:
+
+- **The getter is reactive** - change `where`/`orderBy`/`enabled` and it re-fetches (stale responses
+  dropped). `orderBy` defaults to the entity's `defaultOrderBy`. Read SvelteKit `load` data through a
+  `$derived`, never raw in the getter (raw re-fetches on every revalidation).
+- **`enabled: false`** skips the query (keeps the last result) until it flips true.
+- **Mutations** (`insert`/`update`/`save`/`delete`/`deleteMany`) keep state in sync and re-throw on
+  failure (also filling `error`).
+- **Permissions: no `can*` helpers** - use `r.meta.apiInsertAllowed()` / `apiUpdateAllowed(item)` /
+  `apiDeleteAllowed(item)` / `apiReadAllowed`. `r.repo` / `r.meta` are the escape hatches.
+- **Reactive vs imperative**: reactive modes build an `$effect`, so create them at component init.
+  For a click handler / async fn (no runes context) use the imperative builder, which takes plain
+  values and returns a Promise: `ffRepo(E).findFirst(where)`, `.findId(id)`, `.insert(...)`, ...
+- **Counts**: only `paginate` exposes `aggregates.$count` (free, same request). For a one-off count
+  use `ffRepo(E).repo.count(where)`.
+
+Types: `FF_RepoFind`/`FF_RepoLive`/`FF_RepoPaginate`/`FF_RepoOne`/`FF_RepoBuilder`/`FF_RepoOptions`.
+
 ## 🛍️ Boutique (copy-paste)
 
 Grab a boutique recipe with [`degit`](https://github.com/Rich-Harris/degit):
@@ -177,4 +214,4 @@ Use `Roles.*` in `allowApi*` decorators and assign them to users via the auth bo
 
 ## Naming - `FF_` Prefix
 
-Types and helpers exported by firstly that could collide with user code use the `FF_` prefix: `FF_Entity`, `FF_Role`, `FF_Allow`, `FF_Filter`, `FF_Icon`, `FF_LogToConsole`. If you see it in an import path, it's firstly's.
+Types and helpers exported by firstly that could collide with user code use the `FF_` prefix: `FF_Entity`, `FF_Role`, `FF_Allow`, `FF_Filter`, `FF_Icon`, `FF_LogToConsole`, `FF_Repo*` (handle/option types). If you see it in an import path, it's firstly's. Factory functions stay camelCase (e.g. `ffRepo`).

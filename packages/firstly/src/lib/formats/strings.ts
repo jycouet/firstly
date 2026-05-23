@@ -1,3 +1,21 @@
+/** Default separator for `splitTrim`: any run of commas and/or newlines. */
+const COMMA_OR_NEWLINE = /[,\n]+/
+
+/**
+ * Split a string into a flat list of trimmed, non-empty tokens. The default
+ * separator handles comma- and newline-separated input.
+ *
+ * `"a, b\n,c"` -> `["a", "b", "c"]`
+ */
+export const splitTrim = (
+	input?: string | null,
+	separator: string | RegExp = COMMA_OR_NEWLINE,
+): string[] =>
+	(input ?? '')
+		.split(separator)
+		.map((s) => s.trim())
+		.filter(Boolean)
+
 export const formatNumber = (number: number, digitNumber = 2) => {
 	if (number === undefined || number === null || isNaN(number)) {
 		const value = 0

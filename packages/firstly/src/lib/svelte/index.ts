@@ -1,4 +1,17 @@
-export { FF_Repo } from './FF_Repo.svelte.js'
+export { ffRepo } from './FF_Repo.svelte.js'
+export type {
+	FF_RepoOptions,
+	FF_RepoLoading,
+	FF_RepoFind,
+	FF_RepoLive,
+	FF_RepoPaginate,
+	FF_RepoOne,
+	FF_RepoBuilder,
+	AggregateOptions,
+	QueryOptionsHelper,
+} from './FF_Repo.svelte.js'
+export { infiniteScroll } from './infiniteScroll.js'
+export type { InfiniteScrollOptions } from './infiniteScroll.js'
 export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
 export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'

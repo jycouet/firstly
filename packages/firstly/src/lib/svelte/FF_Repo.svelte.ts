@@ -1,49 +1,107 @@
 import {
 	repo as remultRepo,
 	type ClassType,
-	type FindOptions,
+	type EntityFilter,
+	type EntityMetadata,
+	type EntityOrderBy,
 	type GroupByOptions,
 	type GroupByResult,
 	type MembersOnly,
+	type MembersToInclude,
 	type NumericKeys,
 	type Paginator,
 	type QueryOptions,
 	type Repository,
 } from 'remult'
-import { Log } from '@kitql/helpers'
 
-import { tryCatch, tryCatchSync } from '../core/tryCatch.js'
+/**
+ * `ffRepo` - thin reactive wrapper around a Remult `repo`, exposing its results as
+ * Svelte runes. Pick the mode with a verb:
+ *
+ *   ffRepo(E, () => ({ where }))            // find  (default) - one-shot list + refresh()
+ *   ffRepo(E).listen(() => ({ where }))     // live  - liveQuery, auto-updates
+ *   ffRepo(E).paginate(() => ({ where }))   // paginate - more() / hasNextPage / aggregates
+ *   ffRepo(E).one(() => ({ where }))        // one   - reactive single record in `item`
+ *
+ * The options getter is reactive: change `where` (e.g. a search box), `orderBy`,
+ * `enabled`, etc. and the query re-runs - `listen` re-subscribes (the old
+ * subscription is torn down), `find`/`paginate`/`one` re-fetch and ignore any
+ * stale in-flight response. `orderBy` defaults to the entity's `defaultOrderBy`.
+ *
+ * Getter hygiene: read SvelteKit load `data` through a `$derived`
+ * (`const did = $derived(data.targetDid)`), never raw inside the getter. A derived
+ * only propagates on value change, so a parent layout load revalidating - e.g. an
+ * SP URL write re-running url-dependent loads on every filter - hands you a new
+ * `data` object but does NOT re-fetch unless the value actually changed; a real
+ * change (route param switch) still does. Reading `data.x` raw re-fetches on every
+ * revalidation (a duplicate request per filter).
+ *
+ * `enabled: false` skips the query entirely (keeps the last result) and runs it
+ * the moment it flips true - use it for search-min-length, tab visibility,
+ * dependent queries, or a manual button trigger.
+ *
+ * Mutations: `insert`/`update`/`save`/`delete` flip `loading` and keep the result
+ * in sync - in `live` mode the liveQuery does it; in `find`/`paginate` a delete is
+ * removed locally and an insert/update triggers a keep-count re-fetch; in `one`
+ * any write re-fetches the single record.
+ *
+ * The factory's return type is mode-specific, so e.g. `.more()` doesn't exist on
+ * a `listen()` handle. Methods also throw if reached via a cast in the wrong mode.
+ *
+ * Reactive vs imperative: the reactive modes take a *getter* (`() => ({ ... })`)
+ * and return a runes handle; the imperative builder methods take plain *values* and
+ * return a Promise. Reactive modes build an `$effect`, so they must be created during
+ * component init. For a one-off load in a click handler / async fn (no runes context)
+ * use the imperative builder: `ffRepo(E).findFirst(where)`, `ffRepo(E).findId(id)`,
+ * `ffRepo(E).repo.find(...)`.
+ *
+ * Tip: prefer `.paginate()` whenever you want a total - it returns `aggregates.$count`
+ * for free in the same request. `find`/`listen`/`one` don't count; for a one-off count
+ * use `ffRepo(E).repo.count(where)`.
+ */
 
-// In our case the empty is always the $count (so almost empty :))
-type EmptyAggregateResult = {
-	$count: number
+/** The aggregate request shape - remult's `GroupByOptions` minus the grouping/paging keys. */
+export type AggregateOptions<Entity> = Omit<
+	GroupByOptions<
+		Entity,
+		never,
+		NumericKeys<Entity>[],
+		NumericKeys<Entity>[],
+		(keyof MembersOnly<Entity>)[],
+		(keyof MembersOnly<Entity>)[],
+		(keyof MembersOnly<Entity>)[]
+	>,
+	'group' | 'orderBy' | 'where' | 'limit' | 'page'
+>
+
+/**
+ * Remult `QueryOptions` plus the `aggregate` request shape. Exported for callers
+ * that build query options outside `ffRepo` (e.g. a generic table component).
+ */
+export type QueryOptionsHelper<Entity> = QueryOptions<Entity> & {
+	aggregate?: AggregateOptions<Entity>
 }
 
-type Loading = {
-	init: boolean
-	fetching: boolean
-	more: boolean
-	saving: boolean
-	deleting: boolean
+export type FF_RepoOptions<Entity> = {
+	where?: EntityFilter<Entity>
+	orderBy?: EntityOrderBy<Entity>
+	/** paginate: rows per page (default 25). */
+	pageSize?: number
+	/** find/one/live: cap the rows returned. No default - returns every matching row. */
+	limit?: number
+	include?: MembersToInclude<Entity>
+	/** When false, the query is skipped (last result kept) until it flips true. */
+	enabled?: boolean
+	/** Aggregations to compute alongside the page (paginate mode only). `$count` is always returned. */
+	aggregate?: AggregateOptions<Entity>
 }
+type Getter<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = () => O
 
-type QueryOptionsHelper<entityType> = QueryOptions<entityType> & {
-	aggregate?: Omit<
-		GroupByOptions<
-			entityType,
-			never,
-			NumericKeys<entityType>[],
-			NumericKeys<entityType>[],
-			(keyof MembersOnly<entityType>)[],
-			(keyof MembersOnly<entityType>)[],
-			(keyof MembersOnly<entityType>)[]
-		>,
-		'group' | 'orderBy' | 'where' | 'limit' | 'page'
-	>
-}
+/** `$count` is always present; richer keys appear only for the requested `aggregate`. */
+type EmptyAggregateResult = { $count: number }
 
-// Helper type to extract aggregate result type from query options
-type ExtractAggregateResult<Entity, Options extends QueryOptionsHelper<Entity>> = Options extends {
+/** The typed aggregate result for a given options object (paginate mode). */
+type ExtractAggregateResult<Entity, O extends FF_RepoOptions<Entity>> = O extends {
 	aggregate: infer A
 }
 	? GroupByResult<
@@ -51,8 +109,8 @@ type ExtractAggregateResult<Entity, Options extends QueryOptionsHelper<Entity>> 
 			never,
 			A extends { sum?: infer S } ? (S extends NumericKeys<Entity>[] ? S : never) : never,
 			A extends { avg?: infer V } ? (V extends NumericKeys<Entity>[] ? V : never) : never,
-			A extends { min?: infer M } ? (M extends (keyof MembersOnly<Entity>)[] ? M : never) : never,
-			A extends { max?: infer X } ? (X extends (keyof MembersOnly<Entity>)[] ? X : never) : never,
+			A extends { min?: infer M } ? (M extends NumericKeys<Entity>[] ? M : never) : never,
+			A extends { max?: infer X } ? (X extends NumericKeys<Entity>[] ? X : never) : never,
 			A extends { distinctCount?: infer D }
 				? D extends (keyof MembersOnly<Entity>)[]
 					? D
@@ -61,247 +119,374 @@ type ExtractAggregateResult<Entity, Options extends QueryOptionsHelper<Entity>> 
 		>
 	: EmptyAggregateResult
 
-// Define a type for the paginator based on the query options
-type PaginatorWithAggregate<Entity, Options extends QueryOptionsHelper<Entity>> = Paginator<
-	Entity,
-	ExtractAggregateResult<Entity, Options>
->
+export type FF_RepoLoading = {
+	init: boolean // first load not done yet
+	fetching: boolean // a read is in flight
+	more: boolean // loading the next page
+	saving: boolean // insert/update in flight
+	deleting: boolean // delete in flight
+}
 
-export class FF_Repo<
-	Entity,
-	QueryOptions extends QueryOptionsHelper<Entity> = QueryOptionsHelper<Entity>,
-> {
+type Mode = 'live' | 'find' | 'paginate' | 'one'
+
+class FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> {
 	#repo: Repository<Entity>
-	#paginator: PaginatorWithAggregate<Entity, QueryOptions> | undefined
-	#findOptions: FindOptions<Entity> | undefined
-	#queryOptions: QueryOptions | undefined
+	#opts: Getter<Entity, O>
+	#mode: Mode
+	#defaultOrderBy?: EntityOrderBy<Entity>
+	#paginator?: Paginator<Entity>
+	#seq = 0
 
-	fields: Repository<Entity>['fields']
-	metadata: Repository<Entity>['metadata']
-
-	loading = $state<Loading>({
-		init: false,
+	items = $state<Entity[]>([])
+	/** Single-record slot: the loaded row in `one` mode, or a create/edit draft (see `create`). */
+	item = $state<Entity | undefined>(undefined)
+	loading = $state<FF_RepoLoading>({
+		init: true,
 		fetching: false,
 		more: false,
 		saving: false,
 		deleting: false,
 	})
+	error = $state<string | undefined>(undefined)
+	hasNextPage = $state(false)
+	/** Aggregations for the whole query (paginate mode). `aggregates.$count` is the total row count. */
+	aggregates = $state<ExtractAggregateResult<Entity, O> | undefined>(undefined)
+	first = $derived<Entity | null>(this.items[0] ?? null)
 
-	items = $state<Entity[] | undefined>(undefined)
-	aggregates = $state<ExtractAggregateResult<Entity, QueryOptions> | undefined>(undefined)
-	hasNextPage = $state<boolean | undefined>(undefined)
+	constructor(r: Repository<Entity>, opts: Getter<Entity, O>, mode: Mode) {
+		this.#repo = r
+		this.#opts = opts
+		this.#mode = mode
+		this.#defaultOrderBy = r.metadata.options.defaultOrderBy as EntityOrderBy<Entity> | undefined
 
-	item = $state<Entity | undefined>(undefined)
-	// errors = $state<ErrorInfo<Entity> | undefined>(undefined)
-	globalError = $state<string | undefined>(undefined)
-
-	private loadingEnd = <T = undefined>(toRet?: T) => {
-		this.loading = {
-			init: false,
-			fetching: false,
-			more: false,
-			saving: false,
-			deleting: false,
-		}
-		return toRet
+		$effect(() => {
+			const o = this.#resolve()
+			if (o.enabled === false) {
+				this.loading.init = false
+				return
+			}
+			if (mode === 'live') {
+				// Pass orderBy so liveQuery re-sorts incrementally-added rows too;
+				// without it a freshly inserted row is appended and `first` goes stale.
+				const unsub = this.#repo
+					.liveQuery({ where: o.where, orderBy: o.orderBy, limit: o.limit, include: o.include })
+					.subscribe({
+						next: (info) => {
+							this.items = info.items
+							this.loading.init = false
+						},
+						error: (e) => {
+							this.error = e instanceof Error ? e.message : String(e)
+							this.loading.init = false
+						},
+					})
+				return () => unsub()
+			}
+			// find | paginate | one: (re)fetch; a newer opts() invalidates older responses.
+			void this.#load(o, ++this.#seq)
+		})
 	}
 
-	constructor(
-		public ent: ClassType<Entity>,
-		o?: (
-			| {
-					findOptions?: FindOptions<Entity> & { skipAutoFetch?: boolean }
-					queryOptions?: never
-			  }
-			| {
-					findOptions?: never
-					queryOptions?: QueryOptions & { skipAutoFetch?: boolean }
-			  }
-		) & { item?: Entity },
-	) {
-		this.#repo = remultRepo(ent)
-		this.fields = this.#repo.fields
-		this.metadata = this.#repo.metadata
-		this.#paginator = undefined
-		this.#findOptions = o?.findOptions
-		this.#queryOptions = o?.queryOptions
-		this.item = o?.item
-
-		if (o?.findOptions !== undefined && !o.findOptions.skipAutoFetch) {
-			this.loading.init = true
-			this.find(o.findOptions)
-		} else if (o?.queryOptions !== undefined && !o.queryOptions.skipAutoFetch) {
-			this.loading.init = true
-			this.query(o.queryOptions)
-		} else {
-			this.loadingEnd()
-		}
+	#resolve(): FF_RepoOptions<Entity> {
+		const o = this.#opts()
+		return { ...o, orderBy: o.orderBy ?? this.#defaultOrderBy }
 	}
 
-	async find(options: FindOptions<Entity>) {
+	async #load(o: FF_RepoOptions<Entity>, seq: number, keepCount?: number) {
 		this.loading.fetching = true
-
-		const { data, error } = await tryCatch(
-			this.#repo.find({
-				...this.#findOptions,
-				...options,
-			}),
-		)
-		if (error) {
-			this.globalError = error.message
-			return this.loadingEnd()
+		this.error = undefined
+		try {
+			if (this.#mode === 'paginate') {
+				// One request returns the page AND the aggregates ($count always, plus any
+				// requested): on the client REST proxy remult fetches both together. It sets
+				// `hasNextPage` from whether a full page came back (no count probe); `more()`
+				// then fetches the next page via a keyset cursor (orderBy + PK).
+				const p = await this.#repo
+					.query({
+						where: o.where,
+						orderBy: o.orderBy,
+						pageSize: keepCount ?? o.pageSize ?? 25,
+						include: o.include,
+						aggregate: { ...o.aggregate },
+					})
+					.paginator()
+				if (seq !== this.#seq) return
+				this.#paginator = p
+				this.items = p.items
+				this.hasNextPage = p.hasNextPage
+				// `aggregates` is only on the paginator type when the aggregate is non-empty,
+				// but remult returns `$count` for the empty case too - so read it through a cast.
+				this.aggregates = (p as unknown as { aggregates: ExtractAggregateResult<Entity, O> }).aggregates
+			} else if (this.#mode === 'one') {
+				const found = await this.#repo.findFirst(o.where, {
+					orderBy: o.orderBy,
+					include: o.include,
+				})
+				if (seq !== this.#seq) return
+				this.item = found ?? undefined
+				this.items = found ? [found] : []
+			} else {
+				const items = await this.#repo.find({
+					where: o.where,
+					orderBy: o.orderBy,
+					limit: o.limit,
+					include: o.include,
+				})
+				if (seq !== this.#seq) return
+				this.items = items
+			}
+		} catch (e) {
+			if (seq === this.#seq) this.error = e instanceof Error ? e.message : String(e)
+		} finally {
+			if (seq === this.#seq) {
+				this.loading.init = false
+				this.loading.fetching = false
+			}
 		}
-
-		this.items = data
-		return this.loadingEnd(data)
 	}
 
-	async query(options: Pick<QueryOptionsHelper<Entity>, 'where' | 'orderBy'>) {
-		this.loading = {
-			...this.loading,
-			fetching: true,
-			init: this.items === undefined,
-		}
-
-		// REMULT P1: add test for dynamic orderBy in remult
-		//            Looks like only the default orderby of the entity is working
-
-		const { data: queryResult, error: queryResultError } = tryCatchSync(() =>
-			this.#repo.query({
-				pageSize: 2,
-				...this.#queryOptions,
-				...options,
-				// Yes, we always want to aggregate to get at least the $count!
-				// And empty object is giving us that
-				aggregate: {
-					...this.#queryOptions?.aggregate,
-				},
-			}),
-		)
-		if (queryResultError) {
-			this.globalError = queryResultError.message
-			return this.loadingEnd()
-		}
-
-		const { data: paginator, error: paginatorError } = await tryCatch(queryResult.paginator())
-		if (paginatorError) {
-			this.globalError = paginatorError.message
-			return this.loadingEnd()
-		}
-
-		this.#paginator = paginator as PaginatorWithAggregate<Entity, QueryOptions>
-		this.items = this.#paginator.items
-		// @ts-expect-error - We know the structure will match due to how we define the types
-		this.aggregates = this.#paginator.aggregates
-		this.hasNextPage = this.#paginator.hasNextPage && this.aggregates!.$count > this.items!.length
-
-		return this.loadingEnd({
-			items: this.items,
-			aggregates: this.aggregates!,
-			hasNextPage: this.hasNextPage,
-		})
+	/** Re-run the current query (find/paginate/one), back to the first page. */
+	async refresh() {
+		if (this.#mode === 'live') throw new Error('FF_Repo: refresh() is not available in live mode')
+		await this.#load(this.#resolve(), ++this.#seq)
 	}
 
-	async queryMore() {
-		if (this.#paginator === undefined) {
-			new Log('FF_Repo').error('No paginator found')
-			return undefined
+	/** Load and append the next page (paginate mode). */
+	async more() {
+		if (this.#mode !== 'paginate') throw new Error('FF_Repo: more() requires paginate mode')
+		if (!this.#paginator || this.loading.more || !this.hasNextPage) return
+		this.loading.more = true
+		try {
+			const next = await this.#paginator.nextPage()
+			this.#paginator = next
+			this.items = [...this.items, ...next.items]
+			this.hasNextPage = next.hasNextPage
+		} finally {
+			this.loading.more = false
 		}
-
-		if (this.loading.more) {
-			// already in progress...
-			return undefined
-		}
-
-		this.loading = {
-			...this.loading,
-			fetching: true,
-			more: true,
-		}
-
-		const { data: nextPage, error: nextPageError } = await tryCatch(this.#paginator.nextPage())
-		if (nextPageError) {
-			this.globalError = nextPageError.message
-			return this.loadingEnd()
-		}
-
-		this.#paginator = nextPage as PaginatorWithAggregate<Entity, QueryOptions>
-		this.items?.push(...nextPage.items)
-		this.hasNextPage = this.#paginator.hasNextPage && this.aggregates!.$count > this.items!.length
-
-		return this.loadingEnd({
-			items: this.items,
-			aggregates: this.aggregates!,
-			hasNextPage: this.hasNextPage,
-		})
 	}
 
 	/**
-	 * Refresh query keeping current items count (BIG refresh)
-	 * Useful after edit/delete to stay at current scroll position
+	 * Run `fn` once, the first time a row is known (first non-null `first`).
+	 * Never fires while the result is empty - so it's robust to liveQuery emitting
+	 * an empty snapshot before the data lands. Nothing to seed from an empty result.
 	 */
-	async queryRefresh(options: Pick<QueryOptionsHelper<Entity>, 'where' | 'orderBy'>) {
-		const currentCount = this.items?.length ?? this.#queryOptions?.pageSize ?? 25
-
-		this.loading = {
-			...this.loading,
-			fetching: true,
-			init: this.items === undefined,
-		}
-
-		const { data: queryResult, error: queryResultError } = tryCatchSync(() =>
-			this.#repo.query({
-				...this.#queryOptions,
-				...options,
-				pageSize: currentCount,
-				aggregate: {
-					...this.#queryOptions?.aggregate,
-				},
-			}),
-		)
-		if (queryResultError) {
-			this.globalError = queryResultError.message
-			return this.loadingEnd()
-		}
-
-		const { data: paginator, error: paginatorError } = await tryCatch(queryResult.paginator())
-		if (paginatorError) {
-			this.globalError = paginatorError.message
-			return this.loadingEnd()
-		}
-
-		this.#paginator = paginator as PaginatorWithAggregate<Entity, QueryOptions>
-		this.items = this.#paginator.items
-		// @ts-expect-error - We know the structure will match due to how we define the types
-		this.aggregates = this.#paginator.aggregates
-		this.hasNextPage = this.#paginator.hasNextPage && this.aggregates!.$count > this.items!.length
-
-		return this.loadingEnd({
-			items: this.items,
-			aggregates: this.aggregates!,
-			hasNextPage: this.hasNextPage,
+	firstOnce(fn: (latest: Entity) => void) {
+		let done = false
+		$effect(() => {
+			if (done) return
+			const latest = this.first
+			if (latest == null) return
+			fn(latest)
+			done = true
 		})
 	}
 
+	/** Reactive, bindable editor state seeded once from the latest row. */
+	draft<D extends Record<string, unknown>>(seed: (latest: Entity | null) => D): D {
+		const values = $state(seed(null))
+		this.firstOnce((latest) => Object.assign(values, seed(latest)))
+		return values
+	}
+
+	/** Create a new unsaved entity into the `item` slot (for an edit form). */
 	create(...args: Parameters<Repository<Entity>['create']>) {
 		this.item = this.#repo.create(...args)
 		return this.item
 	}
 
-	async delete(...args: Parameters<Repository<Entity>['delete']>) {
-		this.loading.deleting = true
-		await this.#repo.delete(...args)
-		// REMULT P4: return the deleted item ?
-		if (typeof args[0] === 'string') {
-			this.items = this.items?.filter((i) => this.metadata.idMetadata.getId(i) !== args[0])
-		} else {
-			this.items = this.items?.filter(
-				(i) => this.metadata.idMetadata.getId(i) !== this.metadata.idMetadata.getId(args[0]),
-			)
+	// Mutations: run `op`, then the post-write sync on SUCCESS only (a failed write
+	// leaves the result untouched). On failure we fill `error` AND re-throw - the
+	// caller still gets the rejection (not silenced); `error` is for a reactive
+	// UI that wants it. `finally` only flips `loading` (no `await`, which would
+	// mask the original error).
+	async #write<T>(
+		flag: 'saving' | 'deleting',
+		op: () => Promise<T>,
+		after: () => void | Promise<void>,
+	): Promise<T> {
+		this.loading[flag] = true
+		this.error = undefined
+		try {
+			const res = await op()
+			await after()
+			return res
+		} catch (e) {
+			this.error = e instanceof Error ? e.message : String(e)
+			throw e
+		} finally {
+			this.loading[flag] = false
 		}
-		if (this.aggregates) {
-			this.aggregates.$count = this.aggregates.$count - 1
-		}
-		return this.loadingEnd()
 	}
+
+	insert(...args: Parameters<Repository<Entity>['insert']>) {
+		return this.#write(
+			'saving',
+			() => this.#repo.insert(...args),
+			() => this.#resync(),
+		)
+	}
+
+	update(...args: Parameters<Repository<Entity>['update']>) {
+		return this.#write(
+			'saving',
+			() => this.#repo.update(...args),
+			() => this.#resync(),
+		)
+	}
+
+	save(...args: Parameters<Repository<Entity>['save']>) {
+		return this.#write(
+			'saving',
+			() => this.#repo.save(...args),
+			() => this.#resync(),
+		)
+	}
+
+	delete(...args: Parameters<Repository<Entity>['delete']>) {
+		return this.#write(
+			'deleting',
+			() => this.#repo.delete(...args),
+			() => {
+				// live: liveQuery removes it. one: re-fetch (likely empty now).
+				// find/paginate: drop it locally (no refetch).
+				if (this.#mode === 'live') return
+				if (this.#mode === 'one') return this.#resync()
+				this.#removeLocal(args[0])
+			},
+		)
+	}
+
+	deleteMany(...args: Parameters<Repository<Entity>['deleteMany']>) {
+		return this.#write(
+			'deleting',
+			() => this.#repo.deleteMany(...args),
+			() => this.#resync(),
+		)
+	}
+
+	#removeLocal(idOrItem: unknown) {
+		const id =
+			idOrItem != null && typeof idOrItem === 'object'
+				? this.#repo.metadata.idMetadata.getId(idOrItem as Entity)
+				: idOrItem
+		this.items = this.items.filter((i) => this.#repo.metadata.idMetadata.getId(i) !== id)
+		if (this.aggregates) this.aggregates.$count = Math.max(0, this.aggregates.$count - 1)
+	}
+
+	/** After insert/update (or a `one` delete) in a non-live mode, re-fetch keeping the current count. */
+	async #resync() {
+		if (this.#mode === 'live') return
+		const keepCount = this.#mode === 'paginate' ? this.items.length || undefined : undefined
+		await this.#load(this.#resolve(), ++this.#seq, keepCount)
+	}
+
+	/**
+	 * The entity's remult metadata - the single escape hatch for everything not on
+	 * this handle: permissions (`apiInsertAllowed()`, `apiUpdateAllowed(item)`,
+	 * `apiDeleteAllowed(item)`, `apiReadAllowed`), `fields`, `idMetadata`, `options`,
+	 * `key`. Reflects the current `remult.user`.
+	 */
+	get meta(): EntityMetadata<Entity> {
+		return this.#repo.metadata
+	}
+
+	/** Escape hatch to the underlying repo (count, findId, upsert, projections, ...). */
+	get repo(): Repository<Entity> {
+		return this.#repo
+	}
+}
+
+/** find: one-shot list; `refresh()` to re-run. No paging / aggregates. */
+export type FF_RepoFind<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
+	FF_Repo<Entity, O>,
+	'more' | 'hasNextPage' | 'aggregates'
+>
+/** live: reactive subscription, auto-updates. No manual refresh / paging / aggregates. */
+export type FF_RepoLive<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
+	FF_Repo<Entity, O>,
+	'refresh' | 'more' | 'hasNextPage' | 'aggregates'
+>
+/** paginate: `more()` / `hasNextPage` / `aggregates`. No `first`/`firstOnce`/`draft` (paged ≠ latest). */
+export type FF_RepoPaginate<
+	Entity,
+	O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>,
+> = Omit<FF_Repo<Entity, O>, 'first' | 'firstOnce' | 'draft'>
+/** one: a single reactive record in `item` (+ `first`). No paging / aggregates. */
+export type FF_RepoOne<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
+	FF_Repo<Entity, O>,
+	'more' | 'hasNextPage' | 'aggregates'
+>
+
+// A thunk skips TS's excess-property check on its returned object literal (the
+// return type is inferred, then assignability-checked, which allows extra keys).
+// Intersecting with `never` on the extra keys forces unknown top-level keys (typos)
+// to error. NOTE: this only guards the option keys; a bogus field *inside*
+// where/orderBy follows remult's own (looser) EntityFilter/EntityOrderBy types.
+type StrictGetter<Entity, O extends FF_RepoOptions<Entity>> = () => O &
+	Record<Exclude<keyof O, keyof FF_RepoOptions<Entity>>, never>
+
+/**
+ * Imperative, non-reactive repo methods - thin pass-throughs to the underlying
+ * repo, usable anywhere (e.g. a click handler, no runes context needed). They take
+ * plain values and return Promises (the reactive modes take a `() => ({ ... })`
+ * getter). Use these for one-off writes/reads; use `listen`/`find`/`paginate`/`one`
+ * for reactive results. For a one-off list fetch use `.repo.find(...)`.
+ */
+type StandaloneRepo<Entity> = {
+	insert: Repository<Entity>['insert']
+	update: Repository<Entity>['update']
+	save: Repository<Entity>['save']
+	delete: Repository<Entity>['delete']
+	deleteMany: Repository<Entity>['deleteMany']
+	create: Repository<Entity>['create']
+	findFirst: Repository<Entity>['findFirst']
+	findId: Repository<Entity>['findId']
+	readonly meta: EntityMetadata<Entity>
+	readonly repo: Repository<Entity>
+}
+export type FF_RepoBuilder<Entity> = StandaloneRepo<Entity> & {
+	find: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoFind<Entity, O>
+	listen: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoLive<Entity, O>
+	paginate: <O extends FF_RepoOptions<Entity>>(
+		opts: StrictGetter<Entity, O>,
+	) => FF_RepoPaginate<Entity, O>
+	one: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoOne<Entity, O>
+}
+
+export function ffRepo<Entity, O extends FF_RepoOptions<Entity>>(
+	entity: ClassType<Entity>,
+	opts: StrictGetter<Entity, O>,
+): FF_RepoFind<Entity, O>
+export function ffRepo<Entity>(entity: ClassType<Entity>): FF_RepoBuilder<Entity>
+export function ffRepo<Entity>(entity: ClassType<Entity>, opts?: Getter<Entity>) {
+	const r = remultRepo(entity)
+	if (opts) return new FF_Repo(r, opts, 'find') as FF_RepoFind<Entity>
+	const builder: FF_RepoBuilder<Entity> = {
+		find<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
+			return new FF_Repo(r, o as Getter<Entity, O>, 'find') as FF_RepoFind<Entity, O>
+		},
+		listen<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
+			return new FF_Repo(r, o as Getter<Entity, O>, 'live') as FF_RepoLive<Entity, O>
+		},
+		paginate<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
+			return new FF_Repo(r, o as Getter<Entity, O>, 'paginate') as FF_RepoPaginate<Entity, O>
+		},
+		one<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
+			return new FF_Repo(r, o as Getter<Entity, O>, 'one') as FF_RepoOne<Entity, O>
+		},
+		insert: r.insert.bind(r) as Repository<Entity>['insert'],
+		update: r.update.bind(r) as Repository<Entity>['update'],
+		save: r.save.bind(r) as Repository<Entity>['save'],
+		delete: r.delete.bind(r) as Repository<Entity>['delete'],
+		deleteMany: r.deleteMany.bind(r) as Repository<Entity>['deleteMany'],
+		create: r.create.bind(r) as Repository<Entity>['create'],
+		findFirst: r.findFirst.bind(r) as Repository<Entity>['findFirst'],
+		findId: r.findId.bind(r) as Repository<Entity>['findId'],
+		get meta() {
+			return r.metadata
+		},
+		repo: r,
+	}
+	return builder
 }

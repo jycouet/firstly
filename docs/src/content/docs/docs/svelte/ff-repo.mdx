@@ -1,0 +1,206 @@
+---
+title: ffRepo (FF_Repo)
+---
+
+`ffRepo` is a thin reactive wrapper around a Remult `repo`, exposing query results as Svelte 5
+runes. You pick a **mode** with a verb, hand it a **reactive options getter**, and read reactive
+state (`items`, `loading`, `error`, ...) straight in your markup. Writes (`insert`/`update`/`save`/
+`delete`) keep that state in sync for you.
+
+```svelte
+<script lang="ts">
+  import { ffRepo } from 'firstly/svelte'
+  import { Task } from '$lib/Task'
+
+  const tasks = ffRepo(Task).find(() => ({ where: { done: false } }))
+</script>
+
+{#if tasks.loading.init}
+  Loading…
+{:else}
+  {#each tasks.items as t (t.id)}
+    <li>{t.title}</li>
+  {/each}
+{/if}
+```
+
+## Modes
+
+Pick the mode that matches what you need. The return type is **mode-specific** - e.g. `.more()`
+only exists on a `paginate()` handle.
+
+```ts
+ffRepo(E, () => ({ where }))          // find (default) - one-shot list + refresh()
+ffRepo(E).listen(() => ({ where }))   // live - liveQuery, auto-updates
+ffRepo(E).paginate(() => ({ where })) // paginate - more() / hasNextPage / aggregates
+ffRepo(E).one(() => ({ where }))      // one - a single reactive record in `item`
+```
+
+`ffRepo(E, getter)` is shorthand for `ffRepo(E).find(getter)`.
+
+### The options getter is reactive
+
+The getter re-runs whenever the state it reads changes - a search box, an `orderBy` toggle, a route
+param. `find`/`paginate`/`one` re-fetch (stale in-flight responses are dropped); `listen`
+re-subscribes. `orderBy` defaults to the entity's `defaultOrderBy`.
+
+```svelte
+<script lang="ts">
+  let q = $state('')
+  const r = ffRepo(Task).find(() => ({
+    where: q ? { title: { $contains: q } } : {},
+    enabled: q.length >= 2, // skip until 2 chars; keeps the last result meanwhile
+  }))
+</script>
+<input bind:value={q} />
+```
+
+:::caution[Getter hygiene with SvelteKit `load` data]
+Read `load` data through a `$derived` (`const did = $derived(data.targetDid)`), never raw inside the
+getter. A derived only propagates on value change, so a parent layout revalidating hands you a new
+`data` object but does **not** re-fetch unless the value actually changed. Reading `data.x` raw
+re-fetches on every revalidation (a duplicate request per filter).
+:::
+
+## Options
+
+| Option     | Modes              | Notes                                                                |
+| ---------- | ------------------ | ------------------------------------------------------------------- |
+| `where`    | all                | Remult `EntityFilter`.                                              |
+| `orderBy`  | all                | Defaults to the entity's `defaultOrderBy`.                          |
+| `include`  | all                | Relations to load.                                                  |
+| `enabled`  | all                | `false` skips the query (keeps last result) until it flips true.   |
+| `limit`    | find / one / live  | Cap rows. **No default** - returns every matching row.             |
+| `pageSize` | paginate           | Rows per page (**default 25**).                                     |
+| `aggregate`| paginate           | Aggregations computed alongside the page (see below).              |
+
+## Reactive state
+
+| Property      | Type                          | Modes      |
+| ------------- | ----------------------------- | ---------- |
+| `items`       | `Entity[]`                    | all        |
+| `first`       | `Entity \| null`              | all        |
+| `item`        | `Entity \| undefined`         | one / create slot |
+| `loading`     | `{ init, fetching, more, saving, deleting }` | all |
+| `error`       | `string \| undefined`         | all        |
+| `hasNextPage` | `boolean`                     | paginate   |
+| `aggregates`  | typed result (`$count` + requested) | paginate |
+
+## Paginate + aggregates + infinite scroll
+
+`paginate` returns `aggregates.$count` (the total) **for free** in the same request as the page, and
+appends with `more()`. Pair it with the `infiniteScroll` attachment on a bottom sentinel:
+
+```svelte
+<script lang="ts">
+  import { ffRepo, infiniteScroll } from 'firstly/svelte'
+
+  const r = ffRepo(Task).paginate(() => ({ pageSize: 25 }))
+</script>
+
+{#each r.items as t (t.id)}
+  <Row {t} />
+{/each}
+<p>{r.aggregates?.$count ?? '…'} total</p>
+
+<div {@attach infiniteScroll({
+  hasMore: () => r.hasNextPage,
+  loading: () => r.loading.more,
+  onMore: () => r.more(),
+})}></div>
+```
+
+Request richer aggregations - the result type is inferred:
+
+```ts
+const r = ffRepo(Order).paginate(() => ({ aggregate: { sum: ['total'] } }))
+// r.aggregates?.$count   -> number
+// r.aggregates?.total.sum -> number
+```
+
+> Want a total but not pagination? Prefer `paginate()` anyway. `find`/`listen`/`one` don't count;
+> for a one-off count use `ffRepo(E).repo.count(where)`.
+
+## A single record - `one`
+
+For an edit page: load one record reactively into `item`, bind a form to it, save.
+
+```svelte
+<script lang="ts">
+  let { id } = $props()
+  const r = ffRepo(Task).one(() => ({ where: { id }, enabled: !!id }))
+</script>
+
+{#if r.item}
+  <input bind:value={r.item.title} />
+  <button disabled={r.loading.saving} onclick={() => r.save(r.item!)}>Save</button>
+{/if}
+```
+
+## Mutations
+
+`insert` / `update` / `save` / `delete` / `deleteMany` flip `loading` and keep the result in sync:
+in `live` mode the liveQuery does it; in `find`/`paginate` a delete is dropped locally and an
+insert/update triggers a keep-count re-fetch; in `one` any write re-fetches the record. A failed
+write fills `error` **and** re-throws (so a `try/catch` still works).
+
+## Permissions - via `r.meta`
+
+There are no `can*` wrappers. Use remult's own metadata, which reflects the current `remult.user`:
+
+```svelte
+<button disabled={!r.meta.apiInsertAllowed()}>Add</button>
+<button disabled={!r.meta.apiDeleteAllowed(row)}>Delete</button>
+```
+
+`r.meta` is also the escape hatch for `fields`, `idMetadata`, `options`, `key`. `r.repo` is the
+escape hatch to the underlying repo (`count`, `upsert`, projections, ...).
+
+## Reactive vs imperative
+
+The reactive modes take a **getter** (`() => ({ ... })`) and build an `$effect`, so they must be
+created during **component init**. For a one-off load in a click handler / async function (no runes
+context), use the **imperative builder** - it takes plain values and returns a Promise:
+
+```ts
+async function open(id: string) {
+  const task = await ffRepo(Task).findId(id) // or .findFirst(where)
+  // ...
+}
+```
+
+Imperative builder methods: `insert`, `update`, `save`, `delete`, `deleteMany`, `create`,
+`findFirst`, `findId`, plus `repo` and `meta`.
+
+## Type helpers
+
+For typing component props that receive a handle:
+
+```ts
+import type { FF_RepoFind, FF_RepoPaginate, FF_RepoOne, FF_RepoBuilder } from 'firstly/svelte'
+
+let { r }: { r: FF_RepoPaginate<Task> } = $props()
+```
+
+`FF_RepoOptions`, `FF_RepoLoading`, `AggregateOptions` and `QueryOptionsHelper` are exported too.
+
+## Migrating from the old `FF_Repo` class
+
+The old `new FF_Repo(E, { findOptions })` class is replaced by the `ffRepo()` factory. The big shift:
+options are now a **reactive getter** (`() => ({ ... })`) instead of an imperative `find()`/`query()`
+call, so you usually delete the `$effect` you used to write by hand.
+
+| Old (`FF_Repo` class)                               | New (`ffRepo`)                                       |
+| --------------------------------------------------- | --------------------------------------------------- |
+| `new FF_Repo(E, { findOptions: { where } })`        | `ffRepo(E, () => ({ where }))`                       |
+| `new FF_Repo(E, { queryOptions: {...} })`           | `ffRepo(E).paginate(() => ({ ... }))`               |
+| `r.query({ where })` / `r.queryMore()`              | reactive getter + `r.more()`                         |
+| `r.queryRefresh()`                                  | `r.refresh()`                                        |
+| manual `$effect(() => r.find({ where: q }))`        | `ffRepo(E).find(() => ({ where: q }))`              |
+| `skipAutoFetch: true`                               | `enabled: false` (runs when it flips true)          |
+| `r.globalError`                                     | `r.error`                                            |
+| `r.fields`                                          | `r.meta.fields`                                      |
+| `r.metadata.apiInsertAllowed()`                     | `r.meta.apiInsertAllowed()`                          |
+| `repo(r.ent).update(id, v)` / `.insert(v)`          | `r.update(id, v)` / `r.insert(v)`                   |
+| `r.aggregates?.$count`                              | `r.aggregates?.$count` (unchanged)                  |
+
