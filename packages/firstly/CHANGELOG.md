@@ -1,5 +1,13 @@
 # firstly
 
+## 0.5.1
+
+### Patch Changes
+
+- [#282](https://github.com/jycouet/firstly/pull/282) [`a93d4c8`](https://github.com/jycouet/firstly/commit/a93d4c8815da30f2c4d701ddd7e3d8cdf39fd8f5) Thanks [@jycouet](https://github.com/jycouet)! - ffRepo (svelte): leaner surface. Rename `firstOnce` → `onFirst`; remove `draft`, `first`, `insert`, `update`, `deleteMany`. List handles (`load`/`listen`/`paginate`) are now read-only - write via `.repo` (+ `addItem`/`updateItem`/`removeItem` to reconcile). Editing lives on `one`/`create()` with argless `save()`/`delete()`.
+
+  New `DemoGrid` (from `firstly/svelte`): a generic inline-CRUD table over any entity - props `entity` + `fields`, headers/placeholders from each field's `caption`.
+
 ## 0.5.0
 
 ### Minor Changes
