@@ -2,6 +2,18 @@ packages:
  - docs
  - packages/*
 
+# Supply-chain cooldown: don't install package versions published less than a day
+# ago (mitigates a compromised-release window). Trusted publishers are excluded so
+# our own/closely-tracked packages still update immediately.
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+ - '@kitql/*'
+ - kitql-lint
+ - vite-plugin-kit-routes
+ - vite-plugin-stripper
+ - vite-plugin-watch-and-run
+ - remult
+
 catalogs:
  docs:
   '@astrojs/starlight': 0.38.2
