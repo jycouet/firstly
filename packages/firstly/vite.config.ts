@@ -60,13 +60,19 @@ const config = defineConfig(({ mode }) => {
 					},
 				},
 				{
-					// Svelte rune tests ($state/$effect) need a client/DOM environment -
-					// in node/SSR mode `$effect` compiles to a no-op and never runs.
+					// Svelte rune tests ($state/$effect) need a real browser - in node/SSR
+					// mode `$effect` compiles to a no-op and never runs. Uses the same
+					// playwright/chromium that CI already installs for e2e.
 					extends: true,
 					test: {
 						name: 'svelte',
-						environment: 'happy-dom',
 						include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+						browser: {
+							enabled: true,
+							provider: 'playwright',
+							headless: true,
+							instances: [{ browser: 'chromium' }],
+						},
 					},
 				},
 			],

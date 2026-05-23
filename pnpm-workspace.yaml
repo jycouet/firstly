@@ -44,6 +44,8 @@ catalogs:
 
  testing:
   '@playwright/test': 1.59.1
+  '@vitest/browser': 3.2.3
+  playwright: 1.59.1
   vitest: 3.2.3
 
  lib-author-helper:
