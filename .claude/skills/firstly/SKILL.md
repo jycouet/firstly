@@ -237,4 +237,4 @@ Use `Roles.*` in `allowApi*` decorators and assign them to users via the auth bo
 
 ## Naming - `FF_` Prefix
 
-Types and helpers exported by firstly that could collide with user code use the `FF_` prefix: `FF_Entity`, `FF_Role`, `FF_Allow`, `FF_Filter`, `FF_Icon`, `FF_LogToConsole`, `FF_Repo*` (handle/option types). If you see it in an import path, it's firstly's. Factory functions stay camelCase (e.g. `ffRepo`).
+Types and helpers exported by firstly that could collide with user code use the `FF_` prefix: `FF_Entity`, `FF_Role`, `FF_Allow`, `FF_Filter`, `FF_Icon`, `FF_LogToConsole`, `FF_Many` / `FF_One` (reactive handle types). If you see it in an import path, it's firstly's. Factory functions stay camelCase (e.g. `ff`).
