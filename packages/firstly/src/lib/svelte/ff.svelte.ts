@@ -322,7 +322,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		}
 	}
 
-	/** Save the current `item` (from `one` / `create()`). To save a specific row, use `.repo.save(row)`. */
+	/** Save the current `item` (from `one` / `create()`). To save a specific row, use remult `repo(E).save(row)`. */
 	async save() {
 		const saved = await this.#write(
 			'saving',
@@ -334,7 +334,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		return saved
 	}
 
-	/** Delete the current `item`. To delete a specific row/id, use `.repo.delete(idOrRow)`. */
+	/** Delete the current `item`. To delete a specific row/id, use remult `repo(E).delete(idOrRow)`. */
 	async delete() {
 		const target = this.#requireItem()
 		const res = await this.#write(
@@ -368,13 +368,13 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	#requireItem(): Entity {
 		if (this.item === undefined)
 			throw new Error(
-				'FF_Repo: no `item` to save/delete - load one first (`one` mode or `create()`), or write a specific row through `.repo`.',
+				'FF_Repo: no `item` to save/delete - load one first (`one` mode or `create()`), or write a specific row through remult `repo(E)`.',
 			)
 		return this.item
 	}
 
 	// Client-side list reconcilers (no server I/O) - reflect a change you made
-	// elsewhere (e.g. via `.repo`) in the reactive `items`. `load`/`paginate` only;
+	// elsewhere (e.g. via remult `repo(E)`) in the reactive `items`. `load`/`paginate` only;
 	// `listen` reconciles itself via the liveQuery. `add`/`remove` also adjust
 	// `aggregates.$count` (not the other aggregates). For authoritative state, call
 	// `refresh()` (it re-pulls and, for paginate, resets to the first page).
@@ -476,7 +476,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	}
 }
 
-/** load: one-shot list (`refresh()` to re-run) - a read+reconcile view. No paging/aggregates, and no `item`/`save`/`delete`/`create` (edit via `one`, write via `.repo`). */
+/** load: one-shot list (`refresh()` to re-run) - a read+reconcile view. No paging/aggregates, and no `item`/`save`/`delete`/`create` (edit via `one`, write via remult `repo(E)`). */
 export type FF_RepoLoad<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_RepoHandle<Entity, O>,
 	'more' | 'hasNextPage' | 'aggregates' | 'item' | 'save' | 'delete' | 'create' | 'syncs'
@@ -627,6 +627,16 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	refresh() {
 		return this.#list.refresh()
 	}
+	/**
+	 * Seed editable state once, from the latest row (`items[0]`), the first time one
+	 * lands - then never again, so a later live tick can't clobber an in-progress edit.
+	 * Use it when the seed must become independently editable (a separate `$state` /
+	 * `$bindable` the user then mutates), not the draft; for pure display prefer
+	 * `$derived(handle.items[0])`. Delegates to the list handle (see `onFirst` there).
+	 */
+	onFirst(fn: (latest: Entity) => void) {
+		this.#list.onFirst(fn)
+	}
 	get meta(): EntityMetadata<Entity> {
 		return this.#repo.metadata
 	}
@@ -669,7 +679,7 @@ export type FF_One<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Ent
 
 /** Builder from `ff(E)`: the two reactive shapes + `meta`. No `.repo` (use remult's `repo(E)`). */
 export type FF_Builder<Entity> = {
-	/** A crud composite (list + editing draft + writes). `strategy` picks the fetch (default `load`). */
+	/** A crud composite (list + editing draft + writes). `strategy` picks the fetch (default `paginate`). */
 	many: <O extends FF_RepoOptions<Entity>, S extends ManyStrategy = 'paginate'>(
 		opts: StrictGetter<Entity, O>,
 		strategy?: S,

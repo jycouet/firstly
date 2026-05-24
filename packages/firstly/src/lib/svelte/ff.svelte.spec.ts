@@ -138,6 +138,24 @@ describe('ff().many - editing (the draft reconciles the list)', () => {
 	})
 })
 
+describe('ff().many - onFirst (seed once from items[0])', () => {
+	it('fires once when the first row lands, and never again on later list changes', async () => {
+		await seed(3) // order 3,2,1 -> items[0].order === 3 (the latest)
+		const seen: number[] = []
+		const m = root(() => {
+			const h = ff(Row).many(() => ({}), 'load')
+			h.onFirst((latest) => seen.push(latest.order))
+			return h
+		})
+		await vi.waitFor(() => expect(seen).toEqual([3]))
+		// A later change to the list (insert that becomes items[0]) must NOT re-fire it.
+		m.create({ order: 10, name: 'x' })
+		await m.save()
+		await vi.waitFor(() => expect(m.items[0]?.order).toBe(10))
+		expect(seen).toEqual([3])
+	})
+})
+
 describe('ff().many - paginate', () => {
 	it('pages, exposes hasNextPage + aggregates.$count, and appends with more()', async () => {
 		await seed(5)
