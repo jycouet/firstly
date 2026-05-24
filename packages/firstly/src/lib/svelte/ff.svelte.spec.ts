@@ -130,17 +130,34 @@ describe('ff().many - editing (the draft reconciles the list)', () => {
 		expect(await repo(Row).count()).toBe(2) // updated, not inserted
 	})
 
-	it('edit(row, { refetch: true }) re-reads fresh, then updates', async () => {
+	it('edit(row, { refetch: true }) is optimistic: instant draft, swaps in fresh, save updates', async () => {
 		await seed(2)
 		const m = root(() => ff(Row).many(() => ({}), 'load'))
 		await vi.waitFor(() => expect(m.items.length).toBe(2))
 		const target = m.items[0]
-		m.edit(target, { refetch: true }) // async: draft loads from the data source
-		await vi.waitFor(() => expect(m.draft?.id).toBe(target.id))
+		await repo(Row).update(target.id, { name: 'fresh-from-db' }) // list snapshot is now stale
+		m.edit(target, { refetch: true })
+		expect(m.draft?.id).toBe(target.id) // optimistic: draft is there synchronously (no undefined gap)
+		await vi.waitFor(() => expect(m.draft?.name).toBe('fresh-from-db')) // then the refetch swaps it in
 		m.draft!.name = 'refetched'
 		await m.save()
 		await vi.waitFor(() => expect(m.items.find((x) => x.id === target.id)?.name).toBe('refetched'))
-		expect(await repo(Row).count()).toBe(2)
+		expect(await repo(Row).count()).toBe(2) // updated, not inserted
+	})
+
+	it('edit(plainRow, { refetch: true }) on an untracked row updates, never inserts', async () => {
+		await seed(2)
+		const m = root(() => ff(Row).many(() => ({}), 'load'))
+		await vi.waitFor(() => expect(m.items.length).toBe(2))
+		const plain = { ...m.items[0] } // a plain spread / $state row, NOT a tracked entity
+		m.edit(plain as Row, { refetch: true })
+		expect(m.draft?.id).toBe(plain.id) // optimistic existing draft, even from a detached object
+		m.draft!.name = 'from-untracked'
+		await m.save()
+		await vi.waitFor(() =>
+			expect(m.items.find((x) => x.id === plain.id)?.name).toBe('from-untracked'),
+		)
+		expect(await repo(Row).count()).toBe(2) // the existing-marking prevents a duplicate insert
 	})
 
 	it('edit(row) works on a composite-PK entity: clones + updates, no insert', async () => {

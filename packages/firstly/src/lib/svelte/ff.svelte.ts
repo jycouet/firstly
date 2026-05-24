@@ -592,12 +592,16 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	 * and saving updates the original (the clone keeps remult's existing-row state).
 	 * Cancelling just drops the clone, so the list row is untouched until save.
 	 *
-	 * `{ refetch: true }`: re-read the row fresh from the data source first (async, `draft`
-	 * is briefly `undefined`), then edit that - use when the list row may be stale.
+	 * `{ refetch: true }`: optimistic - put `row`'s structure into `draft` **immediately**
+	 * (so a form renders at full size, no open-then-grow flicker), then re-read the row
+	 * fresh from the data source and swap it in. The optimistic draft is marked as an
+	 * **existing** row (rebuilt via json), so it works whether `row` is a tracked entity,
+	 * a plain spread/`$state` object, or an id-only stub - and saving updates, never inserts.
+	 * Use it when the list row may be stale or you only hold its id.
 	 */
 	edit(row: Entity, opts?: { refetch?: boolean }) {
 		if (opts?.refetch) {
-			this.#editor.item = undefined
+			this.#editor.item = this.#repo.fromJson(this.#repo.toJson(this.#repo.create(row)), false)
 			this.#editingId = this.#repo.metadata.idMetadata.getId(row) as string
 		} else {
 			this.#editingId = null // keep the editor's query disabled; the clone is the draft
