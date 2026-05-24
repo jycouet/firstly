@@ -202,6 +202,34 @@ Key rules:
 
 Types: `FF_Many<T, Strategy>`, `FF_One<T>`, `FF_Builder<T>`, `FF_RepoOptions`, `ManyStrategy`.
 
+## `dialog` - headless dialogs (Svelte 5)
+
+`dialog` (from `firstly/svelte`) is an async dialog layer: `dialog.show(body, opts)` - `body` is a
+snippet receiving `close(result?)`, resolves `{ ok: true, data } | { ok: false }` - and
+`dialog.confirm(message, { title?, danger?, confirmLabel?, cancelLabel? })` (resolves a boolean).
+Mount `<FF_DialogManager />` once at the app root: it's **headless** (owns esc / scroll-lock /
+stacking) and renders built-in **default** shell + confirm styled in semantic Tailwind tokens
+(`bg-card`, `border-border`, `bg-primary`, `bg-destructive`, ...) so they inherit the app theme with
+zero config. Pass `shell` / `confirm` snippets to fully restyle. Confirm labels are `LocalizedMessage`.
+
+## i18n - `LocalizedMessage`
+
+firstly's localizable-string convention (from `createValidators`, reused by `dialog.confirm`):
+
+```ts
+type LocalizedMessage = string | (() => string)
+```
+
+A literal for single-locale apps, or a **function** resolved at render / validation time - typically a
+paraglide / i18next / lingui message function, so it tracks the current locale. firstly resolves it
+with `resolveMessage(m)` (`typeof m === 'function' ? m() : m`). Pass the message *function* (not a
+pre-resolved string) so locale switches stay reactive:
+
+```ts
+import * as m from '$lib/paraglide/messages'
+dialog.confirm(m.delete_confirm, { confirmLabel: m.delete, danger: true })
+```
+
 ## 🛍️ Boutique (copy-paste)
 
 Grab a boutique recipe with [`degit`](https://github.com/Rich-Harris/degit):

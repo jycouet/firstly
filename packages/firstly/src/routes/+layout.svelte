@@ -7,7 +7,7 @@
 
 	import '../app.css'
 
-	import { initRemultSvelteReactivity } from 'firstly/svelte'
+	import { FF_DialogManager, initRemultSvelteReactivity } from 'firstly/svelte'
 
 	import type { LayoutData } from './$types'
 
@@ -22,6 +22,7 @@
 	const links = [
 		{ path: route('/'), text: 'Home' },
 		{ path: route('/ff-repo'), text: 'Demo Grid' },
+		{ path: '/dialog', text: 'Dialogs' },
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
 			path: route('github', { owner: 'remult', repo: 'remult' }),
@@ -186,3 +187,6 @@
 		<!-- /sidebar menu -->
 	</aside>
 </div>
+
+<!-- firstly headless dialog manager (built-in themeable defaults). -->
+<FF_DialogManager />

@@ -592,8 +592,8 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	 * and saving updates the original (the clone keeps remult's existing-row state).
 	 * Cancelling just drops the clone, so the list row is untouched until save.
 	 *
-	 * `{ refetch: true }`: re-read the row fresh from the data source first (async,
-	 * `draft` is briefly `undefined`), then edit that - use when the list may be stale.
+	 * `{ refetch: true }`: re-read the row fresh from the data source first (async, `draft`
+	 * is briefly `undefined`), then edit that - use when the list row may be stale.
 	 */
 	edit(row: Entity, opts?: { refetch?: boolean }) {
 		if (opts?.refetch) {

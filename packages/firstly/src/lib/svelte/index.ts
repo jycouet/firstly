@@ -11,6 +11,18 @@ export type {
 } from './ff.svelte.js'
 export { infiniteScroll } from './infiniteScroll.js'
 export type { InfiniteScrollOptions } from './infiniteScroll.js'
+export { dialog, ffAutofocus, resolveMessage } from './dialog.svelte.js'
+export type {
+	DialogResult,
+	DialogClose,
+	DialogOptions,
+	DialogItem,
+	ConfirmItem,
+	PromptItem,
+} from './dialog.svelte.js'
+export type { LocalizedMessage } from '../core/FF_Validators.js'
+export { default as FF_DialogManager } from './FF_DialogManager.svelte'
+export type { DialogShellArgs, DialogConfirmArgs } from './FF_DialogManager.svelte'
 export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
 export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
