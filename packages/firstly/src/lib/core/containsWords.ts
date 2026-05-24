@@ -8,8 +8,8 @@ import type { EntityFilter, FieldMetadata } from 'remult'
  *   (name~dupont OR sesa~dupont) AND (name~marie OR sesa~marie)
  *
  * So word order and which field holds which word don't matter - handy for
- * "NOM Prénom" style search across several columns. Pairs with `ffRepo`:
- * `ffRepo(User).load(() => ({ where: containsWords([f.name, f.sesa], q) }))`.
+ * "NOM Prénom" style search across several columns. Pairs with `ff`:
+ * `ff(User).many(() => ({ where: containsWords([f.name, f.sesa], q) }))`.
  */
 export const containsWords = <Entity>(
 	fields: FieldMetadata<unknown, Entity>[],

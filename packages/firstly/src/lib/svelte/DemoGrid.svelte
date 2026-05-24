@@ -1,50 +1,44 @@
 <script lang="ts" generics="T extends { id: string }">
-	import type { ClassType, EntityFilter, MembersOnly } from 'remult'
+	import type { ClassType, EntityFilter } from 'remult'
 
-	import { ffRepo } from './FF_Repo.svelte.js'
+	import { ff, type FF_Many, type ManyStrategy } from './ff.svelte.js'
 
 	type Props = {
 		/** The remult entity class to CRUD. */
 		entity: ClassType<T>
 		/** Fields to show as columns / edit inputs. Headers come from each field's `caption`. */
 		fields: (keyof T & string)[]
+		/** Filter the list (remult `EntityFilter`). Reactive: change it to re-fetch. */
+		where?: EntityFilter<T>
+		/** Fetch strategy: `paginate` (default), `listen` (live), or `load` (static one-shot). */
+		strategy?: ManyStrategy
+		/** When false the list query is skipped (no auto-load) until it flips true. */
+		enabled?: boolean
+		/** Rows per page (paginate strategy). */
+		pageSize?: number
 	}
-	let { entity, fields }: Props = $props()
+	let {
+		entity,
+		fields,
+		where,
+		strategy = 'paginate',
+		enabled = true,
+		pageSize = 25,
+	}: Props = $props()
 
-	// live list - any write re-emits it, so no reconcile code (entity is static config)
-	const list = ffRepo(entity).listen(() => ({}))
+	// ONE handle does it all: list (per strategy) + editing draft + writes.
+	// Cast to the paginate view so `more()`/`aggregates`/`refresh` are reachable; guarded below.
+	const m = ff(entity).many(() => ({ where, enabled, pageSize }), strategy) as unknown as FF_Many<
+		T,
+		'paginate'
+	>
 
-	// the row being edited (by id), or a fresh draft for "new" - one reactive slot
-	let editingId = $state<string | null>(null)
-	const editor = ffRepo(entity).one(() => ({
-		where: { id: editingId ?? '' } as EntityFilter<T>,
-		enabled: !!editingId,
-	}))
-	const creating = $derived(!!editor.item && !editor.item.id)
+	const creating = $derived(!!m.draft && !m.draft.id)
 
 	// dynamic read/write of a field by key (v1: inputs are text)
 	const get = (row: T, f: keyof T & string) => (row as Record<string, unknown>)[f]
 	function setField(f: keyof T & string, value: string) {
-		if (editor.item) (editor.item as Record<string, unknown>)[f] = value
-	}
-
-	function edit(id: string) {
-		editingId = id // → editor.item loads that row
-	}
-	function add() {
-		editingId = null
-		editor.create() // blank draft into editor.item
-	}
-	function cancel() {
-		editingId = null
-		editor.item = undefined // drop the draft / stop editing
-	}
-	async function save() {
-		await editor.save() // insert (a draft) or update (the loaded row); the live list self-syncs
-		cancel()
-	}
-	async function remove(row: T) {
-		await list.repo.delete(row as Partial<MembersOnly<T>>) // raw delete via .repo; the live list drops the row
+		if (m.draft) (m.draft as Record<string, unknown>)[f] = value
 	}
 </script>
 
@@ -52,51 +46,100 @@
 	{#each fields as f (f)}
 		<td>
 			<input
-				placeholder={list.meta.fields.find(f)?.caption ?? f}
+				placeholder={m.meta.fields.find(f)?.caption ?? f}
 				value={String(get(draft, f) ?? '')}
 				oninput={(e) => setField(f, e.currentTarget.value)}
 			/>
 		</td>
 	{/each}
 	<td class="actions">
-		<button disabled={editor.loading.saving} onclick={save}>Save</button>
-		<button onclick={cancel}>Cancel</button>
+		<button
+			disabled={m.isWriting ||
+				(draft.id ? !m.meta.apiUpdateAllowed(draft) : !m.meta.apiInsertAllowed(draft))}
+			onclick={() => m.save()}
+		>
+			Save
+		</button>
+		<button onclick={() => m.cancel()}>Cancel</button>
 	</td>
 {/snippet}
 
 <div class="crud">
-	<button class="new" onclick={add}>+ New</button>
+	<div class="bar">
+		<button disabled={!m.meta.apiInsertAllowed()} onclick={() => m.create()}>+ New</button>
+		{#if strategy !== 'listen'}
+			<button onclick={() => m.refresh()}>Refresh</button>
+		{/if}
+		{#if strategy === 'paginate' && m.aggregates}<span class="count">{m.aggregates.$count} rows</span
+			>{/if}
+		{#if m.isBusy}<span class="busy">busy…</span>{/if}
+	</div>
+
+	{#if m.error}<p class="err">{m.error}</p>{/if}
 
 	<table>
 		<thead>
 			<tr>
-				{#each fields as f (f)}<th>{list.meta.fields.find(f)?.caption ?? f}</th>{/each}
+				{#each fields as f (f)}<th>{m.meta.fields.find(f)?.caption ?? f}</th>{/each}
 				<th></th>
 			</tr>
 		</thead>
 		<tbody>
-			{#if creating && editor.item}
-				<tr class="editing">{@render editRow(editor.item)}</tr>
+			{#if creating && m.draft}
+				<tr class="editing">{@render editRow(m.draft)}</tr>
 			{/if}
-			{#each list.items as row (row.id)}
-				<tr class:editing={editingId === row.id}>
-					{#if editingId === row.id && editor.item}
-						{@render editRow(editor.item)}
-					{:else}
-						{#each fields as f (f)}<td>{get(row, f)}</td>{/each}
-						<td class="actions">
-							<button onclick={() => edit(row.id)}>Edit</button>
-							<button onclick={() => remove(row)}>Delete</button>
-						</td>
-					{/if}
-				</tr>
-			{/each}
+			{#if m.loading.init}
+				<!--
+					First-load placeholder. We know `fields`, so we render one shimmer cell per column
+					plus a button-sized cell in the actions column - that keeps each skeleton row the
+					same height as a real row, so the table doesn't jump when the data arrives.
+				-->
+				{#each Array(2) as _, i (i)}
+					<tr>
+						{#each fields as f (f)}<td><span class="sk"></span></td>{/each}
+						<td class="actions"><span class="sk sk-btn"></span></td>
+					</tr>
+				{/each}
+			{:else}
+				{#each m.items as row (row.id)}
+					<tr class:editing={m.draft?.id === row.id}>
+						{#if m.draft && m.draft.id === row.id}
+							{@render editRow(m.draft)}
+						{:else}
+							{#each fields as f (f)}<td>{get(row, f)}</td>{/each}
+							<td class="actions">
+								<button disabled={!m.meta.apiUpdateAllowed(row)} onclick={() => m.edit(row.id)}>
+									Edit
+								</button>
+								<button disabled={!m.meta.apiDeleteAllowed(row)} onclick={() => m.remove(row)}>
+									Delete
+								</button>
+							</td>
+						{/if}
+					</tr>
+				{/each}
+			{/if}
 		</tbody>
 	</table>
 
-	{#if list.loading.init}
-		<p class="muted">Loading…</p>
-	{:else if list.items.length === 0 && !creating}
+	{#if strategy === 'paginate' && m.hasNextPage}
+		<!--
+			Manual "More". To auto-load on scroll instead, use the `infiniteScroll` attachment
+			(also from 'firstly/svelte') on a bottom sentinel:
+			<div {@attach infiniteScroll({
+				hasMore: () => m.hasNextPage,
+				loading: () => m.loading.more,
+				onMore: () => m.more(),
+			})}></div>
+		-->
+		<button disabled={m.loading.more} onclick={() => m.more()}>
+			{m.loading.more ? 'Loading…' : 'More'}
+		</button>
+	{/if}
+
+	{#if !enabled}
+		<p class="muted">Not loaded (<code>enabled: false</code>) - flip it to fetch.</p>
+	{:else if !m.loading.init && m.items.length === 0 && !creating}
 		<p class="muted">Nothing yet - hit “+ New”.</p>
 	{/if}
 </div>
@@ -108,6 +151,27 @@
 		flex-direction: column;
 		gap: 10px;
 		align-items: start;
+	}
+	.bar {
+		display: flex;
+		gap: 10px;
+		align-items: center;
+		flex-wrap: wrap;
+		width: 100%;
+	}
+	.count {
+		font-size: 12px;
+		font-variant-numeric: tabular-nums;
+		opacity: 0.85;
+	}
+	.busy {
+		font-size: 12px;
+		color: #f59e0b;
+		font-weight: 600;
+	}
+	.err {
+		color: #ef4444;
+		margin: 0;
 	}
 	table {
 		border-collapse: collapse;
@@ -163,5 +227,30 @@
 	}
 	.muted {
 		opacity: 0.6;
+	}
+	.sk {
+		display: inline-block;
+		width: 70%;
+		height: 0.8em;
+		border-radius: 4px;
+		background: color-mix(in srgb, currentColor 16%, transparent);
+		animation: sk-pulse 1.2s ease-in-out infinite;
+	}
+	/* button-sized so a skeleton row matches a real (button-bearing) row's height */
+	.sk-btn {
+		width: 3.4em;
+		height: 1.9em;
+	}
+	@keyframes sk-pulse {
+		0%,
+		100% {
+			opacity: 0.45;
+		}
+		50% {
+			opacity: 0.85;
+		}
+	}
+	code {
+		font-size: 12px;
 	}
 </style>

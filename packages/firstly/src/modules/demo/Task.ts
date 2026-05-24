@@ -1,6 +1,6 @@
 import { Entity, Fields } from 'remult'
 
-// Demo entity for the ffRepo playground route (/ff-repo). Lives under src/modules
+// Demo entity for the ff() playground route (/ff-repo). Lives under src/modules
 // so it ships with the dev app only - never part of the published package (`files: ["dist"]`).
 @Entity('demo_tasks', { allowApiCrud: true, defaultOrderBy: { createdAt: 'desc' } })
 export class Task {

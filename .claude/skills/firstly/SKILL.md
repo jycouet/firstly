@@ -1,6 +1,6 @@
 ---
 name: firstly
-description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, ffRepo (reactive Svelte repo wrapper), published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth). Use when the user mentions firstly, FF_Entity, BaseEnum, ffRepo/FF_Repo, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
+description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, ff (reactive Svelte layer: many/one), published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth). Use when the user mentions firstly, FF_Entity, BaseEnum, ff/FF_Many/FF_One, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
 ---
 
 # Firstly Patterns
@@ -141,20 +141,21 @@ API:
 - `FF_Allow.owner<T>(col?)` / `FF_Filter.owner<T>(col?)` - owner-only.
 - `FF_Allow.ownerOr<T>({ col?, roles })` / `FF_Filter.ownerOr<T>({ col?, roles })` - admin (or any of `roles`) OR owner.
 
-## `ffRepo` - reactive Remult repo (Svelte 5)
+## `ff` - reactive layer (Svelte 5)
 
-`ffRepo` (from `firstly/svelte`) wraps a Remult `repo` as Svelte runes. Pick a mode with a verb and
-hand it a **reactive options getter**; read reactive state (`items`/`loading`/`error`/...) in markup.
-Full chapter: [firstly.fun /docs/svelte/ff-repo](https://firstly.fun/docs/svelte/ff-repo).
+`ff` (from `firstly/svelte`) exposes a Remult entity as Svelte runes. **Two shapes**, both take a
+**reactive options getter**; read reactive state (`items`/`draft`/`loading`/`error`/...) in markup.
+Imperative work stays on remult's `repo(E)`. Full chapter:
+[firstly.fun /docs/svelte/ff](https://firstly.fun/docs/svelte/ff).
 
 ```svelte
 <script lang="ts">
-	import { ffRepo } from 'firstly/svelte'
+	import { ff } from 'firstly/svelte'
 
-	const tasks = ffRepo(Task).load(() => ({ where: { done: false } })) // load (one-shot list)
-	// .listen(getter)   - liveQuery, auto-updates
-	// .paginate(getter) - more() / hasNextPage / aggregates.$count (pairs with `infiniteScroll`)
-	// .one(getter)      - a single reactive record in `item` (bind a form to it)
+	// many = a list + an editing draft + writes. strategy: 'listen' | 'load' | 'paginate'
+	const tasks = ff(Task).many(() => ({ where: { done: false } }), 'listen')
+	// one = a single bound record in `item`
+	const editor = ff(Task).one(() => ({ where: { id }, enabled: !!id }))
 </script>
 
 {#each tasks.items as t (t.id)}{t.title}{/each}
@@ -162,42 +163,36 @@ Full chapter: [firstly.fun /docs/svelte/ff-repo](https://firstly.fun/docs/svelte
 
 Key rules:
 
-- **One rule for the surface**: anything **not** under `.repo` is reactive (a verb returns a runes
-  handle whose writes sync its own state); anything under **`.repo`** is the plain remult repo -
-  imperative, returns Promises, touches no runes state.
-- **The getter is reactive** - change `where`/`orderBy`/`enabled` and it re-fetches (stale responses
-  dropped). `orderBy` defaults to the entity's `defaultOrderBy`. Read SvelteKit `load` data through a
-  `$derived`, never raw in the getter (raw re-fetches on every revalidation).
-- **`enabled: false`** skips the query (keeps the last result) until it flips true.
-- **Mutations**: only the **record handle** (`one`/`create()`) writes - argless `save()`/`delete()`
-  act on its `item` (re-sync + re-throw, filling `error`). **List handles** (`load`/`listen`/`paginate`)
-  are read-only; write through `.repo` (`ffRepo(E).repo.insert`/`update`/`save`/`delete`/`deleteMany`),
-  then on `load`/`paginate` reconcile with `addItem`/`updateItem`/`removeItem` (a `listen` list self-syncs).
-- **Client-side list reconcilers** (`load`/`paginate`): `addItem(item, { at? })` / `updateItem(item)` /
-  `removeItem(idOrItem)` reflect a change you made elsewhere in `items` with no server I/O. `add`/`remove`
-  adjust `aggregates.$count`; for authoritative state call `refresh()`. (`listen` self-reconciles.)
-- **Latest row & seeding**: the newest row (with `orderBy: { ...: 'desc' }`) is `items[0]`; for
-  read-only display use `$derived(r.items[0])`. To seed editable `$state` from it once, call
-  `onFirst((latest) => ...)` - it fires a single time when the first row lands, so the input then
-  owns the value and a later live tick won't overwrite an in-progress edit.
-- **Labels come from remult metadata** - don't hardcode them: `r.meta.fields.<f>.caption` for a
-  field label/placeholder, `r.meta.caption` for the entity. `r.meta` is the entity's remult metadata
-  (also `apiInsertAllowed()` / `fields` / `idMetadata`); `r.repo` is the full remult repo. ffRepo
-  only adds Svelte reactivity - reach through `.meta` / `.repo` for everything else remult already does.
+- **Two shapes only.** `ff(E).many(getter, strategy?)` owns the list (`items`) **and** the editing
+  `draft` plus the writes. `ff(E).one(getter)` is a single record bound to `item`. The fetch
+  `strategy` is `'paginate'` (default: page + `$count` + `more()`), `'listen'` (liveQuery,
+  auto-updates), or `'load'` (a static one-shot).
+- **The getter is reactive** - change `where`/`orderBy`/`enabled`/`pageSize` and it re-fetches (stale
+  responses dropped). `orderBy` defaults to the entity's `defaultOrderBy`. Read SvelteKit `load` data
+  through a `$derived`, never raw in the getter. `enabled: false` skips the query until it flips true.
+- **Editing (`many`)**: `edit(id)` loads a row into `draft`; `create(...)` starts a blank draft;
+  argless `save()` / `remove()` act on the `draft`; `save(row)` / `remove(row)` target any row;
+  `cancel()` drops the draft (and clears `error`). The list reconciles **automatically** (`load` =
+  sorted upsert, `paginate` = refresh, `listen` = liveQuery). A failed write fills `error` and re-throws.
+- **Single record (`one`)**: bind a form to `item`; argless `save()` / `delete()` act on it;
+  `create(...)` seeds a draft; `refresh()` re-fetches; `onFirst((latest) => ...)` seeds editable
+  `$state` once (never re-fires) without a live tick clobbering edits.
+- **Loading**: `loading` = `{ init, fetching, more, saving, deleting }`; `isBusy` / `isWriting` are
+  derived rollups. Paginate-only: `hasNextPage`, `more()`, `aggregates.$count` (free, same request).
+- **No `.repo` on the handle** - imperative reads/writes go through remult directly:
+  `repo(E).insert/update/save/delete/deleteMany/findFirst/findId/count/...`. `.meta` **is** kept on
+  every handle (labels/permissions): `r.meta.fields.<f>.caption`, `r.meta.apiInsertAllowed()` /
+  `apiUpdateAllowed(item)` / `apiDeleteAllowed(item)` / `apiReadAllowed`. No `can*` helpers.
+- **Reactive vs imperative**: `many`/`one` build an `$effect`, so create them at component init. For a
+  click handler / async fn (no runes context) use remult's `repo(E)` (plain values, returns a Promise).
 - **Make `items[0]` reliable**: "latest" follows your `orderBy` and the real SQL column type. Keep a
   datetime as `timestamptz` (a `@Fields.date()` stored as SQL `date` ties same-day rows and makes
-  `date desc` non-deterministic; Remult won't ALTER an existing column, so verify at the DB). Drive
-  the grid, the edited row, and the latest from one live source.
-- **Permissions: no `can*` helpers** - use `r.meta.apiInsertAllowed()` / `apiUpdateAllowed(item)` /
-  `apiDeleteAllowed(item)` / `apiReadAllowed`. `r.repo` / `r.meta` are the escape hatches.
-- **Reactive vs imperative**: reactive verbs build an `$effect`, so create them at component init.
-  For a click handler / async fn (no runes context) go through `.repo` (plain remult, takes plain
-  values, returns a Promise): `ffRepo(E).repo.findFirst(where)`, `.repo.findId(id)`, `.repo.insert(...)`.
-- **Counts**: only `paginate` exposes `aggregates.$count` (free, same request). For a one-off count
-  use `ffRepo(E).repo.count(where)`.
+  `date desc` non-deterministic; Remult won't ALTER an existing column, so verify at the DB).
 
-Types: umbrella `FF_Repo<T>` (any handle), per-mode `FF_RepoLoad`/`FF_RepoLive`/`FF_RepoPaginate`/
-`FF_RepoOne`, plus `FF_RepoBuilder`/`FF_RepoOptions`.
+`DemoGrid` (a full CRUD grid from one `many` handle) and `DemoForm` (a `one` bound form) ship from
+`firstly/svelte` as ready demos / starting points.
+
+Types: `FF_Many<T, Strategy>`, `FF_One<T>`, `FF_Builder<T>`, `FF_RepoOptions`, `ManyStrategy`.
 
 ## 🛍️ Boutique (copy-paste)
 

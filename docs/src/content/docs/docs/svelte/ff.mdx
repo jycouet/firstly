@@ -1,0 +1,241 @@
+---
+title: ff (reactive layer)
+---
+
+`ff` (from `firstly/svelte`) exposes a Remult entity as Svelte 5 runes. There are **two shapes**:
+
+- `ff(E).many(getter, strategy?)` - a list **plus** an editing draft **plus** writes.
+- `ff(E).one(getter)` - a single record bound to `item`.
+
+Both take a **reactive options getter** and expose reactive state (`items`, `draft`, `loading`,
+`error`, ...) you read straight in markup. Everything imperative stays on remult's `repo(E)`.
+
+```svelte
+<script lang="ts">
+	import { ff } from 'firstly/svelte'
+
+	import { Task } from '$lib/Task'
+
+	const tasks = ff(Task).many(() => ({ where: { done: false } }), 'listen')
+</script>
+
+{#if tasks.loading.init}
+	Loading…
+{:else}
+	{#each tasks.items as t (t.id)}
+		<li>{t.title}</li>
+	{/each}
+{/if}
+```
+
+## many - list + editing
+
+`many` owns the list (`items`) and the current editing `draft`, with the writes wired together. The
+`strategy` is the fetch mode (default `'paginate'`):
+
+```ts
+ff(E).many(() => ({ where })) // paginate (default): page + $count + more()
+ff(E).many(() => ({ where }), 'listen') // liveQuery, auto-updates
+ff(E).many(() => ({ where }), 'load') // one-shot, static
+```
+
+:::tip[Why `paginate` is the default]
+A single request returns the page **and** the total `aggregates.$count` **and** `hasNextPage` - no
+extra count query. It's bounded (it never accidentally pulls a whole table), it scales from 5 to 5M
+rows with no code change, and `more()` uses keyset (cursor) paging so deep pages stay fast (no
+`OFFSET` scan). At the same request cost it strictly beats a plain `load`, which just returns rows
+and can't even tell you there are more. So it's the safe default; opt into `'listen'` for live
+updates, `'load'` for a deliberate static fetch.
+:::
+
+Editing flows through the draft; the list reconciles **automatically** (no manual `addItem`):
+
+```svelte
+<script lang="ts">
+	const tasks = ff(Task).many(() => ({}), 'load')
+</script>
+
+<button onclick={() => tasks.create({ title: '' })}>+ New</button>
+
+{#if tasks.draft}
+	<input bind:value={tasks.draft.title} placeholder={tasks.meta.fields.title.caption} />
+	<button disabled={tasks.isWriting} onclick={() => tasks.save()}>Save</button>
+	<button onclick={() => tasks.cancel()}>Cancel</button>
+{/if}
+
+{#each tasks.items as t (t.id)}
+	<li>
+		{t.title}
+		<button onclick={() => tasks.edit(t.id)}>Edit</button>
+		<button onclick={() => tasks.remove(t)}>Delete</button>
+	</li>
+{/each}
+```
+
+- `edit(id)` loads a row into `draft`; `create(...)` starts a blank draft.
+- argless `save()` / `remove()` act on the `draft`; `save(row)` / `remove(row)` target any row.
+- `cancel()` drops the draft and clears `error`.
+- Reconcile by strategy: `load` inserts/updates at the sorted position, `paginate` refreshes,
+  `listen` self-syncs via the liveQuery.
+- `refresh()` re-fetches (`load` / `paginate`).
+
+## one - a single bound record
+
+For an edit page: load one record into `item`, bind a form, save. Argless `save()` / `delete()` act
+on `item`; `create(...)` seeds a draft.
+
+```svelte
+<script lang="ts">
+	let { id } = $props()
+	const r = ff(Task).one(() => ({ where: { id }, enabled: !!id }))
+</script>
+
+{#if r.item}
+	<input bind:value={r.item.title} />
+	<button disabled={r.loading.saving} onclick={() => r.save()}>Save</button>
+	<button disabled={r.loading.deleting} onclick={() => r.delete()}>Delete</button>
+{/if}
+```
+
+`onFirst(fn)` seeds editable `$state` once, the moment the first row lands, without a live tick
+clobbering an in-progress edit (it never re-fires).
+
+## The options getter is reactive
+
+The getter re-runs whenever the state it reads changes (a search box, an `orderBy` toggle, a route
+param) and re-fetches; stale in-flight responses are dropped. `orderBy` defaults to the entity's
+`defaultOrderBy`. `enabled: false` skips the query (keeps the last result) until it flips true.
+
+```svelte
+<script lang="ts">
+	let q = $state('')
+	const r = ff(Task).many(() => ({
+		where: q ? { title: { $contains: q } } : {},
+		enabled: q.length >= 2, // skip until 2 chars
+	}))
+</script>
+
+<input bind:value={q} />
+```
+
+:::caution[Getter hygiene with SvelteKit `load` data]
+Read `load` data through a `$derived` (`const did = $derived(data.targetDid)`), never raw inside the
+getter. A derived only propagates on value change, so a parent layout revalidating won't re-fetch
+unless the value actually changed. Reading `data.x` raw re-fetches on every revalidation.
+:::
+
+## Options
+
+| Option      | Notes                                                            |
+| ----------- | --------------------------------------------------------------- |
+| `where`     | Remult `EntityFilter`.                                           |
+| `orderBy`   | Defaults to the entity's `defaultOrderBy`.                       |
+| `include`   | Relations to load.                                               |
+| `enabled`   | `false` skips the query (keeps last result) until it flips true. |
+| `limit`     | Cap rows (`load` / `listen`). No default.                       |
+| `pageSize`  | Rows per page (`paginate`, default 25).                          |
+| `aggregate` | Aggregations computed alongside the page (`paginate`).           |
+
+## Reactive state
+
+| Property            | Type                                         | Shape          |
+| ------------------- | -------------------------------------------- | -------------- |
+| `items`             | `Entity[]`                                   | many           |
+| `draft`             | `Entity \| undefined`                        | many           |
+| `item`              | `Entity \| undefined`                        | one            |
+| `loading`           | `{ init, fetching, more, saving, deleting }` | both           |
+| `isBusy`/`isWriting`| `boolean` (derived)                          | both           |
+| `error`             | `string \| undefined`                        | both           |
+| `hasNextPage`       | `boolean`                                    | many/paginate  |
+| `aggregates`        | typed result (`$count` + requested)          | many/paginate  |
+
+## Paginate + aggregates + infinite scroll
+
+The `paginate` strategy returns `aggregates.$count` (the total) for free alongside the page, and
+appends with `more()`. Pair it with the `infiniteScroll` attachment:
+
+```svelte
+<script lang="ts">
+	import { ff, infiniteScroll } from 'firstly/svelte'
+
+	const r = ff(Task).many(() => ({ pageSize: 25 }), 'paginate')
+</script>
+
+{#each r.items as t (t.id)}<Row {t} />{/each}
+<p>{r.aggregates?.$count ?? '…'} total</p>
+
+<div
+	{@attach infiniteScroll({
+		hasMore: () => r.hasNextPage,
+		loading: () => r.loading.more,
+		onMore: () => r.more(),
+	})}
+></div>
+```
+
+## Permissions - via `r.meta`
+
+No `can*` wrappers. Use remult's metadata, which reflects the current `remult.user`:
+
+```svelte
+<button disabled={!r.meta.apiInsertAllowed()}>Add</button>
+<button disabled={!r.meta.apiDeleteAllowed(row)}>Delete</button>
+```
+
+## Imperative work - remult's `repo`
+
+The handle has no `.repo`. For a one-off read/write in a click handler / async function, use remult
+directly:
+
+```ts
+import { repo } from 'remult'
+
+async function open(id: string) {
+	const task = await repo(Task).findId(id)
+}
+await repo(Task).deleteMany({ where: { done: true } })
+const n = await repo(Task).count()
+```
+
+## Demo components
+
+`DemoGrid` (a full CRUD grid from one `many` handle) and `DemoForm` (a `one` bound form) ship from
+`firstly/svelte` as ready demos and starting points:
+
+```svelte
+<script lang="ts">
+	import { DemoForm, DemoGrid } from 'firstly/svelte'
+</script>
+
+<DemoGrid entity={Task} fields={['title']} where={{ done: false }} strategy="listen" />
+<DemoForm entity={Task} fields={['title']} />
+```
+
+## Type helpers
+
+For typing component props that receive a handle:
+
+```ts
+import type { FF_Many, FF_One } from 'firstly/svelte'
+
+let { list }: { list: FF_Many<Task> } = $props()
+let { record }: { record: FF_One<Task> } = $props()
+```
+
+Also exported: `FF_Builder` (the `ff(E)` return), `FF_RepoOptions`, `FF_RepoLoading`, `ManyStrategy`,
+`AggregateOptions`, `QueryOptionsHelper`.
+
+## Migrating from `ffRepo`
+
+`ffRepo` is replaced by `ff`. The read verbs become a `strategy`, and the list now carries its own
+editing draft (so a separate `one` editor is optional).
+
+| Old (`ffRepo`)                        | New (`ff`)                                  |
+| ------------------------------------- | ------------------------------------------- |
+| `ffRepo(E).load(() => ({ where }))`   | `ff(E).many(() => ({ where }), 'load')`     |
+| `ffRepo(E).listen(() => ({}))`        | `ff(E).many(() => ({}), 'listen')`          |
+| `ffRepo(E).paginate(() => ({}))`      | `ff(E).many(() => ({}), 'paginate')`        |
+| `ffRepo(E).one(() => ({ where }))`    | `ff(E).one(() => ({ where }))`              |
+| `r.addItem/updateItem/removeItem`     | automatic - `save()` / `remove(row)`        |
+| `r.repo.insert/findId/count/...`      | `repo(E).insert/findId/count/...` (remult)  |
+| `r.meta` / `r.error` / `r.refresh()`  | unchanged                                   |

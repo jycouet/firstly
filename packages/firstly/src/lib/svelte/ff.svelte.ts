@@ -15,54 +15,29 @@ import {
 } from 'remult'
 
 /**
- * `ffRepo` - thin reactive wrapper around a Remult `repo`, exposing its results as
- * Svelte runes. Pick the mode with a verb:
+ * `ff` - the firstly reactive layer over a Remult entity, as Svelte runes. Two shapes:
  *
- *   ffRepo(E).load(() => ({ where }))       // load  - one-shot list + refresh()
- *   ffRepo(E).listen(() => ({ where }))     // live  - liveQuery, auto-updates
- *   ffRepo(E).paginate(() => ({ where }))   // paginate - more() / hasNextPage / aggregates
- *   ffRepo(E).one(() => ({ where }))        // one   - reactive single record in `item`
+ *   ff(E).many(() => ({ where }), strategy?)  // list + editing draft + writes
+ *   ff(E).one(() => ({ where }))              // a single record bound to `item`
  *
- * Two surfaces, one rule: anything NOT under `.repo` is reactive (a verb returns a
- * runes handle; that handle's writes sync its own state). Anything under `.repo` is
- * the plain remult repo - imperative, returns Promises, touches no runes state.
+ * `many`'s `strategy` is the fetch mode: 'paginate' (page + $count + more(), default), 'listen'
+ * (liveQuery, auto-updates), or 'load' (a static one-shot). The handle
+ * owns the list (`items`) AND the editing `draft`: `edit(id)` / `create()` / `cancel()`,
+ * argless `save()` / `remove()` act on the draft, `save(row)` / `remove(row)` target a row,
+ * and the list reconciles itself (load = sorted upsert, paginate = refresh, listen = liveQuery).
  *
- * The options getter is reactive: change `where` (e.g. a search box), `orderBy`,
- * `enabled`, etc. and the query re-runs - `listen` re-subscribes (the old
- * subscription is torn down), `load`/`paginate`/`one` re-fetch and ignore any
- * stale in-flight response. `orderBy` defaults to the entity's `defaultOrderBy`.
+ * The options getter is reactive: change `where` / `orderBy` / `enabled` / `pageSize` and the
+ * query re-runs (stale in-flight responses dropped; `listen` re-subscribes). `orderBy` defaults
+ * to the entity's `defaultOrderBy`. `enabled: false` skips the query (keeps the last result)
+ * until it flips true. Read SvelteKit load `data` through a `$derived`, never raw in the getter.
  *
- * Getter hygiene: read SvelteKit load `data` through a `$derived`
- * (`const did = $derived(data.targetDid)`), never raw inside the getter. A derived
- * only propagates on value change, so a parent layout load revalidating - e.g. an
- * SP URL write re-running url-dependent loads on every filter - hands you a new
- * `data` object but does NOT re-fetch unless the value actually changed; a real
- * change (route param switch) still does. Reading `data.x` raw re-fetches on every
- * revalidation (a duplicate request per filter).
+ * `.meta` is kept on every handle (captions / permissions / fields). There is NO `.repo`:
+ * everything imperative goes through remult's `repo(E)` directly (`insert` / `findId` / `count` /
+ * `deleteMany` / ...). The reactive shapes build an `$effect`, so create them at component init;
+ * for a click handler / async fn use `repo(E)`. A failed write fills `error` and re-throws.
  *
- * `enabled: false` skips the query entirely (keeps the last result) and runs it
- * the moment it flips true - use it for search-min-length, tab visibility,
- * dependent queries, or a manual button trigger.
- *
- * Writes: only the record handle (`one` / `create()`) writes - argless `save()` / `delete()`
- * act on its `item` and re-sync it. List handles (`load` / `listen` / `paginate`) don't write;
- * go through `.repo` (the plain remult repo: `insert` / `update` / `save` / `delete` /
- * `deleteMany`), then reflect it in a `load` / `paginate` list with the local reconcilers
- * (`addItem` / `updateItem` / `removeItem`) - a `listen` list re-syncs itself via the liveQuery.
- * A failed write fills `error` and re-throws.
- *
- * The factory's return type is mode-specific, so e.g. `.more()` doesn't exist on
- * a `listen()` handle. Methods also throw if reached via a cast in the wrong mode.
- *
- * Reactive vs imperative: the reactive verbs take a *getter* (`() => ({ ... })`) and
- * return a runes handle; they build an `$effect`, so they must be created during
- * component init. For a one-off read/write in a click handler / async fn (no runes
- * context) go through `.repo` (plain remult): `ffRepo(E).repo.findFirst(where)`,
- * `ffRepo(E).repo.findId(id)`, `ffRepo(E).repo.find(...)`.
- *
- * Tip: prefer `.paginate()` whenever you want a total - it returns `aggregates.$count`
- * for free in the same request. `load`/`listen`/`one` don't count; for a one-off count
- * use `ffRepo(E).repo.count(where)`.
+ * Internals (FF_RepoHandle modes load/live/paginate/one, the `.syncs` link, reconcilers) are
+ * private to this module; `ff` exposes only `many` / `one`.
  */
 
 /** The aggregate request shape - remult's `GroupByOptions` minus the grouping/paging keys. */
@@ -81,7 +56,7 @@ export type AggregateOptions<Entity> = Omit<
 
 /**
  * Remult `QueryOptions` plus the `aggregate` request shape. Exported for callers
- * that build query options outside `ffRepo` (e.g. a generic table component).
+ * that build query options outside `ff` (e.g. a generic table component).
  */
 export type QueryOptionsHelper<Entity> = QueryOptions<Entity> & {
 	aggregate?: AggregateOptions<Entity>
@@ -135,9 +110,9 @@ export type FF_RepoLoading = {
 type Mode = 'live' | 'load' | 'paginate' | 'one'
 
 /**
- * The reactive handle implementation. Not exported directly - consumers use a per-mode
- * alias (`FF_RepoLoad`/`FF_RepoLive`/`FF_RepoPaginate`/`FF_RepoOne`) or the umbrella
- * union `FF_Repo` (any mode). Each verb returns the Omit'd per-mode view of this.
+ * The reactive handle implementation (internal). `ff().one()` returns an Omit'd view of this
+ * (`FF_One`); `ff().many()` wraps a list handle + a `.syncs`-linked one in `FF_ManyHandle`
+ * (exposed as `FF_Many`). The per-mode aliases below stay internal to this module.
  */
 class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> {
 	#repo: Repository<Entity>
@@ -146,6 +121,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	#defaultOrderBy?: EntityOrderBy<Entity>
 	#paginator?: Paginator<Entity>
 	#seq = 0
+	#syncTargets: FF_RepoHandle<Entity>[] = []
 
 	items = $state<Entity[]>([])
 	/** Single-record slot: the loaded row in `one` mode, or a create/edit draft (see `create`). */
@@ -161,6 +137,16 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	hasNextPage = $state(false)
 	/** Aggregations for the whole query (paginate mode). `aggregates.$count` is the total row count. */
 	aggregates = $state<ExtractAggregateResult<Entity, O> | undefined>(undefined)
+
+	/** Any read or write currently in flight (init/fetching/more/saving/deleting). */
+	get isBusy(): boolean {
+		const l = this.loading
+		return l.init || l.fetching || l.more || l.saving || l.deleting
+	}
+	/** A write (insert/update/delete) in flight. */
+	get isWriting(): boolean {
+		return this.loading.saving || this.loading.deleting
+	}
 
 	constructor(r: Repository<Entity>, opts: Getter<Entity, O>, mode: Mode) {
 		this.#repo = r
@@ -288,7 +274,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	 * seed must become independently editable (a draft the user then mutates).
 	 *
 	 * ```svelte
-	 * const list = ffRepo(Plan).listen(() => ({ where: { ownerDid } }))
+	 * const list = ff(Plan).many(() => ({ where: { ownerDid } }), 'listen')
 	 * let draft = $state({ title: '' })
 	 * list.onFirst((latest) => (draft.title = latest.title)) // seed once, then edit freely
 	 * ```
@@ -321,6 +307,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		after: () => void | Promise<void>,
 	): Promise<T> {
 		this.loading[flag] = true
+		for (const t of this.#syncTargets) t.loading[flag] = true
 		this.error = undefined
 		try {
 			const res = await op()
@@ -331,22 +318,26 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 			throw e
 		} finally {
 			this.loading[flag] = false
+			for (const t of this.#syncTargets) t.loading[flag] = false
 		}
 	}
 
 	/** Save the current `item` (from `one` / `create()`). To save a specific row, use `.repo.save(row)`. */
-	save() {
-		return this.#write(
+	async save() {
+		const saved = await this.#write(
 			'saving',
 			() => this.#repo.save(this.#requireItem()),
 			() => this.#resync(),
 		)
+		this.item = saved
+		for (const t of this.#syncTargets) t.reconcile(saved)
+		return saved
 	}
 
 	/** Delete the current `item`. To delete a specific row/id, use `.repo.delete(idOrRow)`. */
-	delete() {
+	async delete() {
 		const target = this.#requireItem()
-		return this.#write(
+		const res = await this.#write(
 			'deleting',
 			() => this.#repo.delete(target),
 			() => {
@@ -357,6 +348,20 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 				this.#removeLocal(target)
 			},
 		)
+		for (const t of this.#syncTargets)
+			t.removeItem(target as Parameters<Repository<Entity>['delete']>[0])
+		return res
+	}
+
+	/**
+	 * Link this record handle (`one`) to one or more list handles. On `save()` /
+	 * `delete()` the lists are reconciled (sorted upsert / remove) and share the
+	 * write-loading flag, so the list area shows "busy" during the write too. A live
+	 * list reconcile is a no-op (its liveQuery already syncs). Returns `this`.
+	 */
+	syncs(...targets: Array<FF_RepoLoad<Entity> | FF_RepoPaginate<Entity> | FF_RepoLive<Entity>>) {
+		this.#syncTargets = targets as unknown as FF_RepoHandle<Entity>[]
+		return this
 	}
 
 	/** The current `item` (or throw) - backs the argless `save()`/`delete()`. */
@@ -398,7 +403,45 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 
 	/** Drop the matching row (pass an id or the item). -1 to `$count`. */
 	removeItem(idOrItem: Parameters<Repository<Entity>['delete']>[0]) {
+		if (this.#mode === 'live') return
 		this.#removeLocal(idOrItem)
+	}
+
+	/**
+	 * Insert-or-update `item` at its SORTED position (load mode), recomputing the index
+	 * from this handle's `orderBy` plus the entity id as tiebreak. Paginate re-fetches
+	 * (a row may belong to an unloaded page); live is a no-op (the liveQuery syncs).
+	 */
+	reconcile(item: Entity) {
+		if (this.#mode === 'live') return
+		if (this.#mode === 'paginate') {
+			void this.refresh()
+			return
+		}
+		const id = this.#repo.metadata.idMetadata.getId(item)
+		const without = this.items.filter((x) => this.#repo.metadata.idMetadata.getId(x) !== id)
+		const cmp = this.#comparator(this.#resolve().orderBy)
+		let idx = without.findIndex((x) => cmp(item, x) < 0)
+		if (idx < 0) idx = without.length
+		this.items = [...without.slice(0, idx), item, ...without.slice(idx)]
+	}
+
+	// A comparator from an EntityOrderBy, with the entity id appended as a stable
+	// tiebreak (remult does the same so keyset paging is deterministic).
+	#comparator(orderBy: EntityOrderBy<Entity> | undefined) {
+		const entries = Object.entries(orderBy ?? {}) as [string, 'asc' | 'desc'][]
+		const idOf = (e: Entity) => this.#repo.metadata.idMetadata.getId(e)
+		return (a: Entity, b: Entity): number => {
+			for (const [field, dir] of entries) {
+				const av = (a as Record<string, unknown>)[field] as never
+				const bv = (b as Record<string, unknown>)[field] as never
+				if (av < bv) return dir === 'desc' ? 1 : -1
+				if (av > bv) return dir === 'desc' ? -1 : 1
+			}
+			const ai = idOf(a)
+			const bi = idOf(b)
+			return ai < bi ? -1 : ai > bi ? 1 : 0
+		}
 	}
 
 	#removeLocal(idOrItem: unknown) {
@@ -436,7 +479,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 /** load: one-shot list (`refresh()` to re-run) - a read+reconcile view. No paging/aggregates, and no `item`/`save`/`delete`/`create` (edit via `one`, write via `.repo`). */
 export type FF_RepoLoad<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_RepoHandle<Entity, O>,
-	'more' | 'hasNextPage' | 'aggregates' | 'item' | 'save' | 'delete' | 'create'
+	'more' | 'hasNextPage' | 'aggregates' | 'item' | 'save' | 'delete' | 'create' | 'syncs'
 >
 /** live: reactive subscription, auto-updates - a read view. No refresh/paging/aggregates/reconcilers (the liveQuery does it), and no `item`/`save`/`delete`/`create`. */
 export type FF_RepoLive<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
@@ -452,30 +495,145 @@ export type FF_RepoLive<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOption
 	| 'save'
 	| 'delete'
 	| 'create'
+	| 'reconcile'
+	| 'syncs'
 >
 /** paginate: `more()` / `hasNextPage` / `aggregates` - a read+reconcile view. No `onFirst` (paged ≠ latest), and no `item`/`save`/`delete`/`create`. */
 export type FF_RepoPaginate<
 	Entity,
 	O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>,
-> = Omit<FF_RepoHandle<Entity, O>, 'onFirst' | 'item' | 'save' | 'delete' | 'create'>
+> = Omit<FF_RepoHandle<Entity, O>, 'onFirst' | 'item' | 'save' | 'delete' | 'create' | 'syncs'>
 /** one: a single reactive record in `item`. No paging / aggregates / list reconcilers. */
 export type FF_RepoOne<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_RepoHandle<Entity, O>,
-	'more' | 'hasNextPage' | 'aggregates' | 'addItem' | 'updateItem' | 'removeItem'
+	'more' | 'hasNextPage' | 'aggregates' | 'addItem' | 'updateItem' | 'removeItem' | 'reconcile'
 >
 
+/** The list strategy backing `many`. Maps `listen` → live mode internally. */
+export type ManyStrategy = 'load' | 'listen' | 'paginate'
+
 /**
- * Umbrella handle type - any mode. Use for a component prop that accepts a
- * `load`/`listen`/`paginate`/`one` handle (`r: FF_Repo<T>`). It exposes the surface
- * common to every mode (`items`/`loading`/`error`/`meta`/`repo`); mode-specific members
- * (`item`/`save`/`delete`/`create` on `one`; `more`/`hasNextPage`/`aggregates`/`refresh`/
- * `onFirst`/`addItem`/`updateItem`/`removeItem`) require the matching per-mode type.
+ * Style 1 - unified composite. One handle owning a list (load/listen/paginate) AND
+ * the current editing `draft`, pre-wired: the draft handle `.syncs(list)`, so saving
+ * or deleting reconciles the list (sorted upsert / remove) and loading/error are
+ * merged across both. Proves the styles share internals: this is just a list handle
+ * plus a `.syncs()`-linked `one` handle.
+ *
+ *   const t = ff(Task).many(() => ({ where }), 'load')
+ *   t.edit(id) / t.create() / t.save() / t.remove(row) / t.cancel()
+ *   markup reads t.items, t.draft, t.loading, t.isBusy, t.error
  */
-export type FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> =
-	| FF_RepoLoad<Entity, O>
-	| FF_RepoLive<Entity, O>
-	| FF_RepoPaginate<Entity, O>
-	| FF_RepoOne<Entity, O>
+class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> {
+	#repo: Repository<Entity>
+	#idKey: string
+	#list: FF_RepoHandle<Entity, O>
+	#editor: FF_RepoHandle<Entity, O>
+	#editingId = $state<string | null>(null)
+
+	constructor(r: Repository<Entity>, opts: Getter<Entity, O>, strategy: ManyStrategy) {
+		this.#repo = r
+		this.#idKey = r.metadata.idMetadata.field.key
+		this.#list = new FF_RepoHandle<Entity, O>(r, opts, strategy === 'listen' ? 'live' : strategy)
+		this.#editor = new FF_RepoHandle<Entity, O>(
+			r,
+			(() => ({
+				where: { [this.#idKey]: this.#editingId ?? '' } as EntityFilter<Entity>,
+				enabled: this.#editingId !== null,
+			})) as Getter<Entity, O>,
+			'one',
+		)
+		this.#editor.syncs(this.#list as unknown as FF_RepoLoad<Entity>)
+	}
+
+	get items(): Entity[] {
+		return this.#list.items
+	}
+	get draft(): Entity | undefined {
+		return this.#editor.item
+	}
+	set draft(v: Entity | undefined) {
+		this.#editor.item = v
+	}
+	get error(): string | undefined {
+		return this.#editor.error ?? this.#list.error
+	}
+	get hasNextPage(): boolean {
+		return this.#list.hasNextPage
+	}
+	get aggregates(): ExtractAggregateResult<Entity, O> | undefined {
+		return this.#list.aggregates
+	}
+
+	/** Merged loading: list reads + draft writes. */
+	get loading(): FF_RepoLoading {
+		const l = this.#list.loading
+		const e = this.#editor.loading
+		return {
+			init: l.init,
+			fetching: l.fetching || e.fetching,
+			more: l.more,
+			saving: e.saving,
+			deleting: e.deleting,
+		}
+	}
+	get isBusy(): boolean {
+		const l = this.loading
+		return l.init || l.fetching || l.more || l.saving || l.deleting
+	}
+	get isWriting(): boolean {
+		return this.loading.saving || this.loading.deleting
+	}
+
+	/** Load a row into `draft` for editing. */
+	edit(id: string) {
+		this.#editingId = id
+	}
+	/** Start a blank `draft` (insert). */
+	create(...args: Parameters<Repository<Entity>['create']>) {
+		this.#editingId = null
+		return this.#editor.create(...args)
+	}
+	/** Drop the draft / stop editing, and clear any pending error. */
+	cancel() {
+		this.#editingId = null
+		this.#editor.item = undefined
+		this.#editor.error = undefined
+	}
+	/** Save `target` (any row) or, argless, the current `draft`; reconciles the list. */
+	async save(target?: Entity) {
+		if (target !== undefined) {
+			const saved = await this.#repo.save(target)
+			this.#list.reconcile(saved)
+			return saved
+		}
+		const saved = await this.#editor.save()
+		this.cancel()
+		return saved
+	}
+	/** Delete `target` (any row) or, argless, the current `draft`; reconciles the list. */
+	async remove(target?: Entity) {
+		if (target !== undefined) {
+			await this.#repo.delete(target as Parameters<Repository<Entity>['delete']>[0])
+			this.#list.removeItem(target as Parameters<Repository<Entity>['delete']>[0])
+			return
+		}
+		await this.#editor.delete()
+		this.cancel()
+	}
+
+	more() {
+		return this.#list.more()
+	}
+	refresh() {
+		return this.#list.refresh()
+	}
+	get meta(): EntityMetadata<Entity> {
+		return this.#repo.metadata
+	}
+	get repo(): Repository<Entity> {
+		return this.#repo
+	}
+}
 
 // A thunk skips TS's excess-property check on its returned object literal (the
 // return type is inferred, then assignability-checked, which allows extra keys).
@@ -485,44 +643,66 @@ export type FF_Repo<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 type StrictGetter<Entity, O extends FF_RepoOptions<Entity>> = () => O &
 	Record<Exclude<keyof O, keyof FF_RepoOptions<Entity>>, never>
 
-/**
- * The builder returned by `ffRepo(E)`. Two surfaces only: the reactive verbs
- * (`load`/`listen`/`paginate`/`one`), and `.repo` - the plain remult repo for every
- * imperative read/write (`findFirst`, `findId`, `find`, `insert`, `update`, `save`,
- * `delete`, `count`, `upsert`, ...). `.meta` is a shortcut to `repo.metadata`.
- */
-export type FF_RepoBuilder<Entity> = {
-	load: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoLoad<Entity, O>
-	listen: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoLive<Entity, O>
-	paginate: <O extends FF_RepoOptions<Entity>>(
+/* ---------------------------------------------------------------------------
+ * `ff` - the v2 surface: two public shapes.
+ *   ff(E).many(getter, strategy?)  -> crud composite (list + draft + writes)
+ *   ff(E).one(getter)              -> a single bound record
+ * `load`/`listen`/`paginate` are the `strategy`, not verbs. Imperative work goes
+ * through remult's `repo(E)` (no `.repo` here on purpose). `.meta` is kept.
+ * ------------------------------------------------------------------------- */
+
+/** The `ff(E).many(...)` handle. The `paginate` strategy adds `more`/`hasNextPage`/`aggregates`/`$count`. */
+export type FF_Many<
+	Entity,
+	S extends ManyStrategy = 'paginate',
+	O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>,
+> = Omit<FF_ManyHandle<Entity, O>, 'repo' | 'more' | 'hasNextPage' | 'aggregates'> &
+	(S extends 'paginate'
+		? Pick<FF_ManyHandle<Entity, O>, 'more' | 'hasNextPage' | 'aggregates'>
+		: Record<never, never>)
+
+/** The `ff(E).one(...)` handle - a single reactive record in `item` (no list/repo/syncs). */
+export type FF_One<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
+	FF_RepoOne<Entity, O>,
+	'repo' | 'syncs'
+>
+
+/** Builder from `ff(E)`: the two reactive shapes + `meta`. No `.repo` (use remult's `repo(E)`). */
+export type FF_Builder<Entity> = {
+	/** A crud composite (list + editing draft + writes). `strategy` picks the fetch (default `load`). */
+	many: <O extends FF_RepoOptions<Entity>, S extends ManyStrategy = 'paginate'>(
 		opts: StrictGetter<Entity, O>,
-	) => FF_RepoPaginate<Entity, O>
-	one: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_RepoOne<Entity, O>
-	/** The entity's remult metadata (permissions, fields, key). Shortcut to `repo.metadata`. */
+		strategy?: S,
+	) => FF_Many<Entity, S, O>
+	/** A single reactive record bound to `item`. */
+	one: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_One<Entity, O>
+	/** The entity's remult metadata (captions, permissions, fields). */
 	readonly meta: EntityMetadata<Entity>
-	/** The underlying remult repo - every imperative read/write lives here. */
-	readonly repo: Repository<Entity>
 }
 
-export function ffRepo<Entity>(entity: ClassType<Entity>): FF_RepoBuilder<Entity> {
+/**
+ * `ff(E)` - the firstly reactive layer. `ff(E).many(getter, strategy?)` for a list+edit
+ * composite, `ff(E).one(getter)` for a single record. Everything imperative stays on
+ * remult's `repo(E)`.
+ */
+export function ff<Entity>(entity: ClassType<Entity>): FF_Builder<Entity> {
 	const r = remultRepo(entity)
-	const builder: FF_RepoBuilder<Entity> = {
-		load<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
-			return new FF_RepoHandle(r, o as Getter<Entity, O>, 'load') as FF_RepoLoad<Entity, O>
-		},
-		listen<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
-			return new FF_RepoHandle(r, o as Getter<Entity, O>, 'live') as FF_RepoLive<Entity, O>
-		},
-		paginate<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
-			return new FF_RepoHandle(r, o as Getter<Entity, O>, 'paginate') as FF_RepoPaginate<Entity, O>
+	return {
+		many<O extends FF_RepoOptions<Entity>, S extends ManyStrategy = 'paginate'>(
+			o: StrictGetter<Entity, O>,
+			strategy?: S,
+		) {
+			return new FF_ManyHandle(
+				r,
+				o as Getter<Entity, O>,
+				strategy ?? 'paginate',
+			) as unknown as FF_Many<Entity, S, O>
 		},
 		one<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
-			return new FF_RepoHandle(r, o as Getter<Entity, O>, 'one') as FF_RepoOne<Entity, O>
+			return new FF_RepoHandle(r, o as Getter<Entity, O>, 'one') as unknown as FF_One<Entity, O>
 		},
 		get meta() {
 			return r.metadata
 		},
-		repo: r,
 	}
-	return builder
 }
