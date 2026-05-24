@@ -1,4 +1,6 @@
 <script lang="ts" generics="T extends { id: string }">
+	import { untrack } from 'svelte'
+
 	import type { ClassType, EntityFilter } from 'remult'
 
 	import { ff, type FF_Many, type ManyStrategy } from './ff.svelte.js'
@@ -27,11 +29,13 @@
 	}: Props = $props()
 
 	// ONE handle does it all: list (per strategy) + editing draft + writes.
+	// `entity` + `strategy` are init-only - the handle builds its `$effect` once; the
+	// reactive bits live in the getter (`where`/`enabled`/`pageSize`, read on each run).
+	// `untrack` says "read these once on purpose" so Svelte doesn't flag a stale capture.
 	// Cast to the paginate view so `more()`/`aggregates`/`refresh` are reachable; guarded below.
-	const m = ff(entity).many(() => ({ where, enabled, pageSize }), strategy) as unknown as FF_Many<
-		T,
-		'paginate'
-	>
+	const m = untrack(() =>
+		ff(entity).many(() => ({ where, enabled, pageSize }), strategy),
+	) as unknown as FF_Many<T, 'paginate'>
 
 	const creating = $derived(!!m.draft && !m.draft.id)
 
