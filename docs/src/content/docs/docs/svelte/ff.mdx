@@ -127,27 +127,27 @@ unless the value actually changed. Reading `data.x` raw re-fetches on every reva
 ## Options
 
 | Option      | Notes                                                            |
-| ----------- | --------------------------------------------------------------- |
+| ----------- | ---------------------------------------------------------------- |
 | `where`     | Remult `EntityFilter`.                                           |
 | `orderBy`   | Defaults to the entity's `defaultOrderBy`.                       |
 | `include`   | Relations to load.                                               |
 | `enabled`   | `false` skips the query (keeps last result) until it flips true. |
-| `limit`     | Cap rows (`load` / `listen`). No default.                       |
+| `limit`     | Cap rows (`load` / `listen`). No default.                        |
 | `pageSize`  | Rows per page (`paginate`, default 25).                          |
 | `aggregate` | Aggregations computed alongside the page (`paginate`).           |
 
 ## Reactive state
 
-| Property            | Type                                         | Shape          |
-| ------------------- | -------------------------------------------- | -------------- |
-| `items`             | `Entity[]`                                   | many           |
-| `draft`             | `Entity \| undefined`                        | many           |
-| `item`              | `Entity \| undefined`                        | one            |
-| `loading`           | `{ init, fetching, more, saving, deleting }` | both           |
-| `isBusy`/`isWriting`| `boolean` (derived)                          | both           |
-| `error`             | `string \| undefined`                        | both           |
-| `hasNextPage`       | `boolean`                                    | many/paginate  |
-| `aggregates`        | typed result (`$count` + requested)          | many/paginate  |
+| Property             | Type                                         | Shape         |
+| -------------------- | -------------------------------------------- | ------------- |
+| `items`              | `Entity[]`                                   | many          |
+| `draft`              | `Entity \| undefined`                        | many          |
+| `item`               | `Entity \| undefined`                        | one           |
+| `loading`            | `{ init, fetching, more, saving, deleting }` | both          |
+| `isBusy`/`isWriting` | `boolean` (derived)                          | both          |
+| `error`              | `string \| undefined`                        | both          |
+| `hasNextPage`        | `boolean`                                    | many/paginate |
+| `aggregates`         | typed result (`$count` + requested)          | many/paginate |
 
 ## Paginate + aggregates + infinite scroll
 
@@ -230,12 +230,12 @@ Also exported: `FF_Builder` (the `ff(E)` return), `FF_RepoOptions`, `FF_RepoLoad
 `ffRepo` is replaced by `ff`. The read verbs become a `strategy`, and the list now carries its own
 editing draft (so a separate `one` editor is optional).
 
-| Old (`ffRepo`)                        | New (`ff`)                                  |
-| ------------------------------------- | ------------------------------------------- |
-| `ffRepo(E).load(() => ({ where }))`   | `ff(E).many(() => ({ where }), 'load')`     |
-| `ffRepo(E).listen(() => ({}))`        | `ff(E).many(() => ({}), 'listen')`          |
-| `ffRepo(E).paginate(() => ({}))`      | `ff(E).many(() => ({}), 'paginate')`        |
-| `ffRepo(E).one(() => ({ where }))`    | `ff(E).one(() => ({ where }))`              |
-| `r.addItem/updateItem/removeItem`     | automatic - `save()` / `remove(row)`        |
-| `r.repo.insert/findId/count/...`      | `repo(E).insert/findId/count/...` (remult)  |
-| `r.meta` / `r.error` / `r.refresh()`  | unchanged                                   |
+| Old (`ffRepo`)                       | New (`ff`)                                 |
+| ------------------------------------ | ------------------------------------------ |
+| `ffRepo(E).load(() => ({ where }))`  | `ff(E).many(() => ({ where }), 'load')`    |
+| `ffRepo(E).listen(() => ({}))`       | `ff(E).many(() => ({}), 'listen')`         |
+| `ffRepo(E).paginate(() => ({}))`     | `ff(E).many(() => ({}), 'paginate')`       |
+| `ffRepo(E).one(() => ({ where }))`   | `ff(E).one(() => ({ where }))`             |
+| `r.addItem/updateItem/removeItem`    | automatic - `save()` / `remove(row)`       |
+| `r.repo.insert/findId/count/...`     | `repo(E).insert/findId/count/...` (remult) |
+| `r.meta` / `r.error` / `r.refresh()` | unchanged                                  |
