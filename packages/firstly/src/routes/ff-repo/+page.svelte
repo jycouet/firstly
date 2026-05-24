@@ -5,7 +5,7 @@
 	import { Task } from '$modules/demo/Task'
 
 	const fields = ['title'] as const
-	const strategies: ManyStrategy[] = ['load', 'listen', 'paginate']
+	const strategies: ManyStrategy[] = ['paginate', 'listen', 'load']
 
 	let lazyOn = $state(false)
 </script>
