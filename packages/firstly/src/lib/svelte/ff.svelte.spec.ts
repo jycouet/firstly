@@ -143,6 +143,22 @@ describe('ff().many - editing (the draft reconciles the list)', () => {
 		expect(await repo(Row).count()).toBe(2)
 	})
 
+	it('edit(row) works on a composite-PK entity: clones + updates, no insert', async () => {
+		await repo(Pair).insert([
+			{ a: 'x', b: '1', label: 'one' },
+			{ a: 'x', b: '2', label: 'two' },
+		])
+		const m = root(() => ff(Pair).many(() => ({}), 'load'))
+		await vi.waitFor(() => expect(m.items.length).toBe(2))
+		const target = m.items.find((p) => p.b === '1')!
+		m.edit(target) // id is read off the row - no manual getId for composite keys
+		expect(m.draft?.b).toBe('1')
+		m.draft!.label = 'edited'
+		await m.save()
+		await vi.waitFor(() => expect(m.items.find((p) => p.b === '1')?.label).toBe('edited'))
+		expect(await repo(Pair).count()).toBe(2) // updated, not inserted
+	})
+
 	it('remove(row) drops it from the list and the db', async () => {
 		await seed(3)
 		const m = root(() => ff(Row).many(() => ({}), 'load'))
