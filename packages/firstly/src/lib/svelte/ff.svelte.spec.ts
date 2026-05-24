@@ -115,17 +115,32 @@ describe('ff().many - editing (the draft reconciles the list)', () => {
 		expect(await repo(Row).count()).toBe(4)
 	})
 
-	it('edit + save updates the row in place', async () => {
+	it('edit(row) clones in place: instant draft, isolated, save updates', async () => {
 		await seed(2)
 		const m = root(() => ff(Row).many(() => ({}), 'load'))
 		await vi.waitFor(() => expect(m.items.length).toBe(2))
 		const target = m.items[0]
-		m.edit(target.id)
-		await vi.waitFor(() => expect(m.draft?.id).toBe(target.id))
+		m.edit(target) // default: no fetch, draft is a clone - available synchronously
+		expect(m.draft?.id).toBe(target.id)
 		m.draft!.name = 'edited'
+		expect(m.items.find((x) => x.id === target.id)?.name).not.toBe('edited') // isolated until save
 		await m.save()
 		await vi.waitFor(() => expect(m.items.find((x) => x.id === target.id)?.name).toBe('edited'))
 		expect((await repo(Row).findId(target.id))?.name).toBe('edited')
+		expect(await repo(Row).count()).toBe(2) // updated, not inserted
+	})
+
+	it('edit(row, { refetch: true }) re-reads fresh, then updates', async () => {
+		await seed(2)
+		const m = root(() => ff(Row).many(() => ({}), 'load'))
+		await vi.waitFor(() => expect(m.items.length).toBe(2))
+		const target = m.items[0]
+		m.edit(target, { refetch: true }) // async: draft loads from the data source
+		await vi.waitFor(() => expect(m.draft?.id).toBe(target.id))
+		m.draft!.name = 'refetched'
+		await m.save()
+		await vi.waitFor(() => expect(m.items.find((x) => x.id === target.id)?.name).toBe('refetched'))
+		expect(await repo(Row).count()).toBe(2)
 	})
 
 	it('remove(row) drops it from the list and the db', async () => {

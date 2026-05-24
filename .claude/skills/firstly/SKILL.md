@@ -170,13 +170,21 @@ Key rules:
 - **The getter is reactive** - change `where`/`orderBy`/`enabled`/`pageSize` and it re-fetches (stale
   responses dropped). `orderBy` defaults to the entity's `defaultOrderBy`. Read SvelteKit `load` data
   through a `$derived`, never raw in the getter. `enabled: false` skips the query until it flips true.
-- **Editing (`many`)**: `edit(id)` loads a row into `draft`; `create(...)` starts a blank draft;
-  argless `save()` / `remove()` act on the `draft`; `save(row)` / `remove(row)` target any row;
-  `cancel()` drops the draft (and clears `error`). The list reconciles **automatically** (`load` =
-  sorted upsert, `paginate` = refresh, `listen` = liveQuery). A failed write fills `error` and re-throws.
+- **Editing (`many`)**: `edit(row)` loads a row into `draft` (**pass the row, not its id** - so it
+  works with any PK incl. composite `id: ['a','b']`); `create(...)` starts a blank draft; argless
+  `save()` / `remove()` act on the `draft`; `save(row)` / `remove(row)` target any row; `cancel()`
+  drops the draft (and clears `error`). The list reconciles **automatically** (`load` = sorted upsert,
+  `paginate` = refresh, `listen` = liveQuery). A failed write fills `error` and re-throws.
+- **`edit` has two modes (why):** default `edit(row)` edits an isolated **clone** - instant (no fetch,
+  no flicker), saving updates (the clone keeps remult's existing-row state), and `cancel()` leaves the
+  list untouched. That's the "edit the row in front of me" case, so it's the default. `edit(row, {
+  refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → guard `{#if draft}`) for
+  when the list may be stale and you want the latest server values before editing.
 - **Single record (`one`)**: bind a form to `item`; argless `save()` / `delete()` act on it;
-  `create(...)` seeds a draft; `refresh()` re-fetches; `onFirst((latest) => ...)` seeds editable
-  `$state` once (never re-fires) without a live tick clobbering edits.
+  `create(...)` seeds a draft; `refresh()` re-fetches. `onFirst((latest) => ...)` (on **both** `many`
+  and `one`) seeds editable `$state` once and never re-fires - why: a live source would otherwise
+  re-run a `$derived`/`$effect` on every tick and clobber an in-progress edit. Read-only display →
+  `$derived(handle.items[0])`; `onFirst` only when the seed must become editable.
 - **Loading**: `loading` = `{ init, fetching, more, saving, deleting }`; `isBusy` / `isWriting` are
   derived rollups. Paginate-only: `hasNextPage`, `more()`, `aggregates.$count` (free, same request).
 - **No `.repo` on the handle** - imperative reads/writes go through remult directly:

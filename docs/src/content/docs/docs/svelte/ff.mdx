@@ -66,18 +66,40 @@ Editing flows through the draft; the list reconciles **automatically** (no manua
 {#each tasks.items as t (t.id)}
 	<li>
 		{t.title}
-		<button onclick={() => tasks.edit(t.id)}>Edit</button>
+		<button onclick={() => tasks.edit(t)}>Edit</button>
 		<button onclick={() => tasks.remove(t)}>Delete</button>
 	</li>
 {/each}
 ```
 
-- `edit(id)` loads a row into `draft`; `create(...)` starts a blank draft.
+- `edit(row)` loads a row into `draft`; `create(...)` starts a blank draft. **Pass the row, not its
+  id** - the id is read off it, so it works with any primary key, single _or composite_
+  (`id: ['a', 'b']`), with no manual id juggling.
 - argless `save()` / `remove()` act on the `draft`; `save(row)` / `remove(row)` target any row.
 - `cancel()` drops the draft and clears `error`.
 - Reconcile by strategy: `load` inserts/updates at the sorted position, `paginate` refreshes,
   `listen` self-syncs via the liveQuery.
 - `refresh()` re-fetches (`load` / `paginate`).
+
+### `edit` has two modes - and why
+
+```svelte
+tasks.edit(row)                    // default: clone in place (instant, isolated)
+tasks.edit(row, { refetch: true }) // re-read fresh first (async), then edit
+```
+
+**Default - clone, no fetch.** `draft` becomes an isolated **clone** of the row you already have in
+`items`. Why this is the default: it's instant (no round-trip, no loading flicker), and the clone
+keeps remult's "existing-row" state, so `save()` is an **update**, not an insert. Because the clone is
+isolated, typing in the form does **not** touch the list row, and `cancel()` simply throws the clone
+away - the list never shows half-finished edits. This matches the natural mental model: you're editing
+_the row in front of you_.
+
+**`{ refetch: true }` - re-read first.** Why you'd opt in: when the list might be stale (a long-lived
+`load`, another user editing the same row) and you want the freshest server values before the user
+starts. The cost is a round-trip - `draft` is briefly `undefined`, so guard the form with
+`{#if draft}`. Default off, because the common case is "edit what I'm looking at," and a refetch there
+just adds latency and a flash.
 
 ## one - a single bound record
 
@@ -97,8 +119,13 @@ on `item`; `create(...)` seeds a draft.
 {/if}
 ```
 
-`onFirst(fn)` seeds editable `$state` once, the moment the first row lands, without a live tick
-clobbering an in-progress edit (it never re-fires).
+`onFirst(fn)` (on **`many`** and **`one`**) seeds editable `$state` once, the moment the first row
+lands, and never re-fires. Why it exists: with a `listen`/live source you often want to seed a form
+(or a set of sliders, a draft) from the latest row, but a plain `$derived`/`$effect` would re-run on
+every live tick and overwrite whatever the user has since typed. `onFirst` fires exactly once on the
+first non-empty result, so the input then owns the value. For read-only display, prefer
+`$derived(handle.items[0])` - reach for `onFirst` only when the seed must become independently
+editable.
 
 ## The options getter is reactive
 
@@ -184,8 +211,11 @@ No `can*` wrappers. Use remult's metadata, which reflects the current `remult.us
 
 ## Imperative work - remult's `repo`
 
-The handle has no `.repo`. For a one-off read/write in a click handler / async function, use remult
-directly:
+The handle has no `.repo` - on purpose. Why: `ff` exists only to add Svelte reactivity (an `$effect`
+that re-runs your getter), so a reactive handle belongs at component init, not in a click handler. The
+moment you're in an imperative spot - a button handler, an `async` function, a one-off count - there's
+no reactivity to add, so you go straight to remult's `repo(E)` (plain values in, a `Promise` out). One
+rule, no overlap: reactive reads/edits on the handle, everything else on `repo(E)`.
 
 ```ts
 import { repo } from 'remult'

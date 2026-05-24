@@ -520,7 +520,7 @@ export type ManyStrategy = 'load' | 'listen' | 'paginate'
  * plus a `.syncs()`-linked `one` handle.
  *
  *   const t = ff(Task).many(() => ({ where }), 'load')
- *   t.edit(id) / t.create() / t.save() / t.remove(row) / t.cancel()
+ *   t.edit(row) / t.create() / t.save() / t.remove(row) / t.cancel()
  *   markup reads t.items, t.draft, t.loading, t.isBusy, t.error
  */
 class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> {
@@ -584,9 +584,25 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		return this.loading.saving || this.loading.deleting
 	}
 
-	/** Load a row into `draft` for editing. */
-	edit(id: string) {
-		this.#editingId = id
+	/**
+	 * Load `row` into `draft` for editing. Pass the row itself (works with any PK,
+	 * single or composite - the id is read off it).
+	 *
+	 * Default (no fetch): edits an isolated **clone** of `row` - instant, no flicker,
+	 * and saving updates the original (the clone keeps remult's existing-row state).
+	 * Cancelling just drops the clone, so the list row is untouched until save.
+	 *
+	 * `{ refetch: true }`: re-read the row fresh from the data source first (async,
+	 * `draft` is briefly `undefined`), then edit that - use when the list may be stale.
+	 */
+	edit(row: Entity, opts?: { refetch?: boolean }) {
+		if (opts?.refetch) {
+			this.#editor.item = undefined
+			this.#editingId = this.#repo.metadata.idMetadata.getId(row) as string
+		} else {
+			this.#editingId = null // keep the editor's query disabled; the clone is the draft
+			this.#editor.item = this.#repo.getEntityRef(row).clone()
+		}
 	}
 	/** Start a blank `draft` (insert). */
 	create(...args: Parameters<Repository<Entity>['create']>) {

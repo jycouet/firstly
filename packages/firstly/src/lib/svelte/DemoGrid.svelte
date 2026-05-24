@@ -108,9 +108,7 @@
 						{:else}
 							{#each fields as f (f)}<td>{get(row, f)}</td>{/each}
 							<td class="actions">
-								<button disabled={!m.meta.apiUpdateAllowed(row)} onclick={() => m.edit(row.id)}>
-									Edit
-								</button>
+								<button disabled={!m.meta.apiUpdateAllowed(row)} onclick={() => m.edit(row)}> Edit </button>
 								<button disabled={!m.meta.apiDeleteAllowed(row)} onclick={() => m.remove(row)}>
 									Delete
 								</button>
