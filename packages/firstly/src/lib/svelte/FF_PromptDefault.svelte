@@ -3,6 +3,7 @@
 	import { fade } from 'svelte/transition'
 
 	import { ffAutofocus, resolveMessage, type PromptItem } from './dialog.svelte.js'
+	import { ffConfig } from './FF_Config.svelte.js'
 
 	let {
 		item,
@@ -13,6 +14,9 @@
 		onsubmit: (value: string) => void
 		oncancel: () => void
 	} = $props()
+
+	// Labels fall back to `<FF_Config>` (then the built-in) when the call site omits them.
+	const cfg = ffConfig()
 
 	// Seed once from the (per-instance, keyed) item; the user then edits `value` freely.
 	let value = $state(untrack(() => item.initial))
@@ -55,13 +59,13 @@
 				class="border-border hover:bg-muted rounded-md border px-3 py-1.5 text-sm"
 				onclick={oncancel}
 			>
-				{resolveMessage(item.cancelLabel)}
+				{resolveMessage(item.cancelLabel ?? cfg.messages.cancel)}
 			</button>
 			<button
 				type="submit"
 				class="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-3 py-1.5 text-sm font-medium"
 			>
-				{resolveMessage(item.confirmLabel)}
+				{resolveMessage(item.confirmLabel ?? cfg.messages.ok)}
 			</button>
 		</div>
 	</form>

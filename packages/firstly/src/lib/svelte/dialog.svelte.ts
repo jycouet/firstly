@@ -71,8 +71,10 @@ export type ConfirmItem = {
 	id: number
 	message: LocalizedMessage
 	title?: LocalizedMessage
-	confirmLabel: LocalizedMessage
-	cancelLabel: LocalizedMessage
+	/** Omitted = fall back to `<FF_Config>`'s `messages.confirm` (then the built-in). */
+	confirmLabel?: LocalizedMessage
+	/** Omitted = fall back to `<FF_Config>`'s `messages.cancel` (then the built-in). */
+	cancelLabel?: LocalizedMessage
 	/** Style the confirm action as destructive. */
 	danger: boolean
 	resolve: (r: DialogResult<void>) => void
@@ -85,11 +87,52 @@ export type PromptItem = {
 	label?: LocalizedMessage
 	placeholder?: string
 	initial: string
-	confirmLabel: LocalizedMessage
-	cancelLabel: LocalizedMessage
+	/** Omitted = fall back to `<FF_Config>`'s `messages.ok` (then the built-in). */
+	confirmLabel?: LocalizedMessage
+	/** Omitted = fall back to `<FF_Config>`'s `messages.cancel` (then the built-in). */
+	cancelLabel?: LocalizedMessage
 	/** Optional live hint under the field (e.g. a derived key preview). */
 	hint?: (value: string) => string
 	resolve: (r: DialogResult<string>) => void
+}
+
+/** Args handed to your dialog `shell` snippet - render a backdrop + panel, then `{@render body(close)}`. */
+export type DialogShellArgs = {
+	id: number
+	body: Snippet<[DialogClose]>
+	/** Close with an explicit result, e.g. `close({ ok: true, data })`. */
+	close: DialogClose
+	/** Dismiss (Esc / backdrop / close button) - honours `dismissible` + `allowClose`. */
+	dismiss: () => void
+	dismissible: boolean
+	width: 'sm' | 'md' | 'lg'
+	isTop: boolean
+}
+
+/** Args handed to your `confirm` snippet. Labels arrive already resolved to strings. */
+export type DialogConfirmArgs = {
+	id: number
+	message: string
+	title?: string
+	confirmLabel: string
+	cancelLabel: string
+	danger: boolean
+	confirm: () => void
+	cancel: () => void
+	isTop: boolean
+}
+
+/** Args handed to your `prompt` snippet. Labels arrive already resolved to strings. */
+export type DialogPromptArgs = {
+	id: number
+	title?: string
+	label?: string
+	placeholder?: string
+	initial: string
+	confirmLabel: string
+	cancelLabel: string
+	submit: (value: string) => void
+	cancel: () => void
 }
 
 let _dialogs = $state<DialogItem[]>([])
@@ -201,8 +244,9 @@ export const dialog = {
 					id: _nextId++,
 					message,
 					title: opts.title,
-					confirmLabel: opts.confirmLabel ?? 'Confirm',
-					cancelLabel: opts.cancelLabel ?? 'Cancel',
+					// Labels left undefined fall back to `<FF_Config>` (then the built-in) at render.
+					confirmLabel: opts.confirmLabel,
+					cancelLabel: opts.cancelLabel,
 					danger: opts.danger ?? false,
 					resolve,
 				},
@@ -236,8 +280,9 @@ export const dialog = {
 					label: opts.label,
 					placeholder: opts.placeholder,
 					initial: opts.initial ?? '',
-					confirmLabel: opts.confirmLabel ?? 'OK',
-					cancelLabel: opts.cancelLabel ?? 'Cancel',
+					// Labels left undefined fall back to `<FF_Config>` (then the built-in) at render.
+					confirmLabel: opts.confirmLabel,
+					cancelLabel: opts.cancelLabel,
 					hint: opts.hint,
 					resolve,
 				},

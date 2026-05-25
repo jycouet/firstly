@@ -20,10 +20,15 @@ export type {
 	DialogRender,
 	ConfirmItem,
 	PromptItem,
+	DialogShellArgs,
+	DialogConfirmArgs,
+	DialogPromptArgs,
 } from './dialog.svelte.js'
 export type { LocalizedMessage } from '../core/FF_Validators.js'
 export { default as FF_DialogManager } from './FF_DialogManager.svelte'
-export type { DialogShellArgs, DialogConfirmArgs } from './FF_DialogManager.svelte'
+export { default as FF_Config } from './FF_Config.svelte'
+export { ffConfig, setFFConfig } from './FF_Config.svelte.js'
+export type { FF_ConfigValue } from './FF_Config.svelte.js'
 export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
 export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'

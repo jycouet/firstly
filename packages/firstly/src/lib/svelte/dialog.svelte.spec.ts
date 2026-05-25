@@ -1,6 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest'
 import { mount, tick, unmount } from 'svelte'
-import { expectTypeOf } from 'vitest'
+import { afterEach, describe, expect, expectTypeOf, it } from 'vitest'
 
 import { dialog, type DialogClose, type DialogResult } from './dialog.svelte'
 import DialogOpenTest from './DialogOpenTest.svelte'
@@ -67,7 +66,6 @@ describe('dialog.open (component)', () => {
 			const p = dialog.open(DialogOpenTest, { props: { label: 'Mounted' } })
 			await tick()
 			expect(document.querySelector('[data-testid="open-label"]')?.textContent).toBe('Mounted')
-
 			;(document.querySelector('[data-testid="open-ok"]') as HTMLButtonElement).click()
 			await expect(p).resolves.toEqual({ ok: true, data: 7 })
 		} finally {

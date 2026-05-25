@@ -2,61 +2,34 @@
 	import type { Snippet } from 'svelte'
 	import { fade } from 'svelte/transition'
 
-	import { dialog, ffAutofocus, resolveMessage, type DialogClose } from './dialog.svelte.js'
+	import {
+		dialog,
+		ffAutofocus,
+		resolveMessage,
+		type DialogClose,
+		type DialogConfirmArgs,
+		type DialogPromptArgs,
+		type DialogShellArgs,
+	} from './dialog.svelte.js'
+	import { ffConfig } from './FF_Config.svelte.js'
 	import FF_PromptDefault from './FF_PromptDefault.svelte'
-
-	/** Args handed to your `shell` snippet - render a backdrop + panel, then `{@render body(close)}`. */
-	export type DialogShellArgs = {
-		id: number
-		body: Snippet<[DialogClose]>
-		/** Close with an explicit result, e.g. `close({ ok: true, data })`. */
-		close: DialogClose
-		/** Dismiss (Esc/backdrop/close button) - honours `dismissible` + `allowClose`. */
-		dismiss: () => void
-		dismissible: boolean
-		width: 'sm' | 'md' | 'lg'
-		isTop: boolean
-	}
-
-	/** Args handed to your `confirm` snippet. */
-	export type DialogConfirmArgs = {
-		id: number
-		message: string
-		title?: string
-		confirmLabel: string
-		cancelLabel: string
-		danger: boolean
-		confirm: () => void
-		cancel: () => void
-		isTop: boolean
-	}
 
 	let {
 		shell,
 		confirm,
 		prompt,
 	}: {
-		/** Override the dialog frame. Omit to use the built-in default (semantic Tailwind tokens, theme-adaptive). */
+		/** Override the dialog frame. Omit to fall back to `<FF_Config>`, then the built-in default. */
 		shell?: Snippet<[DialogShellArgs]>
-		/** Override the confirm UI. Omit to use the built-in default. */
+		/** Override the confirm UI. Omit to fall back to `<FF_Config>`, then the built-in default. */
 		confirm?: Snippet<[DialogConfirmArgs]>
-		/** Override the prompt UI. Omit to use the built-in default. */
-		prompt?: Snippet<
-			[
-				{
-					id: number
-					title?: string
-					label?: string
-					placeholder?: string
-					initial: string
-					confirmLabel: string
-					cancelLabel: string
-					submit: (value: string) => void
-					cancel: () => void
-				},
-			]
-		>
+		/** Override the prompt UI. Omit to fall back to `<FF_Config>`, then the built-in default. */
+		prompt?: Snippet<[DialogPromptArgs]>
 	} = $props()
+
+	// App-wide config (labels + skin) from the nearest `<FF_Config>`; precedence is
+	// explicit prop > FF_Config > built-in. Read once at init; its getters stay reactive.
+	const cfg = ffConfig()
 
 	const total = $derived(dialog.list.length + dialog.confirmList.length + dialog.promptList.length)
 	// Highest id across all kinds = the most-recently-opened (topmost) item.
@@ -101,7 +74,7 @@
 			{@render d.render.body(close)}
 		{/if}
 	{/snippet}
-	{@render (shell ?? defaultShell)({
+	{@render (shell ?? cfg.dialog.shell ?? defaultShell)({
 		id: d.id,
 		body: itemBody,
 		close: (r) => dialog._close(d.id, r),
@@ -113,12 +86,12 @@
 {/each}
 
 {#each dialog.confirmList as c (c.id)}
-	{@render (confirm ?? defaultConfirm)({
+	{@render (confirm ?? cfg.dialog.confirm ?? defaultConfirm)({
 		id: c.id,
 		message: resolveMessage(c.message),
 		title: c.title === undefined ? undefined : resolveMessage(c.title),
-		confirmLabel: resolveMessage(c.confirmLabel),
-		cancelLabel: resolveMessage(c.cancelLabel),
+		confirmLabel: resolveMessage(c.confirmLabel ?? cfg.messages.confirm),
+		cancelLabel: resolveMessage(c.cancelLabel ?? cfg.messages.cancel),
 		danger: c.danger,
 		confirm: () => dialog._resolveConfirm(c.id, true),
 		cancel: () => dialog._resolveConfirm(c.id, false),
@@ -127,15 +100,16 @@
 {/each}
 
 {#each dialog.promptList as p (p.id)}
-	{#if prompt}
-		{@render prompt({
+	{@const promptUi = prompt ?? cfg.dialog.prompt}
+	{#if promptUi}
+		{@render promptUi({
 			id: p.id,
 			title: p.title === undefined ? undefined : resolveMessage(p.title),
 			label: p.label === undefined ? undefined : resolveMessage(p.label),
 			placeholder: p.placeholder,
 			initial: p.initial,
-			confirmLabel: resolveMessage(p.confirmLabel),
-			cancelLabel: resolveMessage(p.cancelLabel),
+			confirmLabel: resolveMessage(p.confirmLabel ?? cfg.messages.ok),
+			cancelLabel: resolveMessage(p.cancelLabel ?? cfg.messages.cancel),
 			submit: (value) => dialog._resolvePrompt(p.id, value),
 			cancel: () => dialog._resolvePrompt(p.id, null),
 		})}
