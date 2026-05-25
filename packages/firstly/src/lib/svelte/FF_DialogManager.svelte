@@ -93,9 +93,17 @@
 <svelte:window onkeydown={onKeydown} />
 
 {#each dialog.list as d (d.id)}
+	{#snippet itemBody(close: DialogClose)}
+		{#if d.render.kind === 'component'}
+			{@const Comp = d.render.component}
+			<Comp {...d.render.props} {close} />
+		{:else}
+			{@render d.render.body(close)}
+		{/if}
+	{/snippet}
 	{@render (shell ?? defaultShell)({
 		id: d.id,
-		body: d.body,
+		body: itemBody,
 		close: (r) => dialog._close(d.id, r),
 		dismiss: () => dialog.requestClose(d.id),
 		dismissible: d.options.dismissible,

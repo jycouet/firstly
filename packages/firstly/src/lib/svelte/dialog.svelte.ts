@@ -1,4 +1,4 @@
-import type { Snippet } from 'svelte'
+import type { Component, ComponentProps, Snippet } from 'svelte'
 
 import type { LocalizedMessage } from '../core/FF_Validators.js'
 
@@ -50,9 +50,18 @@ export type DialogOptions = {
 	width?: 'sm' | 'md' | 'lg'
 }
 
+/** How a `show`/`open` dialog body is rendered: an inline snippet, or a component + props. */
+export type DialogRender =
+	| { kind: 'snippet'; body: Snippet<[DialogClose]> }
+	| { kind: 'component'; component: Component<any>; props: Record<string, unknown> }
+
+/** Infer the close-data type a component resolves, from its `close: DialogClose<T>` prop. */
+export type DialogDataOf<C extends Component<any>> =
+	ComponentProps<C> extends { close?: DialogClose<infer T> } ? T : unknown
+
 export type DialogItem = {
 	id: number
-	body: Snippet<[DialogClose]>
+	render: DialogRender
 	options: Required<Pick<DialogOptions, 'dismissible' | 'width'>> & Pick<DialogOptions, 'allowClose'>
 	resolve: (r: DialogResult<unknown>) => void
 }
@@ -127,7 +136,38 @@ export const dialog = {
 				..._dialogs,
 				{
 					id: _nextId++,
-					body: body as Snippet<[DialogClose]>,
+					render: { kind: 'snippet', body: body as Snippet<[DialogClose]> },
+					options: {
+						dismissible: options.dismissible ?? true,
+						width: options.width ?? 'md',
+						allowClose: options.allowClose,
+					},
+					resolve: resolve as (r: DialogResult<unknown>) => void,
+				},
+			]
+		})
+	},
+
+	/**
+	 * Open a dialog from a **component + props** (the natural door for reusable dialogs).
+	 * `close` is injected as a prop; declare it as `close: DialogClose<T>` and `open` infers
+	 * the resolved `data` type from it - no call-site generic, no cast. `props` is a snapshot
+	 * at open time; for reactive bodies use `show(snippet)`.
+	 */
+	open<C extends Component<any>>(
+		component: C,
+		options: DialogOptions & { props?: Omit<ComponentProps<C>, 'close'> } = {},
+	): Promise<DialogResult<DialogDataOf<C>>> {
+		return new Promise<DialogResult<DialogDataOf<C>>>((resolve) => {
+			_dialogs = [
+				..._dialogs,
+				{
+					id: _nextId++,
+					render: {
+						kind: 'component',
+						component: component as Component<any>,
+						props: (options.props ?? {}) as Record<string, unknown>,
+					},
 					options: {
 						dismissible: options.dismissible ?? true,
 						width: options.width ?? 'md',

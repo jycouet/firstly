@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { dialog } from 'firstly/svelte'
 
+	import DemoOpen from './DemoOpen.svelte'
+
 	let lastResult = $state('—')
 	let name = $state('')
 
@@ -14,6 +16,10 @@
 	async function openShow() {
 		const r = await dialog.show(formBody, { width: 'md' })
 		lastResult = r.ok ? `show -> ${JSON.stringify(r.data)}` : 'show -> dismissed'
+	}
+	async function openOpen() {
+		const r = await dialog.open(DemoOpen, { props: { name: 'Ada' }, width: 'md' })
+		lastResult = r.ok ? `open -> ${JSON.stringify(r.data)}` : 'open -> dismissed'
 	}
 	async function openConfirm() {
 		const { ok } = await dialog.confirm('Save the changes?', { title: 'Confirm' })
@@ -73,6 +79,12 @@
 			onclick={openShow}
 		>
 			show (custom body)
+		</button>
+		<button
+			class="bg-primary text-primary-foreground rounded-md px-3 py-2 text-sm font-medium"
+			onclick={openOpen}
+		>
+			open (component)
 		</button>
 		<button
 			class="bg-primary text-primary-foreground rounded-md px-3 py-2 text-sm font-medium"

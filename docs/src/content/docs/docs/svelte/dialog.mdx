@@ -51,6 +51,7 @@ dismissed. No per-method `boolean` / `null` special-casing - `if (r.ok)` everywh
 | Call                  | Resolves                                       |
 | --------------------- | ---------------------------------------------- |
 | `dialog.show<T>(body)`| `{ ok: true, data: T } \| { ok: false }`       |
+| `dialog.open(Comp)`   | `{ ok: true, data: T } \| { ok: false }` (`T` from `close` prop) |
 | `dialog.confirm(msg)` | `{ ok: true } \| { ok: false }` (no `data`)    |
 | `dialog.prompt(opts)` | `{ ok: true, data: string } \| { ok: false }`  |
 
@@ -115,6 +116,49 @@ if (r.ok) create(r.data)
 
 `close(value)` is normalised: a bare value becomes `{ ok: true, data: value }`, `undefined` becomes
 `{ ok: false }`, and an explicit `{ ok, data }` is passed through.
+
+## open - a component
+
+`open` renders a **component + props** - the natural door for reusable dialogs. `close` is injected
+as a prop: declare it `close: DialogClose<T>` and `open` infers the resolved `data` from it, so there
+is **no call-site generic and no cast**.
+
+```svelte
+<!-- UserPicker.svelte -->
+<script lang="ts">
+	import type { DialogClose } from 'firstly/svelte'
+	let { minQueryLength, close }: { minQueryLength: number; close: DialogClose<User> } = $props()
+</script>
+<!-- ...body, with whatever heading/icon you want... -->
+<button onclick={() => close({ ok: true, data: user })}>Choisir</button>
+```
+
+```svelte
+<script lang="ts">
+	import { dialog } from 'firstly/svelte'
+	import UserPicker from './UserPicker.svelte'
+
+	async function pick() {
+		const r = await dialog.open(UserPicker, { props: { minQueryLength: 2 }, width: 'lg' })
+		if (r.ok) console.log(r.data) // r.data: User
+	}
+</script>
+```
+
+`props` is optional and is a **snapshot** at open time (it omits `close`, which the manager injects).
+The component sits inside the same shell as `show`, so backdrop / Escape / `width` / `dismissible`
+all apply unchanged.
+
+### show vs open: which one?
+
+- **`open(Component)`** - a reusable, standalone, typed dialog you'd want to test on its own. The
+  result type comes from the component.
+- **`show(snippet)`** - a quick one-off body, or an example that reads well **inline** (these docs use
+  it for exactly that). No separate file.
+
+There is no `title` option for either: you render the body, so the heading (text, icon, styling)
+lives in your snippet/component. (`confirm`/`prompt` take a `title` because the manager renders
+*their* markup.)
 
 ## Options
 

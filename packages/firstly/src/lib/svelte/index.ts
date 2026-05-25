@@ -17,6 +17,7 @@ export type {
 	DialogClose,
 	DialogOptions,
 	DialogItem,
+	DialogRender,
 	ConfirmItem,
 	PromptItem,
 } from './dialog.svelte.js'
