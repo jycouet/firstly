@@ -5,7 +5,7 @@ title: dialog (headless)
 `dialog` (from `firstly/svelte`) is a **headless, async** dialog layer for Svelte 5. It owns the
 logic only - the queue, the `await`-able resolution, stacking, Escape, scroll-lock - and ships
 **no markup of its own beyond opt-in defaults**. You mount one `<FF_DialogManager>` and either lean
-on its theme-adaptive defaults or hand it your own snippets, so the dialog looks native to *your*
+on its theme-adaptive defaults or hand it your own snippets, so the dialog looks native to _your_
 design system.
 
 ```svelte
@@ -48,12 +48,12 @@ type DialogResult<T> = { ok: true; data: T } | { ok: false }
 `{ ok: true }` means it went through (confirmed / submitted); `{ ok: false }` means cancelled or
 dismissed. No per-method `boolean` / `null` special-casing - `if (r.ok)` everywhere.
 
-| Call                  | Resolves                                       |
-| --------------------- | ---------------------------------------------- |
-| `dialog.show<T>(body)`| `{ ok: true, data: T } \| { ok: false }`       |
-| `dialog.open(Comp)`   | `{ ok: true, data: T } \| { ok: false }` (`T` from `close` prop) |
-| `dialog.confirm(msg)` | `{ ok: true } \| { ok: false }` (no `data`)    |
-| `dialog.prompt(opts)` | `{ ok: true, data: string } \| { ok: false }`  |
+| Call                   | Resolves                                                         |
+| ---------------------- | ---------------------------------------------------------------- |
+| `dialog.show<T>(body)` | `{ ok: true, data: T } \| { ok: false }`                         |
+| `dialog.open(Comp)`    | `{ ok: true, data: T } \| { ok: false }` (`T` from `close` prop) |
+| `dialog.confirm(msg)`  | `{ ok: true } \| { ok: false }` (no `data`)                      |
+| `dialog.prompt(opts)`  | `{ ok: true, data: string } \| { ok: false }`                    |
 
 :::tip[Why `prompt` returns `{ ok, data }` and not `string \| null`]
 With `string | null`, "cancelled" and "submitted an empty string" both collapse to a falsy value.
@@ -127,8 +127,10 @@ is **no call-site generic and no cast**.
 <!-- UserPicker.svelte -->
 <script lang="ts">
 	import type { DialogClose } from 'firstly/svelte'
+
 	let { minQueryLength, close }: { minQueryLength: number; close: DialogClose<User> } = $props()
 </script>
+
 <!-- ...body, with whatever heading/icon you want... -->
 <button onclick={() => close({ ok: true, data: user })}>Choisir</button>
 ```
@@ -136,6 +138,7 @@ is **no call-site generic and no cast**.
 ```svelte
 <script lang="ts">
 	import { dialog } from 'firstly/svelte'
+
 	import UserPicker from './UserPicker.svelte'
 
 	async function pick() {
@@ -158,14 +161,14 @@ all apply unchanged.
 
 There is no `title` option for either: you render the body, so the heading (text, icon, styling)
 lives in your snippet/component. (`confirm`/`prompt` take a `title` because the manager renders
-*their* markup.)
+_their_ markup.)
 
 ## Options
 
 ```ts
 dialog.show(body, {
-	dismissible: true,        // Escape / backdrop / close button (default true)
-	width: 'sm' | 'md' | 'lg',// passed to your shell snippet
+	dismissible: true, // Escape / backdrop / close button (default true)
+	width: 'sm' | 'md' | 'lg', // passed to your shell snippet
 	allowClose: () => boolean | Promise<boolean>, // veto a dismiss (e.g. dirty-form guard)
 })
 ```
@@ -183,15 +186,15 @@ your app.
 The defaults use shadcn-style semantic Tailwind color utilities. Define the matching CSS variables
 once and every dialog looks right, no per-call work:
 
-| Token (utility)                                  | Used for                |
-| ------------------------------------------------ | ----------------------- |
-| `background` / `foreground`                      | panel bg / text         |
-| `card`                                           | input bg (prompt)       |
-| `border`                                         | panel + control borders |
-| `primary` / `primary-foreground`                 | confirm / submit button |
-| `destructive` / `destructive-foreground`         | danger confirm button   |
-| `muted` / `muted-foreground`                     | hover / secondary text  |
-| `ring`                                           | focus ring              |
+| Token (utility)                          | Used for                |
+| ---------------------------------------- | ----------------------- |
+| `background` / `foreground`              | panel bg / text         |
+| `card`                                   | input bg (prompt)       |
+| `border`                                 | panel + control borders |
+| `primary` / `primary-foreground`         | confirm / submit button |
+| `destructive` / `destructive-foreground` | danger confirm button   |
+| `muted` / `muted-foreground`             | hover / secondary text  |
+| `ring`                                   | focus ring              |
 
 ```css
 /* app.css (Tailwind v4) */
@@ -213,7 +216,7 @@ snippets. Each receives typed args and the actions to call.
 ```svelte
 <script lang="ts">
 	import { FF_DialogManager, ffAutofocus } from 'firstly/svelte'
-	import type { DialogShellArgs, DialogConfirmArgs } from 'firstly/svelte'
+	import type { DialogConfirmArgs, DialogShellArgs } from 'firstly/svelte'
 </script>
 
 {#snippet shell({ body, close, dismiss, dismissible, width }: DialogShellArgs)}
@@ -226,7 +229,15 @@ snippets. Each receives typed args and the actions to call.
 	</div>
 {/snippet}
 
-{#snippet confirm({ message, title, confirmLabel, cancelLabel, danger, confirm, cancel }: DialogConfirmArgs)}
+{#snippet confirm({
+	message,
+	title,
+	confirmLabel,
+	cancelLabel,
+	danger,
+	confirm,
+	cancel,
+}: DialogConfirmArgs)}
 	<div class="modal modal-open">
 		<div class="modal-box">
 			{#if title}<h3>{title}</h3>{/if}
@@ -255,6 +266,7 @@ plain string, or a zero-arg function (a paraglide / i18next message) resolved at
 
 ```ts
 import * as m from '$lib/paraglide/messages'
+
 await dialog.confirm(m.delete_item(), { confirmLabel: m.delete() })
 ```
 
