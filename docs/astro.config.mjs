@@ -86,6 +86,10 @@ export default defineConfig({
 							label: 'ff (reactive layer)',
 							link: '/docs/svelte/ff',
 						},
+						{
+							label: 'dialog',
+							link: '/docs/svelte/dialog',
+						},
 					],
 				},
 			],

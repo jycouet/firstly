@@ -1,0 +1,220 @@
+---
+title: dialog (headless)
+---
+
+`dialog` (from `firstly/svelte`) is a **headless, async** dialog layer for Svelte 5. It owns the
+logic only - the queue, the `await`-able resolution, stacking, Escape, scroll-lock - and ships
+**no markup of its own beyond opt-in defaults**. You mount one `<FF_DialogManager>` and either lean
+on its theme-adaptive defaults or hand it your own snippets, so the dialog looks native to *your*
+design system.
+
+```svelte
+<script lang="ts">
+	import { dialog } from 'firstly/svelte'
+
+	async function remove() {
+		const { ok } = await dialog.confirm('Delete this item?', { danger: true })
+		if (ok) await repo(Task).delete(id)
+	}
+</script>
+```
+
+## Setup - mount the manager once
+
+Put `<FF_DialogManager>` once, high in the tree (e.g. your root layout). Every `dialog.*` call
+renders through it.
+
+```svelte
+<!-- +layout.svelte -->
+<script lang="ts">
+	import { FF_DialogManager } from 'firstly/svelte'
+</script>
+
+<FF_DialogManager />
+{@render children()}
+```
+
+That's the zero-config setup: the built-in defaults render with semantic Tailwind tokens (see
+[Theming](#theming)). To restyle, pass `shell` / `confirm` / `prompt` snippets (also below).
+
+## One result for all three
+
+`show` / `confirm` / `prompt` all resolve the **same** `DialogResult` shape:
+
+```ts
+type DialogResult<T> = { ok: true; data: T } | { ok: false }
+```
+
+`{ ok: true }` means it went through (confirmed / submitted); `{ ok: false }` means cancelled or
+dismissed. No per-method `boolean` / `null` special-casing - `if (r.ok)` everywhere.
+
+| Call                  | Resolves                                       |
+| --------------------- | ---------------------------------------------- |
+| `dialog.show<T>(body)`| `{ ok: true, data: T } \| { ok: false }`       |
+| `dialog.confirm(msg)` | `{ ok: true } \| { ok: false }` (no `data`)    |
+| `dialog.prompt(opts)` | `{ ok: true, data: string } \| { ok: false }`  |
+
+:::tip[Why `prompt` returns `{ ok, data }` and not `string \| null`]
+With `string | null`, "cancelled" and "submitted an empty string" both collapse to a falsy value.
+`{ ok: false }` (cancelled) vs `{ ok: true, data: '' }` (empty submit) keeps them distinct.
+:::
+
+## confirm
+
+Yes/no. `{ ok }` is the answer.
+
+```ts
+const { ok } = await dialog.confirm('Save the changes?', {
+	title: 'Confirm',
+	confirmLabel: 'Save',
+	cancelLabel: 'Cancel',
+	danger: false, // true -> destructive styling
+})
+```
+
+## prompt
+
+A single text field. `data` is the trimmed value.
+
+```ts
+const r = await dialog.prompt({
+	title: 'New option',
+	label: 'Label',
+	placeholder: 'My option',
+	hint: (v) => `key: ${slug(v) || '-'}`, // optional live hint under the field
+})
+if (r.ok) create(r.data)
+```
+
+## show - any body
+
+`show` renders a **snippet** you pass, which receives a `close(result?)` callback. Call
+`close({ ok: true, data })` to resolve with data, `close()` to dismiss.
+
+```svelte
+<script lang="ts">
+	import { dialog } from 'firstly/svelte'
+
+	let name = $state('')
+
+	async function open() {
+		name = ''
+		const r = await dialog.show<{ name: string }>(body, { width: 'md' })
+		if (r.ok) console.log(r.data.name)
+	}
+</script>
+
+{#snippet body(close)}
+	<input bind:value={name} />
+	<button onclick={() => close({ name })}>OK</button>
+	<button onclick={() => close()}>Cancel</button>
+{/snippet}
+
+<button onclick={open}>Open</button>
+```
+
+`close(value)` is normalised: a bare value becomes `{ ok: true, data: value }`, `undefined` becomes
+`{ ok: false }`, and an explicit `{ ok, data }` is passed through.
+
+## Options
+
+```ts
+dialog.show(body, {
+	dismissible: true,        // Escape / backdrop / close button (default true)
+	width: 'sm' | 'md' | 'lg',// passed to your shell snippet
+	allowClose: () => boolean | Promise<boolean>, // veto a dismiss (e.g. dirty-form guard)
+})
+```
+
+Built in: **Escape** dismisses the topmost item, the body **scroll-locks** while anything is open,
+and dialogs **stack** (multiple open at once, newest on top).
+
+## Theming
+
+The manager renders **built-in defaults** with zero config. There are two ways to make them match
+your app.
+
+### Option 1 - define the semantic tokens
+
+The defaults use shadcn-style semantic Tailwind color utilities. Define the matching CSS variables
+once and every dialog looks right, no per-call work:
+
+| Token (utility)                                  | Used for                |
+| ------------------------------------------------ | ----------------------- |
+| `background` / `foreground`                      | panel bg / text         |
+| `card`                                           | input bg (prompt)       |
+| `border`                                         | panel + control borders |
+| `primary` / `primary-foreground`                 | confirm / submit button |
+| `destructive` / `destructive-foreground`         | danger confirm button   |
+| `muted` / `muted-foreground`                     | hover / secondary text  |
+| `ring`                                           | focus ring              |
+
+```css
+/* app.css (Tailwind v4) */
+@theme {
+	--color-background: oklch(1 0 0);
+	--color-foreground: oklch(0.15 0 0);
+	--color-primary: oklch(0.6 0.2 250);
+	--color-primary-foreground: oklch(1 0 0);
+	--color-border: oklch(0.9 0 0);
+	/* ...muted, destructive, card, ring */
+}
+```
+
+### Option 2 - pass your own snippets
+
+For a different system (e.g. daisyUI), hand `<FF_DialogManager>` `shell`, `confirm`, and `prompt`
+snippets. Each receives typed args and the actions to call.
+
+```svelte
+<script lang="ts">
+	import { FF_DialogManager, ffAutofocus } from 'firstly/svelte'
+	import type { DialogShellArgs, DialogConfirmArgs } from 'firstly/svelte'
+</script>
+
+{#snippet shell({ body, close, dismiss, dismissible, width }: DialogShellArgs)}
+	<div class="modal modal-open">
+		<div class="modal-box" use:ffAutofocus>
+			{@render body(close)}
+			{#if dismissible}<button onclick={dismiss}>✕</button>{/if}
+		</div>
+		<button class="modal-backdrop" onclick={dismiss} aria-label="Close"></button>
+	</div>
+{/snippet}
+
+{#snippet confirm({ message, title, confirmLabel, cancelLabel, danger, confirm, cancel }: DialogConfirmArgs)}
+	<div class="modal modal-open">
+		<div class="modal-box">
+			{#if title}<h3>{title}</h3>{/if}
+			<p>{message}</p>
+			<button onclick={cancel}>{cancelLabel}</button>
+			<button class={danger ? 'btn-error' : 'btn-primary'} onclick={confirm}>{confirmLabel}</button>
+		</div>
+	</div>
+{/snippet}
+
+<FF_DialogManager {shell} {confirm} />
+```
+
+You can override any subset - omit `prompt` to keep the built-in prompt, etc.
+
+:::caution[Custom `prompt` snippets don't get `hint`]
+The `hint` option is rendered by the built-in prompt only. A custom `prompt` snippet receives
+`title` / `label` / `placeholder` / `initial` / labels / `submit` / `cancel`, but **not** `hint` -
+compute any live preview inside your own snippet if you need one.
+:::
+
+## Labels accept a `LocalizedMessage`
+
+Every label (`title`, `confirmLabel`, `cancelLabel`, `message`, ...) takes a `LocalizedMessage`: a
+plain string, or a zero-arg function (a paraglide / i18next message) resolved at render time.
+
+```ts
+import * as m from '$lib/paraglide/messages'
+await dialog.confirm(m.delete_item(), { confirmLabel: m.delete() })
+```
+
+## Imperative helpers
+
+`dialog.closeAll()` resolves everything as `{ ok: false }` (e.g. on full-page navigation);
+`dismissTop()` / `dismissTopConfirm()` / `dismissTopPrompt()` dismiss the topmost of a kind.

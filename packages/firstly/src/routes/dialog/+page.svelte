@@ -16,11 +16,11 @@
 		lastResult = r.ok ? `show -> ${JSON.stringify(r.data)}` : 'show -> dismissed'
 	}
 	async function openConfirm() {
-		const ok = await dialog.confirm('Save the changes?', { title: 'Confirm' })
+		const { ok } = await dialog.confirm('Save the changes?', { title: 'Confirm' })
 		lastResult = `confirm -> ${ok}`
 	}
 	async function openDanger() {
-		const ok = await dialog.confirm('Delete this item? This cannot be undone.', {
+		const { ok } = await dialog.confirm('Delete this item? This cannot be undone.', {
 			title: 'Delete',
 			danger: true,
 			confirmLabel: 'Delete',
@@ -28,17 +28,17 @@
 		lastResult = `confirm(danger) -> ${ok}`
 	}
 	async function openPrompt() {
-		const v = await dialog.prompt({ title: 'Your name', label: 'Name', placeholder: 'Ada Lovelace' })
-		lastResult = `prompt -> ${v === null ? 'cancelled' : JSON.stringify(v)}`
+		const r = await dialog.prompt({ title: 'Your name', label: 'Name', placeholder: 'Ada Lovelace' })
+		lastResult = r.ok ? `prompt -> ${JSON.stringify(r.data)}` : 'prompt -> cancelled'
 	}
 	async function openPromptHint() {
-		const v = await dialog.prompt({
+		const r = await dialog.prompt({
 			title: 'New option',
 			label: 'Label',
 			placeholder: 'My option',
 			hint: (val) => `key: ${slug(val) || '—'}`,
 		})
-		lastResult = `prompt(hint) -> ${v === null ? 'cancelled' : JSON.stringify(v)}`
+		lastResult = r.ok ? `prompt(hint) -> ${JSON.stringify(r.data)}` : 'prompt(hint) -> cancelled'
 	}
 </script>
 
