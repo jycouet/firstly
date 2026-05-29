@@ -5,6 +5,7 @@
 	import {
 		dialog,
 		ffAutofocus,
+		ffTrapFocus,
 		resolveMessage,
 		type DialogClose,
 		type DialogConfirmArgs,
@@ -57,6 +58,41 @@
 		document.body.style.overflow = 'hidden'
 		return () => {
 			document.body.style.overflow = prev
+		}
+	})
+
+	// Snapshot the element focused before the first dialog opened, and restore focus to it once
+	// everything is closed (otherwise focus falls back to <body>). The `ffAutofocus`/`ffTrapFocus`
+	// actions on each panel own focus WHILE open; this only fires the restore on the 0-open edge.
+	// SSR-safe (effects don't run on the server).
+	let restoreTo: HTMLElement | null = null
+	$effect(() => {
+		if (typeof document === 'undefined') return
+		if (total > 0 && restoreTo === null) {
+			restoreTo = document.activeElement as HTMLElement | null
+		} else if (total === 0 && restoreTo !== null) {
+			const el = restoreTo
+			restoreTo = null
+			if (el.isConnected) el.focus()
+		}
+	})
+
+	// Mark the app root `inert` (+ aria-hidden) while any dialog is open, so the background can't
+	// be tabbed into or read by AT. The dialog panels render at the document body level (a sibling
+	// of the app root), so inerting the root never touches the panels. SSR-safe.
+	$effect(() => {
+		if (typeof document === 'undefined' || total === 0) return
+		const root = document.querySelector<HTMLElement>('[data-sveltekit-root], #svelte, body > div:first-child')
+		if (!root || root.contains(document.activeElement)) {
+			// Fallback: no identifiable single root, or the dialog itself lives under it - skip
+			// inert (the per-panel focus trap still contains keyboard navigation).
+			return
+		}
+		root.setAttribute('inert', '')
+		root.setAttribute('aria-hidden', 'true')
+		return () => {
+			root.removeAttribute('inert')
+			root.removeAttribute('aria-hidden')
 		}
 	})
 
@@ -134,8 +170,10 @@
 		></button>
 		<div
 			use:ffAutofocus
+			use:ffTrapFocus
 			role="dialog"
 			aria-modal="true"
+			tabindex="-1"
 			class="bg-background text-foreground border-border relative z-[1] max-h-[90vh] w-full {widthClass[
 				width
 			]} overflow-auto rounded-lg border p-5 shadow-xl"
@@ -158,6 +196,7 @@
 {/snippet}
 
 {#snippet defaultConfirm({
+	id,
 	message,
 	title,
 	confirmLabel,
@@ -174,14 +213,19 @@
 		></button>
 		<div
 			use:ffAutofocus
+			use:ffTrapFocus
 			role="alertdialog"
 			aria-modal="true"
+			tabindex="-1"
+			aria-labelledby={title ? `ff-dlg-title-${id}` : undefined}
+			aria-label={title ? undefined : message}
+			aria-describedby="ff-dlg-desc-{id}"
 			class="bg-background text-foreground border-border relative z-[1] w-full max-w-sm rounded-lg border p-5 shadow-xl"
 		>
 			{#if title}
-				<h2 class="mb-2 text-lg font-semibold">{title}</h2>
+				<h2 id="ff-dlg-title-{id}" class="mb-2 text-lg font-semibold">{title}</h2>
 			{/if}
-			<p class="text-sm whitespace-pre-line">{message}</p>
+			<p id="ff-dlg-desc-{id}" class="text-sm whitespace-pre-line">{message}</p>
 			<div class="mt-5 flex justify-end gap-2">
 				<button
 					type="button"

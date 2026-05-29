@@ -365,3 +365,46 @@ export function ffAutofocus(node: HTMLElement) {
 			?.focus()
 	})
 }
+
+const FOCUSABLE =
+	'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+/**
+ * `use:ffTrapFocus` - keep Tab / Shift+Tab cycling within `node` (a dialog panel) instead
+ * of escaping into the background. Put it on your panel alongside `ffAutofocus`. SSR-safe
+ * (the listener is only attached in the browser, where actions run).
+ */
+export function ffTrapFocus(node: HTMLElement) {
+	function onKeydown(e: KeyboardEvent) {
+		if (e.key !== 'Tab') return
+		const focusable = Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+			(el) => el.offsetParent !== null || el === document.activeElement,
+		)
+		if (focusable.length === 0) {
+			// Nothing focusable inside: keep focus on the panel itself.
+			e.preventDefault()
+			node.focus()
+			return
+		}
+		const first = focusable[0]
+		const last = focusable[focusable.length - 1]
+		const active = document.activeElement
+		if (e.shiftKey) {
+			if (active === first || !node.contains(active)) {
+				e.preventDefault()
+				last.focus()
+			}
+		} else {
+			if (active === last || !node.contains(active)) {
+				e.preventDefault()
+				first.focus()
+			}
+		}
+	}
+	node.addEventListener('keydown', onKeydown)
+	return {
+		destroy() {
+			node.removeEventListener('keydown', onKeydown)
+		},
+	}
+}

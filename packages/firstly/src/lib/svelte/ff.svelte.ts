@@ -250,9 +250,13 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	async more() {
 		if (this.#mode !== 'paginate') throw new Error('FF_Repo: more() requires paginate mode')
 		if (!this.#paginator || this.loading.more || !this.hasNextPage) return
+		const seq = this.#seq
 		this.loading.more = true
 		try {
 			const next = await this.#paginator.nextPage()
+			// A newer query (where/orderBy/pageSize changed) ran while this page was in flight:
+			// drop the stale page rather than appending it to the new result.
+			if (seq !== this.#seq) return
 			this.#paginator = next
 			this.items = [...this.items, ...next.items]
 			this.hasNextPage = next.hasNextPage
@@ -351,6 +355,33 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		for (const t of this.#syncTargets)
 			t.removeItem(target as Parameters<Repository<Entity>['delete']>[0])
 		return res
+	}
+
+	/**
+	 * Save a specific `row` through this list handle's loading/error machinery (mirrors the
+	 * argless `save()`), then reconcile the list (sorted upsert / paginate refresh). Used by
+	 * `FF_ManyHandle.save(target)` so a targeted write flips `loading.saving` and fills `error`.
+	 */
+	async saveRow(row: Entity) {
+		let saved: Entity
+		await this.#write(
+			'saving',
+			async () => (saved = await this.#repo.save(row)),
+			() => this.reconcile(saved),
+		)
+		return saved!
+	}
+
+	/**
+	 * Delete a specific `row` through this list handle's loading/error machinery (mirrors the
+	 * argless `delete()`), then drop it from the list. Used by `FF_ManyHandle.remove(target)`.
+	 */
+	async deleteRow(row: Entity) {
+		await this.#write(
+			'deleting',
+			() => this.#repo.delete(row as Parameters<Repository<Entity>['delete']>[0]),
+			() => this.removeItem(row as Parameters<Repository<Entity>['delete']>[0]),
+		)
 	}
 
 	/**
@@ -572,8 +603,10 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 			init: l.init,
 			fetching: l.fetching || e.fetching,
 			more: l.more,
-			saving: e.saving,
-			deleting: e.deleting,
+			// Targeted writes (`save(row)`/`remove(row)`) flip the list flags; argless draft
+			// writes flip the editor flags (and propagate to the list via `.syncs`). Merge both.
+			saving: e.saving || l.saving,
+			deleting: e.deleting || l.deleting,
 		}
 	}
 	get isBusy(): boolean {
@@ -622,9 +655,9 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	/** Save `target` (any row) or, argless, the current `draft`; reconciles the list. */
 	async save(target?: Entity) {
 		if (target !== undefined) {
-			const saved = await this.#repo.save(target)
-			this.#list.reconcile(saved)
-			return saved
+			// Route through the list handle's loading/error machinery (same as the argless path),
+			// then reconcile - so a targeted save flips `loading.saving` and fills/clears `error`.
+			return this.#list.saveRow(target)
 		}
 		const saved = await this.#editor.save()
 		this.cancel()
@@ -633,8 +666,9 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	/** Delete `target` (any row) or, argless, the current `draft`; reconciles the list. */
 	async remove(target?: Entity) {
 		if (target !== undefined) {
-			await this.#repo.delete(target as Parameters<Repository<Entity>['delete']>[0])
-			this.#list.removeItem(target as Parameters<Repository<Entity>['delete']>[0])
+			// Route through the list handle's loading/error machinery (same as the argless path),
+			// then drop the row - so a targeted remove flips `loading.deleting` and fills/clears `error`.
+			await this.#list.deleteRow(target)
 			return
 		}
 		await this.#editor.delete()

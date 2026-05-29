@@ -204,9 +204,13 @@ Types: `FF_Many<T, Strategy>`, `FF_One<T>`, `FF_Builder<T>`, `FF_RepoOptions`, `
 
 ## `dialog` - headless dialogs (Svelte 5)
 
-`dialog` (from `firstly/svelte`) is an async dialog layer: `dialog.show(body, opts)` - `body` is a
-snippet receiving `close(result?)`, resolves `{ ok: true, data } | { ok: false }` - and
-`dialog.confirm(message, { title?, danger?, confirmLabel?, cancelLabel? })` (resolves a boolean).
+`dialog` (from `firstly/svelte`) is an async dialog layer. **Every `dialog.*` call resolves the same
+`DialogResult` (`{ ok: true, data } | { ok: false }`) - ALWAYS read `.ok` (or destructure `{ ok }`);
+never use the result as a boolean, the object is always truthy so `if (await dialog.confirm(...))`
+silently always passes.** `dialog.show(body, opts)` (`body` = snippet receiving `close(result?)`) and
+`dialog.open(component, { props })` resolve `{ ok, data }`; `dialog.confirm(message, { title?,
+danger?, confirmLabel?, cancelLabel? })` resolves `{ ok }` (no `data`); `dialog.prompt({...})`
+resolves `{ ok, data: string }`.
 Mount `<FF_DialogManager />` once at the app root: it's **headless** (owns esc / scroll-lock /
 stacking) and renders built-in **default** shell + confirm styled in semantic Tailwind tokens
 (`bg-card`, `border-border`, `bg-primary`, `bg-destructive`, ...) so they inherit the app theme with
