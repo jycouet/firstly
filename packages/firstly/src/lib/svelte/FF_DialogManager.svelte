@@ -82,7 +82,9 @@
 	// of the app root), so inerting the root never touches the panels. SSR-safe.
 	$effect(() => {
 		if (typeof document === 'undefined' || total === 0) return
-		const root = document.querySelector<HTMLElement>('[data-sveltekit-root], #svelte, body > div:first-child')
+		const root = document.querySelector<HTMLElement>(
+			'[data-sveltekit-root], #svelte, body > div:first-child',
+		)
 		if (!root || root.contains(document.activeElement)) {
 			// Fallback: no identifiable single root, or the dialog itself lives under it - skip
 			// inert (the per-panel focus trap still contains keyboard navigation).

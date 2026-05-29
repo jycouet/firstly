@@ -178,7 +178,7 @@ Key rules:
 - **`edit` has two modes (why):** default `edit(row)` edits an isolated **clone** - instant (no fetch,
   no flicker), saving updates (the clone keeps remult's existing-row state), and `cancel()` leaves the
   list untouched. That's the "edit the row in front of me" case, so it's the default. `edit(row, {
-  refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → guard `{#if draft}`) for
+refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → guard `{#if draft}`) for
   when the list may be stale and you want the latest server values before editing.
 - **Single record (`one`)**: bind a form to `item`; argless `save()` / `delete()` act on it;
   `create(...)` seeds a draft; `refresh()` re-fetches. `onFirst((latest) => ...)` (on **both** `many`
@@ -226,11 +226,12 @@ type LocalizedMessage = string | (() => string)
 
 A literal for single-locale apps, or a **function** resolved at render / validation time - typically a
 paraglide / i18next / lingui message function, so it tracks the current locale. firstly resolves it
-with `resolveMessage(m)` (`typeof m === 'function' ? m() : m`). Pass the message *function* (not a
+with `resolveMessage(m)` (`typeof m === 'function' ? m() : m`). Pass the message _function_ (not a
 pre-resolved string) so locale switches stay reactive:
 
 ```ts
 import * as m from '$lib/paraglide/messages'
+
 dialog.confirm(m.delete_confirm, { confirmLabel: m.delete, danger: true })
 ```
 
