@@ -70,6 +70,7 @@ catalogs:
   tailwind-merge: 3.5.0
   clsx: 2.1.1
   daisyui: 5.5.3
+  svelte-sonner: 1.1.1
 
  prod:
   '@types/nodemailer': 8.0.0
