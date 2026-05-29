@@ -83,8 +83,12 @@ export default defineConfig({
 					label: 'Svelte',
 					items: [
 						{
-							label: 'ffRepo (FF_Repo)',
-							link: '/docs/svelte/ff-repo',
+							label: 'ff (reactive layer)',
+							link: '/docs/svelte/ff',
+						},
+						{
+							label: 'dialog',
+							link: '/docs/svelte/dialog',
 						},
 					],
 				},

@@ -149,6 +149,9 @@ importers:
       '@playwright/test':
         specifier: catalog:testing
         version: 1.60.0
+      eslint:
+        specifier: catalog:kitql
+        version: 10.4.0(jiti@2.6.1)
       prettier:
         specifier: catalog:tooling
         version: 3.8.1

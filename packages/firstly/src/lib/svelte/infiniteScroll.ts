@@ -31,7 +31,7 @@ function scrollParent(el: Element): Element | null {
  * observes geometry it never misfires on mount: a full first page leaves the
  * sentinel far below the root.
  *
- * Pairs with `ffRepo(E).paginate(...)`:
+ * Pairs with `ff(E).many(..., 'paginate')`:
  *
  * ```svelte
  * <div {@attach infiniteScroll({
