@@ -7,16 +7,28 @@
 <div class="mx-auto flex max-w-md flex-col gap-3 p-8">
 	<h1 class="text-xl font-semibold">Toast demo</h1>
 	<div class="flex flex-wrap gap-2">
-		<button class="border-border rounded-md border px-3 py-1.5 text-sm" onclick={() => toast.success('Saved')}>
+		<button
+			class="border-border rounded-md border px-3 py-1.5 text-sm"
+			onclick={() => toast.success('Saved')}
+		>
 			success
 		</button>
-		<button class="border-border rounded-md border px-3 py-1.5 text-sm" onclick={() => toast.error('Nope')}>
+		<button
+			class="border-border rounded-md border px-3 py-1.5 text-sm"
+			onclick={() => toast.error('Nope')}
+		>
 			error
 		</button>
-		<button class="border-border rounded-md border px-3 py-1.5 text-sm" onclick={() => toast.info('FYI')}>
+		<button
+			class="border-border rounded-md border px-3 py-1.5 text-sm"
+			onclick={() => toast.info('FYI')}
+		>
 			info
 		</button>
-		<button class="border-border rounded-md border px-3 py-1.5 text-sm" onclick={() => toast.warning('Careful')}>
+		<button
+			class="border-border rounded-md border px-3 py-1.5 text-sm"
+			onclick={() => toast.warning('Careful')}
+		>
 			warning
 		</button>
 		<button
