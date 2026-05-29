@@ -1,4 +1,7 @@
+import { toast as sonner } from 'svelte-sonner'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { toast } from './toast'
 
 // Mock svelte-sonner so we assert forwarding without rendering a Toaster.
 vi.mock('svelte-sonner', () => ({
@@ -10,10 +13,6 @@ vi.mock('svelte-sonner', () => ({
 		dismiss: vi.fn(),
 	},
 }))
-
-import { toast as sonner } from 'svelte-sonner'
-
-import { toast } from './toast'
 
 beforeEach(() => vi.clearAllMocks())
 

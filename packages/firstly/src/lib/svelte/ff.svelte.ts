@@ -1,3 +1,5 @@
+import type { Snippet } from 'svelte'
+
 import {
 	repo as remultRepo,
 	type ClassType,
@@ -13,7 +15,6 @@ import {
 	type QueryOptions,
 	type Repository,
 } from 'remult'
-import type { Snippet } from 'svelte'
 
 import type { LocalizedMessage } from '../core/FF_Validators.js'
 import { dialog, type DialogClose, type DialogOptions, type DialogResult } from './dialog.svelte.js'
