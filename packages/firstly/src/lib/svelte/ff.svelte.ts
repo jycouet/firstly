@@ -13,6 +13,10 @@ import {
 	type QueryOptions,
 	type Repository,
 } from 'remult'
+import type { Snippet } from 'svelte'
+
+import type { LocalizedMessage } from '../core/FF_Validators.js'
+import { dialog, type DialogClose, type DialogOptions, type DialogResult } from './dialog.svelte.js'
 
 /**
  * `ff` - the firstly reactive layer over a Remult entity, as Svelte runes. Two shapes:
@@ -673,6 +677,44 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		}
 		await this.#editor.delete()
 		this.cancel()
+	}
+
+	/**
+	 * Confirm, then remove `row`. Resolves `{ ok: true }` when removed, `{ ok: false }` when the
+	 * user cancels OR the delete fails (a failure also fills `error` and, unless `toast: false`,
+	 * shows `toast.fromError`). Never re-throws - safe for `onclick={() => list.confirmRemove(row)}`.
+	 */
+	async confirmRemove(
+		row: Entity,
+		opts?: {
+			message?: LocalizedMessage
+			title?: LocalizedMessage
+			confirmLabel?: LocalizedMessage
+			cancelLabel?: LocalizedMessage
+			/** Style the confirm as destructive. Default true (it's a delete). */
+			danger?: boolean
+			/** Auto-show `toast.fromError` when the delete fails. Default true. */
+			toast?: boolean
+		},
+	): Promise<DialogResult<void>> {
+		const c = await dialog.confirm(opts?.message ?? 'Delete this item?', {
+			title: opts?.title,
+			confirmLabel: opts?.confirmLabel,
+			cancelLabel: opts?.cancelLabel,
+			danger: opts?.danger ?? true,
+		})
+		if (!c.ok) return { ok: false }
+		try {
+			await this.remove(row)
+			return { ok: true, data: undefined }
+		} catch (e) {
+			if (opts?.toast !== false) {
+				// Lazy import keeps `ff` users who never toast from pulling svelte-sonner.
+				const { toast } = await import('./toast.js')
+				toast.fromError(e)
+			}
+			return { ok: false }
+		}
 	}
 
 	more() {

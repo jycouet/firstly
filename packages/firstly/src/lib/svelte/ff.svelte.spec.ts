@@ -3,7 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { Entity, Fields, InMemoryDataProvider, remult, repo } from 'remult'
 
+import { dialog, type DialogClose } from './dialog.svelte'
 import { ff } from './ff.svelte'
+import { toast } from './toast'
 
 // Minimal test entity. `order` desc is the default sort so we can assert ordering.
 @Entity<Row>('ff_repo_test_rows', { allowApiCrud: true, defaultOrderBy: { order: 'desc' } })
@@ -41,6 +43,23 @@ class Pair {
 	@Fields.string()
 	label = ''
 }
+
+// Delete always throws - to exercise confirmRemove's failure path.
+@Entity<Undeletable>('ff_undeletable', {
+	allowApiCrud: true,
+	deleting: () => {
+		throw new Error('delete blocked')
+	},
+})
+class Undeletable {
+	@Fields.id()
+	id = ''
+	@Fields.string()
+	name = ''
+}
+
+// A no-op snippet - the dialog store only holds the reference, it never renders in these tests.
+const noopSnippet = (() => {}) as unknown as import('svelte').Snippet<[DialogClose]>
 
 async function seed(n: number) {
 	await repo(Row).insert(Array.from({ length: n }, (_, i) => ({ order: i + 1, name: `r${i + 1}` })))
@@ -201,6 +220,61 @@ describe('ff().many - onFirst (seed once from items[0])', () => {
 		await m.save()
 		await vi.waitFor(() => expect(m.items[0]?.order).toBe(10))
 		expect(seen).toEqual([3])
+	})
+})
+
+describe('ff().many - confirmRemove', () => {
+	it('confirm ok -> removes the row from list + db', async () => {
+		await seed(3)
+		const m = root(() => ff(Row).many(() => ({}), 'load'))
+		await vi.waitFor(() => expect(m.items.length).toBe(3))
+		const target = m.items[0]
+		const p = m.confirmRemove(target, { message: 'Delete?' })
+		await vi.waitFor(() => expect(dialog.confirmList.length).toBe(1))
+		dialog._resolveConfirm(dialog.confirmList[0].id, true)
+		await expect(p).resolves.toEqual({ ok: true, data: undefined })
+		expect(m.items.length).toBe(2)
+		expect(await repo(Row).count()).toBe(2)
+	})
+
+	it('cancel -> no-op, resolves { ok: false }', async () => {
+		await seed(3)
+		const m = root(() => ff(Row).many(() => ({}), 'load'))
+		await vi.waitFor(() => expect(m.items.length).toBe(3))
+		const p = m.confirmRemove(m.items[0])
+		await vi.waitFor(() => expect(dialog.confirmList.length).toBe(1))
+		dialog._resolveConfirm(dialog.confirmList[0].id, false)
+		await expect(p).resolves.toEqual({ ok: false })
+		expect(m.items.length).toBe(3)
+		expect(await repo(Row).count()).toBe(3)
+	})
+
+	it('failed delete -> toasts, sets error, resolves { ok: false }, does not throw', async () => {
+		await repo(Undeletable).insert({ name: 'x' })
+		const m = root(() => ff(Undeletable).many(() => ({}), 'load'))
+		await vi.waitFor(() => expect(m.items.length).toBe(1))
+		const spy = vi.spyOn(toast, 'fromError').mockReturnValue('id')
+		const p = m.confirmRemove(m.items[0])
+		await vi.waitFor(() => expect(dialog.confirmList.length).toBe(1))
+		dialog._resolveConfirm(dialog.confirmList[0].id, true)
+		await expect(p).resolves.toEqual({ ok: false })
+		expect(spy).toHaveBeenCalledOnce()
+		expect(m.error).toBeTruthy()
+		expect(await repo(Undeletable).count()).toBe(1)
+		spy.mockRestore()
+	})
+
+	it('toast: false suppresses the error toast', async () => {
+		await repo(Undeletable).insert({ name: 'y' })
+		const m = root(() => ff(Undeletable).many(() => ({}), 'load'))
+		await vi.waitFor(() => expect(m.items.length).toBe(1))
+		const spy = vi.spyOn(toast, 'fromError').mockReturnValue('id')
+		const p = m.confirmRemove(m.items[0], { toast: false })
+		await vi.waitFor(() => expect(dialog.confirmList.length).toBe(1))
+		dialog._resolveConfirm(dialog.confirmList[0].id, true)
+		await expect(p).resolves.toEqual({ ok: false })
+		expect(spy).not.toHaveBeenCalled()
+		spy.mockRestore()
 	})
 })
 
