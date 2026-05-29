@@ -2,8 +2,7 @@ import type { Component, ComponentProps, Snippet } from 'svelte'
 
 import type { LocalizedMessage } from '../core/FF_Validators.js'
 
-/** Resolve a `LocalizedMessage` (literal, or a paraglide/i18next message fn) to a string. */
-export const resolveMessage = (m: LocalizedMessage): string => (typeof m === 'function' ? m() : m)
+export { resolveMessage } from '../core/FF_Validators.js'
 
 /**
  * `dialog` - firstly's headless async dialog layer (Svelte 5 runes).
