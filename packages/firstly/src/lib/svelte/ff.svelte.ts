@@ -717,6 +717,41 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		}
 	}
 
+	/**
+	 * Edit `row` in a dialog: seed `draft` (a clone, or `{ refetch: true }` to re-read fresh),
+	 * open `body`, and always `cancel()` on close. The `body` snippet binds `draft` and calls
+	 * `save()` itself (so a failed/validation save keeps the dialog open via `error`); this method
+	 * owns only the seed + cleanup. Resolves the dialog's `DialogResult`.
+	 */
+	async editInDialog<T = unknown>(
+		row: Entity,
+		body: Snippet<[DialogClose<T>]>,
+		opts?: DialogOptions & { refetch?: boolean },
+	): Promise<DialogResult<T>> {
+		this.edit(row, { refetch: opts?.refetch })
+		try {
+			return await dialog.show<T>(body, opts)
+		} finally {
+			this.cancel()
+		}
+	}
+
+	/**
+	 * Create in a dialog: start a blank `draft` (optionally seeded with `defaults`), open `body`,
+	 * and always `cancel()` on close. The `body` binds `draft` and calls `save()` itself.
+	 */
+	async createInDialog<T = unknown>(
+		body: Snippet<[DialogClose<T>]>,
+		opts?: DialogOptions & { defaults?: Parameters<Repository<Entity>['create']>[0] },
+	): Promise<DialogResult<T>> {
+		this.create(opts?.defaults)
+		try {
+			return await dialog.show<T>(body, opts)
+		} finally {
+			this.cancel()
+		}
+	}
+
 	more() {
 		return this.#list.more()
 	}

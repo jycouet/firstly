@@ -278,6 +278,33 @@ describe('ff().many - confirmRemove', () => {
 	})
 })
 
+describe('ff().many - editInDialog / createInDialog', () => {
+	it('editInDialog seeds the draft (clone) and cancels after the dialog closes', async () => {
+		await seed(2)
+		const m = root(() => ff(Row).many(() => ({}), 'load'))
+		await vi.waitFor(() => expect(m.items.length).toBe(2))
+		const target = m.items[0]
+		const p = m.editInDialog(target, noopSnippet)
+		expect(m.draft?.id).toBe(target.id) // seeded synchronously (clone)
+		await vi.waitFor(() => expect(dialog.list.length).toBe(1))
+		dialog._close(dialog.list[0].id, { ok: true, data: undefined })
+		await expect(p).resolves.toEqual({ ok: true, data: undefined })
+		expect(m.draft).toBeUndefined() // cancel() ran
+	})
+
+	it('createInDialog seeds a blank draft with defaults and cancels after close', async () => {
+		await seed(1)
+		const m = root(() => ff(Row).many(() => ({}), 'load'))
+		await vi.waitFor(() => expect(m.loading.init).toBe(false))
+		const p = m.createInDialog(noopSnippet, { defaults: { name: 'seeded' } })
+		expect(m.draft?.name).toBe('seeded')
+		await vi.waitFor(() => expect(dialog.list.length).toBe(1))
+		dialog._close(dialog.list[0].id, { ok: false })
+		await expect(p).resolves.toEqual({ ok: false })
+		expect(m.draft).toBeUndefined()
+	})
+})
+
 describe('ff().many - paginate', () => {
 	it('pages, exposes hasNextPage + aggregates.$count, and appends with more()', async () => {
 		await seed(5)
