@@ -1,5 +1,6 @@
 import { getContext, setContext } from 'svelte'
 import type { Snippet } from 'svelte'
+import type { ToasterProps } from 'svelte-sonner'
 
 import type { LocalizedMessage } from '../core/FF_Validators.js'
 import type { DialogConfirmArgs, DialogPromptArgs, DialogShellArgs } from './dialog.svelte.js'
@@ -27,6 +28,8 @@ export type FF_ConfigValue = {
 		confirm?: Snippet<[DialogConfirmArgs]>
 		prompt?: Snippet<[DialogPromptArgs]>
 	}
+	/** svelte-sonner `<Toaster>` defaults applied by `<FF_ToastManager>` (position, richColors, …). */
+	toast?: Partial<ToasterProps>
 }
 
 const KEY = Symbol('ff-config')
@@ -55,6 +58,9 @@ export function ffConfig() {
 		},
 		get dialog() {
 			return get?.().dialog ?? {}
+		},
+		get toast() {
+			return get?.().toast ?? {}
 		},
 	}
 }
