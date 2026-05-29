@@ -180,6 +180,13 @@ Key rules:
   list untouched. That's the "edit the row in front of me" case, so it's the default. `edit(row, {
 refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → guard `{#if draft}`) for
   when the list may be stale and you want the latest server values before editing.
+- **Action+confirm orchestration (`many`)** - the confirm/show/cancel dance, on the handle:
+  `confirmRemove(row, { message?, danger?, toast?, ... })` (confirm → `remove(row)` → auto
+  `toast.fromError` on failure; resolves `{ ok }`, **never re-throws** - safe for
+  `onclick={() => list.confirmRemove(row)}`), and `editInDialog(row, body, { refetch? })` /
+  `createInDialog(body, { defaults? })` (seed `draft` → `dialog.show(body)` → always `cancel()` on
+  close). The `body` snippet binds `draft` and calls `save()` itself (so a failed/validation save
+  keeps the dialog open via `error`); these just own the seed + cleanup.
 - **Single record (`one`)**: bind a form to `item`; argless `save()` / `delete()` act on it;
   `create(...)` seeds a draft; `refresh()` re-fetches. `onFirst((latest) => ...)` (on **both** `many`
   and `one`) seeds editable `$state` once and never re-fires - why: a live source would otherwise
@@ -215,6 +222,16 @@ Mount `<FF_DialogManager />` once at the app root: it's **headless** (owns esc /
 stacking) and renders built-in **default** shell + confirm styled in semantic Tailwind tokens
 (`bg-card`, `border-border`, `bg-primary`, `bg-destructive`, ...) so they inherit the app theme with
 zero config. Pass `shell` / `confirm` snippets to fully restyle. Confirm labels are `LocalizedMessage`.
+
+## `toast` - notifications (Svelte 5)
+
+`toast` (from `firstly/svelte`) is a thin wrapper over [svelte-sonner](https://svelte-sonner.vercel.app)
+(a direct firstly dependency - consumers install nothing). Mount `<FF_ToastManager />` once (it renders
+sonner's `<Toaster>`; defaults via `<FF_Config toast={{ position, richColors, ... }}>`).
+`toast.success / error / info / warning (message, { description?, duration?, action? })`,
+`toast.show(message, { kind })`, `toast.fromError(err)` (pulls a message out of any thrown value), and
+`toast.dismiss(id?)`. Messages are `LocalizedMessage` (a string or a message fn), resolved at call time.
+`many.confirmRemove` uses `toast.fromError` on a failed delete.
 
 ## i18n - `LocalizedMessage`
 

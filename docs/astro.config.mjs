@@ -90,6 +90,10 @@ export default defineConfig({
 							label: 'dialog',
 							link: '/docs/svelte/dialog',
 						},
+						{
+							label: 'toast',
+							link: '/docs/svelte/toast',
+						},
 					],
 				},
 			],
