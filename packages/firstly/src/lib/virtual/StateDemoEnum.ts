@@ -29,7 +29,7 @@ export class StateDemoEnum extends BaseEnum {
 		caption: 'Delete',
 		icon: {
 			data: LibIcon_Delete,
-			class: 'text-error',
+			class: 'text-destructive',
 		},
 	})
 

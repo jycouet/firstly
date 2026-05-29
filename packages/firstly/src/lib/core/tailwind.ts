@@ -13,11 +13,10 @@ import { twMerge } from 'tailwind-merge'
  * import { tw } from './tailwind'
  *
  * const buttonClasses = tw(
- *   'btn btn-primary',
- *   isDisabled && 'btn-disabled',
- *   size === 'lg' && 'btn-lg'
+ *   'px-4 py-2 bg-primary text-primary-foreground',
+ *   isDisabled && 'opacity-50 pointer-events-none',
+ *   size === 'lg' && 'px-6 text-lg'
  * )
- * // Result: "btn btn-primary btn-disabled" (if isDisabled is true)
  * ```
  */
 export const tw = (...inputs: ClassValue[]) => twMerge(clsx(...inputs))
