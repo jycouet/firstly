@@ -95,8 +95,7 @@ export const toast = {
 	show: (description: LocalizedMessage, opts?: ToastOptions & { kind?: ToastKind }): ToastId =>
 		build(opts?.kind ?? 'info', description, opts),
 	/** Pull a message out of any thrown value and show an error toast. */
-	fromError: (err: unknown, opts?: ToastOptions): ToastId =>
-		build('error', errorMessage(err), opts),
+	fromError: (err: unknown, opts?: ToastOptions): ToastId => build('error', errorMessage(err), opts),
 	/** Dismiss a toast by id (or all, if omitted). */
 	dismiss: (id?: ToastId): void => {
 		sonner.dismiss(id)

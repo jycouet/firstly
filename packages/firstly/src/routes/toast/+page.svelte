@@ -20,8 +20,8 @@
 		<div>
 			<h1 class="text-xl font-semibold">Toast demo</h1>
 			<p class="text-muted-foreground text-sm">
-				First arg is the <b>description</b> (HTML allowed). The bold <b>title</b> defaults per kind
-				and is overridable via <code>opts.title</code>. Default titles here are localized to
+				First arg is the <b>description</b> (HTML allowed). The bold <b>title</b> defaults per kind and
+				is overridable via <code>opts.title</code>. Default titles here are localized to
 				<b>French</b> through <code>&lt;FF_Config messages.toast&gt;</code>.
 			</p>
 		</div>
@@ -47,7 +47,10 @@
 		<div class="flex flex-col gap-2">
 			<h2 class="text-sm font-medium opacity-70">Custom title (overrides the default)</h2>
 			<div class="flex flex-wrap gap-2">
-				<button class={btn} onclick={() => toast.success('Ton favori est à jour.', { title: '🎉 Bravo' })}>
+				<button
+					class={btn}
+					onclick={() => toast.success('Ton favori est à jour.', { title: '🎉 Bravo' })}
+				>
 					custom title
 				</button>
 			</div>
@@ -56,13 +59,18 @@
 		<div class="flex flex-col gap-2">
 			<h2 class="text-sm font-medium opacity-70">HTML description</h2>
 			<div class="flex flex-wrap gap-2">
-				<button class={btn} onclick={() => toast.success('Enregistré <b>3</b> lignes.<br>Rien d’autre à faire ✅')}>
+				<button
+					class={btn}
+					onclick={() => toast.success('Enregistré <b>3</b> lignes.<br>Rien d’autre à faire ✅')}
+				>
 					html
 				</button>
 				<button
 					class={btn}
 					onclick={() =>
-						toast.warning('Compte <b>manquant</b> &mdash; voir <a class="underline" href="/toast">la doc</a>.')}
+						toast.warning(
+							'Compte <b>manquant</b> &mdash; voir <a class="underline" href="/toast">la doc</a>.',
+						)}
 				>
 					html + link
 				</button>
