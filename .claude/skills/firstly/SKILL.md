@@ -227,11 +227,22 @@ zero config. Pass `shell` / `confirm` snippets to fully restyle. Confirm labels 
 
 `toast` (from `firstly/svelte`) is a thin wrapper over [svelte-sonner](https://svelte-sonner.vercel.app)
 (a direct firstly dependency - consumers install nothing). Mount `<FF_ToastManager />` once (it renders
-sonner's `<Toaster>`; defaults via `<FF_Config toast={{ position, richColors, ... }}>`).
-`toast.success / error / info / warning (message, { description?, duration?, action? })`,
-`toast.show(message, { kind })`, `toast.fromError(err)` (pulls a message out of any thrown value), and
-`toast.dismiss(id?)`. Messages are `LocalizedMessage` (a string or a message fn), resolved at call time.
-`many.confirmRemove` uses `toast.fromError` on a failed delete.
+sonner's `<Toaster>`; sonner props via `<FF_Config toast={{ position, richColors, ... }}>`).
+
+**The first arg is the `description`** (the body) and **may contain HTML**. A bold **title** sits above
+it; it **defaults per kind** (`error` → "Error", …) and is overridable via `opts.title`:
+
+```ts
+toast.error('Could not save the quote')           // title "Error" + body
+toast.success('Saved <b>3</b> rows', { title: '🎉 Done' })
+toast.fromError(err)                               // error toast from any thrown value
+```
+
+`toast.success / error / info / warning (description, { title?, duration?, action? })`,
+`toast.show(description, { kind })`, `toast.fromError(err)`, `toast.dismiss(id?)`. Labels are
+`LocalizedMessage` (string or message fn), resolved at call time. **Per-kind default titles are
+localizable** via `<FF_Config messages={{ toast: { error, success, info, warning } }}>` (pass message
+functions for i18n). `many.confirmRemove` uses `toast.fromError` on a failed delete.
 
 ## i18n - `LocalizedMessage`
 
