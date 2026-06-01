@@ -56,7 +56,6 @@
     "@tailwindcss/vite": "catalog:ui",
     "@typescript/native-preview": "catalog:tooling",
     "@vitest/browser": "catalog:testing",
-    "daisyui": "catalog:ui",
     "eslint": "catalog:kitql",
     "playwright": "catalog:testing",
     "remult": "catalog:best",

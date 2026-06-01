@@ -123,9 +123,6 @@ catalogs:
     clsx:
       specifier: 2.1.1
       version: 2.1.1
-    daisyui:
-      specifier: 5.5.3
-      version: 5.5.3
     tailwind-merge:
       specifier: 3.5.0
       version: 3.5.0
@@ -242,9 +239,6 @@ importers:
       '@vitest/browser':
         specifier: catalog:testing
         version: 3.2.3(playwright@1.60.0)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))(vitest@3.2.3)
-      daisyui:
-        specifier: catalog:ui
-        version: 5.5.3
       eslint:
         specifier: catalog:kitql
         version: 10.4.0(jiti@2.6.1)
@@ -2114,9 +2108,6 @@ packages:
   d3-array@3.2.4:
     resolution: {integrity: sha512-tdQAmyA18i4J7wprpYq8ClcxZy3SC31QMeByyCFyRt7BVHdREQZ5lpzoe5mFEYZUWe+oq8HBvk9JjpibyEV4Jg==}
     engines: {node: '>=12'}
-
-  daisyui@5.5.3:
-    resolution: {integrity: sha512-xcDZlujfSHu3AbwXY1mpl25YXDLyzonsBX1YtiIyhvWGTnVIsX4krD5A7mm6RyiwDRlmKbPvMUPPxivQE4Nsvg==}
 
   dataloader@1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
@@ -6231,8 +6222,6 @@ snapshots:
   d3-array@3.2.4:
     dependencies:
       internmap: 2.0.3
-
-  daisyui@5.5.3: {}
 
   dataloader@1.4.0: {}
 
