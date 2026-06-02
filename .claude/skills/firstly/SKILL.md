@@ -233,16 +233,20 @@ sonner's `<Toaster>`; sonner props via `<FF_Config toast={{ position, richColors
 it; it **defaults per kind** (`error` → "Error", …) and is overridable via `opts.title`:
 
 ```ts
-toast.error('Could not save the quote')           // title "Error" + body
+toast.error('Could not save the quote') // title "Error" + body
 toast.success('Saved <b>3</b> rows', { title: '🎉 Done' })
-toast.fromError(err)                               // error toast from any thrown value
+toast.fromError(err) // error toast from any thrown value
 ```
 
 `toast.success / error / info / warning (description, { title?, duration?, action? })`,
-`toast.show(description, { kind })`, `toast.fromError(err)`, `toast.dismiss(id?)`. Labels are
+`toast.show(description, { kind? })`, `toast.fromError(err)`, `toast.dismiss(id?)`. Labels are
 `LocalizedMessage` (string or message fn), resolved at call time. **Per-kind default titles are
 localizable** via `<FF_Config messages={{ toast: { error, success, info, warning } }}>` (pass message
 functions for i18n). `many.confirmRemove` uses `toast.fromError` on a failed delete.
+
+**Security:** the description renders as **HTML** - pass only trusted/sanitized content, never raw
+user or network/error text (XSS). `toast.fromError` HTML-escapes its extracted message, so error text
+is always safe to show; titles are always plain text.
 
 ## i18n - `LocalizedMessage`
 

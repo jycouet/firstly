@@ -98,6 +98,18 @@ describe('toast wrapper', () => {
 		)
 	})
 
+	it('fromError escapes HTML so a malicious error message cannot inject markup', () => {
+		// Error messages often carry server- or user-controlled text; the description is rendered
+		// as HTML, so fromError must entity-encode it (unlike the HTML-capable toast.error).
+		toast.fromError(new Error('<img src=x onerror="alert(1)"> & done'))
+		expect(sonner.error).toHaveBeenLastCalledWith(
+			'Error',
+			expect.objectContaining({
+				componentProps: { html: '&lt;img src=x onerror=&quot;alert(1)&quot;&gt; &amp; done' },
+			}),
+		)
+	})
+
 	it('dismiss forwards the id', () => {
 		toast.dismiss('id-1')
 		expect(sonner.dismiss).toHaveBeenCalledWith('id-1')

@@ -49,6 +49,16 @@ function errorMessage(err: unknown): string {
 	return String(err)
 }
 
+/** Entity-encode a string so it renders as literal text through the HTML description renderer. */
+function escapeHtml(s: string): string {
+	return s
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;')
+}
+
 /**
  * Build a toast: the bold `title` (from `opts.title`, else the per-kind default)
  * is svelte-sonner's main message; `description` is the body, rendered as HTML.
@@ -76,6 +86,10 @@ function build(kind: ToastKind, description: LocalizedMessage, opts?: ToastOptio
  * `<FF_Config messages.toast>`. Labels accept a string OR a message function
  * (paraglide/i18next), resolved at call time.
  *
+ * ⚠️ **Security:** the description is rendered as **HTML**. Pass only trusted/sanitized
+ * content - never raw user input or network/error text, or you risk XSS. Use `toast.fromError`
+ * for thrown values: it HTML-escapes the extracted message for you. (The title is always plain text.)
+ *
  * ```ts
  * toast.error('Could not save the quote')                  // title: "Error"
  * toast.success('Saved <b>3</b> rows', { title: 'Done 🎉' })
@@ -94,8 +108,13 @@ export const toast = {
 	/** Dispatch on `kind` (default `'info'`). */
 	show: (description: LocalizedMessage, opts?: ToastOptions & { kind?: ToastKind }): ToastId =>
 		build(opts?.kind ?? 'info', description, opts),
-	/** Pull a message out of any thrown value and show an error toast. */
-	fromError: (err: unknown, opts?: ToastOptions): ToastId => build('error', errorMessage(err), opts),
+	/**
+	 * Pull a message out of any thrown value and show an error toast. The extracted message is
+	 * HTML-escaped (error text is often server- or user-controlled), so it renders as plain text -
+	 * unlike `toast.error`, which treats its argument as HTML.
+	 */
+	fromError: (err: unknown, opts?: ToastOptions): ToastId =>
+		build('error', escapeHtml(errorMessage(err)), opts),
 	/** Dismiss a toast by id (or all, if omitted). */
 	dismiss: (id?: ToastId): void => {
 		sonner.dismiss(id)

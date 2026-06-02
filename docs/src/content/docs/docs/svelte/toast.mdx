@@ -23,25 +23,40 @@ from anywhere.
 ## API
 
 ```ts
-toast.success(message, opts?)
-toast.error(message, opts?)
-toast.info(message, opts?)
-toast.warning(message, opts?)
-toast.show(message, { kind, ...opts }) // dispatch on kind (default 'info')
+toast.success(description, opts?)
+toast.error(description, opts?)
+toast.info(description, opts?)
+toast.warning(description, opts?)
+toast.show(description, { kind, ...opts }) // dispatch on kind (default 'info')
 toast.fromError(err, opts?) // pull a message out of any thrown value → error toast
 toast.dismiss(id?) // dismiss one (or all)
 ```
 
-`message` (and `opts.description`, `opts.action.label`) are `LocalizedMessage` - a string **or** a
-message function (paraglide / i18next), resolved at call time.
+The first argument is the **description** (the body). A bold **title** sits above it - it defaults
+per kind (`error` → "Error", …) and is overridable via `opts.title`. `description`, `opts.title` and
+`opts.action.label` are `LocalizedMessage` - a string **or** a message function (paraglide /
+i18next), resolved at call time.
 
 ```ts
 opts = {
-	description?: LocalizedMessage
+	title?: LocalizedMessage // bold heading; defaults per kind
 	duration?: number // ms (passed through to svelte-sonner)
 	action?: { label: LocalizedMessage; onClick: () => void }
 }
 ```
+
+## HTML & security
+
+The **description is rendered as HTML**, so you can pass markup:
+
+```ts
+toast.success('Saved <b>3</b> rows', { title: 'Done 🎉' })
+```
+
+⚠️ Only pass trusted or already-sanitized content. **Never** pass raw user input or network/error
+text to `toast.success/error/info/warning` - it would execute as HTML (XSS). For thrown values use
+`toast.fromError`, which HTML-escapes the extracted message so it always renders as plain text.
+Titles are always plain text.
 
 ## Configuring `<Toaster>`
 
