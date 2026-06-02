@@ -1,5 +1,25 @@
 # firstly
 
+## 0.6.0
+
+### Minor Changes
+
+- [#286](https://github.com/jycouet/firstly/pull/286) [`0de3038`](https://github.com/jycouet/firstly/commit/0de3038769bd30f7449f3185d9556bb5966eea6f) Thanks [@jycouet](https://github.com/jycouet)! - Add `<FF_Config>` (`firstly/svelte`): an SSR-safe, context-scoped provider for app-wide UI config, read by firstly components during init. First consumer is the dialog: set default `confirm` / `cancel` / `ok` labels once and your `shell` / `confirm` / `prompt` snippets in one place, instead of passing them on every `dialog.confirm(...)` / `<FF_DialogManager>`.
+
+  Precedence is explicit prop > `<FF_Config>` > built-in. Pass message **functions** (paraglide / i18next) for labels and they re-resolve on every render, so locale changes are picked up for free. `dialog.confirm` / `dialog.prompt` no longer bake `'Confirm'` / `'Cancel'` / `'OK'` at call time - omitted labels resolve at render via the nearest `<FF_Config>` (then the built-in). Also exports `ffConfig()` (read) and `setFFConfig()` (advanced).
+
+- [#286](https://github.com/jycouet/firstly/pull/286) [`d364fe2`](https://github.com/jycouet/firstly/commit/d364fe22211a2d7a7acbb58afc367bae1a7e911d) Thanks [@jycouet](https://github.com/jycouet)! - Add a headless async `dialog` layer (`firstly/svelte`): `dialog.show(body)`, `dialog.confirm(message)`, `dialog.prompt(opts)`, rendered through a single `<FF_DialogManager>` you mount once. Built-in defaults are theme-adaptive via semantic Tailwind tokens; pass `shell` / `confirm` / `prompt` snippets to fully restyle. Ships `ffAutofocus`, Escape/scroll-lock/stacking, and a `LocalizedMessage` (string or fn) for labels. `dialog.open(Component, { props })` opens a dialog from a component + props, inferring the result type from the component's `close: DialogClose<T>` prop (no call-site generic).
+
+  One result contract for all three: they resolve a `DialogResult` (`{ ok: true, data } | { ok: false }`). `confirm` carries no `data` (read `.ok`); `prompt`'s `data` is the trimmed string (so cancel vs empty-string is unambiguous - `{ ok: false }` vs `{ ok: true, data: '' }`); `show<T>` carries `T`. See `/docs/svelte/dialog`.
+
+- [#286](https://github.com/jycouet/firstly/pull/286) [`fcafe26`](https://github.com/jycouet/firstly/commit/fcafe26833a018aea9e5fe2313120173a112eb80) Thanks [@jycouet](https://github.com/jycouet)! - Replace `ffRepo` with a cleaner `ff` surface: `ff(E).many(getter, strategy?)` (a list + editing draft + writes) and `ff(E).one(getter)` (a single bound record). `load`/`listen`/`paginate` are now the `strategy`, not separate verbs. Imperative work moves to remult's `repo(E)` (no `.repo` on the handle); `.meta` stays. Adds an exported `DemoForm` alongside `DemoGrid`.
+
+### Patch Changes
+
+- [#288](https://github.com/jycouet/firstly/pull/288) [`7133d3c`](https://github.com/jycouet/firstly/commit/7133d3c31c276f2932a8c7efeaca3cd5e05a51b5) Thanks [@jycouet](https://github.com/jycouet)! - Add `many` action+confirm orchestration and a `toast` (`firstly/svelte`):
+  - `ff(E).many().confirmRemove(row, opts?)` (confirm → remove → auto error-toast, never re-throws), `editInDialog(row, body, opts?)` and `createInDialog(body, opts?)` (seed draft → `dialog.show` → cancel on close).
+  - `toast` + `<FF_ToastManager>` - a `LocalizedMessage`-aware wrapper over svelte-sonner (a new direct dependency). First arg is the **description** (HTML allowed); the bold **title** moves to `opts.title` and defaults per kind, localizable via `<FF_Config messages.toast>`. See `/docs/svelte/toast`.
+
 ## 0.5.1
 
 ### Patch Changes
