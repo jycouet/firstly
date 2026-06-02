@@ -1,0 +1,76 @@
+---
+title: toast
+---
+
+`toast` (from `firstly/svelte`) is a thin, `LocalizedMessage`-aware wrapper over
+[svelte-sonner](https://svelte-sonner.vercel.app) - a **direct firstly dependency**, so consumers
+install nothing extra. firstly owns the label resolution and the API; sonner owns the queue, timers,
+animation, stacking and accessibility.
+
+Mount `<FF_ToastManager>` once near the app root (it renders sonner's `<Toaster>`), then call `toast`
+from anywhere.
+
+```svelte
+<script lang="ts">
+	import { FF_ToastManager, toast } from 'firstly/svelte'
+</script>
+
+<FF_ToastManager />
+
+<button onclick={() => toast.success('Saved')}>Save</button>
+```
+
+## API
+
+```ts
+toast.success(description, opts?)
+toast.error(description, opts?)
+toast.info(description, opts?)
+toast.warning(description, opts?)
+toast.show(description, { kind, ...opts }) // dispatch on kind (default 'info')
+toast.fromError(err, opts?) // pull a message out of any thrown value → error toast
+toast.dismiss(id?) // dismiss one (or all)
+```
+
+The first argument is the **description** (the body). A bold **title** sits above it - it defaults
+per kind (`error` → "Error", …) and is overridable via `opts.title`. `description`, `opts.title` and
+`opts.action.label` are `LocalizedMessage` - a string **or** a message function (paraglide /
+i18next), resolved at call time.
+
+```ts
+opts = {
+	title?: LocalizedMessage // bold heading; defaults per kind
+	duration?: number // ms (passed through to svelte-sonner)
+	action?: { label: LocalizedMessage; onClick: () => void }
+}
+```
+
+## HTML & security
+
+The **description is rendered as HTML**, so you can pass markup:
+
+```ts
+toast.success('Saved <b>3</b> rows', { title: 'Done 🎉' })
+```
+
+⚠️ Only pass trusted or already-sanitized content. **Never** pass raw user input or network/error
+text to `toast.success/error/info/warning` - it would execute as HTML (XSS). For thrown values use
+`toast.fromError`, which HTML-escapes the extracted message so it always renders as plain text.
+Titles are always plain text.
+
+## Configuring `<Toaster>`
+
+`<FF_ToastManager>` defaults to `richColors` + `position="top-right"`. Override per-app through
+`<FF_Config toast={{ ... }}>` (any svelte-sonner `<Toaster>` prop), or per-mount with explicit props
+(props win over config win over defaults):
+
+```svelte
+<FF_Config toast={{ position: 'bottom-right', closeButton: true }}>
+	<FF_ToastManager />
+</FF_Config>
+```
+
+## With `confirmRemove`
+
+[`many.confirmRemove`](/docs/svelte/ff#action--confirm-orchestration) calls `toast.fromError` when a
+delete fails, so a failed deletion surfaces a toast with no extra wiring at the call site.

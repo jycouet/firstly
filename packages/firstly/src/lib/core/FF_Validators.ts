@@ -51,10 +51,8 @@ const DEFAULT_EMAIL_MESSAGES: Required<Record<keyof EmailMessages, string>> = {
 	blockedTld: 'Test/example TLD not accepted',
 }
 
-/** Resolve a `LocalizedMessage` to its current string value. */
-function resolve(m: LocalizedMessage): string {
-	return typeof m === 'function' ? m() : m
-}
+/** Resolve a `LocalizedMessage` (literal, or a paraglide/i18next/lingui message fn) to its current string value. */
+export const resolveMessage = (m: LocalizedMessage): string => (typeof m === 'function' ? m() : m)
 
 /**
  * Build a project-localized set of validators. Override any subset of
@@ -93,16 +91,16 @@ export function createValidators(messages: ValidatorMessages = {}) {
 
 	function checkEmail(value: string): true | string {
 		if (value === '') return true
-		if (!EMAIL_SHAPE_RE.test(value)) return resolve(m.invalid)
+		if (!EMAIL_SHAPE_RE.test(value)) return resolveMessage(m.invalid)
 		const at = value.lastIndexOf('@')
 		const domain = value.slice(at + 1).toLowerCase()
 		if (!domain || domain.includes('..') || domain.startsWith('.') || domain.endsWith('.')) {
-			return resolve(m.invalidDomain)
+			return resolveMessage(m.invalidDomain)
 		}
-		if (BLOCKED_EMAIL_DOMAINS.has(domain)) return resolve(m.blockedDomain)
+		if (BLOCKED_EMAIL_DOMAINS.has(domain)) return resolveMessage(m.blockedDomain)
 		const tld = domain.split('.').pop() ?? ''
-		if (BLOCKED_EMAIL_TLDS.has(tld)) return resolve(m.blockedTld)
-		if (!domain.includes('.') || tld.length < 2) return resolve(m.invalidDomain)
+		if (BLOCKED_EMAIL_TLDS.has(tld)) return resolveMessage(m.blockedTld)
+		if (!domain.includes('.') || tld.length < 2) return resolveMessage(m.invalidDomain)
 		return true
 	}
 
@@ -110,7 +108,7 @@ export function createValidators(messages: ValidatorMessages = {}) {
 		checkEmail,
 		// Pass a function so the per-request locale is resolved when the
 		// validator actually fires, not when the validator is built.
-		email: createValueValidator(checkEmail, () => resolve(m.invalid)),
+		email: createValueValidator(checkEmail, () => resolveMessage(m.invalid)),
 	}
 }
 

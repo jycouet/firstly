@@ -180,6 +180,13 @@ Key rules:
   list untouched. That's the "edit the row in front of me" case, so it's the default. `edit(row, {
 refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → guard `{#if draft}`) for
   when the list may be stale and you want the latest server values before editing.
+- **Action+confirm orchestration (`many`)** - the confirm/show/cancel dance, on the handle:
+  `confirmRemove(row, { message?, danger?, toast?, ... })` (confirm → `remove(row)` → auto
+  `toast.fromError` on failure; resolves `{ ok }`, **never re-throws** - safe for
+  `onclick={() => list.confirmRemove(row)}`), and `editInDialog(row, body, { refetch? })` /
+  `createInDialog(body, { defaults? })` (seed `draft` → `dialog.show(body)` → always `cancel()` on
+  close). The `body` snippet binds `draft` and calls `save()` itself (so a failed/validation save
+  keeps the dialog open via `error`); these just own the seed + cleanup.
 - **Single record (`one`)**: bind a form to `item`; argless `save()` / `delete()` act on it;
   `create(...)` seeds a draft; `refresh()` re-fetches. `onFirst((latest) => ...)` (on **both** `many`
   and `one`) seeds editable `$state` once and never re-fires - why: a live source would otherwise
@@ -215,6 +222,31 @@ Mount `<FF_DialogManager />` once at the app root: it's **headless** (owns esc /
 stacking) and renders built-in **default** shell + confirm styled in semantic Tailwind tokens
 (`bg-card`, `border-border`, `bg-primary`, `bg-destructive`, ...) so they inherit the app theme with
 zero config. Pass `shell` / `confirm` snippets to fully restyle. Confirm labels are `LocalizedMessage`.
+
+## `toast` - notifications (Svelte 5)
+
+`toast` (from `firstly/svelte`) is a thin wrapper over [svelte-sonner](https://svelte-sonner.vercel.app)
+(a direct firstly dependency - consumers install nothing). Mount `<FF_ToastManager />` once (it renders
+sonner's `<Toaster>`; sonner props via `<FF_Config toast={{ position, richColors, ... }}>`).
+
+**The first arg is the `description`** (the body) and **may contain HTML**. A bold **title** sits above
+it; it **defaults per kind** (`error` → "Error", …) and is overridable via `opts.title`:
+
+```ts
+toast.error('Could not save the quote') // title "Error" + body
+toast.success('Saved <b>3</b> rows', { title: '🎉 Done' })
+toast.fromError(err) // error toast from any thrown value
+```
+
+`toast.success / error / info / warning (description, { title?, duration?, action? })`,
+`toast.show(description, { kind? })`, `toast.fromError(err)`, `toast.dismiss(id?)`. Labels are
+`LocalizedMessage` (string or message fn), resolved at call time. **Per-kind default titles are
+localizable** via `<FF_Config messages={{ toast: { error, success, info, warning } }}>` (pass message
+functions for i18n). `many.confirmRemove` uses `toast.fromError` on a failed delete.
+
+**Security:** the description renders as **HTML** - pass only trusted/sanitized content, never raw
+user or network/error text (XSS). `toast.fromError` HTML-escapes its extracted message, so error text
+is always safe to show; titles are always plain text.
 
 ## i18n - `LocalizedMessage`
 

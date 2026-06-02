@@ -1,5 +1,6 @@
 import { getContext, setContext } from 'svelte'
 import type { Snippet } from 'svelte'
+import type { ToasterProps } from 'svelte-sonner'
 
 import type { LocalizedMessage } from '../core/FF_Validators.js'
 import type { DialogConfirmArgs, DialogPromptArgs, DialogShellArgs } from './dialog.svelte.js'
@@ -20,6 +21,16 @@ export type FF_ConfigValue = {
 		confirm?: LocalizedMessage
 		cancel?: LocalizedMessage
 		ok?: LocalizedMessage
+		/**
+		 * Per-kind default title (the bold heading) shown by `toast.*` when the call
+		 * omits `opts.title`. Pass message functions for locale-aware titles.
+		 */
+		toast?: {
+			success?: LocalizedMessage
+			error?: LocalizedMessage
+			info?: LocalizedMessage
+			warning?: LocalizedMessage
+		}
 	}
 	/** Dialog skin: your own shell / confirm / prompt snippets (override the built-in defaults). */
 	dialog?: {
@@ -27,12 +38,19 @@ export type FF_ConfigValue = {
 		confirm?: Snippet<[DialogConfirmArgs]>
 		prompt?: Snippet<[DialogPromptArgs]>
 	}
+	/** svelte-sonner `<Toaster>` defaults applied by `<FF_ToastManager>` (position, richColors, …). */
+	toast?: Partial<ToasterProps>
 }
 
 const KEY = Symbol('ff-config')
 
 /** firstly's fallback labels, used when neither a call-site label nor `<FF_Config>` provides one. */
-const BUILTIN_MESSAGES = { confirm: 'Confirm', cancel: 'Cancel', ok: 'OK' } as const
+const BUILTIN_MESSAGES = {
+	confirm: 'Confirm',
+	cancel: 'Cancel',
+	ok: 'OK',
+	toast: { success: 'Success', error: 'Error', info: 'Info', warning: 'Warning' },
+} as const
 
 /**
  * Provide config to descendants. Takes a **getter** (not a snapshot) so reads stay reactive -
@@ -51,10 +69,16 @@ export function ffConfig() {
 	const get = getContext<(() => FF_ConfigValue) | undefined>(KEY)
 	return {
 		get messages() {
-			return { ...BUILTIN_MESSAGES, ...get?.().messages }
+			const m = get?.().messages
+			// Deep-merge the `toast` sub-object so a partial override (e.g. just `error`)
+			// keeps the other built-in titles.
+			return { ...BUILTIN_MESSAGES, ...m, toast: { ...BUILTIN_MESSAGES.toast, ...m?.toast } }
 		},
 		get dialog() {
 			return get?.().dialog ?? {}
+		},
+		get toast() {
+			return get?.().toast ?? {}
 		},
 	}
 }

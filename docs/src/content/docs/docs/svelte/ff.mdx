@@ -101,6 +101,51 @@ starts. The cost is a round-trip - `draft` is briefly `undefined`, so guard the 
 `{#if draft}`. Default off, because the common case is "edit what I'm looking at," and a refetch there
 just adds latency and a flash.
 
+### Action + confirm orchestration
+
+The confirm/show/cancel dance that every delete and edit button repeats, moved onto the handle. Built
+on `dialog` + the handle's own `edit`/`create`/`save`/`remove`/`cancel`.
+
+```svelte
+<!-- delete with confirm -->
+<button onclick={() => tasks.confirmRemove(t, { message: 'Delete this task?' })}>Delete</button>
+
+<!-- edit / create in a dialog -->
+<button onclick={() => tasks.editInDialog(t, form)}>Edit</button>
+<button onclick={() => tasks.createInDialog(form, { defaults: { title: '' } })}>+ New</button>
+
+{#snippet form(close)}
+	{#if tasks.draft}
+		<input bind:value={tasks.draft.title} />
+		<button
+			disabled={tasks.isWriting}
+			onclick={async () => {
+				try {
+					await tasks.save()
+					close({ ok: true })
+				} catch {
+					/* tasks.error is set; dialog stays open */
+				}
+			}}
+		>
+			Save
+		</button>
+		<button onclick={() => close()}>Cancel</button>
+	{/if}
+{/snippet}
+```
+
+- `confirmRemove(row, { message?, title?, confirmLabel?, cancelLabel?, danger?, toast? })` - confirms
+  (`danger` defaults `true`), then `remove(row)`. Resolves `{ ok: true }` when removed, `{ ok: false }`
+  when cancelled **or** failed. A failure fills `error` and (unless `toast: false`) shows
+  `toast.fromError`. It **never re-throws**, so `onclick={() => list.confirmRemove(row)}` is safe.
+- `editInDialog(row, body, { refetch?, ...DialogOptions })` - seeds `draft` (clone, or `refetch`),
+  opens `body`, and always `cancel()`s on close.
+- `createInDialog(body, { defaults?, ...DialogOptions })` - blank draft (+ `defaults`), opens `body`,
+  always `cancel()`s on close.
+- The `body` snippet binds `draft` and calls `save()` **itself** (a failed/validation save keeps the
+  dialog open via `error`); these methods own only the seed + cleanup, never the save.
+
 ## one - a single bound record
 
 For an edit page: load one record into `item`, bind a form, save. Argless `save()` / `delete()` act
