@@ -95,5 +95,7 @@ declare module 'remult' {
 		placeholder?: string
 		/** For multiSelect value-lists: the element value-list class. */
 		valueTypeArray?: ClassType<valueType>
+		/** When set, the field renders as a link (field_link kind). */
+		href?: (row: entityType) => string
 	}
 }
