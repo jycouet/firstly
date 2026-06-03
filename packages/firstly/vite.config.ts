@@ -51,22 +51,45 @@ const config = defineConfig(({ mode }) => {
 		test: {
 			projects: [
 				{
+					// Pure-TS tests run in node.
 					extends: true,
 					test: {
 						name: 'node',
-						include: ['src/**/*.{test,spec}.{js,ts}'],
-						exclude: ['src/lib/evlog/stats/**/*.spec.ts', 'src/lib/evlog/EvlogStats.spec.ts'],
-						setupFiles: ['./src/test-setup.ts'],
 						environment: 'node',
+						include: ['src/**/*.{test,spec}.{js,ts}'],
+						exclude: [
+							'src/**/*.svelte.{test,spec}.{js,ts}',
+							'src/lib/evlog/stats/**/*.spec.ts',
+							'src/lib/evlog/EvlogStats.spec.ts',
+						],
+						setupFiles: ['./src/test-setup.ts'],
 					},
 				},
 				{
+					// Svelte rune tests ($state/$effect) need a real browser - in node/SSR
+					// mode `$effect` compiles to a no-op and never runs. Uses the same
+					// playwright/chromium that CI already installs for e2e.
+					extends: true,
+					test: {
+						name: 'svelte',
+						include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+						browser: {
+							enabled: true,
+							provider: 'playwright',
+							headless: true,
+							instances: [{ browser: 'chromium' }],
+						},
+					},
+				},
+				{
+					// evlog dashboard panels: presentational, asserted via @testing-library/svelte in jsdom.
 					extends: true,
 					plugins: [svelteTesting()],
 					test: {
-						name: 'svelte',
+						name: 'svelte-jsdom',
 						include: ['src/lib/evlog/stats/**/*.spec.ts', 'src/lib/evlog/EvlogStats.spec.ts'],
 						environment: 'jsdom',
+						setupFiles: ['./src/test-setup.ts'],
 					},
 				},
 			],

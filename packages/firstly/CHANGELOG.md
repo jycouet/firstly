@@ -1,5 +1,59 @@
 # firstly
 
+## 0.6.0
+
+### Minor Changes
+
+- [#286](https://github.com/jycouet/firstly/pull/286) [`0de3038`](https://github.com/jycouet/firstly/commit/0de3038769bd30f7449f3185d9556bb5966eea6f) Thanks [@jycouet](https://github.com/jycouet)! - Add `<FF_Config>` (`firstly/svelte`): an SSR-safe, context-scoped provider for app-wide UI config, read by firstly components during init. First consumer is the dialog: set default `confirm` / `cancel` / `ok` labels once and your `shell` / `confirm` / `prompt` snippets in one place, instead of passing them on every `dialog.confirm(...)` / `<FF_DialogManager>`.
+
+  Precedence is explicit prop > `<FF_Config>` > built-in. Pass message **functions** (paraglide / i18next) for labels and they re-resolve on every render, so locale changes are picked up for free. `dialog.confirm` / `dialog.prompt` no longer bake `'Confirm'` / `'Cancel'` / `'OK'` at call time - omitted labels resolve at render via the nearest `<FF_Config>` (then the built-in). Also exports `ffConfig()` (read) and `setFFConfig()` (advanced).
+
+- [#286](https://github.com/jycouet/firstly/pull/286) [`d364fe2`](https://github.com/jycouet/firstly/commit/d364fe22211a2d7a7acbb58afc367bae1a7e911d) Thanks [@jycouet](https://github.com/jycouet)! - Add a headless async `dialog` layer (`firstly/svelte`): `dialog.show(body)`, `dialog.confirm(message)`, `dialog.prompt(opts)`, rendered through a single `<FF_DialogManager>` you mount once. Built-in defaults are theme-adaptive via semantic Tailwind tokens; pass `shell` / `confirm` / `prompt` snippets to fully restyle. Ships `ffAutofocus`, Escape/scroll-lock/stacking, and a `LocalizedMessage` (string or fn) for labels. `dialog.open(Component, { props })` opens a dialog from a component + props, inferring the result type from the component's `close: DialogClose<T>` prop (no call-site generic).
+
+  One result contract for all three: they resolve a `DialogResult` (`{ ok: true, data } | { ok: false }`). `confirm` carries no `data` (read `.ok`); `prompt`'s `data` is the trimmed string (so cancel vs empty-string is unambiguous - `{ ok: false }` vs `{ ok: true, data: '' }`); `show<T>` carries `T`. See `/docs/svelte/dialog`.
+
+- [#286](https://github.com/jycouet/firstly/pull/286) [`fcafe26`](https://github.com/jycouet/firstly/commit/fcafe26833a018aea9e5fe2313120173a112eb80) Thanks [@jycouet](https://github.com/jycouet)! - Replace `ffRepo` with a cleaner `ff` surface: `ff(E).many(getter, strategy?)` (a list + editing draft + writes) and `ff(E).one(getter)` (a single bound record). `load`/`listen`/`paginate` are now the `strategy`, not separate verbs. Imperative work moves to remult's `repo(E)` (no `.repo` on the handle); `.meta` stays. Adds an exported `DemoForm` alongside `DemoGrid`.
+
+### Patch Changes
+
+- [#288](https://github.com/jycouet/firstly/pull/288) [`7133d3c`](https://github.com/jycouet/firstly/commit/7133d3c31c276f2932a8c7efeaca3cd5e05a51b5) Thanks [@jycouet](https://github.com/jycouet)! - Add `many` action+confirm orchestration and a `toast` (`firstly/svelte`):
+  - `ff(E).many().confirmRemove(row, opts?)` (confirm → remove → auto error-toast, never re-throws), `editInDialog(row, body, opts?)` and `createInDialog(body, opts?)` (seed draft → `dialog.show` → cancel on close).
+  - `toast` + `<FF_ToastManager>` - a `LocalizedMessage`-aware wrapper over svelte-sonner (a new direct dependency). First arg is the **description** (HTML allowed); the bold **title** moves to `opts.title` and defaults per kind, localizable via `<FF_Config messages.toast>`. See `/docs/svelte/toast`.
+
+## 0.5.1
+
+### Patch Changes
+
+- [#282](https://github.com/jycouet/firstly/pull/282) [`a93d4c8`](https://github.com/jycouet/firstly/commit/a93d4c8815da30f2c4d701ddd7e3d8cdf39fd8f5) Thanks [@jycouet](https://github.com/jycouet)! - ffRepo (svelte): leaner surface. Rename `firstOnce` → `onFirst`; remove `draft`, `first`, `insert`, `update`, `deleteMany`. List handles (`load`/`listen`/`paginate`) are now read-only - write via `.repo` (+ `addItem`/`updateItem`/`removeItem` to reconcile). Editing lives on `one`/`create()` with argless `save()`/`delete()`.
+
+  New `DemoGrid` (from `firstly/svelte`): a generic inline-CRUD table over any entity - props `entity` + `fields`, headers/placeholders from each field's `caption`.
+
+## 0.5.0
+
+### Minor Changes
+
+- [#274](https://github.com/jycouet/firstly/pull/274) [`6114148`](https://github.com/jycouet/firstly/commit/61141482a06f0a006ae148f0645146c073a2fb3c) Thanks [@jycouet](https://github.com/jycouet)! - **BREAKING (svelte): `FF_Repo` class -> `ffRepo()` factory.** The reactive repo wrapper now takes a reactive options getter and a mode (`load` / `listen` / `paginate` / `one`), with built-in mutations (no-arg `save()`/`delete()` target the loaded `item`), client-side list reconcilers (`addItem`/`updateItem`/`removeItem`, with `addItem` positioning), `firstOnce`/`draft`, and permissions via `r.meta`. The old `new FF_Repo(E, { findOptions })` class is removed.
+
+  One rule: anything not under `.repo` is reactive; every imperative read/write lives on `.repo` (the plain remult repo). The builder no longer hoists `findFirst`/`findId`/`insert`/... - use `ffRepo(E).repo.*`.
+
+  Also new: `infiniteScroll` (svelte attachment, pairs with `paginate`), `stackHttpClient`/`withHeader` (core), `FF_Filter.containsWords` (multi-field search filter), `splitTrim` (formats), and exported types including the umbrella `FF_Repo` handle plus `FF_RepoBuilder`/`FF_RepoLoad`/`FF_RepoLive`/`FF_RepoPaginate`/`FF_RepoOne`/`QueryOptionsHelper`/`AggregateOptions`.
+
+  Migration (see `/docs/svelte/ff-repo`):
+  - `new FF_Repo(E, { findOptions: { where } })` -> `ffRepo(E).load(() => ({ where }))`
+  - `new FF_Repo(E, { queryOptions })` + `.query()/.queryMore()/.queryRefresh()` -> `ffRepo(E).paginate(() => ({ ... }))` + `.more()/.refresh()`
+  - `r.globalError` -> `r.error`
+  - `r.fields` -> `r.meta.fields`; `r.metadata.apiInsertAllowed()` -> `r.meta.apiInsertAllowed()`
+  - `repo(r.ent).update(...)` / `.insert(...)` -> `r.update(...)` / `r.insert(...)`
+  - `r.aggregates.$count` unchanged; `skipAutoFetch` -> `enabled: false`
+
+## 0.4.5
+
+### Patch Changes
+
+- [#270](https://github.com/jycouet/firstly/pull/270) [`ba5eec6`](https://github.com/jycouet/firstly/commit/ba5eec6b0099127c9b5424dd3fb44184b4c70b28) Thanks [@jycouet](https://github.com/jycouet)! - fix(core): add explicit return type to `FF_Entity` so its `.d.ts` is emitted.
+
+  The inferred return type referenced a non-portable remult internal, so svelte-package silently skipped generating `FF_Entity.d.ts`. Consumers using the published package got `FF_Entity` typed as `any`, which made every entity option callback (`saving`, `displayValue`, ...) implicitly `any`.
+
 ## 0.4.4
 
 ### Patch Changes

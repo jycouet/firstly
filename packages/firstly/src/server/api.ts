@@ -6,6 +6,7 @@ import { remultApi } from 'remult/remult-sveltekit'
 import { carbone } from 'firstly/carbone/server'
 import { changeLog } from 'firstly/changeLog/server'
 
+import { Task } from '$modules/demo/Task'
 import { MailController } from '$modules/mail/MailController'
 import { task } from '$modules/task/server'
 import { mail } from '$lib/mail/server'
@@ -31,6 +32,7 @@ export const getDataProvider = () => {
 export const api = remultApi({
 	dataProvider: async () => getDataProvider(),
 	admin: true,
+	entities: [Task],
 	controllers: [MailController],
 	modules: [
 		ev.module,

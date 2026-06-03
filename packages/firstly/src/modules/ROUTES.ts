@@ -10,7 +10,10 @@
  */
 const PAGES = {
   "/": `/`,
-  "/tasks": `/tasks`
+  "/dialog": `/dialog`,
+  "/ff-repo": `/ff-repo`,
+  "/tasks": `/tasks`,
+  "/toast": `/toast`
 }
 
 /**
@@ -145,7 +148,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 * ```
 */
 export type KIT_ROUTES = {
-  PAGES: { '/': never, '/tasks': never }
+  PAGES: { '/': never, '/dialog': never, '/ff-repo': never, '/tasks': never, '/toast': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
   LINKS: { 'remult_admin': never, 'github': 'owner' | 'repo' }

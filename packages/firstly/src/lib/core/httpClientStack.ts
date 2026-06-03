@@ -1,24 +1,20 @@
-/**
- * Composable `fetch` middleware stack.
- *
- * Drop-in replacement for `remult.apiClient.httpClient`. Each middleware is a
- * higher-order function `(next) => fetch`; they wrap right-to-left so the
- * first middleware in the list sees the request first and the response last.
- *
- * @example
- * ```ts
- * import { stackHttpClient, withHeader, withTraceparent } from 'firstly'
- *
- * remult.apiClient.httpClient = stackHttpClient(
- *   withTraceparent(),
- *   withHeader('X-Tenant-Id', () => currentTenant.id),
- * )
- * ```
- */
 export type HttpClientFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 
 export type HttpClientMiddleware = (next: HttpClientFetch) => HttpClientFetch
 
+/**
+ * Compose `fetch` middlewares into a single `fetch`-shaped function. Middlewares
+ * run outermost-first (the first argument wraps the rest). Useful to inject auth
+ * headers, correlation ids, retries, logging, ... around a base `fetch`.
+ *
+ * ```ts
+ * const client = stackHttpClient(
+ *   withHeader('x-correlation-id', () => crypto.randomUUID()),
+ *   withHeader('authorization', () => `Bearer ${token}`),
+ * )
+ * await client('/api/...')
+ * ```
+ */
 export function stackHttpClient(...middlewares: HttpClientMiddleware[]): HttpClientFetch {
 	return middlewares.reduceRight<HttpClientFetch>(
 		(next, mw) => mw(next),
@@ -26,21 +22,15 @@ export function stackHttpClient(...middlewares: HttpClientMiddleware[]): HttpCli
 	)
 }
 
-/**
- * Adds (or overwrites) a single request header. Header value is lazy: the
- * `getValue` callback is invoked per request, so it can return a fresh value
- * each time (e.g. a per-navigation correlation id). Returning `undefined` /
- * `null` skips the header.
- */
+/** Middleware that sets a request header from `getValue()` when it returns a value. */
 export function withHeader(
 	name: string,
 	getValue: () => string | undefined | null,
 ): HttpClientMiddleware {
-	return (next) => (input, init) => {
-		const value = getValue()
-		if (value === undefined || value === null) return next(input, init)
+	return (next) => async (input, init) => {
 		const headers = new Headers(init?.headers)
-		headers.set(name, value)
+		const value = getValue()
+		if (value) headers.set(name, value)
 		return next(input, { ...init, headers })
 	}
 }

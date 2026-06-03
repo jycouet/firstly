@@ -5,9 +5,21 @@ packages:
 onlyBuiltDependencies:
  - better-sqlite3
 
+# Supply-chain cooldown: don't install package versions published less than a day
+# ago (mitigates a compromised-release window). Trusted publishers are excluded so
+# our own/closely-tracked packages still update immediately.
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+ - '@kitql/*'
+ - kitql-lint
+ - vite-plugin-kit-routes
+ - vite-plugin-stripper
+ - vite-plugin-watch-and-run
+ - remult
+
 catalogs:
  docs:
-  '@astrojs/starlight': 0.38.2
+  '@astrojs/starlight': 0.39.2
   accessible-astro-components: 5.2.0
   astro: 6.3.5
   astro-icon: 1.1.5
@@ -22,23 +34,25 @@ catalogs:
   vite: 7.3.1
   '@tsconfig/svelte': 5.0.2
   tslib: 2.8.0
-  vite-plugin-watch-and-run: 1.8.1
-  vite-plugin-kit-routes: 1.0.5
-  vite-plugin-stripper: 0.10.3
+  vite-plugin-watch-and-run: 1.8.2
+  vite-plugin-kit-routes: 1.0.6
+  vite-plugin-stripper: 0.10.4
   esm-env: 1.2.2
   prettier: 3.8.1
 
  kitql:
-  '@kitql/helpers': 0.8.14
-  '@kitql/eslint-config': 0.8.3
-  eslint: 10.3.0
+  '@kitql/helpers': 0.8.15
+  '@kitql/eslint-config': 0.9.0
+  eslint: 10.4.0
 
  testing:
-  '@playwright/test': 1.59.1
+  '@playwright/test': 1.60.0
+  '@vitest/browser': 3.2.3
+  playwright: 1.60.0
   vitest: 3.2.3
 
  lib-author-helper:
-  '@changesets/changelog-github': 0.6.0
+  '@changesets/changelog-github': 0.7.0
   '@changesets/cli': 2.31.0
 
  svelte:
@@ -59,6 +73,7 @@ catalogs:
   tailwind-merge: 3.5.0
   clsx: 2.1.1
   daisyui: 5.5.3
+  svelte-sonner: 1.1.1
 
  prod:
   '@types/nodemailer': 8.0.0

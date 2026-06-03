@@ -75,7 +75,24 @@ export default defineConfig({
 						},
 						{
 							label: 'SQL Admin',
-							link: '/docs/modules/sqlAdmin',
+							link: '/docs/modules/sql-admin',
+						},
+					],
+				},
+				{
+					label: 'Svelte',
+					items: [
+						{
+							label: 'ff (reactive layer)',
+							link: '/docs/svelte/ff',
+						},
+						{
+							label: 'dialog',
+							link: '/docs/svelte/dialog',
+						},
+						{
+							label: 'toast',
+							link: '/docs/svelte/toast',
 						},
 					],
 				},

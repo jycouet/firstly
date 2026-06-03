@@ -1,6 +1,20 @@
 import { describe, expect, it } from 'vitest'
 
-import { nameify, slugify } from './strings'
+import { nameify, slugify, splitTrim } from './strings'
+
+describe('splitTrim', () => {
+	it('splits on commas and newlines, trims, drops empties', () => {
+		expect(splitTrim('a, b\n,c')).toEqual(['a', 'b', 'c'])
+	})
+	it('handles undefined / null / empty', () => {
+		expect(splitTrim(undefined)).toEqual([])
+		expect(splitTrim(null)).toEqual([])
+		expect(splitTrim('   ')).toEqual([])
+	})
+	it('honours a custom separator', () => {
+		expect(splitTrim('a|b| c ', '|')).toEqual(['a', 'b', 'c'])
+	})
+})
 
 describe('slugify', () => {
 	it('should convert a string to lowercase', () => {
