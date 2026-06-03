@@ -29,3 +29,6 @@ tmp/
 
 # vitest browser failure screenshots
 **/__screenshots__/
+
+# local implementation plans (superpowers) - not part of the package/docs
+docs/superpowers/
