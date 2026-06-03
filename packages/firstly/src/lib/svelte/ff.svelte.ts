@@ -67,8 +67,13 @@ export type QueryOptionsHelper<Entity> = QueryOptions<Entity> & {
 	aggregate?: AggregateOptions<Entity>
 }
 
+/** The primary-key type of an entity (single value, or a composite-id object) - from remult's `findId`. */
+export type FF_Id<Entity> = Parameters<Repository<Entity>['findId']>[0]
+
 export type FF_RepoOptions<Entity> = {
 	where?: EntityFilter<Entity>
+	/** `one` mode: load by primary key via `findId` (no sort/limit). Mutually exclusive with `where`. */
+	id?: FF_Id<Entity>
 	orderBy?: EntityOrderBy<Entity>
 	/** paginate: rows per page (default 25). */
 	pageSize?: number
@@ -80,6 +85,19 @@ export type FF_RepoOptions<Entity> = {
 	/** Aggregations to compute alongside the page (paginate mode only). `$count` is always returned. */
 	aggregate?: AggregateOptions<Entity>
 }
+
+/**
+ * Options for `ff(E).one(...)`: load a single record either by primary key
+ * (`id` -> `findId`, no sort/limit) OR by filter (`where` -> `findFirst`, with `orderBy`).
+ * Exactly one of `id` / `where` - setting both is a type error.
+ */
+export type FF_OneOptions<Entity> = {
+	include?: MembersToInclude<Entity>
+	enabled?: boolean
+} & (
+	| { id: FF_Id<Entity>; where?: never; orderBy?: never }
+	| { id?: never; where?: EntityFilter<Entity>; orderBy?: EntityOrderBy<Entity> }
+)
 type Getter<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = () => O
 
 /** `$count` is always present; richer keys appear only for the requested `aggregate`. */
@@ -247,10 +265,11 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 				this.aggregates = (p as unknown as { aggregates: ExtractAggregateResult<Entity, O> }).aggregates
 				this.#fireNew()
 			} else if (this.#mode === 'one') {
-				const found = await this.#repo.findFirst(o.where, {
-					orderBy: o.orderBy,
-					include: o.include,
-				})
+				// `id` -> findId (by primary key, no sort/limit); otherwise `where` -> findFirst.
+				const found =
+					o.id != null
+						? await this.#repo.findId(o.id, { include: o.include })
+						: await this.#repo.findFirst(o.where, { orderBy: o.orderBy, include: o.include })
 				if (seq !== this.#seq) return
 				this.item = found ?? undefined
 				this.items = found ? [found] : []
@@ -900,8 +919,8 @@ export type FF_Builder<Entity> = {
 		opts: StrictGetter<Entity, O>,
 		strategy?: S,
 	) => FF_Many<Entity, S, O>
-	/** A single reactive record bound to `item`. */
-	one: <O extends FF_RepoOptions<Entity>>(opts: StrictGetter<Entity, O>) => FF_One<Entity, O>
+	/** A single reactive record bound to `item` - by primary key (`{ id }` -> findId) or filter (`{ where }` -> findFirst). */
+	one: (opts: () => FF_OneOptions<Entity>) => FF_One<Entity>
 	/** The entity's remult metadata (captions, permissions, fields). */
 	readonly meta: EntityMetadata<Entity>
 }
@@ -924,8 +943,12 @@ export function ff<Entity>(entity: ClassType<Entity>): FF_Builder<Entity> {
 				strategy ?? 'paginate',
 			) as unknown as FF_Many<Entity, S, O>
 		},
-		one<O extends FF_RepoOptions<Entity>>(o: StrictGetter<Entity, O>) {
-			return new FF_RepoHandle(r, o as Getter<Entity, O>, 'one') as unknown as FF_One<Entity, O>
+		one(o: () => FF_OneOptions<Entity>) {
+			return new FF_RepoHandle(
+				r,
+				o as unknown as Getter<Entity, FF_RepoOptions<Entity>>,
+				'one',
+			) as unknown as FF_One<Entity>
 		},
 		get meta() {
 			return r.metadata

@@ -4,6 +4,7 @@ export type {
 	FF_One,
 	FF_Builder,
 	FF_RepoOptions,
+	FF_OneOptions,
 	FF_RepoLoading,
 	FF_Issue,
 	ManyStrategy,

@@ -454,3 +454,36 @@ describe('ff - lifecycle hooks (onNew / onIssue)', () => {
 		expect(news.at(-1)).toEqual([3, 2, 1])
 	})
 })
+
+describe('ff().one - id vs where', () => {
+	it('one({ id }) loads by primary key (findId)', async () => {
+		const [row] = await repo(Row).insert([{ order: 1, name: 'byId' }])
+		const o = root(() => ff(Row).one(() => ({ id: row.id })))
+		await vi.waitFor(() => expect(o.item?.id).toBe(row.id))
+		expect(o.item?.name).toBe('byId')
+	})
+
+	it('one({ where }) loads by filter (findFirst)', async () => {
+		await seed(3)
+		const o = root(() => ff(Row).one(() => ({ where: { order: 2 } })))
+		await vi.waitFor(() => expect(o.item?.order).toBe(2))
+	})
+
+	it('one({ id }) re-runs when the id changes', async () => {
+		const [a, b] = await repo(Row).insert([
+			{ order: 1, name: 'a' },
+			{ order: 2, name: 'b' },
+		])
+		let id = $state(a.id)
+		const o = root(() => ff(Row).one(() => ({ id })))
+		await vi.waitFor(() => expect(o.item?.name).toBe('a'))
+		id = b.id
+		flushSync()
+		await vi.waitFor(() => expect(o.item?.name).toBe('b'))
+	})
+
+	it('id and where are mutually exclusive (type-level)', () => {
+		// @ts-expect-error - cannot set both `id` and `where`
+		root(() => ff(Row).one(() => ({ id: 'x', where: { order: 1 } })))
+	})
+})
