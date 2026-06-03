@@ -1,8 +1,10 @@
 <script lang="ts">
 	import type { ManyStrategy } from 'firstly/svelte'
-	import { DemoForm, DemoGrid } from 'firstly/svelte'
+	import { DemoForm, DemoGrid, FF_Config, FF_Form, FF_Grid } from 'firstly/svelte'
 
 	import { Task } from '$modules/demo/Task'
+
+	import Input from '../../boutique/grid/Input.svelte'
 
 	const fields = ['title'] as const
 	const strategies: ManyStrategy[] = ['paginate', 'listen', 'load']
@@ -68,6 +70,16 @@
 				<DemoGrid entity={Task} fields={[...fields]} strategy="load" enabled={lazyOn} />
 			</article>
 		</div>
+	</section>
+
+	<section>
+		<div class="head">
+			<h2>FF_Grid / FF_Form (headless + boutique skin)</h2>
+		</div>
+		<FF_Config cell={{ inputs: { text: Input, number: Input, checkbox: Input } }}>
+			<FF_Grid entity={Task} selected={['title', 'priority', 'done']} pageSize={5} />
+			<FF_Form entity={Task} selected={['title', 'priority', 'done']} />
+		</FF_Config>
 	</section>
 </div>
 

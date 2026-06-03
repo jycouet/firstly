@@ -38,6 +38,23 @@ export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
 
 export { default as DemoGrid } from './DemoGrid.svelte'
 export { default as DemoForm } from './DemoForm.svelte'
+export {
+	FF_Cell,
+	FF_Grid,
+	FF_Form,
+	buildCells,
+	displayCell,
+	getFieldMetaType,
+	getInputType,
+} from './grid/index.js'
+export type {
+	Cell,
+	CellInput,
+	CellUI,
+	MetaKind,
+	CellConfig,
+	CellElementConfig,
+} from './grid/index.js'
 export { default as Icon } from './ui/Icon.svelte'
 export {
 	LibIcon_Empty,
