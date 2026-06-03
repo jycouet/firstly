@@ -48,7 +48,11 @@
 	<Header bind:year {loading} onRefresh={load} />
 
 	{#if error}
-		<div class="alert text-xs alert-error">{error}</div>
+		<div
+			class="border-destructive/40 bg-destructive/10 text-destructive rounded-md border px-3 py-2 text-xs"
+		>
+			{error}
+		</div>
 	{:else if stats}
 		<Totals data={stats.totals} year={stats.year} />
 

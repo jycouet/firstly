@@ -25,13 +25,24 @@
 
 <div class="flex items-center gap-3">
 	<h2 class="text-xl font-semibold">{title}</h2>
-	<select bind:value={year} onchange={() => onRefresh()} class="select-bordered select select-sm">
+	<select
+		bind:value={year}
+		onchange={() => onRefresh()}
+		class="border-input focus-visible:border-ring focus-visible:ring-ring rounded-md border bg-transparent px-2 py-1 text-sm outline-none focus-visible:ring-2"
+	>
 		{#each defaultYears as y (y)}
 			<option value={y}>{y}</option>
 		{/each}
 	</select>
-	<button class="btn btn-ghost btn-sm" onclick={() => onRefresh()} disabled={loading}>
+	<button
+		class="hover:bg-accent hover:text-accent-foreground inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50"
+		onclick={() => onRefresh()}
+		disabled={loading}
+	>
 		Refresh
 	</button>
-	{#if loading}<span class="loading loading-sm loading-spinner"></span>{/if}
+	{#if loading}<span
+			class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+			aria-label="loading"
+		></span>{/if}
 </div>

@@ -59,7 +59,6 @@
     "@testing-library/svelte": "5.3.1",
     "@typescript/native-preview": "catalog:tooling",
     "@vitest/browser": "catalog:testing",
-    "daisyui": "catalog:ui",
     "eslint": "catalog:kitql",
     "jsdom": "29.1.1",
     "playwright": "catalog:testing",
