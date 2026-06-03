@@ -1,4 +1,4 @@
-<script lang="ts" generics="T extends { id: string }">
+<script lang="ts" generics="T extends object">
 	import { untrack } from 'svelte'
 
 	import type { ClassType, EntityFilter, EntityOrderBy } from 'remult'
@@ -43,6 +43,10 @@
 		sort = { [key]: cur === 'asc' ? 'desc' : 'asc' } as EntityOrderBy<T>
 	}
 	const sortDir = (key: string) => (sort as Record<string, string> | undefined)?.[key]
+
+	// Key rows by the entity's real id (string, number, or composite) - not a `.id` field,
+	// so composite-PK entities work too.
+	const rowKey = (row: T) => m.meta.idMetadata.getId(row)
 </script>
 
 <div data-ff-grid>
@@ -74,7 +78,7 @@
 					>
 				{/each}
 			{:else}
-				{#each m.items as row (row.id)}
+				{#each m.items as row (rowKey(row))}
 					<tr>
 						{#each cells as cell (cell.col ?? cell.kind)}
 							<td data-col={cell.col} style:text-align={cell.align} class={cell.class}>

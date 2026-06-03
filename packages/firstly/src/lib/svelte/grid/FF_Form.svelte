@@ -1,4 +1,4 @@
-<script lang="ts" generics="T extends { id: string }">
+<script lang="ts" generics="T extends object">
 	import type { ClassType, EntityFilter } from 'remult'
 
 	import { ffConfig } from '../FF_Config.svelte.js'

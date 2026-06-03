@@ -18,6 +18,21 @@ class LinkRow {
 	@Fields.string({ caption: 'Ref', href: (r: LinkRow) => `/x/${r.id}` }) ref = ''
 }
 
+// Numeric primary key (e.g. an auto-increment id) - id is NOT a string.
+@Entity('grid_num_row', { allowApiCrud: true })
+class NumRow {
+	@Fields.autoIncrement() id = 0
+	@Fields.string({ caption: 'Name' }) name = ''
+}
+
+// Composite primary key - the entity has NO single `id` field at all.
+@Entity<CompRow>('grid_comp_row', { allowApiCrud: true, id: { a: true, b: true } })
+class CompRow {
+	@Fields.string() a = ''
+	@Fields.string() b = ''
+	@Fields.string({ caption: 'Label' }) label = ''
+}
+
 let target: HTMLElement
 beforeEach(() => {
 	remult.dataProvider = new InMemoryDataProvider()
@@ -53,6 +68,23 @@ describe('FF_Grid', () => {
 		expect(a).toBeTruthy()
 		expect(a.getAttribute('href')).toBe('/x/abc')
 		expect(a.textContent).toBe('see')
+		unmount(comp)
+	})
+
+	it('works with a numeric primary key (id is not a string)', async () => {
+		await repo(NumRow).insert([{ name: 'a' }, { name: 'b' }])
+		const comp = await mountGrid({ entity: NumRow, selected: ['name'] })
+		expect(target.querySelectorAll('tbody tr').length).toBe(2)
+		unmount(comp)
+	})
+
+	it('works with a composite primary key (no single id field)', async () => {
+		await repo(CompRow).insert([
+			{ a: '1', b: 'x', label: 'first' },
+			{ a: '2', b: 'y', label: 'second' },
+		])
+		const comp = await mountGrid({ entity: CompRow, selected: ['label'] })
+		expect(target.querySelectorAll('tbody tr').length).toBe(2)
 		unmount(comp)
 	})
 
