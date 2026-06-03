@@ -1,9 +1,9 @@
 # `firstly/evlog` - pre-merge TODO
 
-Status: **feature works and is merged up to date with `main` (`f427af5`), but is NOT yet mergeable
-to `main`.** Below are the blockers and follow-ups from a verified multi-dimension review
-(2026-06-03, post-merge). Each item cites `file:line` and was adversarially verified against the
-actual code.
+Status: feature works and is merged up to date with `main`. The 3 correctness blockers, the
+daisyUI→semantic-token restyle, and the doc fixes are **done** (2026-06-03). Remaining: a privacy
+decision + scale follow-ups (none block correctness). Items cite `file:line`; findings came from a
+verified multi-dimension review.
 
 ## Direction (build-vs-buy vs PostHog)
 
@@ -14,111 +14,75 @@ evlog and PostHog are **~80% complementary, not competitors**:
 - **PostHog** = "how do users use the product" (funnels, session replay, feature flags), stored in
   PostHog's own ClickHouse.
 
-**Decision: continue evlog as a scoped backend audit/observability layer. Do NOT grow it toward
-product analytics** - point consumers at PostHog Cloud (EU) as an optional, parallel front-end layer.
-PostHog's OSS self-host is officially hobby/eval-only and cannot produce evlog's in-DB
-entity-joined audit / per-SQL-query traces.
+**Decision: continue evlog as a scoped backend audit/observability layer.** Don't grow it toward
+product analytics - recommend PostHog Cloud (EU) as an optional, parallel front-end layer. (Now
+stated in the README "Scope" note.)
 
-> TODO: add a short README "Scope" section stating evlog is not a product-analytics tool and
-> recommending PostHog Cloud (EU) alongside it for that need.
+## ✅ Done
 
----
+- [x] **Denied-audit crash on a sampled-out 401/403** - `server/plugins/audit.ts`. Now reads
+      `ctx.status` / `ctx.request` (always present) instead of off the nullable `ctx.event`; reproduced + fixed under TDD (`audit.spec.ts`, "event=null" test). Fixes both the crash and the
+      silently-dropped denied row.
+- [x] **`mountSqlSpans` double-records every query** - `server/sqlSpan.ts`. Second mount now
+      early-returns (first mount stays active) instead of chaining onto its own wrapper.
+      (`sqlSpan.spec.ts`).
+- [x] **Cross-tenant write leak via `capturedDataProvider`** - `server/dataProviderCapture.ts`. Capture
+      is now **first-wins** (never overwritten), so a concurrent request can't swap the provider out
+      from under an in-flight detached drain. evlog now documents that it requires a STABLE
+      dataProvider (per-request/multi-tenant is unsupported). (`dataProviderCapture.spec.ts`.)
+- [x] **daisyUI → plain Tailwind + semantic tokens** for all 13 dashboard components
+      (`EvlogStats.svelte` + `stats/*.svelte`) and the `routes/tasks` demo page; dropped the unused
+      `daisyui` dep. Components were previously styled with daisy classes that this package no longer
+      loads. (typecheck + 21 panel tests green.)
+- [x] **Docs**: `withEvlog` JSDoc corrected to `{ evlog: { module } }`; README + controller JSDoc
+      updated from the old `createUserAgentEnricher()` to `context: { userAgent: true }`; added
+      "Migrating from changeLog", a "Scope" note (vs PostHog), and the stable-dataProvider constraint;
+      `evlog.mdx` re-synced.
 
-## 🔴 Blockers - correctness (crash / data corruption)
+## Intentional - not a gap
 
-- [ ] **Denied-audit crashes on a sampled-out 401/403** - `server/plugins/audit.ts:62-68`.
-      `ctx.event` is `WideEvent | null` and is genuinely `null` when the request's wide event is
-      dropped by tail sampling. The handler does `evt.status` with no null guard → `TypeError`. The
-      handler is `async` but the host calls it synchronously inside a sync try/catch, so the throw
-      becomes an **uncatchable unhandled rejection**.
-      **Fix:** early-out `if (!ctx.event) return`, and read **`ctx.status`** (always present) instead
-      of `evt.status`. This also fixes the related finding below in one go.
-- [ ] **Denied row reads HTTP status from the wrong source** - `server/plugins/audit.ts:65`. Even
-      without the crash, a sampled-out 401/403 silently emits no denied-audit row (the headline
-      reason this hook exists). Use `ctx.status`, not `evt.status`.
-- [ ] **`mountSqlSpans` double-registration double-records every query** -
-      `server/sqlSpan.ts:20-37`. The `mounted` guard warns "the second call overrides the first" but
-      does not return - it re-wraps and chains, so on HMR / a double `evlog()` registration every
-      query is written **twice** (duplicate `_ff_evlog_trace_query` rows + inflated hottest/most-time
-      stats). **Fix:** early-return on `mounted` (or genuinely restore-then-replace).
-- [ ] **Cross-tenant write leak via shared `capturedDataProvider` singleton** -
-      `server/dataProviderCapture.ts:10`. The module-level `let` is reassigned per request; drains
-      run after `resolve()`, so a concurrent request B can overwrite it between request A's resolve
-      and A's drain → A's audit/trace rows written into B's tenant DB. Only manifests with
-      Remult per-request `dataProvider` (multi-tenant), which firstly does not ship by default.
-      **Fix:** bind the per-request dataProvider into the detached drain context, **or** explicitly
-      document multi-DP as unsupported and guard.
+- **Audit rows are never purged** - `server/remultDrains.ts`. Confirmed a deliberate design choice
+  (immutable who-did-what log). README now states this explicitly and documents manual
+  admin-side deletion for a GDPR Art.17 erasure. No code change needed.
 
-## 🔴 Blockers - privacy / GDPR (shipping these defaults is a liability)
+## PII capture posture - decided: documented, kept as-is
 
-- [ ] **Audit rows are never purged** - `server/remultDrains.ts:18-24`. No retention, no TTL, no
-      subject-scoped delete for `_ff_evlog_audit` (trace/query are purged; audit intentionally is
-      not). Combined with PII capture below, personal data accumulates indefinitely with no
-      Art.5(1)(e) storage-limitation or Art.17 erasure path.
-      **Fix:** ship a documented operator retention story for `_ff_evlog_audit` + a subject-scoped
-      delete helper.
-- [ ] **Verbatim PII captured by default in three places** (redaction is fully opt-in):
-  - audit diff values - `withEvlog.ts:48-94` (before/after of every changed field)
-  - **SQL bound-param `args`** - `server/sqlSpan.ts:60-71` (every queried table, **on by default**)
-  - **client `searchParams`** - `EvlogClientController.ts:43-52` (whole query string: `?token=`,
-    `?email=`, …, **no allowlist/redaction**)
+Decision (2026-06-03): the verbatim-value capture is an accepted posture (like audit-never-purged),
+**not** a code change. Documented in the README "What gets captured (and how to minimise it)" section:
 
-    **Fix:** make the capture posture prominent in docs, add a global redaction/allowlist knob, and
-    consider defaulting `args` + `searchParams` capture **off or redacted**.
+- Audit diff values → already redactable per entity via `excludeColumns` / `excludeValues`.
+- SQL `args` (`server/sqlSpan.ts`) → disable with `evlog({ sqlSpans: false })` or skip tables via
+  `sqlSpans: { tablesToHide: [...] }`.
+- Client `searchParams` (`EvlogClientController.ts`) → don't put secrets in query strings, or skip
+  client tracing by not calling `initClientTrace()`.
 
-## 🟠 Before any consumer scales (won't block an admin-only dashboard, will bite on growth)
+All data stays in your own DB. No further action.
 
-- [ ] **Add indexes on `(timestamp)` and `(traceId)`** for all three `_ff_evlog_*` tables -
-      `evlogEntities.ts`. Remult exposes no in-entity index option, so this needs a documented
-      migration (raw `CREATE INDEX`). Without it, every `getStats` range-scan and every boot purge is
-      a full table scan.
-- [ ] **`getStats` aggregates in JS over up to ~300k rows** - `EvlogStatsController.ts:118-335`.
-      Three unconstrained `find({ limit: 100_000 })` calls, no `select` projection (drags full JSON
-      columns into heap), then ~6 full-array scans. Admin-only + one-shot, but one click can pin a
-      core. Push aggregation into SQL (or add a `select` projection) above some row threshold.
-- [ ] **Write amplification: 1 row per SQL query, unbounded per request** -
-      `server/plugins/trace.ts:136-149`. `minDurationMs` defaults to `0` (capture every query).
-      Default `minDurationMs > 0` and/or cap `db_queries` length per request.
+## 🟠 Scale follow-ups (don't block correctness; bite on growth)
+
+- [ ] **No indexes on `(timestamp)` / `(traceId)`** for the `_ff_evlog_*` tables - `evlogEntities.ts`.
+      Remult can't declare them in-entity → needs a migration (raw `CREATE INDEX`). Without it every
+      `getStats` range-scan + boot purge is a full table scan.
+- [ ] **`getStats` aggregates in JS** over up to ~300k rows, no `select` projection -
+      `EvlogStatsController.ts:118-335`. Admin-only + one-shot today; push to SQL / add a projection
+      above a row threshold.
+- [ ] **Write amplification: 1 row per SQL query**, `minDurationMs` defaults to `0` -
+      `server/plugins/trace.ts`. Consider defaulting `minDurationMs > 0` and/or capping `db_queries`.
 - [ ] (nit) Hoist the per-query `await import('evlog/sveltekit')` to module scope -
-      `server/sqlSpan.ts:59`.
+      `server/sqlSpan.ts`.
 
-## 🟡 DX / docs quick wins (cheap, do now)
+## 🟡 Optional cleanups
 
-- [ ] **`withEvlog` JSDoc example is wrong** - `withEvlog.ts:112`. Shows `withEvlog({ module: 'task' })`
-      but `module` lives under `evlog`: `withEvlog({ evlog: { module: 'task' } })`. Copy-pasting the
-      JSDoc silently breaks module tagging.
-- [ ] **README/JSDoc still reference the old `createUserAgentEnricher()`** -
-      `README.md:392`, `EvlogStatsController.ts:114`. Align to the new
-      `context: { userAgent: true }` opt-in.
-- [ ] **Missing "Migrating from changeLog" README section** that the `@deprecated` JSDoc promises -
-      `changeLog/index.ts:144`. Document: old `_ff_change_logs` stays readable, the two run
-      side-by-side (different tables/roles), old data is not backfilled.
-- [ ] **3 Queries panels are ~95% copy-paste** - `stats/QueriesSlowest.svelte` /
-      `QueriesTopTime.svelte` / `QueriesHot.svelte`. Collapse into one parametric
-      `<EvlogStatsQueries>` (only sort + accent color vary). Six other panels share an unextracted
-      card + `fmt` + empty-row skeleton (`fmt` redeclared ~11x, `monthLabel` duped 3x).
-
-## 🧹 Branch-alignment debt (introduced by the `main` merge)
-
-`main` (#289) removed daisyUI and migrated Svelte tests jsdom → Playwright; evlog predates both. The
-merge kept evlog working via a **superset** (3-project vitest config; daisyUI/jsdom retained). To
-merge cleanly into `main`:
-
-- [ ] Restyle the **12 dashboard components** (`EvlogStats.svelte` + `stats/*.svelte`) off daisyUI
-      classes (`card`, `btn`, `badge`, `bg-base-100`, `text-base-content`, …) to plain Tailwind +
-      the semantic tokens `main` adopted.
-- [ ] Once restyled, drop the `svelte-jsdom` vitest project + daisyUI/jsdom/@testing-library deps and
-      migrate `panels.spec.ts` / `EvlogStats.spec.ts` to `main`'s Playwright browser approach
-      (`*.svelte.spec.ts`).
-
----
+- [ ] **3 Queries panels are ~95% copy-paste** (`stats/Queries{Hot,Slowest,TopTime}.svelte`); could
+      collapse into one parametric panel. Six other panels share an unextracted card/`fmt`/empty-row
+      skeleton.
+- [ ] **Test-framework alignment (optional):** the `svelte-jsdom` vitest project + `@testing-library/svelte`
+      still cover the panel tests in jsdom, while `main` uses Playwright browser mode for `*.svelte.spec.ts`.
+      Works fine as-is; migrate only if you want to drop the 3-project superset.
 
 ## Notes
 
-- Correctness blockers (audit crash, sqlSpan double-record) are the quickest, highest-value wins.
-- The privacy defaults are the single biggest reason a privacy-conscious consumer would reject the
-  feature - treat as a design decision, not just a patch.
-- One review finding ("audit `raw` duplicates unredacted changes") was **refuted** on verification -
-  `raw` holds already-redacted data, no extra PII blast radius.
 - External `evlog` pkg pinned at **2.18.1**; single-maintainer + young (~4 mo) - keep pinned and
   wrapped, watch breaking minors.
+- One review finding ("audit `raw` duplicates unredacted changes") was **refuted** on verification -
+  `raw` holds already-redacted data, no extra PII blast radius.

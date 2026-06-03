@@ -110,8 +110,8 @@ const topN = <T>(
  * SQLite, and anything else Remult drives. For high-volume systems, subclass
  * and replace with a dialect-specific SQL view.
  *
- * Browser / OS / device stats read from `event.userAgent`, which is populated
- * by `evlog/enrichers`'s `createUserAgentEnricher()` - see README.
+ * Browser / OS / device stats read from `event.userAgent`, populated by the
+ * opt-in `evlog({ context: { userAgent: true } })` setup - see README.
  */
 export class EvlogStatsController {
 	@BackendMethod({ allowed: Roles_Evlog.Evlog_Admin })

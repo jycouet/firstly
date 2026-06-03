@@ -13,6 +13,8 @@ Replaces the older `firstly/changeLog` table-write pattern with one logging surf
 - supports **fan-out drains** so the same events can also flow to Axiom / OTLP / Datadog / Sentry / file
 - ships a **boot-time purge** that drops trace + trace-query rows older than `retentionDays` (default 90); audit rows are never purged
 
+> **Scope.** evlog answers _"who changed which entity, what did this request do, which SQL ran"_ - backend audit + observability, stored in your own DB and joinable to your Remult entities. It is **not** a product-analytics tool: for funnels, retention, session replay, or feature flags use a dedicated platform (e.g. PostHog) alongside it. The two are complementary, not competing.
+
 ## Installation
 
 ```bash
@@ -169,6 +171,16 @@ withEvlog({
 withEvlog({ evlog: false })
 ```
 
+### Migrating from `changeLog`
+
+`firstly/evlog` is the successor to `firstly/changeLog`; `withChangeLog` is `@deprecated` in favour of `withEvlog`. The two coexist cleanly - different tables (`_ff_change_logs` vs `_ff_evlog_audit`) and roles (`Roles_ChangeLog` vs `Roles_Evlog`) - so you can migrate entity by entity:
+
+1. **Leave existing data in place.** Old `_ff_change_logs` rows stay readable through the still-exported `ChangeLog` entity / `Roles_ChangeLog`. There is **no automatic backfill** - history is not copied into the audit table.
+2. **Swap per entity:** replace `withChangeLog({...})` with `withEvlog({ evlog: { module: '<name>' } })`. New mutations now land in `_ff_evlog_audit` as JSON-Patch `changes`, instead of flat `{ key, oldValue, newValue }` rows.
+3. **Cut over the dashboards** to `<EvlogStats>` (or the individual panels). The old changelog data remains queryable on its own table for as long as you keep it.
+
+Run both side by side during the transition; drop `changeLog` once every entity has moved over.
+
 ## Usage - structured errors
 
 ```ts
@@ -228,9 +240,11 @@ The audit / trace / trace-query tables themselves are auto-skipped (and a reques
 
 ## Retention
 
-Trace + trace-query rows older than `trace.retentionDays` (default 90) are purged once at every server boot. Audit rows are never purged.
+Trace + trace-query rows older than `trace.retentionDays` (default 90) are purged once at every server boot.
 
-Admins can run an ad-hoc purge:
+**Audit rows are never purged - by design.** The audit table is an immutable who-did-what-to-whom log, so time-based purging is deliberately not applied to it. If you need to satisfy a GDPR Art. 17 erasure (or your own retention policy), delete the relevant rows yourself: `_ff_evlog_audit` allows `delete` for `Roles_Evlog.Evlog_Admin`, so an admin can remove a subject's rows via the REST API or a Remult `repo(EvlogAudit).deleteMany(...)`. Be aware that audit `changes` can contain field values - see [Excluding fields](#excluding-fields) to keep sensitive columns out of the log in the first place.
+
+Admins can run an ad-hoc purge (trace + trace-query only):
 
 ```ts
 import { EvlogPurgeController } from 'firstly/evlog/server'
@@ -239,6 +253,8 @@ const { traces, queries } = await EvlogPurgeController.purgeOlderThan(30)
 ```
 
 The BackendMethod is gated by `Roles_Evlog.Evlog_Admin`; surface it from a dashboard button or wire it to a cron of your choice.
+
+> **Stable dataProvider required.** Drains run _after_ the request resolves, in a detached Remult context bound to the first dataProvider evlog sees. evlog therefore expects a single, stable dataProvider - per-request (multi-tenant) dataProviders are not supported; point the `_ff_evlog_*` tables at one shared store.
 
 ## Configuration
 
@@ -389,8 +405,8 @@ Each panel is a standalone component that takes its data as a prop. Fetch once i
 | `<EvlogStatsModules>`        | `data: stats.monthlyByModule`  | Events per `module` per month - tag emits with `module: 'reports'` to slice.                     |
 | `<EvlogStatsTopPages>`       | `data: stats.topPages`         | Most-visited pathnames (client navs).                                                            |
 | `<EvlogStatsPageFlows>`      | `data: stats.pageFlows`        | Top from→to navigation pairs (LAG by `actorId`).                                                 |
-| `<EvlogStatsBrowsers>`       | `data: stats.browsers`         | Browser %, requires `createUserAgentEnricher()` wired.                                           |
-| `<EvlogStatsOsDevices>`      | `os`, `devices`                | OS + device breakdown (same enricher).                                                           |
+| `<EvlogStatsBrowsers>`       | `data: stats.browsers`         | Browser %, requires `context: { userAgent: true }` (see Setup).                                  |
+| `<EvlogStatsOsDevices>`      | `os`, `devices`                | OS + device breakdown (same `context: { userAgent: true }` opt-in).                              |
 | `<EvlogStatsQueriesSlowest>` | `data: stats.queries.slowest`  | Top 10 SQL by `max(duration)` - one-off pathological queries.                                    |
 | `<EvlogStatsQueriesTopTime>` | `data: stats.queries.mostTime` | Top 10 SQL by `sum(duration)` - fast-but-frequent killers.                                       |
 | `<EvlogStatsQueriesHot>`     | `data: stats.queries.hottest`  | Top 10 SQL by call count - good for spotting N+1.                                                |
@@ -402,6 +418,16 @@ Each panel is a standalone component that takes its data as a prop. Fetch once i
 `Roles_Evlog.Evlog_Admin` controls **read**, **insert**, and **delete** on the storage entities. The dashboard panels read through `EvlogStatsController.getStats()`, so the role grant flows through. Grant it to operators / dashboards; never default users.
 
 > **Read access is admin-only by default.** Audit rows leak who-did-what to whom; trace rows leak schema names + parameter values + paths. Both entities default `allowApiRead: Roles_Evlog.Evlog_Admin`.
+
+### What gets captured (and how to minimise it)
+
+evlog records **actual values**, not just "a change happened" - so it can capture PII. By default:
+
+- **Audit `changes`** hold the real before/after values of changed fields. Redact per entity with [`excludeColumns` / `excludeValues`](#excluding-fields).
+- **SQL `args`** hold the bound parameter values of every captured query (`_ff_evlog_trace_query.args`). SQL spans are on by default - turn them off with `evlog({ sqlSpans: false })`, or skip noisy tables with `evlog({ sqlSpans: { tablesToHide: [...] } })`.
+- **Client `searchParams`** of each SPA navigation are stored on the trace event. Don't put secrets in query strings, or skip client tracing by not calling `initClientTrace()`.
+
+All of this lives in your own DB under your residency / backup / role controls - nothing leaves to a third party. Tune the above to your privacy requirements before enabling in production.
 
 ## Re-exports from `evlog`
 

@@ -101,15 +101,15 @@ function buildChanges<entityType>(
  * stream is then routed to whatever drain(s) the `evlog()` module is configured
  * with (default: a Remult-backed drain writing into `_ff_evlog_audit`).
  *
- * Use `module` to tag every audit emitted from this entity with the owning
- * Remult module name (read by dashboards / queries).
+ * Use `evlog.module` to tag every audit emitted from this entity with the
+ * owning Remult module name (read by dashboards / queries).
  *
  * @example
  * ```ts
  * import { Entity } from 'remult'
  * import { withEvlog } from 'firstly/evlog'
  *
- * \@Entity('tasks', withEvlog({ module: 'task' }))
+ * \@Entity('tasks', withEvlog({ evlog: { module: 'task' } }))
  * class Task { ... }
  * ```
  */
