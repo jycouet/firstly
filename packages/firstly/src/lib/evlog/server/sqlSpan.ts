@@ -18,10 +18,14 @@ let mounted = false
  */
 export function mountSqlSpans(options?: { tablesToHide?: string[]; minDurationMs?: number }) {
 	if (mounted) {
+		// Returning early (rather than re-wrapping) is critical: re-wrapping would
+		// capture our own first wrapper as `previous` and chain to it, so every
+		// query would be recorded twice. The first mount stays active.
 		console.warn(
-			'[firstly/evlog] mountSqlSpans called twice - the second call overrides the first. ' +
-				'This usually means evlog() was registered more than once.',
+			'[firstly/evlog] mountSqlSpans called twice - ignoring the second call (the first ' +
+				'mount stays active). This usually means evlog() was registered more than once.',
 		)
+		return
 	}
 	mounted = true
 	const minDuration = options?.minDurationMs ?? SqlDatabase.durationThreshold ?? 0

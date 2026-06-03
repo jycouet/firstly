@@ -4,10 +4,11 @@ import { InMemoryDataProvider, remult, withRemult } from 'remult'
 import type { DataProvider } from 'remult'
 
 import { EvlogAudit } from '../../evlogEntities.js'
-import { captureDataProvider } from '../dataProviderCapture.js'
+import { captureDataProvider, resetCapturedDataProvider } from '../dataProviderCapture.js'
 
 async function withInMemoryRemult<T>(fn: () => Promise<T>): Promise<T> {
 	const dp: DataProvider = new InMemoryDataProvider()
+	resetCapturedDataProvider() // first-capture-wins: each test binds its own provider
 	captureDataProvider(dp)
 	return withRemult(
 		async () => {
@@ -73,13 +74,47 @@ describe('firstlyAuditPlugin', () => {
 		const { firstlyAuditPlugin } = await import('./audit.js')
 		const p = firstlyAuditPlugin()
 		await p.onRequestFinish!({
-			event: { status: 401, path: '/api/refund', method: 'POST', userId: 'u9' } as any,
+			status: 401,
+			request: { path: '/api/refund', method: 'POST' },
+			event: { userId: 'u9' } as any,
 			durationMs: 5,
 		} as any)
 		expect(emitted).toHaveLength(1)
 		expect(emitted[0].audit.action).toBe('refund.invoke')
 		expect(emitted[0].audit.outcome).toBe('denied')
 		expect(emitted[0].audit.actor.id).toBe('u9')
+		vi.doUnmock('evlog')
+		vi.resetModules()
+	})
+
+	it('onRequestFinish emits a denied audit even when the wide event was sampled out (event=null)', async () => {
+		const emitted: any[] = []
+		vi.resetModules()
+		vi.doMock('evlog', async (orig) => {
+			const mod = await orig<typeof import('evlog')>()
+			return {
+				...mod,
+
+				createLogger: (init: any) => ({
+					emit: (extra: any) => emitted.push({ ...init, ...extra }),
+				}),
+			}
+		})
+		const { firstlyAuditPlugin } = await import('./audit.js')
+		const p = firstlyAuditPlugin()
+		// status/path/method live on the top-level RequestFinishContext, NOT on `event`,
+		// and `event` is null when tail sampling drops the wide event. Must not crash.
+		await p.onRequestFinish!({
+			event: null,
+			status: 401,
+			request: { path: '/api/refund', method: 'POST' },
+			durationMs: 5,
+		} as any)
+		expect(emitted).toHaveLength(1)
+		expect(emitted[0].audit.action).toBe('refund.invoke')
+		expect(emitted[0].audit.outcome).toBe('denied')
+		expect(emitted[0].audit.actor.id).toBe('anonymous')
+		expect(emitted[0].audit.actor.type).toBe('system')
 		vi.doUnmock('evlog')
 		vi.resetModules()
 	})
@@ -98,7 +133,9 @@ describe('firstlyAuditPlugin', () => {
 		const { firstlyAuditPlugin } = await import('./audit.js')
 		const p = firstlyAuditPlugin()
 		await p.onRequestFinish!({
-			event: { status: 200, path: '/api/refund', method: 'POST' } as any,
+			status: 200,
+			request: { path: '/api/refund', method: 'POST' },
+			event: null,
 			durationMs: 5,
 		} as any)
 		expect(emitted).toHaveLength(0)
@@ -120,7 +157,9 @@ describe('firstlyAuditPlugin', () => {
 		const { firstlyAuditPlugin } = await import('./audit.js')
 		const p = firstlyAuditPlugin()
 		await p.onRequestFinish!({
-			event: { status: 401, path: '/login', method: 'POST' } as any,
+			status: 401,
+			request: { path: '/login', method: 'POST' },
+			event: null,
 			durationMs: 5,
 		} as any)
 		expect(emitted).toHaveLength(0)

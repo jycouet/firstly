@@ -4,11 +4,12 @@ import { InMemoryDataProvider, remult, withRemult } from 'remult'
 import type { DataProvider } from 'remult'
 
 import { EvlogTrace, EvlogTraceQuery } from '../../evlogEntities.js'
-import { captureDataProvider } from '../dataProviderCapture.js'
+import { captureDataProvider, resetCapturedDataProvider } from '../dataProviderCapture.js'
 import { firstlyTracePlugin } from './trace.js'
 
 async function withInMemory<T>(fn: () => Promise<T>): Promise<T> {
 	const dp: DataProvider = new InMemoryDataProvider()
+	resetCapturedDataProvider() // first-capture-wins: each test binds its own provider
 	captureDataProvider(dp)
 	return withRemult(
 		async () => {

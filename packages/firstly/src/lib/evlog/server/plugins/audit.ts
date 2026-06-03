@@ -61,10 +61,12 @@ export function firstlyAuditPlugin(options: FirstlyAuditPluginOptions = {}): Evl
 
 		onRequestFinish: async (ctx) => {
 			if (!deniedEnabled) return
-			const evt = ctx.event as Record<string, unknown>
-			const status = evt.status as number | undefined
+			// status/path/method live on the always-present RequestFinishContext;
+			// `ctx.event` is null when tail sampling drops the wide event, so reading
+			// status off it would both crash (unhandled rejection) and miss the denial.
+			const status = ctx.status
 			if (status !== 401 && status !== 403) return
-			const path = (evt.path as string | undefined) ?? ''
+			const path = ctx.request?.path ?? ''
 			if (!path.startsWith('/api/')) return
 			if (path.startsWith('/api/_ff_evlog_')) return
 
@@ -73,16 +75,20 @@ export function firstlyAuditPlugin(options: FirstlyAuditPluginOptions = {}): Evl
 			const isMethod = !segment.startsWith('_')
 			const action = isMethod ? `${segment}.invoke` : `${segment}.access`
 
+			// userId / module are only known when the wide event survived sampling.
+			const evt = (ctx.event ?? {}) as Record<string, unknown>
+			const userId = evt.userId as string | undefined
+
 			const { createLogger, buildAuditFields } = await import('evlog')
 			const fields = buildAuditFields({
 				action,
 				actor: {
-					type: evt.userId ? 'user' : 'system',
-					id: (evt.userId as string) ?? 'anonymous',
+					type: userId ? 'user' : 'system',
+					id: userId ?? 'anonymous',
 				},
 				target: { type: segment, id: '' },
 				outcome: 'denied',
-				reason: `HTTP ${status} on ${(evt.method as string) ?? 'GET'} ${path}`,
+				reason: `HTTP ${status} on ${ctx.request?.method ?? 'GET'} ${path}`,
 			})
 			createLogger({ audit: fields, module: (evt.module as string) ?? null }).emit({
 				_forceKeep: true,
