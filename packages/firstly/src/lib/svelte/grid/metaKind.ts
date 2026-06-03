@@ -4,7 +4,12 @@ import { getRelationFieldInfo } from 'remult/internals'
 import type { BaseEnum } from '../../core/BaseEnum.js'
 
 export type FieldMetaType =
-	| { kind: 'relation'; subKind: 'reference' | 'toOne' | 'toMany'; repoTarget: Repository<unknown>; field: FieldMetadata }
+	| {
+			kind: 'relation'
+			subKind: 'reference' | 'toOne' | 'toMany'
+			repoTarget: Repository<unknown>
+			field: FieldMetadata
+	  }
 	| { kind: 'enum'; subKind: 'single' | 'multi'; values: BaseEnum[]; field: FieldMetadata }
 	| { kind: 'primitive'; subKind: string; field: FieldMetadata }
 	| { kind: 'slot'; subKind: '???' }
@@ -20,7 +25,12 @@ export function getFieldMetaType(field?: FieldMetadata, withHidden = false): Fie
 
 	const rel = getRelationFieldInfo(field)
 	if (rel) {
-		return { kind: 'relation', subKind: rel.type, repoTarget: rel.toRepo as Repository<unknown>, field }
+		return {
+			kind: 'relation',
+			subKind: rel.type,
+			repoTarget: rel.toRepo as Repository<unknown>,
+			field,
+		}
 	}
 
 	const opts = field.options as { inputType?: string; valueConverter?: { values?: BaseEnum[] } }

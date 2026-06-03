@@ -1,8 +1,8 @@
 import type { EntityMetadata, FieldMetadata } from 'remult'
 
 import { getInputType } from './cellConfig.js'
-import { getFieldMetaType } from './metaKind.js'
 import type { Cell, CellInput, CellUI, MetaKind } from './cellTypes.js'
+import { getFieldMetaType } from './metaKind.js'
 
 const HIDE_BY_DEFAULT = new Set(['id', 'createdAt', 'updatedAt', 'deletedAt'])
 
@@ -42,7 +42,9 @@ export function buildCells<E>(meta: EntityMetadata<E>, selected?: CellInput<E>[]
 		const isObj = typeof item === 'object'
 		const colRaw = isObj ? item.col : item
 		const spacer = colRaw === '_spacer'
-		const field = !spacer ? (meta.fields.find(colRaw as string) as FieldMetadata<unknown, E>) : undefined
+		const field = !spacer
+			? (meta.fields.find(colRaw as string) as FieldMetadata<unknown, E>)
+			: undefined
 		const fieldUI = field?.options.ui ?? {}
 		const ui: CellUI = { ...fieldUI, ...(isObj ? item.ui : undefined) }
 		const kind = spacer ? 'spacer' : resolveKind(field, isObj ? item.kind : undefined)

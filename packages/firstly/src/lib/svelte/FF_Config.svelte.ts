@@ -2,10 +2,9 @@ import { getContext, setContext } from 'svelte'
 import type { Component, Snippet } from 'svelte'
 import type { ToasterProps } from 'svelte-sonner'
 
-import type { CellConfig, MetaKind } from './grid/cellTypes.js'
-
 import type { LocalizedMessage } from '../core/FF_Validators.js'
 import type { DialogConfirmArgs, DialogPromptArgs, DialogShellArgs } from './dialog.svelte.js'
+import type { CellConfig, MetaKind } from './grid/cellTypes.js'
 
 /**
  * App-wide config for firstly's Svelte components, provided once via `<FF_Config>` and read by
