@@ -54,7 +54,7 @@ export function buildCells<E>(meta: EntityMetadata<E>, selected?: CellInput<E>[]
 			kind,
 			caption: (isObj && item.caption) || field?.caption || '',
 			ui,
-			inputType: field ? getInputType(field.options) : 'text',
+			inputType: field ? getInputType(field, ui) : 'text',
 			align: alignFor(field, ui),
 			class: isObj ? item.class : undefined,
 			cellSnippet: isObj ? item.cellSnippet : undefined,

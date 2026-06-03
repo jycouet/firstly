@@ -1,4 +1,4 @@
-import type { FieldOptions } from 'remult'
+import type { FieldMetadata } from 'remult'
 
 import { ffConfig } from '../FF_Config.svelte.js'
 import type { CellConfig, CellElementConfig, CellUI } from './cellTypes.js'
@@ -49,7 +49,7 @@ export function getCellElementConfig(element: keyof CellConfig): CellElementConf
 	return { ...defaultConfig[element], ...appConfig[element] }
 }
 
-/** Resolved input type: field `ui.inputType` > remult `inputType` > 'text'. */
-export function getInputType(fo: FieldOptions<unknown, unknown>): string {
-	return (fo as { ui?: CellUI }).ui?.inputType ?? fo.inputType ?? 'text'
+/** Resolved input type: merged `ui.inputType` > remult resolved `inputType` > 'text'. */
+export function getInputType(field: FieldMetadata, ui?: CellUI): string {
+	return ui?.inputType ?? field.inputType ?? 'text'
 }

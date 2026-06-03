@@ -9,6 +9,7 @@ class Item {
 	@Fields.id() id = ''
 	@Fields.string({ caption: 'Title' }) title = ''
 	@Fields.number({ ui: { width: 50, align: 'right' } }) amount = 0
+	@Fields.boolean() done = false
 	@Fields.string({ href: (row: Item) => `/x/${row.id}` }) ref = ''
 	@Fields.createdAt() createdAt = new Date()
 }
@@ -52,6 +53,16 @@ describe('buildCells', () => {
 
 	it('explicit kind wins (slot escape hatch)', () => {
 		expect(buildCells(meta, [{ col: 'title', kind: 'slot' }])[0].kind).toBe('slot')
+	})
+
+	it('resolves inputType from field metadata (number/boolean/text), ui override wins', () => {
+		const byCol = Object.fromEntries(buildCells(meta).map((c) => [c.col, c]))
+		expect(byCol['title'].inputType).toBe('text')
+		expect(byCol['amount'].inputType).toBe('number')
+		expect(byCol['done'].inputType).toBe('checkbox')
+		expect(buildCells(meta, [{ col: 'title', ui: { inputType: 'textarea' } }])[0].inputType).toBe(
+			'textarea',
+		)
 	})
 })
 

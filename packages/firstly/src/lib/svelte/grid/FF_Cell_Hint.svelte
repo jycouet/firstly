@@ -11,7 +11,7 @@
 	const config = $derived({ ...base, ...elementProps?.config })
 </script>
 
-{#if elementProps}
+{#if elementProps?.html}
 	<div id={id + '-hint'} data-ff-cell-hint class={config.class} style={getStyle(config)}>
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -- trusted, app-authored hint html -->
 		{@html elementProps?.html}
