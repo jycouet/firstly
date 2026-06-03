@@ -397,37 +397,40 @@ describe('ff() - meta & guards', () => {
 	})
 })
 
-describe('ff - lifecycle hooks (onNew / onIssue)', () => {
-	it('one: onNew fires on every successful read; onFirst only once', async () => {
+describe('ff - lifecycle hooks (onItem / onItems / onIssue)', () => {
+	it('one: onItem fires (with the record) on each fetch that finds a row; onFirst only once', async () => {
 		await seed(3)
-		const news: number[][] = []
+		const items: number[] = []
 		let firsts = 0
 		let min = $state(0)
 		const o = root(() =>
 			ff(Row)
 				.one(() => ({ where: { order: { $gt: min } }, orderBy: { order: 'asc' } }))
-				.onNew((items) => news.push(items.map((x) => x.order)))
+				.onItem((item) => items.push(item.order))
 				.onFirst(() => firsts++),
 		)
 		await vi.waitFor(() => expect(o.item?.order).toBe(1))
-		min = 1 // re-runs the query -> new data
+		min = 1 // re-runs the query -> new row
 		flushSync()
 		await vi.waitFor(() => expect(o.item?.order).toBe(2))
-		expect(news).toEqual([[1], [2]]) // one mode: items is [record]
+		expect(items).toEqual([1, 2]) // the record itself, on each fetch
 		expect(firsts).toBe(1) // onFirst is once-only
 	})
 
-	it('one: onIssue reports notFound when the query resolves with no row', async () => {
+	it('one: not-found fires onIssue(notFound) and NOT onItem', async () => {
 		await seed(2)
 		const issues: FF_Issue[] = []
+		let itemFires = 0
 		const o = root(() =>
 			ff(Row)
 				.one(() => ({ where: { order: 999 } }))
+				.onItem(() => itemFires++)
 				.onIssue((i) => issues.push(i)),
 		)
 		await vi.waitFor(() => expect(o.loading.init).toBe(false))
 		expect(o.item).toBeUndefined()
 		expect(issues).toEqual([{ kind: 'notFound', status: 404 }])
+		expect(itemFires).toBe(0)
 	})
 
 	it('one: a found row does NOT report an issue', async () => {
@@ -442,13 +445,13 @@ describe('ff - lifecycle hooks (onNew / onIssue)', () => {
 		expect(issues).toEqual([])
 	})
 
-	it('many(load): onNew fires with the fresh items', async () => {
+	it('many(load): onItems fires with the fresh items', async () => {
 		await seed(3)
 		const news: number[][] = []
 		const m = root(() =>
 			ff(Row)
 				.many(() => ({}), 'load')
-				.onNew((items) => news.push(items.map((x) => x.order))),
+				.onItems((items) => news.push(items.map((x) => x.order))),
 		)
 		await vi.waitFor(() => expect(m.items.length).toBe(3))
 		expect(news.at(-1)).toEqual([3, 2, 1])

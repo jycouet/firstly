@@ -169,7 +169,8 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	#paginator?: Paginator<Entity>
 	#seq = 0
 	#syncTargets: FF_RepoHandle<Entity>[] = []
-	#onNewCbs: Array<(items: Entity[]) => void> = []
+	#onItemCbs: Array<(item: Entity) => void> = []
+	#onItemsCbs: Array<(items: Entity[]) => void> = []
 	#onIssueCbs: Array<(issue: FF_Issue) => void> = []
 
 	items = $state<Entity[]>([])
@@ -218,7 +219,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 						next: (info) => {
 							this.items = info.items
 							this.loading.init = false
-							this.#fireNew()
+							this.#fireItems()
 						},
 						error: (e) => {
 							this.error = e instanceof Error ? e.message : String(e)
@@ -263,7 +264,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 				// `aggregates` is only on the paginator type when the aggregate is non-empty,
 				// but remult returns `$count` for the empty case too - so read it through a cast.
 				this.aggregates = (p as unknown as { aggregates: ExtractAggregateResult<Entity, O> }).aggregates
-				this.#fireNew()
+				this.#fireItems()
 			} else if (this.#mode === 'one') {
 				// `id` -> findId (by primary key, no sort/limit); otherwise `where` -> findFirst.
 				const found =
@@ -273,11 +274,10 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 				if (seq !== this.#seq) return
 				this.item = found ?? undefined
 				this.items = found ? [found] : []
-				this.#fireNew()
-				// A `one` query that resolves with no row is a not-found (the row was
-				// deleted, the id is wrong, or a prefilter hid it) - report it so callers
-				// can redirect/404 instead of sitting on an empty record.
-				if (!found) this.#fireIssue({ kind: 'notFound', status: 404 })
+				// Found -> onItem; not found -> onIssue (a row was deleted, the id is wrong, or a
+				// prefilter hid it) so callers can redirect/404 instead of sitting on an empty record.
+				if (found) this.#fireItem(found)
+				else this.#fireIssue({ kind: 'notFound', status: 404 })
 			} else {
 				const items = await this.#repo.find({
 					where: o.where,
@@ -287,7 +287,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 				})
 				if (seq !== this.#seq) return
 				this.items = items
-				this.#fireNew()
+				this.#fireItems()
 			}
 		} catch (e) {
 			if (seq === this.#seq) {
@@ -357,21 +357,33 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		return this
 	}
 
-	#fireNew() {
-		if (this.#onNewCbs.length) for (const fn of this.#onNewCbs) fn(this.items)
+	#fireItem(item: Entity) {
+		for (const fn of this.#onItemCbs) fn(item)
+	}
+	#fireItems() {
+		for (const fn of this.#onItemsCbs) fn(this.items)
 	}
 	#fireIssue(issue: FF_Issue) {
-		if (this.#onIssueCbs.length) for (const fn of this.#onIssueCbs) fn(issue)
+		for (const fn of this.#onIssueCbs) fn(issue)
 	}
 
 	/**
-	 * Run `fn` after EVERY successful read, with the fresh `items` (mimics the old
-	 * `storeList`/`storeItem` `onNewData` callback). Unlike `onFirst` (once, on the
-	 * first non-empty), this fires on each load / refresh / paginate page / live tick.
-	 * In `one` mode `items` is `[record]` (or `[]` when not found). Chainable.
+	 * `one` mode only. Run `fn` with the record after EVERY fetch that finds one (a
+	 * not-found goes to `onIssue` instead). Mirrors the handle's `.item`. Unlike
+	 * `onFirst` (once, on the first row), this fires on each load / refresh. Chainable.
 	 */
-	onNew(fn: (items: Entity[]) => void): this {
-		this.#onNewCbs.push(fn)
+	onItem(fn: (item: Entity) => void): this {
+		this.#onItemCbs.push(fn)
+		return this
+	}
+
+	/**
+	 * List modes only. Run `fn` with the fresh `items` after EVERY read (mimics the old
+	 * `storeList` `onNewData`). Fires on each load / refresh / paginate page / live tick.
+	 * Mirrors the handle's `.items`. Chainable.
+	 */
+	onItems(fn: (items: Entity[]) => void): this {
+		this.#onItemsCbs.push(fn)
 		return this
 	}
 
@@ -607,7 +619,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 /** load: one-shot list (`refresh()` to re-run) - a read+reconcile view. No paging/aggregates, and no `item`/`save`/`delete`/`create` (edit via `one`, write via remult `repo(E)`). */
 export type FF_RepoLoad<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_RepoHandle<Entity, O>,
-	'more' | 'hasNextPage' | 'aggregates' | 'item' | 'save' | 'delete' | 'create' | 'syncs'
+	'more' | 'hasNextPage' | 'aggregates' | 'item' | 'save' | 'delete' | 'create' | 'syncs' | 'onItem'
 >
 /** live: reactive subscription, auto-updates - a read view. No refresh/paging/aggregates/reconcilers (the liveQuery does it), and no `item`/`save`/`delete`/`create`. */
 export type FF_RepoLive<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
@@ -625,16 +637,27 @@ export type FF_RepoLive<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOption
 	| 'create'
 	| 'reconcile'
 	| 'syncs'
+	| 'onItem'
 >
 /** paginate: `more()` / `hasNextPage` / `aggregates` - a read+reconcile view. No `onFirst` (paged ≠ latest), and no `item`/`save`/`delete`/`create`. */
 export type FF_RepoPaginate<
 	Entity,
 	O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>,
-> = Omit<FF_RepoHandle<Entity, O>, 'onFirst' | 'item' | 'save' | 'delete' | 'create' | 'syncs'>
+> = Omit<
+	FF_RepoHandle<Entity, O>,
+	'onFirst' | 'onItem' | 'item' | 'save' | 'delete' | 'create' | 'syncs'
+>
 /** one: a single reactive record in `item`. No paging / aggregates / list reconcilers. */
 export type FF_RepoOne<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<Entity>> = Omit<
 	FF_RepoHandle<Entity, O>,
-	'more' | 'hasNextPage' | 'aggregates' | 'addItem' | 'updateItem' | 'removeItem' | 'reconcile'
+	| 'more'
+	| 'hasNextPage'
+	| 'aggregates'
+	| 'addItem'
+	| 'updateItem'
+	| 'removeItem'
+	| 'reconcile'
+	| 'onItems'
 >
 
 /** The list strategy backing `many`. Maps `listen` → live mode internally. */
@@ -863,8 +886,8 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 		return this
 	}
 	/** Run `fn` after every successful list read, with the fresh `items`. Delegates to the list handle. Chainable. */
-	onNew(fn: (items: Entity[]) => void): this {
-		this.#list.onNew(fn)
+	onItems(fn: (items: Entity[]) => void): this {
+		this.#list.onItems(fn)
 		return this
 	}
 	/** Run `fn` when a list read fails (`forbidden`/`error`). Delegates to the list handle. Chainable. */
