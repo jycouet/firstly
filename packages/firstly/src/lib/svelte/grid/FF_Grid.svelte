@@ -1,5 +1,6 @@
 <script lang="ts" generics="T extends { id: string }">
 	import { untrack } from 'svelte'
+
 	import type { ClassType, EntityFilter, EntityOrderBy } from 'remult'
 
 	import { ff, type FF_Many, type ManyStrategy } from '../ff.svelte.js'
@@ -56,7 +57,9 @@
 						class={cell.class}
 						onclick={() => cell.col && cell.kind === 'field' && toggleSort(cell.col)}
 					>
-						{cell.caption}{#if cell.col && sortDir(cell.col)}<span data-sort>{sortDir(cell.col) === 'asc' ? ' ▲' : ' ▼'}</span>{/if}
+						{cell.caption}{#if cell.col && sortDir(cell.col)}<span data-sort
+								>{sortDir(cell.col) === 'asc' ? ' ▲' : ' ▼'}</span
+							>{/if}
 					</th>
 				{/each}
 				{#if showDelete}<th></th>{/if}
@@ -65,14 +68,20 @@
 		<tbody>
 			{#if m.loading.init}
 				{#each Array(2) as _, i (i)}
-					<tr>{#each cells as cell (cell.col ?? cell.kind)}<td><span data-sk></span></td>{/each}{#if showDelete}<td></td>{/if}</tr>
+					<tr
+						>{#each cells as cell (cell.col ?? cell.kind)}<td><span data-sk></span></td
+							>{/each}{#if showDelete}<td></td>{/if}</tr
+					>
 				{/each}
 			{:else}
 				{#each m.items as row (row.id)}
 					<tr>
 						{#each cells as cell (cell.col ?? cell.kind)}
 							<td data-col={cell.col} style:text-align={cell.align} class={cell.class}>
-								{#if cell.cellSnippet}{@render cell.cellSnippet({ row, cell })}{:else}{displayCell(cell, row)}{/if}
+								{#if cell.cellSnippet}{@render cell.cellSnippet({ row, cell })}{:else}{displayCell(
+										cell,
+										row,
+									)}{/if}
 							</td>
 						{/each}
 						{#if showDelete}
@@ -92,7 +101,8 @@
 		</tbody>
 	</table>
 
-	{#if strategy === 'paginate' && m.aggregates}<span data-ff-grid-count>{m.aggregates.$count}</span>{/if}
+	{#if strategy === 'paginate' && m.aggregates}<span data-ff-grid-count>{m.aggregates.$count}</span
+		>{/if}
 	{#if strategy === 'paginate' && m.hasNextPage}
 		<button data-ff-grid-more disabled={m.loading.more} onclick={() => m.more()}>More</button>
 	{/if}

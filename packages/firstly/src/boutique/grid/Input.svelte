@@ -13,12 +13,7 @@
 {#if type === 'number'}
 	<input {id} {placeholder} type="number" bind:value />
 {:else if type === 'checkbox'}
-	<input
-		{id}
-		type="checkbox"
-		{checked}
-		onchange={(e) => (value = e.currentTarget.checked)}
-	/>
+	<input {id} type="checkbox" {checked} onchange={(e) => (value = e.currentTarget.checked)} />
 {:else}
 	<input
 		{id}

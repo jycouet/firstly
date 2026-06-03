@@ -1,6 +1,6 @@
 <script lang="ts">
-	import FF_Config from '../FF_Config.svelte'
-	import FF_Cell from './FF_Cell.svelte'
+	import FF_Config from '../../FF_Config.svelte'
+	import FF_Cell from '../FF_Cell.svelte'
 </script>
 
 <FF_Config cell={{ config: { label: { width: 33, order: 1, align: 'MiddleLeft' } } }}>

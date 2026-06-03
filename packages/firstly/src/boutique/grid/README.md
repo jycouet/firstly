@@ -14,12 +14,13 @@ uses it:
 
 ```svelte
 <script lang="ts">
-  import { FF_Config } from 'firstly/svelte'
-  import Input from '$lib/ff-grid/Input.svelte'
+	import { FF_Config } from 'firstly/svelte'
+
+	import Input from '$lib/ff-grid/Input.svelte'
 </script>
 
 <FF_Config cell={{ inputs: { text: Input, number: Input, checkbox: Input } }}>
-  {@render children()}
+	{@render children()}
 </FF_Config>
 ```
 

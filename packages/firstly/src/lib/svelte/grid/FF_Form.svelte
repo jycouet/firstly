@@ -75,10 +75,16 @@
 			{/each}
 		</FF_Cell>
 		{#if formError}<p data-ff-form-error>{formError}</p>{/if}
-		<button type="submit" data-ff-form-save disabled={r.isWriting || !r.meta.apiUpdateAllowed(r.item)}>
+		<button
+			type="submit"
+			data-ff-form-save
+			disabled={r.isWriting || !r.meta.apiUpdateAllowed(r.item)}
+		>
 			Save
 		</button>
 	</form>
 {:else}
-	<button data-ff-form-new disabled={!r.meta.apiInsertAllowed()} onclick={() => r.create()}>+ New</button>
+	<button data-ff-form-new disabled={!r.meta.apiInsertAllowed()} onclick={() => r.create()}
+		>+ New</button
+	>
 {/if}

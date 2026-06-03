@@ -19,7 +19,12 @@
 </script>
 
 {#if Component}
-	<div id={id + '-content'} data-ff-cell-content class={contentConfig.class} style={getStyle(contentConfig)}>
+	<div
+		id={id + '-content'}
+		data-ff-cell-content
+		class={contentConfig.class}
+		style={getStyle(contentConfig)}
+	>
 		<Component {id} {...contentProps?.props} bind:value>
 			{#if typeof contentProps?.children === 'string'}
 				<!-- eslint-disable-next-line svelte/no-at-html-tags -- trusted, app-authored content -->

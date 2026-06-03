@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Component } from 'svelte'
+
 	import type { ClassType } from 'remult'
 
 	import FF_Config from '../../FF_Config.svelte'

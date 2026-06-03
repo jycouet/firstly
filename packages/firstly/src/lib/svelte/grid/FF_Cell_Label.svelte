@@ -12,7 +12,13 @@
 </script>
 
 {#if elementProps}
-	<label id={id + '-label'} data-ff-cell-label for={id} class={config.class} style={getStyle(config)}>
+	<label
+		id={id + '-label'}
+		data-ff-cell-label
+		for={id}
+		class={config.class}
+		style={getStyle(config)}
+	>
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -- trusted, app-authored caption -->
 		{@html elementProps?.html}
 	</label>
