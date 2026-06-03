@@ -90,3 +90,47 @@ async function rawDeleteOlderThan(
 	)
 	return count
 }
+
+type EvlogIndexedEntity = { new (): { timestamp: Date; traceId?: string | null } }
+
+/**
+ * Create the indexes remult does not. remult only indexes the primary key, but
+ * evlog filters every table by `timestamp` (getStats year-range + boot purge)
+ * and links queries to traces by `traceId` - without indexes both are full
+ * table scans that get slower as the tables grow.
+ *
+ * Uses `create index if not exists` (portable across SQLite + Postgres), so it
+ * is idempotent and safe to run on every boot. No-op for non-SQL providers
+ * (json / file), and each statement is isolated so one failure can't break boot.
+ */
+export async function ensureEvlogIndexes(
+	entities: Array<EvlogIndexedEntity | undefined>,
+): Promise<void> {
+	await inDetachedContext(async () => {
+		const dp = remult.dataProvider
+		if (!dp || typeof (dp as { createCommand?: unknown }).createCommand !== 'function') return
+		const sqlDb = SqlDatabase.getDb(dp)
+		for (const entity of entities) {
+			if (!entity) continue
+			const meta = remult.repo(entity).metadata
+			const table = meta.options.dbName ?? meta.key
+			for (const fieldKey of ['timestamp', 'traceId'] as const) {
+				const field = (meta.fields as unknown as Record<string, { options?: { dbName?: string } }>)[
+					fieldKey
+				]
+				if (!field) continue
+				const column = field.options?.dbName ?? fieldKey
+				const indexName = `${table}_${column}_idx`
+				try {
+					await sqlDb
+						.createCommand()
+						.execute(
+							`create index if not exists ${sqlDb.wrapIdentifier(indexName)} on ${sqlDb.wrapIdentifier(table)} (${sqlDb.wrapIdentifier(column)})`,
+						)
+				} catch (err) {
+					console.warn(`[firstly/evlog] could not ensure index ${indexName}:`, err)
+				}
+			}
+		}
+	})
+}

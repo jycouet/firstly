@@ -21,6 +21,7 @@ import { captureDataProvider } from './dataProviderCapture.js'
 import { EvlogPurgeController } from './EvlogPurgeController.js'
 import { firstlyAuditPlugin } from './plugins/audit.js'
 import { firstlyTracePlugin } from './plugins/trace.js'
+import { ensureEvlogIndexes } from './remultDrains.js'
 
 // Re-exports
 export { withSuppressedLogging, isLoggingSuppressed } from './suppress.js'
@@ -29,7 +30,7 @@ export { EvlogPurgeController } from './EvlogPurgeController.js'
 export { firstlyAuditPlugin } from './plugins/audit.js'
 export { firstlyTracePlugin } from './plugins/trace.js'
 export { defineEvlog, composePlugins, composeDrains } from 'evlog/toolkit'
-export { purgeEvlog } from './remultDrains.js'
+export { purgeEvlog, ensureEvlogIndexes } from './remultDrains.js'
 export { throwLogged } from './throwLogged.js'
 
 export interface EvlogModuleOptions {
@@ -162,6 +163,13 @@ export const evlog = (options: EvlogModuleOptions = {}): FirstlyEvlog => {
 			// which is how `firstlyTracePlugin` mounts SQL spans and kicks off
 			// the boot purge. Don't double-call setup here.
 			initLogger({ ...toLoggerConfig(config), _suppressDrainWarning: true })
+			// remult only indexes the primary key; add the timestamp / traceId
+			// indexes getStats + purge rely on (idempotent, runs after schema ensure).
+			await ensureEvlogIndexes([
+				auditEnabled ? (options.audit?.entity ?? EvlogAudit) : undefined,
+				traceEnabled ? (options.trace?.entity ?? EvlogTrace) : undefined,
+				traceEnabled ? (options.trace?.queryEntity ?? EvlogTraceQuery) : undefined,
+			])
 		},
 
 		initRequest: async () => {

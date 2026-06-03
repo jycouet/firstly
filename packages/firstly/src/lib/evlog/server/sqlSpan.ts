@@ -1,3 +1,5 @@
+import { useLogger } from 'evlog/sveltekit'
+
 import { SqlDatabase } from 'remult'
 
 import { isLoggingSuppressed } from './suppress.js'
@@ -60,7 +62,6 @@ export function mountSqlSpans(options?: { tablesToHide?: string[]; minDurationMs
 		}
 
 		try {
-			const { useLogger } = await import('evlog/sveltekit')
 			// Nest under `db_queries[]` so multiple queries accumulate (evlog merges
 			// arrays via concat) instead of clobbering top-level fields like
 			// `duration`/`sql`/`args` that the request wide event already owns.
