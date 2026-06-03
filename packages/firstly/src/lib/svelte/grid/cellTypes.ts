@@ -1,4 +1,5 @@
 import type { Component, Snippet } from 'svelte'
+
 import type { ClassType, FieldMetadata } from 'remult'
 
 /** Per-field UI hints. width/margins are PERCENTAGES of the parent row. */
@@ -98,4 +99,28 @@ declare module 'remult' {
 		/** When set, the field renders as a link (field_link kind). */
 		href?: (row: entityType) => string
 	}
+}
+
+export interface CellContentProps {
+	component?: Component
+	componentReadonly?: Component
+	props?: Record<string, unknown>
+	children?: string | Component
+	config?: CellElementConfig
+}
+export interface CellElementProps {
+	html?: string
+	config?: CellElementConfig
+}
+export type CellMode = 'edit' | 'readonly'
+
+export type CellProps = {
+	key?: string
+	mode?: CellMode
+	label?: CellElementProps
+	error?: CellElementProps
+	hint?: CellElementProps
+	content?: CellContentProps
+	value?: unknown
+	ui?: CellUI
 }
