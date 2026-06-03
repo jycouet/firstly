@@ -9,7 +9,8 @@
 		mode: CellMode
 	}
 	let { id, contentProps, value = $bindable(), mode }: Props = $props()
-	const contentConfig = $derived({ ...getCellElementConfig('content'), ...contentProps?.config })
+	const base = getCellElementConfig('content')
+	const contentConfig = $derived({ ...base, ...contentProps?.config })
 	const Component = $derived(
 		mode === 'edit'
 			? contentProps?.component

@@ -19,6 +19,7 @@
 	let debug = $derived(props.debug === true ? true : undefined)
 
 	const contentConfig = { ...getCellElementConfig('content'), ...props.content?.config }
+	const labelBase = getCellElementConfig('label')
 
 	let hasError = $derived(!!props.error?.html)
 	let labelProps = $derived(
@@ -26,7 +27,7 @@
 			? {
 					...props.label,
 					config: {
-						...getCellElementConfig('label'),
+						...labelBase,
 						...props.label.config,
 						...(!hasError ? { width: 100 } : {}),
 					},

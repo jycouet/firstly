@@ -2,6 +2,7 @@ import { flushSync, mount, unmount } from 'svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import FF_Cell from './FF_Cell.svelte'
+import FF_Cell_ContextWrapper from './FF_Cell_ContextWrapper.svelte'
 
 let target: HTMLElement
 afterEach(() => target?.remove())
@@ -31,5 +32,21 @@ describe('FF_Cell', () => {
 		const { comp, el } = render({ error: { html: 'required' } })
 		expect(el.querySelector('[data-ff-cell-error]')?.textContent).toContain('required')
 		unmount(comp)
+	})
+})
+
+describe('FF_Cell context propagation (Part B)', () => {
+	it('FF_Config cell.config.label.width propagates to [data-ff-cell-label] inline style', () => {
+		const target = document.createElement('div')
+		document.body.appendChild(target)
+		const comp = mount(FF_Cell_ContextWrapper, { target })
+		flushSync()
+		const label = target.querySelector('[data-ff-cell-label]') as HTMLElement | null
+		expect(label).not.toBeNull()
+		const style = label?.getAttribute('style') ?? ''
+		// width: 33 from FF_Config should win over the firstly default of 50
+		expect(style).toContain('width: 33%')
+		unmount(comp)
+		target.remove()
 	})
 })

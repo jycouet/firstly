@@ -7,7 +7,8 @@
 		elementProps?: CellElementProps
 	}
 	let { id, elementProps }: Props = $props()
-	const config = $derived({ ...getCellElementConfig('error'), ...elementProps?.config })
+	const base = getCellElementConfig('error')
+	const config = $derived({ ...base, ...elementProps?.config })
 </script>
 
 {#if elementProps}
