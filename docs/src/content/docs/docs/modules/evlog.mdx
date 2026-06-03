@@ -415,6 +415,8 @@ Each panel is a standalone component that takes its data as a prop. Fetch once i
 
 `getStats` does one `repo.find()` per table, capped at `rowLimit` (default 100k); aggregation is in JS so it works on Postgres / SQLite / anything Remult drives. Above that volume, subclass `EvlogStatsController` and replace `getStats` with a dialect-specific SQL view.
 
+At boot, evlog creates `timestamp` + `traceId` indexes on the `_ff_evlog_*` tables (remult only indexes the primary key), so the year-range scans here and the retention purge stay fast as the tables grow. It's an idempotent `create index if not exists`, portable across SQLite + Postgres, and a no-op for non-SQL providers - call `ensureEvlogIndexes([...])` from `firstly/evlog/server` yourself if you manage schema separately.
+
 ## Roles
 
 `Roles_Evlog.Evlog_Admin` controls **read**, **insert**, and **delete** on the storage entities. The dashboard panels read through `EvlogStatsController.getStats()`, so the role grant flows through. Grant it to operators / dashboards; never default users.
