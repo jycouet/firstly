@@ -1,5 +1,5 @@
 ---
-'firstly': minor
+'firstly': patch
 ---
 
 ff: add `onNew` and `onIssue` lifecycle hooks to the reactive handle (and make `onFirst` chainable)
