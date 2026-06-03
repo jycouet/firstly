@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Entity, Fields, InMemoryDataProvider, remult, repo } from 'remult'
 
 import { dialog, type DialogClose } from './dialog.svelte'
-import { ff } from './ff.svelte'
+import { ff, type FF_Issue } from './ff.svelte'
 import { toast } from './toast'
 
 // Minimal test entity. `order` desc is the default sort so we can assert ordering.
@@ -394,5 +394,63 @@ describe('ff() - meta & guards', () => {
 	it('a reactive handle constructed outside an effect context throws', () => {
 		expect(() => ff(Row).many(() => ({}), 'load')).toThrow()
 		expect(() => ff(Row).one(() => ({}))).toThrow()
+	})
+})
+
+describe('ff - lifecycle hooks (onNew / onIssue)', () => {
+	it('one: onNew fires on every successful read; onFirst only once', async () => {
+		await seed(3)
+		const news: number[][] = []
+		let firsts = 0
+		let min = $state(0)
+		const o = root(() =>
+			ff(Row)
+				.one(() => ({ where: { order: { $gt: min } }, orderBy: { order: 'asc' } }))
+				.onNew((items) => news.push(items.map((x) => x.order)))
+				.onFirst(() => firsts++),
+		)
+		await vi.waitFor(() => expect(o.item?.order).toBe(1))
+		min = 1 // re-runs the query -> new data
+		flushSync()
+		await vi.waitFor(() => expect(o.item?.order).toBe(2))
+		expect(news).toEqual([[1], [2]]) // one mode: items is [record]
+		expect(firsts).toBe(1) // onFirst is once-only
+	})
+
+	it('one: onIssue reports notFound when the query resolves with no row', async () => {
+		await seed(2)
+		const issues: FF_Issue[] = []
+		const o = root(() =>
+			ff(Row)
+				.one(() => ({ where: { order: 999 } }))
+				.onIssue((i) => issues.push(i)),
+		)
+		await vi.waitFor(() => expect(o.loading.init).toBe(false))
+		expect(o.item).toBeUndefined()
+		expect(issues).toEqual([{ kind: 'notFound', status: 404 }])
+	})
+
+	it('one: a found row does NOT report an issue', async () => {
+		await seed(2)
+		const issues: FF_Issue[] = []
+		const o = root(() =>
+			ff(Row)
+				.one(() => ({ where: { order: 1 } }))
+				.onIssue((i) => issues.push(i)),
+		)
+		await vi.waitFor(() => expect(o.item?.order).toBe(1))
+		expect(issues).toEqual([])
+	})
+
+	it('many(load): onNew fires with the fresh items', async () => {
+		await seed(3)
+		const news: number[][] = []
+		const m = root(() =>
+			ff(Row)
+				.many(() => ({}), 'load')
+				.onNew((items) => news.push(items.map((x) => x.order))),
+		)
+		await vi.waitFor(() => expect(m.items.length).toBe(3))
+		expect(news.at(-1)).toEqual([3, 2, 1])
 	})
 })

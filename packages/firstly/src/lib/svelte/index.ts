@@ -5,6 +5,7 @@ export type {
 	FF_Builder,
 	FF_RepoOptions,
 	FF_RepoLoading,
+	FF_Issue,
 	ManyStrategy,
 	AggregateOptions,
 	QueryOptionsHelper,

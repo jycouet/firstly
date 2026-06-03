@@ -112,6 +112,30 @@ export type FF_RepoLoading = {
 	deleting: boolean // delete in flight
 }
 
+/**
+ * What `onIssue` reports when a read doesn't yield the expected data:
+ * - `notFound`  - a `one` query resolved with no row (status 404)
+ * - `forbidden` - the API rejected the read (status 403, e.g. permissions)
+ * - `error`     - any other failure (network, server, ...)
+ *
+ * `status`/`message` are best-effort, read off the underlying error when present.
+ * Switch on `kind` to react (e.g. redirect on `notFound`/`forbidden`).
+ */
+export type FF_Issue = {
+	kind: 'notFound' | 'forbidden' | 'error'
+	status?: number
+	message?: string
+}
+
+/** Classify a thrown read error into an {@link FF_Issue} (best-effort status sniffing). */
+function toIssue(e: unknown): FF_Issue {
+	const err = e as { httpStatusCode?: number; status?: number; message?: string } | undefined
+	const status = err?.httpStatusCode ?? err?.status
+	const message = e instanceof Error ? e.message : typeof e === 'string' ? e : err?.message
+	const kind: FF_Issue['kind'] = status === 403 ? 'forbidden' : status === 404 ? 'notFound' : 'error'
+	return { kind, status, message }
+}
+
 type Mode = 'live' | 'load' | 'paginate' | 'one'
 
 /**
@@ -127,6 +151,8 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	#paginator?: Paginator<Entity>
 	#seq = 0
 	#syncTargets: FF_RepoHandle<Entity>[] = []
+	#onNewCbs: Array<(items: Entity[]) => void> = []
+	#onIssueCbs: Array<(issue: FF_Issue) => void> = []
 
 	items = $state<Entity[]>([])
 	/** Single-record slot: the loaded row in `one` mode, or a create/edit draft (see `create`). */
@@ -174,10 +200,12 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 						next: (info) => {
 							this.items = info.items
 							this.loading.init = false
+							this.#fireNew()
 						},
 						error: (e) => {
 							this.error = e instanceof Error ? e.message : String(e)
 							this.loading.init = false
+							this.#fireIssue(toIssue(e))
 						},
 					})
 				return () => unsub()
@@ -217,6 +245,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 				// `aggregates` is only on the paginator type when the aggregate is non-empty,
 				// but remult returns `$count` for the empty case too - so read it through a cast.
 				this.aggregates = (p as unknown as { aggregates: ExtractAggregateResult<Entity, O> }).aggregates
+				this.#fireNew()
 			} else if (this.#mode === 'one') {
 				const found = await this.#repo.findFirst(o.where, {
 					orderBy: o.orderBy,
@@ -225,6 +254,11 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 				if (seq !== this.#seq) return
 				this.item = found ?? undefined
 				this.items = found ? [found] : []
+				this.#fireNew()
+				// A `one` query that resolves with no row is a not-found (the row was
+				// deleted, the id is wrong, or a prefilter hid it) - report it so callers
+				// can redirect/404 instead of sitting on an empty record.
+				if (!found) this.#fireIssue({ kind: 'notFound', status: 404 })
 			} else {
 				const items = await this.#repo.find({
 					where: o.where,
@@ -234,9 +268,13 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 				})
 				if (seq !== this.#seq) return
 				this.items = items
+				this.#fireNew()
 			}
 		} catch (e) {
-			if (seq === this.#seq) this.error = e instanceof Error ? e.message : String(e)
+			if (seq === this.#seq) {
+				this.error = e instanceof Error ? e.message : String(e)
+				this.#fireIssue(toIssue(e))
+			}
 		} finally {
 			if (seq === this.#seq) {
 				this.loading.init = false
@@ -288,7 +326,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	 * list.onFirst((latest) => (draft.title = latest.title)) // seed once, then edit freely
 	 * ```
 	 */
-	onFirst(fn: (latest: Entity) => void) {
+	onFirst(fn: (latest: Entity) => void): this {
 		let done = false
 		$effect(() => {
 			if (done) return
@@ -297,6 +335,41 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 			fn(latest)
 			done = true
 		})
+		return this
+	}
+
+	#fireNew() {
+		if (this.#onNewCbs.length) for (const fn of this.#onNewCbs) fn(this.items)
+	}
+	#fireIssue(issue: FF_Issue) {
+		if (this.#onIssueCbs.length) for (const fn of this.#onIssueCbs) fn(issue)
+	}
+
+	/**
+	 * Run `fn` after EVERY successful read, with the fresh `items` (mimics the old
+	 * `storeList`/`storeItem` `onNewData` callback). Unlike `onFirst` (once, on the
+	 * first non-empty), this fires on each load / refresh / paginate page / live tick.
+	 * In `one` mode `items` is `[record]` (or `[]` when not found). Chainable.
+	 */
+	onNew(fn: (items: Entity[]) => void): this {
+		this.#onNewCbs.push(fn)
+		return this
+	}
+
+	/**
+	 * Run `fn` when a read doesn't yield the expected data: a `one` query with no row
+	 * (`notFound`), a rejected read (`forbidden`, 403), or any other failure (`error`).
+	 * The arg is an `FF_Issue` ({@link FF_Issue}) - switch on `issue.kind` to react,
+	 * e.g. redirect on not-found. Chainable.
+	 *
+	 * ```svelte
+	 * const site = ff(Site).one(() => ({ where: { id } }))
+	 *   .onIssue((i) => { if (i.kind === 'notFound') goto('/app/sites') })
+	 * ```
+	 */
+	onIssue(fn: (issue: FF_Issue) => void): this {
+		this.#onIssueCbs.push(fn)
+		return this
 	}
 
 	/** Create a new unsaved entity into the `item` slot (for an edit form). */
@@ -766,8 +839,19 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 	 * `$bindable` the user then mutates), not the draft; for pure display prefer
 	 * `$derived(handle.items[0])`. Delegates to the list handle (see `onFirst` there).
 	 */
-	onFirst(fn: (latest: Entity) => void) {
+	onFirst(fn: (latest: Entity) => void): this {
 		this.#list.onFirst(fn)
+		return this
+	}
+	/** Run `fn` after every successful list read, with the fresh `items`. Delegates to the list handle. Chainable. */
+	onNew(fn: (items: Entity[]) => void): this {
+		this.#list.onNew(fn)
+		return this
+	}
+	/** Run `fn` when a list read fails (`forbidden`/`error`). Delegates to the list handle. Chainable. */
+	onIssue(fn: (issue: FF_Issue) => void): this {
+		this.#list.onIssue(fn)
+		return this
 	}
 	get meta(): EntityMetadata<Entity> {
 		return this.#repo.metadata
