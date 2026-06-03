@@ -89,6 +89,7 @@
 			max-width: calc(var(--width-mobile, 100) * 1%);
 			margin-left: calc(var(--margin-left-mobile, 0) * 1%);
 			margin-right: calc(var(--margin-right-mobile, 0) * 1%);
+			padding: 0.15rem;
 		}
 	}
 </style>

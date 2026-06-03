@@ -78,10 +78,13 @@
 					<tr>
 						{#each cells as cell (cell.col ?? cell.kind)}
 							<td data-col={cell.col} style:text-align={cell.align} class={cell.class}>
-								{#if cell.cellSnippet}{@render cell.cellSnippet({ row, cell })}{:else}{displayCell(
-										cell,
+								{#if cell.cellSnippet}{@render cell.cellSnippet({
 										row,
-									)}{/if}
+										cell,
+									})}{:else if cell.kind === 'field_link' && cell.field?.options.href}<a
+										data-ff-link
+										href={cell.field.options.href(row)}>{displayCell(cell, row)}</a
+									>{:else}{displayCell(cell, row)}{/if}
 							</td>
 						{/each}
 						{#if showDelete}

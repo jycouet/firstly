@@ -12,6 +12,12 @@ class Row {
 	@Fields.string({ caption: 'Name' }) name = ''
 }
 
+@Entity('grid_link_row', { allowApiCrud: true })
+class LinkRow {
+	@Fields.id() id = ''
+	@Fields.string({ caption: 'Ref', href: (r: LinkRow) => `/x/${r.id}` }) ref = ''
+}
+
 let target: HTMLElement
 beforeEach(() => {
 	remult.dataProvider = new InMemoryDataProvider()
@@ -37,6 +43,16 @@ describe('FF_Grid', () => {
 		const headers = Array.from(target.querySelectorAll('thead th'), (t) => t.textContent?.trim())
 		expect(headers).toContain('Name')
 		expect(target.querySelectorAll('tbody tr').length).toBe(2)
+		unmount(comp)
+	})
+
+	it('renders a field_link cell as an <a href>', async () => {
+		await repo(LinkRow).insert({ id: 'abc', ref: 'see' })
+		const comp = await mountGrid({ entity: LinkRow, selected: ['ref'] })
+		const a = target.querySelector('tbody a[data-ff-link]') as HTMLAnchorElement
+		expect(a).toBeTruthy()
+		expect(a.getAttribute('href')).toBe('/x/abc')
+		expect(a.textContent).toBe('see')
 		unmount(comp)
 	})
 

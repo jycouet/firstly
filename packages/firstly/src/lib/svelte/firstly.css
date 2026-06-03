@@ -1,8 +1,0 @@
-* {
-	--ff-spacing: 0.5rem;
-}
-@media screen and (max-width: 40rem) {
-	* {
-		--ff-spacing: 0.15rem;
-	}
-}
