@@ -15,7 +15,10 @@
 	const href = $derived(cell.kind === 'field_link' ? cell.field?.options.href : undefined)
 </script>
 
-{#if cell.cellSnippet}{@render cell.cellSnippet({ row, cell })}{:else if cell.component}{#await resolvedComp then C}{#if C}{@const Cc = C}<Cc {...compProps} />{/if}{/await}{:else if href}<a
-		data-ff-link
-		href={href(row)}>{displayCell(cell, row)}</a
+{#if cell.cellSnippet}{@render cell.cellSnippet({
+		row,
+		cell,
+	})}{:else if cell.component}{#await resolvedComp then C}{#if C}{@const Cc = C}<Cc
+				{...compProps}
+			/>{/if}{/await}{:else if href}<a data-ff-link href={href(row)}>{displayCell(cell, row)}</a
 	>{:else}{displayCell(cell, row)}{/if}

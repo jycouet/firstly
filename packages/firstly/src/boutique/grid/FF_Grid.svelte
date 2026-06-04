@@ -65,9 +65,9 @@
 
 	// Entity hub = the SSoT defaults. Read it off metadata BEFORE building the handle (its getter needs
 	// where/pageSize/strategy from the hub). meta.options carries the `hub` augmentation.
-	const hub = (repo(entity).metadata.options.hub ?? {}) as HubConfig<T>
-	const strategy = strategyProp ?? hub.strategy ?? 'paginate'
-	const pageSize = pageSizeProp ?? hub.pageSize ?? 25
+	const hub = untrack(() => (repo(entity).metadata.options.hub ?? {}) as HubConfig<T>)
+	const strategy = untrack(() => strategyProp ?? hub.strategy ?? 'paginate')
+	const pageSize = untrack(() => pageSizeProp ?? hub.pageSize ?? 25)
 
 	let sort = $state<EntityOrderBy<T> | undefined>(untrack(() => orderBy ?? hub.orderBy))
 

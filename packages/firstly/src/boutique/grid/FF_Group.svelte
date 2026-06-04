@@ -22,7 +22,7 @@
 	}
 	let { entity, cells, where, mode = 'edit', onsaved, disableDelete = false }: Props = $props()
 
-	const hub = (repo(entity).metadata.options.hub ?? {}) as HubConfig<T>
+	const hub = untrack(() => (repo(entity).metadata.options.hub ?? {}) as HubConfig<T>)
 	const groupCells = $derived(cells ?? hub.cells)
 	const r = untrack(() => ff(entity).one(() => ({ where: where ?? hub.where })))
 
