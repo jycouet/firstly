@@ -5,19 +5,18 @@
 	import { untrack } from 'svelte'
 
 	import type { ClassType, EntityFilter, EntityOrderBy } from 'remult'
-
 	import {
 		buildCells,
-		type CellInput,
 		displayCell,
-		type DialogClose,
 		ff,
 		FF_Config,
 		ffConfig,
-		type FF_Many,
 		Icon,
 		LibIcon_Add,
 		LibIcon_Edit,
+		type CellInput,
+		type DialogClose,
+		type FF_Many,
 		type ManyStrategy,
 	} from 'firstly/svelte'
 
@@ -55,7 +54,8 @@
 		skeletonRows = 2,
 	}: Props = $props()
 
-	let sort = $state<EntityOrderBy<T> | undefined>(orderBy)
+	// Seed sort from the orderBy prop ONCE; the grid owns it after (untrack = intentional).
+	let sort = $state<EntityOrderBy<T> | undefined>(untrack(() => orderBy))
 
 	const m = untrack(() =>
 		ff(entity).many(() => ({ where, orderBy: sort, pageSize, enabled }), strategy),
@@ -109,29 +109,29 @@
 				{draft}
 				selected={editing ? (editFields ?? selected) : (createFields ?? selected)}
 				mode="edit"
-			{errors}
-			error={saveError}
-			busy={m.isWriting}
-			saveLabel={editing ? 'Save' : 'Create'}
-			canSave={editing ? m.meta.apiUpdateAllowed(draft) : m.meta.apiInsertAllowed()}
-			onsave={async () => {
-				try {
-					await m.save()
-					errors = {}
-					saveError = ''
-					close({ ok: true })
-				} catch (err) {
-					const ms = (err as { modelState?: Record<string, string> })?.modelState
-					errors = ms ?? {}
-					saveError = ms ? '' : err instanceof Error ? err.message : String(err)
-				}
-			}}
-			ondelete={editing
-				? async () => {
-						const res = await m.confirmRemove(draft)
-						if (res.ok) close({ ok: true })
+				{errors}
+				error={saveError}
+				busy={m.isWriting}
+				saveLabel={editing ? 'Save' : 'Create'}
+				canSave={editing ? m.meta.apiUpdateAllowed(draft) : m.meta.apiInsertAllowed()}
+				onsave={async () => {
+					try {
+						await m.save()
+						errors = {}
+						saveError = ''
+						close({ ok: true })
+					} catch (err) {
+						const ms = (err as { modelState?: Record<string, string> })?.modelState
+						errors = ms ?? {}
+						saveError = ms ? '' : err instanceof Error ? err.message : String(err)
 					}
-				: undefined}
+				}}
+				ondelete={editing
+					? async () => {
+							const res = await m.confirmRemove(draft)
+							if (res.ok) close({ ok: true })
+						}
+					: undefined}
 			/>
 		</FF_Config>
 	{/if}
@@ -170,7 +170,8 @@
 				{#each Array(skeletonRows) as _, i (i)}
 					<tr
 						>{#each cells as cell, i (cell.col ?? `${cell.kind}-${i}`)}<td><span data-sk></span></td
-							>{/each}{#if editable}<td data-ff-grid-actions><span data-sk data-sk-btn></span></td>{/if}</tr
+							>{/each}{#if editable}<td data-ff-grid-actions><span data-sk data-sk-btn></span></td
+							>{/if}</tr
 					>
 				{/each}
 			{:else}

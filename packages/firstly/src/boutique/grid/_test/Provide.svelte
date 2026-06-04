@@ -2,7 +2,6 @@
 	import type { Component } from 'svelte'
 
 	import type { ClassType } from 'remult'
-
 	import { FF_Config } from 'firstly/svelte'
 
 	import FF_Group from '../FF_Group.svelte'

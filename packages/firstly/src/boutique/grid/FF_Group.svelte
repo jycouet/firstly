@@ -1,9 +1,10 @@
 <script lang="ts" generics="T extends object">
 	// Boutique bound-record group — a single record shown as an editable form (or readonly view).
 	// A "group" that becomes a form when editing. Reuses the shared GroupFields body.
-	import type { ClassType, EntityFilter } from 'remult'
+	import { untrack } from 'svelte'
 
-	import { type CellInput, dialog, ff } from 'firstly/svelte'
+	import type { ClassType, EntityFilter } from 'remult'
+	import { dialog, ff, type CellInput } from 'firstly/svelte'
 
 	import GroupFields from './GroupFields.svelte'
 
@@ -20,7 +21,7 @@
 	}
 	let { entity, selected, where, mode = 'edit', onsaved, disableDelete = false }: Props = $props()
 
-	const r = ff(entity).one(() => ({ where }))
+	const r = untrack(() => ff(entity).one(() => ({ where })))
 
 	let errors = $state<Record<string, string | undefined>>({})
 	let formError = $state('')

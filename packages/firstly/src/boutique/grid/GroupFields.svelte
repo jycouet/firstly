@@ -3,18 +3,17 @@
 	//   • mode 'edit'      → cells are inputs (registered via FF_Config.cell.inputs)
 	//   • mode 'readonly'  → cells show their values
 	// Give it `onsave` (in edit mode) and the group BECOMES a form, with a Save + optional
-	// Delete action row. Reused by FF_Form (bound record) and FF_Grid's edit dialog.
+	// Delete action row. Reused by FF_Group (bound record) and FF_Grid's edit dialog.
 	import type { EntityMetadata } from 'remult'
-
 	import {
 		buildCells,
-		type CellInput,
 		displayCell,
 		FF_Cell,
 		ffConfig,
 		Icon,
 		LibIcon_Delete,
 		LibIcon_Save,
+		type CellInput,
 	} from 'firstly/svelte'
 
 	type Props = {

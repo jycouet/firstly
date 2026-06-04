@@ -2,7 +2,6 @@
 	import type { Component } from 'svelte'
 
 	import type { ClassType } from 'remult'
-
 	import { FF_Config, FF_DialogManager } from 'firstly/svelte'
 
 	import FF_Grid from '../FF_Grid.svelte'
