@@ -4,7 +4,7 @@
 	import { untrack } from 'svelte'
 
 	import type { ClassType, EntityFilter } from 'remult'
-	import { dialog, ff, type CellInput } from 'firstly/svelte'
+	import { dialog, errorMessage, ff, type CellInput } from 'firstly/svelte'
 
 	import GroupFields from './GroupFields.svelte'
 
@@ -37,7 +37,7 @@
 			// form-level message for errors that aren't tied to a field.
 			const ms = (err as { modelState?: Record<string, string> })?.modelState
 			errors = ms ?? {}
-			formError = ms ? '' : err instanceof Error ? err.message : String(err)
+			formError = ms ? '' : errorMessage(err)
 		}
 	}
 	async function del() {

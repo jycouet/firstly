@@ -8,6 +8,7 @@
 	import {
 		buildCells,
 		displayCell,
+		errorMessage,
 		ff,
 		FF_Config,
 		ffConfig,
@@ -123,7 +124,8 @@
 					} catch (err) {
 						const ms = (err as { modelState?: Record<string, string> })?.modelState
 						errors = ms ?? {}
-						saveError = ms ? '' : err instanceof Error ? err.message : String(err)
+						// per-field errors show beside each field; form-level only for non-field errors
+						saveError = ms ? '' : errorMessage(err)
 					}
 				}}
 				ondelete={editing

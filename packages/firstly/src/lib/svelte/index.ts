@@ -1,3 +1,4 @@
+export { errorMessage, isError } from '../core/helper.js'
 export { ff } from './ff.svelte.js'
 export type {
 	FF_Many,
