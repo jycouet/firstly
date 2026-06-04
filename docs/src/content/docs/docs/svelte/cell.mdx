@@ -2,20 +2,20 @@
 title: cell layer (grid & form)
 ---
 
-The cell layer turns **field metadata** into grids and forms. It ships in two halves:
+The cell layer turns **field metadata** into grids and forms. It ships as:
 
-- **📦 Published primitives** (`firstly/svelte`) - the headless engine: `buildCells`, `displayCell`,
-  `<FF_Cell>`, and the `FF_Config.cell` input registry. No styling, no opinions.
-- **🛍️ Boutique shells** (`src/boutique/grid`) - opinionated `FF_Grid` / `FF_Group` you **copy into
-  your app** and own. They compose the primitives into a real CRUD grid + bound-record form.
+- **📦 Published** (`firstly/svelte`) - the headless primitives (`buildCells`, `<FF_Cell>`,
+  `<FF_CellValue>`, the `FF_Config.cell` registry) **plus `<FF_Grid>`**, a batteries-included demo grid
+  (default skin + input) you import and use directly.
+- **🛍️ Boutique** (`src/boutique/grid`) - `App_Grid` / `App_Group`, copy-own shells you degit when you
+  want to own the markup + look. Same engine, your skin.
 
-> One metadata source of truth (the field), one logic engine (the primitives), one look you own (the
-> boutique). The same engine drives every app; each app keeps its own skin.
+> `FF_` = firstly publishes it; `App_` = it becomes your app's (you copy + own it). Same engine, each
+> app keeps its own look.
 
-## Quick start - a full grid in 4 steps
+## Quick start - a grid in 2 steps
 
-Here is a **complete, copy-pasteable example** - from nothing to a working CRUD grid. Start with your
-entity + config (the substance); the boutique copy + wiring is one-time setup at the end.
+`<FF_Grid>` is **published and batteries-included** (default skin + input). A complete example:
 
 ```ts
 // 1. Declare the grid/form config on the entity (the SSoT). Note the explicit <Task> generic.
@@ -39,9 +39,9 @@ export class Task {
 ```
 
 ```svelte
-<!-- 2. Render it — a full read + sort + paginate + create / edit / delete grid. -->
+<!-- 2. Import & render — a full read + sort + paginate + create / edit / delete grid. Zero setup. -->
 <script lang="ts">
-	import FF_Grid from '$lib/ff-grid/FF_Grid.svelte'
+	import { FF_Grid } from 'firstly/svelte'
 
 	import { Task } from '$lib/Task'
 </script>
@@ -49,31 +49,16 @@ export class Task {
 <FF_Grid entity={Task} />
 ```
 
-That's the whole API. The remaining two steps are **one-time boutique setup** (you do them once per
-app):
+Mount `<FF_DialogManager />` once at your app root (for the create/edit dialog) and you're done.
+Override anything at the call-site - `<FF_Grid entity={Task} cells={['title', 'done']} readonly />`.
+
+**Want to own the markup + look?** Copy the boutique `App_Grid` (it composes the same primitives) and
+style it yourself:
 
 ```bash
-# 3. Copy the boutique grid into your app (once). It's yours to restyle.
-npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/ff-grid
+npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/app-grid
 ```
 
-```svelte
-<!-- 4. Register the input + dialog manager once, at the app root (e.g. +layout.svelte). -->
-<script lang="ts">
-	import { FF_Config, FF_DialogManager } from 'firstly/svelte'
-
-	import Input from '$lib/ff-grid/Input.svelte'
-
-	let { children } = $props()
-</script>
-
-<FF_Config cell={{ inputs: { text: Input, number: Input, checkbox: Input } }}>
-	<FF_DialogManager />
-	{@render children()}
-</FF_Config>
-```
-
-Override anything at the call-site - `<FF_Grid entity={Task} cells={['title', 'done']} readonly />`.
 The rest of this page explains each piece.
 
 ## Metadata is the source of truth
@@ -149,18 +134,21 @@ Components read `ffConfig()` **once at component init** (Svelte 5 context rule) 
 `<FF_Config>`), so `FF_Grid` re-provides the captured `cfg.cell` inside the dialog.
 :::
 
-## 🛍️ Boutique `FF_Grid`
+## The grid: `FF_Grid` (published) & `App_Grid` (boutique)
 
-Copy the shell and make it yours:
+Both are the same opinionated read + header-sort + paginate grid, with **create / edit / delete in a
+dialog** (the shared `GroupFields` form), icon buttons, and permission-driven disabling, on a
+`ff(E).many` handle. The difference is ownership:
+
+- **`FF_Grid`** (`import { FF_Grid } from 'firstly/svelte'`) - published, batteries-included (default
+  skin + input). Use it directly.
+- **`App_Grid`** - the boutique copy you degit when you want to own the markup + look:
 
 ```bash
-npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/ff-grid
+npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/app-grid
 ```
 
-`FF_Grid` is an opinionated read + header-sort + paginate grid, with **create / edit / delete in a
-dialog** (reusing the shared `GroupFields` form), icon buttons, and permission-driven disabling. It
-sits on a `ff(E).many` handle, so it inherits all three fetch strategies. **Config is the SSoT on the
-entity (`hub`)** - the grid reads it as defaults, and every prop overrides it:
+**Config is the SSoT on the entity (`hub`)** - the grid reads it as defaults, and every prop overrides:
 
 ```svelte
 <FF_Grid entity={Task} />
@@ -218,19 +206,20 @@ Dropping a field from `insert.cells` is a UI choice, not security. Enforce it on
 generic: `@FF_Entity<Task>('tasks', { hub: {...} })`.
 :::
 
-## 🛍️ Boutique `FF_Group`
+## 🛍️ Boutique `App_Group`
 
-`FF_Group` is a single bound record (`ff(E).one`) shown as a group of cells - a **form when editing**,
+`App_Group` is a single bound record (`ff(E).one`) shown as a group of cells - a **form when editing**,
 **values when not**. `cells` defaults to the hub:
 
 ```svelte
-<FF_Group entity={Task} mode="edit" />
-<FF_Group entity={Task} cells={['title', 'priority']} mode="readonly" />
+<App_Group entity={Task} mode="edit" />
+<App_Group entity={Task} cells={['title', 'priority']} mode="readonly" />
 ```
 
-Both `FF_Grid`'s dialog and `FF_Group` render the same `GroupFields` body, so a field looks identical
-whether you edit it inline or in a dialog. `disableDelete` shows Delete but disabled (pure UI). The
-readonly and edit modes are laid out to the **same height**, so switching mode doesn't shift the page.
+The grid's dialog and `App_Group` render the same published `GroupFields` body, so a field looks
+identical whether you edit it inline or in a dialog. `disableDelete` shows Delete but disabled (pure
+UI). The readonly and edit modes are laid out to the **same height**, so switching mode doesn't shift
+the page.
 
 ## Escape hatches (metadata SSoT, escape when needed)
 
@@ -259,13 +248,13 @@ published `<FF_CellValue>`, so an app's own grid gets them too:
 
 ## What ships vs what you copy
 
-| Thing                                                       | Where               | Published? |
-| ----------------------------------------------------------- | ------------------- | ---------- |
-| `buildCells`, `displayCell`, `getFieldMetaType`             | `firstly/svelte`    | 📦 yes     |
-| `<FF_Cell>`, `<FF_CellValue>` + `FF_Config.cell` registry   | `firstly/svelte`    | 📦 yes     |
-| `hub` on `EntityOptions` + `HubConfig`/`ActionConfig` types | `firstly/svelte`    | 📦 yes     |
-| `CellUI`, `Cell`, `CellInput`, `CellComponent` (+ types)    | `firstly/svelte`    | 📦 yes     |
-| `FF_Grid`, `FF_Group`, `GroupFields`, `Input`               | `src/boutique/grid` | 🛍️ copy    |
+| Thing                                                         | Where               | Published? |
+| ------------------------------------------------------------- | ------------------- | ---------- |
+| `buildCells`, `displayCell`, `getFieldMetaType`               | `firstly/svelte`    | 📦 yes     |
+| `<FF_Cell>`, `<FF_CellValue>` + `FF_Config.cell` registry     | `firstly/svelte`    | 📦 yes     |
+| `hub` on `EntityOptions` + `HubConfig`/`ActionConfig` types   | `firstly/svelte`    | 📦 yes     |
+| `CellUI`, `Cell`, `CellInput`, `CellComponent` (+ types)      | `firstly/svelte`    | 📦 yes     |
+| `<FF_Grid>` (batteries demo), `<GroupFields>`, `DefaultInput` | `firstly/svelte`    | 📦 yes     |
+| `App_Grid`, `App_Group`, `Input`                              | `src/boutique/grid` | 🛍️ copy    |
 
-If you'd want to edit it, take the **boutique** shell. If you just want the engine, import the
-**primitives**.
+If you just want a grid, import `<FF_Grid>`. If you want to own the markup + look, copy `App_Grid`.

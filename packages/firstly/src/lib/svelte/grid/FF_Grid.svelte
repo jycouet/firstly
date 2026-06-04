@@ -1,31 +1,24 @@
 <script lang="ts" generics="T extends object">
-	// Boutique grid shell — copy into your app and make it yours. Opinionated: read + header-sort
-	// + paginate, with create/edit/delete in a dialog (reusing the shared GroupFields form). Reads the
-	// entity's `hub` config as DEFAULTS; every prop overrides it. Composes the published primitives
-	// (buildCells / FF_CellValue / FF_Cell). Renders cell values — incl. the component+props escape —
-	// via the published <FF_CellValue>, so an app's own App_Grid gets the exact same behaviour.
+	// PUBLISHED batteries-included grid — `import { FF_Grid } from 'firstly/svelte'` and go, zero setup:
+	// it bundles a default input + a neutral default skin. Reads the entity `hub` (every prop overrides).
+	// For full control over markup + look, copy the boutique <App_Grid> instead (degit src/boutique/grid).
 	import { untrack } from 'svelte'
 
 	import { repo } from 'remult'
 	import type { ClassType, EntityFilter, EntityOrderBy } from 'remult'
-	import {
-		buildCells,
-		errorMessage,
-		ff,
-		FF_CellValue,
-		FF_Config,
-		ffConfig,
-		Icon,
-		LibIcon_Add,
-		LibIcon_Edit,
-		type ActionConfig,
-		type CellInput,
-		type DialogClose,
-		type FF_Many,
-		type HubConfig,
-		type ManyStrategy,
-	} from 'firstly/svelte'
 
+	import { errorMessage } from '../../core/helper.js'
+	import FF_Config from '../FF_Config.svelte'
+	import { ffConfig } from '../FF_Config.svelte.js'
+	import { ff } from '../ff.svelte.js'
+	import type { FF_Many, ManyStrategy } from '../ff.svelte.js'
+	import type { DialogClose } from '../dialog.svelte.js'
+	import Icon from '../ui/Icon.svelte'
+	import { LibIcon_Add, LibIcon_Edit } from '../ui/LibIcon.js'
+	import { buildCells } from './buildCells.js'
+	import type { ActionConfig, CellInput, HubConfig } from './cellTypes.js'
+	import DefaultInput from './DefaultInput.svelte'
+	import FF_CellValue from './FF_CellValue.svelte'
 	import GroupFields from './GroupFields.svelte'
 
 	type Props = {
@@ -63,8 +56,6 @@
 		skeletonRows = 2,
 	}: Props = $props()
 
-	// Entity hub = the SSoT defaults. Read it off metadata BEFORE building the handle (its getter needs
-	// where/pageSize/strategy from the hub). meta.options carries the `hub` augmentation.
 	const hub = untrack(() => (repo(entity).metadata.options.hub ?? {}) as HubConfig<T>)
 	const strategy = untrack(() => strategyProp ?? hub.strategy ?? 'paginate')
 	const pageSize = untrack(() => pageSizeProp ?? hub.pageSize ?? 25)
@@ -72,23 +63,28 @@
 	let sort = $state<EntityOrderBy<T> | undefined>(untrack(() => orderBy ?? hub.orderBy))
 
 	const m = untrack(() =>
-		ff(entity).many(
-			() => ({ where: where ?? hub.where, orderBy: sort, pageSize, enabled }),
-			strategy,
-		),
+		ff(entity).many(() => ({ where: where ?? hub.where, orderBy: sort, pageSize, enabled }), strategy),
 	) as unknown as FF_Many<T, 'paginate'>
 
-	// Capture the app's cell config at init (context); the dialog re-provides it (portaled outside
-	// <FF_Config>), and it carries the app-wide `defaultSortable`.
 	const cfg = ffConfig()
 	const defaultSortable = $derived(hub.defaultSortable ?? cfg.cell?.defaultSortable)
 
-	// list columns (input) + resolved Cell[] (cols)
+	// the dialog is portaled outside <FF_Config>; re-provide the captured config, but BUNDLE default
+	// inputs so a zero-setup app still gets working form fields (its own inputs override).
+	const dialogCellConfig = $derived({
+		...cfg.cell,
+		inputs: {
+			text: DefaultInput,
+			number: DefaultInput,
+			checkbox: DefaultInput,
+			...cfg.cell?.inputs,
+		},
+	})
+
 	const listCells = $derived(cells ?? hub.cells)
 	const cols = $derived(buildCells(m.meta, listCells, { defaultSortable }))
 	const count = $derived(m.aggregates?.$count ?? m.items.length)
 
-	// actions: prop ?? hub ?? on; `false` (or readonly) disables. `false` short-circuits the ??.
 	const insertCfg = $derived(readonly ? false : (insert ?? hub.insert ?? {}))
 	const updateCfg = $derived(readonly ? false : (update ?? hub.update ?? {}))
 	const deleteCfg = $derived(readonly ? false : (deleteProp ?? hub.delete ?? {}))
@@ -106,13 +102,10 @@
 	}
 	const sortDir = (key: string) => (sort as Record<string, string> | undefined)?.[key]
 
-	// Key rows by the entity's real id (string, number, or composite).
 	const idOf = (row: T) => m.meta.idMetadata.getId(row)
 
 	let errors = $state<Record<string, string | undefined>>({})
 	let saveError = $state('')
-	// Track create vs edit explicitly — a composite-PK new row's getId is "," (truthy), so the id
-	// can't tell create from edit.
 	let creating = $state(false)
 
 	const openEdit = (row: T) => {
@@ -134,7 +127,7 @@
 		{@const draft = m.draft}
 		{@const action = creating ? insertCfg : updateCfg}
 		{@const formCells = (action !== false && action.cells) || listCells}
-		<FF_Config cell={cfg.cell}>
+		<FF_Config cell={dialogCellConfig}>
 			<GroupFields
 				meta={m.meta}
 				{draft}
@@ -154,7 +147,6 @@
 					} catch (err) {
 						const ms = (err as { modelState?: Record<string, string> })?.modelState
 						errors = ms ?? {}
-						// per-field errors show beside each field; form-level only for non-field errors
 						saveError = ms ? '' : errorMessage(err)
 					}
 				}}
@@ -238,3 +230,151 @@
 	{/if}
 	{#if !m.loading.init && m.items.length === 0}<p data-ff-grid-empty>Nothing yet.</p>{/if}
 </div>
+
+<style>
+	/* default skin bundled with the published FF_Grid. :global reaches the portaled dialog. */
+	:global([data-ff-grid] table) {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 14px;
+	}
+	:global([data-ff-grid] :is(th, td)) {
+		padding: 6px 9px;
+		border-bottom: 1px solid color-mix(in srgb, currentColor 13%, transparent);
+		text-align: left;
+		white-space: nowrap;
+	}
+	:global([data-ff-grid] th:first-child),
+	:global([data-ff-grid] td:first-child) {
+		width: 100%;
+	}
+	:global([data-ff-grid] th) {
+		font-weight: 600;
+		user-select: none;
+	}
+	:global([data-ff-grid] th[data-sortable]) {
+		cursor: pointer;
+	}
+	:global([data-ff-grid] tbody tr:hover) {
+		background: color-mix(in srgb, currentColor 6%, transparent);
+	}
+	:global([data-ff-grid-toolbar]) {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 8px;
+	}
+	:global([data-ff-grid-count]) {
+		margin-left: auto;
+		font-size: 15px;
+		opacity: 0.75;
+		font-variant-numeric: tabular-nums;
+	}
+	:global([data-ff-grid-empty]) {
+		opacity: 0.6;
+		font-size: 14px;
+		padding: 8px 0;
+	}
+	:global([data-ff-grid-actions]) {
+		text-align: right;
+	}
+	:global([data-ff-grid] button) {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		font: inherit;
+		cursor: pointer;
+		padding: 5px 9px;
+		color: inherit;
+		background: color-mix(in srgb, currentColor 8%, transparent);
+		border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+		border-radius: 7px;
+	}
+	:global([data-ff-grid] button:disabled) {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
+	:global([data-ff-grid] [data-ff-grid-edit]),
+	:global([data-ff-grid] [data-ff-grid-new]) {
+		background: transparent;
+		border-color: transparent;
+		padding: 3px 5px;
+		opacity: 0.6;
+	}
+	:global([data-ff-grid] [data-ff-grid-edit]:hover),
+	:global([data-ff-grid] [data-ff-grid-new]:hover) {
+		background: color-mix(in srgb, currentColor 12%, transparent);
+		opacity: 1;
+	}
+	:global([data-ff-grid] [data-ff-grid-more]) {
+		display: flex;
+		margin: 12px auto 0;
+	}
+	:global([data-ff-grid] [data-sk]) {
+		display: inline-block;
+		width: 70%;
+		height: 1.05em;
+		border-radius: 4px;
+		background: color-mix(in srgb, currentColor 14%, transparent);
+		animation: -global-ff-sk 1.2s ease-in-out infinite;
+	}
+	:global([data-ff-grid] [data-sk-btn]) {
+		width: 1.4em;
+	}
+	@keyframes -global-ff-sk {
+		0%,
+		100% {
+			opacity: 0.4;
+		}
+		50% {
+			opacity: 0.85;
+		}
+	}
+	/* dialog form (portaled) */
+	:global([data-ff-form]),
+	:global([data-ff-group]) {
+		display: block;
+		min-width: 280px;
+	}
+	:global([data-ff-form] button) {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		font: inherit;
+		cursor: pointer;
+		padding: 5px 11px;
+		color: inherit;
+		background: color-mix(in srgb, currentColor 8%, transparent);
+		border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+		border-radius: 7px;
+	}
+	:global([data-ff-form-actions]) {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		margin-top: 8px;
+	}
+	:global([data-ff-form-actions] [data-primary]) {
+		margin-left: auto;
+		font-weight: 600;
+	}
+	:global([data-ff-form-actions] [data-danger]) {
+		color: var(--color-error, #dc2626);
+		border-color: color-mix(in srgb, var(--color-error, #dc2626) 45%, transparent);
+	}
+	:global([data-ff-readonly]) {
+		display: block;
+		box-sizing: border-box;
+		padding: 5px 8px;
+	}
+	:global([data-ff-form-error]) {
+		color: var(--color-error, #dc2626);
+		font-size: 13px;
+		margin: 4px 0 0;
+	}
+	:global([data-ff-cell-error]) {
+		color: var(--color-error, #dc2626);
+		font-size: 12px;
+	}
+</style>

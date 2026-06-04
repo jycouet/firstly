@@ -211,12 +211,13 @@ Types: `FF_Many<T, Strategy>`, `FF_One<T>`, `FF_Builder<T>`, `FF_RepoOptions`, `
 Grids and forms are built from **field metadata**, in two halves (see
 [firstly.fun /docs/svelte/cell](https://firstly.fun/docs/svelte/cell)):
 
-- **📦 Published primitives** (`firstly/svelte`): `buildCells(meta, cells?)` → headless `Cell[]`,
-  `displayCell(cell, row)`, `<FF_Cell>` (% + mobile layout atom), `<FF_CellValue>` (renders a cell's
-  value incl. the component escape), and the `FF_Config.cell` input registry. Plus the `hub` entity
-  config + types `CellUI`, `Cell`, `CellInput`, `CellComponent`, `HubConfig`, `ActionConfig`.
-- **🛍️ Boutique shells** (`src/boutique/grid`, copy-own): `FF_Grid` (CRUD grid, create/edit/delete in
-  a dialog), `FF_Group` (bound record, edit/readonly), `GroupFields` (shared form body), `Input`.
+- **📦 Published** (`firstly/svelte`): `buildCells(meta, cells?)`, `displayCell`, `<FF_Cell>`,
+  `<FF_CellValue>` (renders a cell's value incl. the component escape), `<GroupFields>` (shared form
+  body), `DefaultInput`, the `FF_Config.cell` registry, the `hub` entity config + types. **Plus
+  `<FF_Grid>`** — the batteries-included demo grid (default skin + bundled input, zero setup:
+  `import { FF_Grid } from 'firstly/svelte'`; just mount `<FF_DialogManager>` once).
+- **🛍️ Boutique** (`src/boutique/grid`, copy-own — degit when you want to own the look): `App_Grid`
+  (CRUD grid), `App_Group` (bound record), `Input`. `FF_` = firstly publishes it; `App_` = your app's.
 
 Key rules:
 
@@ -241,17 +242,18 @@ Key rules:
   init only** (Svelte 5 context) - never in a `$derived` or markup. The dialog is portaled to the app
   root (outside the page `<FF_Config>`), so `FF_Grid` captures `const cfg = ffConfig()` and
   re-provides `<FF_Config cell={cfg.cell}>` inside the dialog.
-- **`FF_Grid`** sits on `ff(E).many` (all three strategies). `cells` = columns (default `hub.cells`);
-  the create/edit forms use `insert.cells`/`update.cells` (default: inherit `cells`). `+ New` / `Edit`
-  disable from `meta.apiInsertAllowed()` / `apiUpdateAllowed(row)`. Cell values render via `FF_CellValue`.
+- **The grid** (`FF_Grid` published / `App_Grid` boutique — same code) sits on `ff(E).many` (all three
+  strategies). `cells` = columns (default `hub.cells`); the create/edit forms use
+  `insert.cells`/`update.cells` (default: inherit `cells`). `+ New` / `Edit` disable from
+  `meta.apiInsertAllowed()` / `apiUpdateAllowed(row)`. Cell values render via `FF_CellValue`.
 - **UI naming ≠ security.** Dropping a field from `insert.cells` is UX only. Enforce on the field:
   `@Fields.boolean({ allowApiUpdate: (t) => !getEntityRef(t).isNew() })` makes it settable on edit but
   not insert (the API rejects it). The two are complementary - lock on the field, mirror in the UI.
-- **`FF_Group`** is one bound record (`ff(E).one`): a form when `mode="edit"`, values when
-  `mode="readonly"`; both modes share a height so toggling doesn't shift the page. `FF_Grid`'s dialog
-  and `FF_Group` both render `GroupFields`, so a field looks identical inline or in a dialog.
-- **Boutique, not published.** `FF_Grid`/`FF_Group`/`GroupFields` are NOT exported from
-  `firstly/svelte` - copy them via `degit .../src/boutique/grid` and own them.
+- **`App_Group`** (boutique) is one bound record (`ff(E).one`): a form when `mode="edit"`, values when
+  `mode="readonly"`; both modes share a height so toggling doesn't shift the page. The grid's dialog
+  and `App_Group` both render the published `GroupFields`, so a field looks identical inline or in a dialog.
+- **Published vs boutique.** `FF_Grid` (batteries demo) + `GroupFields` + `DefaultInput` ARE published;
+  `App_Grid`/`App_Group`/`Input` are the copy-own boutique (`degit .../src/boutique/grid`).
 
 ## `dialog` - headless dialogs (Svelte 5)
 

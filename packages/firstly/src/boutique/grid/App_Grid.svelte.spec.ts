@@ -5,7 +5,7 @@ import { Entity, Fields, InMemoryDataProvider, remult, repo } from 'remult'
 
 import GridProvide from './_test/GridProvide.svelte'
 import TestInput from './_test/TestInput.svelte'
-import FF_Grid from './FF_Grid.svelte'
+import App_Grid from './App_Grid.svelte'
 
 @Entity('grid_row', { allowApiCrud: true, defaultOrderBy: { order: 'asc' } })
 class Row {
@@ -56,12 +56,12 @@ async function mountGrid(props: Record<string, unknown>) {
 	target = document.createElement('div')
 	document.body.appendChild(target)
 
-	const comp = mount(FF_Grid, { target, props: props as any })
+	const comp = mount(App_Grid, { target, props: props as any })
 	await vi.waitFor(() => expect(target.querySelector('tbody tr td[data-col]')).not.toBeNull())
 	return comp
 }
 
-describe('FF_Grid', () => {
+describe('App_Grid', () => {
 	it('renders a header per column (caption from metadata) and a row per item', async () => {
 		await repo(Row).insert([
 			{ order: 1, name: 'a' },

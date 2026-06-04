@@ -4,11 +4,11 @@
 	import type { ClassType } from 'remult'
 	import { FF_Config } from 'firstly/svelte'
 
-	import FF_Group from '../FF_Group.svelte'
+	import App_Group from '../App_Group.svelte'
 
 	let { entity, input }: { entity: ClassType<any>; input: Component } = $props()
 </script>
 
 <FF_Config cell={{ inputs: { text: input } }}>
-	<FF_Group {entity} />
+	<App_Group {entity} />
 </FF_Config>

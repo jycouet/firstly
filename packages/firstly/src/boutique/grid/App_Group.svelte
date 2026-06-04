@@ -5,9 +5,14 @@
 
 	import { repo } from 'remult'
 	import type { ClassType, EntityFilter } from 'remult'
-	import { dialog, errorMessage, ff, type CellInput, type HubConfig } from 'firstly/svelte'
-
-	import GroupFields from './GroupFields.svelte'
+	import {
+		dialog,
+		errorMessage,
+		ff,
+		GroupFields,
+		type CellInput,
+		type HubConfig,
+	} from 'firstly/svelte'
 
 	type Props = {
 		entity: ClassType<T>

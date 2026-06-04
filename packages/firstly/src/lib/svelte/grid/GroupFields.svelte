@@ -1,20 +1,18 @@
 <script lang="ts" generics="T extends object">
-	// Boutique "group of fields" — a metadata-driven group of cells bound to a draft.
+	// Published "group of fields" — a metadata-driven group of cells bound to a draft.
 	//   • mode 'edit'      → cells are inputs (registered via FF_Config.cell.inputs)
 	//   • mode 'readonly'  → cells show their values
 	// Give it `onsave` (in edit mode) and the group BECOMES a form, with a Save + optional
-	// Delete action row. Reused by FF_Group (bound record) and FF_Grid's edit dialog.
+	// Delete action row. Reused by the published FF_Grid + the boutique App_Grid / App_Group.
 	import type { EntityMetadata } from 'remult'
-	import {
-		buildCells,
-		FF_Cell,
-		FF_CellValue,
-		ffConfig,
-		Icon,
-		LibIcon_Delete,
-		LibIcon_Save,
-		type CellInput,
-	} from 'firstly/svelte'
+
+	import { ffConfig } from '../FF_Config.svelte.js'
+	import Icon from '../ui/Icon.svelte'
+	import { LibIcon_Delete, LibIcon_Save } from '../ui/LibIcon.js'
+	import { buildCells } from './buildCells.js'
+	import type { CellInput } from './cellTypes.js'
+	import FF_Cell from './FF_Cell.svelte'
+	import FF_CellValue from './FF_CellValue.svelte'
 
 	type Props = {
 		/** Entity metadata (from the ff handle's `.meta`). */

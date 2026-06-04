@@ -43,6 +43,9 @@ export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
 export {
 	FF_Cell,
 	FF_CellValue,
+	FF_Grid,
+	GroupFields,
+	DefaultInput,
 	buildCells,
 	displayCell,
 	resolveCellComponent,

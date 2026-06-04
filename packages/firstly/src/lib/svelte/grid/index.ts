@@ -19,5 +19,9 @@ export type {
 } from './cellTypes.js'
 export { default as FF_Cell } from './FF_Cell.svelte'
 export { default as FF_CellValue } from './FF_CellValue.svelte'
-// FF_Grid / FF_Group / GroupFields are NOT published — they're opinionated shells you copy from the
-// `grid` boutique (src/boutique/grid) and own per app. Only the headless primitives ship here.
+export { default as GroupFields } from './GroupFields.svelte'
+export { default as DefaultInput } from './DefaultInput.svelte'
+// FF_Grid = the batteries-included demo grid (default skin + input). For a fully-owned grid, copy the
+// boutique App_Grid (src/boutique/grid) instead.
+export { default as FF_Grid } from './FF_Grid.svelte'
+// App_Grid / App_Group are the copy-own boutique shells (src/boutique/grid) — NOT published.

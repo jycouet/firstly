@@ -18,7 +18,7 @@ beforeEach(() => {
 })
 afterEach(() => target?.remove())
 
-describe('FF_Group', () => {
+describe('App_Group', () => {
 	it('renders a cell per field and saves the bound value', async () => {
 		await repo(Row).insert({ name: 'init' })
 		target = document.createElement('div')
