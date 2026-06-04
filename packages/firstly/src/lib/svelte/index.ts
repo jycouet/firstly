@@ -38,16 +38,16 @@ export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
 export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
 
-export { default as DemoGrid } from './DemoGrid.svelte'
-export { default as DemoForm } from './DemoForm.svelte'
+// Headless cell primitives (FF_Grid / FF_Group are boutique-only — copy from src/boutique/grid).
 export {
 	FF_Cell,
-	FF_Grid,
-	FF_Form,
 	buildCells,
 	displayCell,
 	getFieldMetaType,
 	getInputType,
+	getStyle,
+	getCellElementConfig,
+	defaultConfig,
 } from './grid/index.js'
 export type {
 	Cell,
@@ -56,6 +56,10 @@ export type {
 	MetaKind,
 	CellConfig,
 	CellElementConfig,
+	CellProps,
+	CellContentProps,
+	CellElementProps,
+	CellMode,
 } from './grid/index.js'
 export { default as Icon } from './ui/Icon.svelte'
 export {

@@ -4,6 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Entity, Fields, InMemoryDataProvider, remult, repo } from 'remult'
 
 import FF_Grid from './FF_Grid.svelte'
+import GridProvide from './_test/GridProvide.svelte'
+import TestInput from './_test/TestInput.svelte'
 
 @Entity('grid_row', { allowApiCrud: true, defaultOrderBy: { order: 'asc' } })
 class Row {
@@ -85,6 +87,24 @@ describe('FF_Grid', () => {
 		])
 		const comp = await mountGrid({ entity: CompRow, selected: ['label'] })
 		expect(target.querySelectorAll('tbody tr').length).toBe(2)
+		unmount(comp)
+	})
+
+	it('opens the create dialog in CREATE mode for a composite PK (Create label, no Delete)', async () => {
+		// Regression: a composite-PK new row's getId() is "," (truthy), so inferring create-vs-edit
+		// from the id mis-read create as edit. The grid tracks the mode explicitly instead.
+		target = document.createElement('div')
+		document.body.appendChild(target)
+		const comp = mount(GridProvide, {
+			target,
+			props: { entity: CompRow, input: TestInput, selected: ['label'] },
+		})
+		await vi.waitFor(() => expect(target.querySelector('[data-ff-grid-new]')).toBeTruthy())
+		;(target.querySelector('[data-ff-grid-new]') as HTMLButtonElement).click()
+		await vi.waitFor(() => expect(document.querySelector('[data-ff-form]')).toBeTruthy())
+		const form = document.querySelector('[data-ff-form]') as HTMLElement
+		expect(form.querySelector('[data-primary]')?.textContent).toContain('Create')
+		expect(form.querySelector('[data-danger]')).toBeNull()
 		unmount(comp)
 	})
 

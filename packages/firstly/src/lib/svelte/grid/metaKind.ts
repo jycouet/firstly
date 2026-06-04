@@ -12,7 +12,7 @@ export type FieldMetaType =
 	  }
 	| { kind: 'enum'; subKind: 'single' | 'multi'; values: BaseEnum[]; field: FieldMetadata }
 	| { kind: 'primitive'; subKind: string; field: FieldMetadata }
-	| { kind: 'slot'; subKind: '???' }
+	| { kind: 'slot'; subKind: 'unknown' }
 
 /**
  * Derive a render "kind" from a remult FieldMetadata.
@@ -21,7 +21,7 @@ export type FieldMetaType =
  * throws "ValueType not yet initialized" here, so don't use it.
  */
 export function getFieldMetaType(field?: FieldMetadata, withHidden = false): FieldMetaType {
-	if (field === undefined) return { kind: 'slot', subKind: '???' }
+	if (field === undefined) return { kind: 'slot', subKind: 'unknown' }
 
 	const rel = getRelationFieldInfo(field)
 	if (rel) {

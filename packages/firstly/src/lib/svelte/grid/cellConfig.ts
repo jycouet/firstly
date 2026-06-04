@@ -28,9 +28,9 @@ export function getStyle(config: CellElementConfig): string {
 				? 'center'
 				: undefined
 	return [
-		`width: ${config.width}%`,
-		`flex: 0 0 ${config.width}%`,
-		`order: ${config.order}`,
+		config.width != null ? `width: ${config.width}%` : '',
+		config.width != null ? `flex: 0 0 ${config.width}%` : '',
+		config.order != null ? `order: ${config.order}` : '',
 		`display: flex`,
 		justify ? `justify-content: ${justify}` : '',
 		items ? `align-items: ${items}` : '',

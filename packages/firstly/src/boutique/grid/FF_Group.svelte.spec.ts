@@ -18,7 +18,7 @@ beforeEach(() => {
 })
 afterEach(() => target?.remove())
 
-describe('FF_Form', () => {
+describe('FF_Group', () => {
 	it('renders a cell per field and saves the bound value', async () => {
 		await repo(Row).insert({ name: 'init' })
 		target = document.createElement('div')
@@ -29,7 +29,7 @@ describe('FF_Form', () => {
 		input.value = 'updated'
 		input.dispatchEvent(new Event('input', { bubbles: true }))
 		flushSync()
-		;(target.querySelector('[data-ff-form-save]') as HTMLButtonElement).click()
+		;(target.querySelector('[data-ff-form] [data-primary]') as HTMLButtonElement).click()
 		await vi.waitFor(async () => expect((await repo(Row).findFirst())?.name).toBe('updated'))
 		unmount(comp)
 	})

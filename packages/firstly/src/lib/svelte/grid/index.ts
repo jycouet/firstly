@@ -14,5 +14,5 @@ export type {
 	CellMode,
 } from './cellTypes.js'
 export { default as FF_Cell } from './FF_Cell.svelte'
-export { default as FF_Grid } from './FF_Grid.svelte'
-export { default as FF_Form } from './FF_Form.svelte'
+// FF_Grid / FF_Group / GroupFields are NOT published — they're opinionated shells you copy from the
+// `grid` boutique (src/boutique/grid) and own per app. Only the headless primitives ship here.

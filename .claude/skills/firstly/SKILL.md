@@ -1,6 +1,6 @@
 ---
 name: firstly
-description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, ff (reactive Svelte layer: many/one), published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth). Use when the user mentions firstly, FF_Entity, BaseEnum, ff/FF_Many/FF_One, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
+description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, ff (reactive Svelte layer: many/one), the cell layer (buildCells, FF_Cell, boutique FF_Grid/FF_Group), published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth, grid). Use when the user mentions firstly, FF_Entity, BaseEnum, ff/FF_Many/FF_One, buildCells/FF_Cell/FF_Grid/FF_Group, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
 ---
 
 # Firstly Patterns
@@ -204,10 +204,44 @@ refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → g
   datetime as `timestamptz` (a `@Fields.date()` stored as SQL `date` ties same-day rows and makes
   `date desc` non-deterministic; Remult won't ALTER an existing column, so verify at the DB).
 
-`DemoGrid` (a full CRUD grid from one `many` handle) and `DemoForm` (a `one` bound form) ship from
-`firstly/svelte` as ready demos / starting points.
-
 Types: `FF_Many<T, Strategy>`, `FF_One<T>`, `FF_Builder<T>`, `FF_RepoOptions`, `ManyStrategy`.
+
+## Cell layer - metadata-driven grid & form (Svelte 5)
+
+Grids and forms are built from **field metadata**, in two halves (see
+[firstly.fun /docs/svelte/cell](https://firstly.fun/docs/svelte/cell)):
+
+- **📦 Published primitives** (`firstly/svelte`): `buildCells(meta, selected?)` → headless `Cell[]`,
+  `displayCell(cell, row)`, `<FF_Cell>` (the % + mobile layout atom), and the `FF_Config.cell` input
+  registry. Plus types `CellUI`, `Cell`, `CellInput`, `CellConfig`.
+- **🛍️ Boutique shells** (`src/boutique/grid`, copy-own): `FF_Grid` (CRUD grid, create/edit/delete in
+  a dialog), `FF_Group` (bound record, edit/readonly), `GroupFields` (shared form body), `Input`.
+
+Key rules:
+
+- **Metadata is SSoT.** Per-field UI hints live on the field via `ui` (a firstly augmentation of
+  remult `FieldOptions`): `width`/`marginLeft`/`marginRight` are **% of the row**, plus `align`,
+  `inputType` (override the editor), `order`, and `mobile: {…}` (screens `<= 40rem`). Also
+  `placeholder` and `href: (row)=>string` (renders a `field_link`). Escape hatches on a `CellInput`
+  config: `cellSnippet` (app owns the render), `component` + `rowToProps`, `class`.
+- **Input registry.** Register which component renders each `inputType` once at app root:
+  `<FF_Config cell={{ inputs: { text: Input, number: Input, checkbox: Input } }}>`. firstly ships
+  **no** styled input - the `grid` boutique gives a token-only `Input` to copy.
+- **Read config at init.** Components call `ffConfig()` / `getCellElementConfig()` **at component
+  init only** (Svelte 5 context) - never in a `$derived` or markup. The dialog is portaled to the app
+  root (outside the page `<FF_Config>`), so `FF_Grid` captures `const cfg = ffConfig()` and
+  re-provides `<FF_Config cell={cfg.cell}>` inside the dialog.
+- **`FF_Grid`** sits on `ff(E).many` (all three strategies). `selected` = columns; `createFields` /
+  `editFields` name the form fields per context (default `selected`) - explicit, no magic. `+ New` /
+  `Edit` disable from `meta.apiInsertAllowed()` / `apiUpdateAllowed(row)`.
+- **UI naming ≠ security.** Dropping a field from `createFields` is UX only. Enforce on the field:
+  `@Fields.boolean({ allowApiUpdate: (t) => !getEntityRef(t).isNew() })` makes it settable on edit but
+  not insert (the API rejects it). The two are complementary - lock on the field, mirror in the UI.
+- **`FF_Group`** is one bound record (`ff(E).one`): a form when `mode="edit"`, values when
+  `mode="readonly"`; both modes share a height so toggling doesn't shift the page. `FF_Grid`'s dialog
+  and `FF_Group` both render `GroupFields`, so a field looks identical inline or in a dialog.
+- **Boutique, not published.** `FF_Grid`/`FF_Group`/`GroupFields` are NOT exported from
+  `firstly/svelte` - copy them via `degit .../src/boutique/grid` and own them.
 
 ## `dialog` - headless dialogs (Svelte 5)
 

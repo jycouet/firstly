@@ -18,8 +18,11 @@
 	let mode = $derived(props.mode ?? 'edit')
 	let debug = $derived(props.debug === true ? true : undefined)
 
-	const contentConfig = { ...getCellElementConfig('content'), ...props.content?.config }
+	// getCellElementConfig() reads context, so resolve the base ONCE at init; merge reactive
+	// per-instance overrides in a $derived so a later props.content.config change re-styles.
+	const contentBase = getCellElementConfig('content')
 	const labelBase = getCellElementConfig('label')
+	let contentConfig = $derived({ ...contentBase, ...props.content?.config })
 
 	let hasError = $derived(!!props.error?.html)
 	let labelProps = $derived(

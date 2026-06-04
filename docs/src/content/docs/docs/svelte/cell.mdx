@@ -1,0 +1,193 @@
+---
+title: cell layer (grid & form)
+---
+
+The cell layer turns **field metadata** into grids and forms. It ships in two halves:
+
+- **📦 Published primitives** (`firstly/svelte`) - the headless engine: `buildCells`, `displayCell`,
+  `<FF_Cell>`, and the `FF_Config.cell` input registry. No styling, no opinions.
+- **🛍️ Boutique shells** (`src/boutique/grid`) - opinionated `FF_Grid` / `FF_Group` you **copy into
+  your app** and own. They compose the primitives into a real CRUD grid + bound-record form.
+
+> One metadata source of truth (the field), one logic engine (the primitives), one look you own (the
+> boutique). The same engine drives every app; each app keeps its own skin.
+
+## Metadata is the source of truth
+
+Per-field UI hints live **on the field** via `ui` (a firstly augmentation of remult's
+`FieldOptions`). Widths and margins are **percentages of the row** - so layout is fluid and mobile
+gets its own geometry:
+
+```ts
+import { Entity, Fields, getEntityRef } from 'remult'
+
+@Entity('tasks', { allowApiCrud: true })
+export class Task {
+	@Fields.id() id = ''
+	@Fields.string({ caption: 'Task title', required: true, ui: { width: 60 } }) title = ''
+	@Fields.number({ caption: 'Priority', ui: { width: 40, align: 'right' } }) priority = 0
+	@Fields.boolean({ caption: 'Done' }) done = false
+}
+```
+
+`ui` carries `width` / `marginLeft` / `marginRight` (%), `align`, `inputType` (override the resolved
+editor), `order`, and a `mobile: { width?, marginLeft?, marginRight? }` for screens `<= 40rem`. Two
+more field options feed the cell layer: `placeholder`, and `href: (row) => string` (renders the cell
+as a link - a `field_link` cell).
+
+## `buildCells` + `displayCell`
+
+`buildCells(meta, selected?)` resolves a list of headless `Cell` descriptors from the entity
+metadata. Each cell knows its `kind` (`field` / `field_link` / `relation` / `enum` / `enum_multi` /
+`slot` / `component` / `header` / `spacer`), `caption`, resolved `inputType`, `align`, and `ui`.
+`displayCell(cell, row)` returns the display string for a cell (remult's `displayValue`, the related
+row, the enum caption, ...).
+
+```ts
+import { buildCells, displayCell } from 'firstly/svelte'
+
+// terse author input: a bare key, a config object, or '_spacer'
+const cells = buildCells(repo(Task).metadata, ['title', 'priority', 'done'])
+// cells[0].caption === 'Task title', cells[0].ui.width === 60, ...
+```
+
+`selected` items are terse: a bare field key (`'title'`), or a config object
+(`{ col, kind?, caption?, ui?, align?, class?, cellSnippet?, component?, rowToProps? }`), or
+`'_spacer'`. Omit `selected` to get every visible field.
+
+## `<FF_Cell>` + the input registry
+
+`<FF_Cell>` is the headless layout atom - it arranges four sub-elements (label / content / error /
+hint) by **percentage** geometry, with an independent mobile breakpoint. You rarely touch it directly;
+the boutique shells render it for you. What you **do** own is the input registry: which component
+renders each `inputType`. Register it once at the app root via `<FF_Config cell={...}>`:
+
+```svelte
+<script lang="ts">
+	import { FF_Config } from 'firstly/svelte'
+
+	import Input from '$lib/ff-grid/Input.svelte'
+</script>
+
+<FF_Config cell={{ inputs: { text: Input, number: Input, checkbox: Input } }}>
+	{@render children()}
+</FF_Config>
+```
+
+Every cell of `inputType: 'text'` now renders your `Input`. Add `select` / `date` / `multiSelect`
+variants to match your design system. firstly ships **no** styled input on purpose - the boutique
+`grid` recipe gives you a token-only starting point.
+
+:::caution[Read config at init]
+Components read `ffConfig()` **once at component init** (Svelte 5 context rule) - never inside a
+`$derived` or in markup. The boutique shells already follow this; if you write your own, capture
+`const cfg = ffConfig()` in `<script>`. The dialog is portaled to the app root (outside the page's
+`<FF_Config>`), so `FF_Grid` re-provides the captured `cfg.cell` inside the dialog.
+:::
+
+## 🛍️ Boutique `FF_Grid`
+
+Copy the shell and make it yours:
+
+```bash
+npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/ff-grid
+```
+
+`FF_Grid` is an opinionated read + header-sort + paginate grid, with **create / edit / delete in a
+dialog** (reusing the shared `GroupFields` form), icon buttons, and permission-driven disabling. It
+sits on a `ff(E).many` handle, so it inherits all three fetch strategies.
+
+```svelte
+<FF_Grid
+	entity={Task}
+	selected={['title', 'priority', 'done']}
+	createFields={['title', 'priority']}
+	strategy="paginate"
+/>
+```
+
+- `selected` - the table columns (and the default form fields).
+- `strategy` - `'paginate'` (default) / `'listen'` / `'load'`, plus `pageSize`, `where`, `orderBy`,
+  `enabled` (lazy gate).
+- `readonly` - hide the create/edit/delete dialog entirely.
+- The toolbar `+ New` and per-row `Edit` are disabled from `meta.apiInsertAllowed()` /
+  `apiUpdateAllowed(row)` - the same permission the server enforces.
+
+### Name fields per context (`createFields` / `editFields`)
+
+The create and edit forms can show **different** fields. Name them explicitly - no magic, you own the
+decision:
+
+```svelte
+<FF_Grid
+	entity={Task}
+	selected={['title', 'priority', 'done']}
+	createFields={['title', 'priority']}
+	editFields={['title', 'priority', 'done']}
+/>
+```
+
+Both default to `selected`. Above, `done` shows in the grid and the edit dialog, but **not** when
+creating a row.
+
+:::tip[Pair UI naming with server security]
+Naming a field out of `createFields` is a UI choice - it isn't security. Enforce the rule on the
+**field** so the API rejects it too. `allowApiUpdate` as a function makes a field settable only on an
+existing row (not on insert):
+
+```ts
+// settable on edit, never on insert - the API enforces it
+@Fields.boolean({ caption: 'Done', allowApiUpdate: (t) => !getEntityRef(t).isNew() }) done = false
+```
+
+The two are complementary: `allowApiUpdate` is the lock, `createFields` is the UI that mirrors it.
+:::
+
+## 🛍️ Boutique `FF_Group`
+
+`FF_Group` is a single bound record (`ff(E).one`) shown as a group of cells - a **form when editing**,
+**values when not**. Toggle `mode`:
+
+```svelte
+<FF_Group entity={Task} selected={['title', 'priority', 'done']} mode="edit" />
+<FF_Group entity={Task} selected={['title', 'priority', 'done']} mode="readonly" />
+```
+
+Both `FF_Grid`'s dialog and `FF_Group` render the same `GroupFields` body, so a field looks identical
+whether you edit it inline or in a dialog. `disableDelete` shows Delete but disabled (pure UI). The
+readonly and edit modes are laid out to the **same height**, so switching mode doesn't shift the page.
+
+## Escape hatches (metadata SSoT, escape when needed)
+
+Metadata covers the common case; when a cell needs to be special, the `Cell` / `CellInput` config
+carries escape hatches:
+
+- `cellSnippet` - the app fully owns the cell's render (a `slot` kind).
+- `component` + `rowToProps` - render an explicit component from the row.
+- `class` - a Tailwind/CSS passthrough (e.g. `'col-span-2'`).
+
+```svelte
+<FF_Grid
+	entity={Task}
+	selected={[
+		'title',
+		{ col: 'priority', cellSnippet: priorityBadge },
+	]}
+/>
+
+{#snippet priorityBadge({ row })}
+	<span class="badge">{row.priority}</span>
+{/snippet}
+```
+
+## What ships vs what you copy
+
+| Thing                                                  | Where                | Published? |
+| ------------------------------------------------------ | -------------------- | ---------- |
+| `buildCells`, `displayCell`, `getFieldMetaType`        | `firstly/svelte`     | 📦 yes     |
+| `<FF_Cell>` + `FF_Config.cell` input registry          | `firstly/svelte`     | 📦 yes     |
+| `CellUI`, `Cell`, `CellInput`, `CellConfig` (+ types)  | `firstly/svelte`     | 📦 yes     |
+| `FF_Grid`, `FF_Group`, `GroupFields`, `Input`          | `src/boutique/grid`  | 🛍️ copy    |
+
+If you'd want to edit it, take the **boutique** shell. If you just want the engine, import the
+**primitives**.
