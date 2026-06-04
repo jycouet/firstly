@@ -3,15 +3,16 @@
 	// A "group" that becomes a form when editing. Reuses the shared GroupFields body.
 	import { untrack } from 'svelte'
 
+	import { repo } from 'remult'
 	import type { ClassType, EntityFilter } from 'remult'
-	import { dialog, errorMessage, ff, type CellInput } from 'firstly/svelte'
+	import { dialog, errorMessage, ff, type CellInput, type HubConfig } from 'firstly/svelte'
 
 	import GroupFields from './GroupFields.svelte'
 
 	type Props = {
 		entity: ClassType<T>
-		/** Field descriptors (terse key or config). Defaults to visible fields. */
-		selected?: CellInput<T>[]
+		/** Field descriptors (terse key or config). Defaults to the entity hub, then visible fields. */
+		cells?: CellInput<T>[]
 		where?: EntityFilter<T>
 		/** 'edit' (inputs + Save/Delete) or 'readonly' (values only). */
 		mode?: 'edit' | 'readonly'
@@ -19,9 +20,11 @@
 		/** Show Delete but disabled (pure UI). */
 		disableDelete?: boolean
 	}
-	let { entity, selected, where, mode = 'edit', onsaved, disableDelete = false }: Props = $props()
+	let { entity, cells, where, mode = 'edit', onsaved, disableDelete = false }: Props = $props()
 
-	const r = untrack(() => ff(entity).one(() => ({ where })))
+	const hub = (repo(entity).metadata.options.hub ?? {}) as HubConfig<T>
+	const groupCells = $derived(cells ?? hub.cells)
+	const r = untrack(() => ff(entity).one(() => ({ where: where ?? hub.where })))
 
 	let errors = $state<Record<string, string | undefined>>({})
 	let formError = $state('')
@@ -52,7 +55,7 @@
 	<GroupFields
 		meta={r.meta}
 		draft={r.item}
-		{selected}
+		cells={groupCells}
 		{mode}
 		{errors}
 		error={formError}

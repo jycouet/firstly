@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ManyStrategy } from 'firstly/svelte'
+	import type { CellInput, ManyStrategy } from 'firstly/svelte'
 	import { FF_Config } from 'firstly/svelte'
 
 	import { Task } from '$modules/demo/Task'
@@ -9,11 +9,16 @@
 	import FF_Grid from '../../boutique/grid/FF_Grid.svelte'
 	import FF_Group from '../../boutique/grid/FF_Group.svelte'
 	import Input from '../../boutique/grid/Input.svelte'
+	import PriorityBadge from './PriorityBadge.svelte'
 
-	const fields = ['title', 'priority', 'done'] as const
-	// `done` is server-locked on insert (allowApiUpdate) — name it in edit, but not create.
-	const createFields = ['title', 'priority'] as const
 	const strategies: ManyStrategy[] = ['paginate', 'listen', 'load']
+
+	// A cells override: `priority` rendered by a component (escape), `done` not sortable.
+	const fancyCells: CellInput<Task>[] = [
+		'title',
+		{ col: 'priority', component: () => PriorityBadge, rowToProps: (r) => ({ value: r.priority }) },
+		{ col: 'done', sortable: false },
+	]
 
 	let lazyOn = $state(false)
 	let groupMode = $state<'edit' | 'readonly'>('edit')
@@ -25,36 +30,43 @@
 			<h1>ff() · cell layer</h1>
 			<p>
 				firstly ships the headless primitives — <code>ff()</code>, <code>buildCells</code>,
-				<code>FF_Cell</code> (% + metadata), and the <code>FF_Config.cell</code> input registry. The
-				grid &amp; group below are <strong>boutique</strong> (copy-own from
-				<code>src/boutique/grid</code>): opinionated shells with edit + delete in a dialog.
+				<code>FF_Cell</code> / <code>FF_CellValue</code>, and the <code>FF_Config.cell</code> registry.
+				Config is the SSoT on the entity (<code>hub</code>); the grid &amp; group below are
+				<strong>boutique</strong> (copy-own from <code>src/boutique/grid</code>).
 			</p>
 		</header>
 
 		<section>
 			<div class="head">
-				<h2>many — three fetch strategies</h2>
+				<h2>many — driven by the entity hub</h2>
 				<p>
-					Same boutique <code>FF_Grid</code>, three strategies. <code>+ New</code> / per-row
-					<code>Edit</code> open a dialog (Save / Delete inside). Fields are named per context:
-					<code>done</code> shows in edit but not create (and is server-locked on insert via
-					<code>allowApiUpdate</code>). Add a row and watch each behave.
+					<code>{'<FF_Grid entity={Task} />'}</code> — zero config. Columns, the create form (no
+					<code>done</code>), and delete all come from <code>Task.hub</code>. Three fetch strategies. Add
+					a row and watch each behave.
 				</p>
 			</div>
 			<div class="cols">
 				{#each strategies as strategy (strategy)}
 					<article>
 						<h3>{strategy}</h3>
-						<FF_Grid
-							entity={Task}
-							selected={[...fields]}
-							createFields={[...createFields]}
-							{strategy}
-							pageSize={strategy === 'paginate' ? 2 : 25}
-						/>
+						<FF_Grid entity={Task} {strategy} pageSize={strategy === 'paginate' ? 2 : 25} />
 					</article>
 				{/each}
 			</div>
+		</section>
+
+		<section>
+			<div class="head">
+				<h2>cells override — a component cell</h2>
+				<p>
+					Override the hub's <code>cells</code> at the call-site: <code>priority</code> renders via a
+					<code>component</code> + <code>rowToProps</code> escape, and <code>done</code> is marked
+					<code>sortable: false</code> (its header doesn't sort).
+				</p>
+			</div>
+			<article class="card">
+				<FF_Grid entity={Task} cells={fancyCells} strategy="listen" />
+			</article>
 		</section>
 
 		<section>
@@ -69,7 +81,7 @@
 				>
 					{groupMode === 'edit' ? 'mode: edit — switch to readonly' : 'mode: readonly — switch to edit'}
 				</button>
-				<FF_Group entity={Task} selected={[...fields]} mode={groupMode} />
+				<FF_Group entity={Task} mode={groupMode} />
 			</article>
 		</section>
 
@@ -82,7 +94,7 @@
 				<button class="modebtn" class:on={lazyOn} onclick={() => (lazyOn = !lazyOn)}>
 					{lazyOn ? 'enabled: true (fetching)' : 'enabled: false (click to load)'}
 				</button>
-				<FF_Grid entity={Task} selected={[...fields]} strategy="load" enabled={lazyOn} />
+				<FF_Grid entity={Task} strategy="load" enabled={lazyOn} readonly />
 			</article>
 		</section>
 	</div>
@@ -198,8 +210,11 @@
 	}
 	:global([data-ff-grid] th) {
 		font-weight: 600;
-		cursor: pointer;
 		user-select: none;
+	}
+	/* only sortable headers get the pointer affordance */
+	:global([data-ff-grid] th[data-sortable]) {
+		cursor: pointer;
 	}
 	:global([data-ff-grid] tbody tr:hover) {
 		background: color-mix(in srgb, currentColor 6%, transparent);

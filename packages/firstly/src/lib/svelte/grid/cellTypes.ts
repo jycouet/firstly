@@ -1,6 +1,15 @@
 import type { Component, Snippet } from 'svelte'
 
-import type { ClassType, FieldMetadata } from 'remult'
+import type { ClassType, EntityFilter, EntityOrderBy, FieldMetadata } from 'remult'
+
+/**
+ * A component to render in a cell or as a form input. Always a THUNK, so an isomorphic entity `hub`
+ * never statically pulls UI into the server graph:
+ *   eager (in .svelte):  `() => Badge`
+ *   lazy  (server-safe): `() => import('./Badge.svelte')`
+ * The renderer resolves it once (cached) and unwraps a `{ default }` module.
+ */
+export type CellComponent = () => Component | Promise<Component> | Promise<{ default: Component }>
 
 /** Per-field UI hints. width/margins are PERCENTAGES of the parent row. */
 export interface CellUI {
@@ -38,11 +47,15 @@ export interface Cell<E = any> {
 	/** Resolved input type for edit (getInputType). */
 	inputType: string
 	align: 'left' | 'center' | 'right'
+	/** Whether this column is sortable by header click (resolved; default: field/field_link columns). */
+	sortable: boolean
 	/** Tailwind/CSS passthrough (e.g. 'col-span-2'). */
 	class?: string
 	// ----- escape hatches (metadata SSoT, escape when needed) -----
 	cellSnippet?: Snippet<[{ row: E; cell: Cell<E> }]>
-	component?: Component
+	/** Render a component for this cell. Static `props` + per-row `rowToProps()` are merged into it. */
+	component?: CellComponent
+	props?: Record<string, unknown>
 	rowToProps?: (row: E) => Record<string, unknown>
 }
 
@@ -56,8 +69,12 @@ export type CellInput<E> =
 			ui?: CellUI
 			align?: 'left' | 'center' | 'right'
 			class?: string
+			/** Set false to make this column non-sortable (default: field/field_link are sortable). */
+			sortable?: boolean
 			cellSnippet?: Snippet<[{ row: E; cell: Cell<E> }]>
-			component?: Component
+			/** Render a component for this cell (thunk). `props` + `rowToProps()` are merged into it. */
+			component?: CellComponent
+			props?: Record<string, unknown>
 			rowToProps?: (row: E) => Record<string, unknown>
 	  }
 
@@ -98,6 +115,52 @@ declare module 'remult' {
 		valueTypeArray?: ClassType<valueType>
 		/** When set, the field renders as a link (field_link kind). */
 		href?: (row: entityType) => string
+	}
+}
+
+/** Per-action (create/edit/delete) config. Omit `cells` to inherit the list `cells`. */
+export interface ActionConfig<E = any> {
+	/** Fields shown in this action's form. Omit = inherit the list `cells`. */
+	cells?: CellInput<E>[]
+	/** Dialog title (e.g. from the row being edited). */
+	title?: (row: E) => string
+	/** Override the action's button icon (mdi path string). */
+	icon?: string
+	/** Escape: render a custom dialog component instead of the generated form. */
+	component?: CellComponent
+	props?: Record<string, unknown>
+	rowToProps?: (row: E) => Record<string, unknown>
+}
+
+/**
+ * Entity-level grid/form config — the SSoT. Declared on the entity (`@FF_Entity('x', { hub: {...} })`)
+ * and read by FF_Grid / a boutique App_Grid as DEFAULTS; every prop overrides it. Keep it a plain,
+ * cheap object: `cells` (strings), `where`, `orderBy`, `sortable`, action toggles + `title` fns are all
+ * server-safe. Any UI `component` must be a lazy {@link CellComponent} thunk so the isomorphic entity
+ * file never statically pulls Svelte into the server graph.
+ */
+export interface HubConfig<E = any> {
+	/** Entity icon (mdi path string). */
+	icon?: string
+	/** Grid columns + the default fields for the create/edit forms. */
+	cells?: CellInput<E>[]
+	where?: EntityFilter<E>
+	orderBy?: EntityOrderBy<E>
+	strategy?: 'paginate' | 'listen' | 'load'
+	pageSize?: number
+	/** Create action; `false` to disable. Omit = on, using the list `cells`. */
+	insert?: ActionConfig<E> | false
+	/** Edit action; `false` to disable. */
+	update?: ActionConfig<E> | false
+	/** Delete action; `false` to disable. */
+	delete?: ActionConfig<E> | false
+}
+
+// ---- entity-level config lives ON the entity (same SSoT idea as FieldOptions.ui, on EntityOptions) ----
+declare module 'remult' {
+	interface EntityOptions<entityType> {
+		/** firstly grid/form config — read as defaults by FF_Grid / App_Grid, overridable per call. */
+		hub?: HubConfig<entityType>
 	}
 }
 

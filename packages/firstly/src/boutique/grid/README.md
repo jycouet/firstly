@@ -27,26 +27,33 @@ Register the input registry once at your app root, so every cell of
 
 ## `FF_Grid`
 
-Read + header-sort + paginate, with create / edit / delete in a dialog. Sits on `ff(E).many`, so it
-gets the three fetch strategies.
+Read + header-sort + paginate, with create / edit / delete in a dialog. Sits on `ff(E).many`. Config
+is the SSoT on the entity (`hub`); every prop overrides it.
 
 ```svelte
-<FF_Grid
-	entity={Task}
-	selected={['title', 'priority', 'done']}
-	createFields={['title', 'priority']}
-	strategy="paginate"
-/>
+<FF_Grid entity={Task} />
+<!-- all from Task.hub -->
+<FF_Grid entity={Task} cells={['title', 'done']} />
+<!-- override columns -->
 ```
 
-- `selected` - table columns (and default form fields).
-- `createFields` / `editFields` - name the form fields per context (default: `selected`). Above,
-  `done` shows in the grid + edit, but not in create.
-- `strategy` (`paginate` | `listen` | `load`), `pageSize`, `where`, `orderBy`, `enabled` (lazy gate),
-  `readonly` (hide the dialog).
+```ts
+@FF_Entity<Task>('tasks', {
+	hub: {
+		cells: ['title', 'priority', { col: 'done', sortable: false }],
+		insert: { cells: ['title', 'priority'] }, // `done` not settable on create
+		// update omitted → inherits the list cells
+		delete: {}, // {} on, false off
+	},
+})
+```
+
+- `cells` - columns + default form fields. `strategy` / `pageSize` / `where` / `orderBy` / `enabled`,
+  `readonly`, and per-action `insert` / `update` / `delete` (`{}` on, `false` off) all default to the
+  hub. An action's `cells` omitted = inherit the list cells.
 - `+ New` / per-row `Edit` are disabled from `meta.apiInsertAllowed()` / `apiUpdateAllowed(row)`.
 
-Pair `createFields` with server enforcement on the field itself:
+Pair `insert.cells` with server enforcement on the field itself:
 
 ```ts
 // settable on edit, never on insert (the API enforces it)

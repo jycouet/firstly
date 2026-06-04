@@ -35,6 +35,17 @@ class CompRow {
 	@Fields.string({ caption: 'Label' }) label = ''
 }
 
+// Entity-level `hub`: columns (+ a non-sortable column) come from the entity, no props.
+@Entity<HubRow>('grid_hub_row', {
+	allowApiCrud: true,
+	hub: { cells: ['name', { col: 'order', sortable: false }] },
+})
+class HubRow {
+	@Fields.id() id = ''
+	@Fields.number() order = 0
+	@Fields.string({ caption: 'Name' }) name = ''
+}
+
 let target: HTMLElement
 beforeEach(() => {
 	remult.dataProvider = new InMemoryDataProvider()
@@ -56,7 +67,7 @@ describe('FF_Grid', () => {
 			{ order: 1, name: 'a' },
 			{ order: 2, name: 'b' },
 		])
-		const comp = await mountGrid({ entity: Row, selected: ['order', 'name'] })
+		const comp = await mountGrid({ entity: Row, cells: ['order', 'name'] })
 		const headers = Array.from(target.querySelectorAll('thead th'), (t) => t.textContent?.trim())
 		expect(headers).toContain('Name')
 		expect(target.querySelectorAll('tbody tr').length).toBe(2)
@@ -65,7 +76,7 @@ describe('FF_Grid', () => {
 
 	it('renders a field_link cell as an <a href>', async () => {
 		await repo(LinkRow).insert({ id: 'abc', ref: 'see' })
-		const comp = await mountGrid({ entity: LinkRow, selected: ['ref'] })
+		const comp = await mountGrid({ entity: LinkRow, cells: ['ref'] })
 		const a = target.querySelector('tbody a[data-ff-link]') as HTMLAnchorElement
 		expect(a).toBeTruthy()
 		expect(a.getAttribute('href')).toBe('/x/abc')
@@ -75,8 +86,23 @@ describe('FF_Grid', () => {
 
 	it('works with a numeric primary key (id is not a string)', async () => {
 		await repo(NumRow).insert([{ name: 'a' }, { name: 'b' }])
-		const comp = await mountGrid({ entity: NumRow, selected: ['name'] })
+		const comp = await mountGrid({ entity: NumRow, cells: ['name'] })
 		expect(target.querySelectorAll('tbody tr').length).toBe(2)
+		unmount(comp)
+	})
+
+	it('reads columns + per-column sortable from the entity hub (no cells prop)', async () => {
+		await repo(HubRow).insert({ name: 'a', order: 1 })
+		const comp = await mountGrid({ entity: HubRow })
+		const headers = Array.from(target.querySelectorAll('thead th'), (t) => t.textContent?.trim())
+		expect(headers).toContain('Name')
+		// `order` is hub-marked sortable:false → no data-sortable; `name` is sortable
+		expect(target.querySelector('thead th[data-col="name"]')?.hasAttribute('data-sortable')).toBe(
+			true,
+		)
+		expect(target.querySelector('thead th[data-col="order"]')?.hasAttribute('data-sortable')).toBe(
+			false,
+		)
 		unmount(comp)
 	})
 
@@ -85,7 +111,7 @@ describe('FF_Grid', () => {
 			{ a: '1', b: 'x', label: 'first' },
 			{ a: '2', b: 'y', label: 'second' },
 		])
-		const comp = await mountGrid({ entity: CompRow, selected: ['label'] })
+		const comp = await mountGrid({ entity: CompRow, cells: ['label'] })
 		expect(target.querySelectorAll('tbody tr').length).toBe(2)
 		unmount(comp)
 	})
@@ -97,7 +123,7 @@ describe('FF_Grid', () => {
 		document.body.appendChild(target)
 		const comp = mount(GridProvide, {
 			target,
-			props: { entity: CompRow, input: TestInput, selected: ['label'] },
+			props: { entity: CompRow, input: TestInput, cells: ['label'] },
 		})
 		await vi.waitFor(() => expect(target.querySelector('[data-ff-grid-new]')).toBeTruthy())
 		;(target.querySelector('[data-ff-grid-new]') as HTMLButtonElement).click()
@@ -113,7 +139,7 @@ describe('FF_Grid', () => {
 			{ order: 1, name: 'a' },
 			{ order: 2, name: 'b' },
 		])
-		const comp = await mountGrid({ entity: Row, selected: ['order', 'name'] })
+		const comp = await mountGrid({ entity: Row, cells: ['order', 'name'] })
 		const firstNameBefore = target.querySelector('tbody tr td[data-col="name"]')?.textContent
 		expect(firstNameBefore).toBe('a')
 		;(target.querySelector('thead th[data-col="name"]') as HTMLElement).click()

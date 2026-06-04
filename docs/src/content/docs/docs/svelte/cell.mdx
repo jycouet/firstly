@@ -37,11 +37,11 @@ as a link - a `field_link` cell).
 
 ## `buildCells` + `displayCell`
 
-`buildCells(meta, selected?)` resolves a list of headless `Cell` descriptors from the entity
+`buildCells(meta, cells?)` resolves a list of headless `Cell` descriptors from the entity
 metadata. Each cell knows its `kind` (`field` / `field_link` / `relation` / `enum` / `enum_multi` /
-`slot` / `component` / `header` / `spacer`), `caption`, resolved `inputType`, `align`, and `ui`.
-`displayCell(cell, row)` returns the display string for a cell (remult's `displayValue`, the related
-row, the enum caption, ...).
+`slot` / `component` / `header` / `spacer`), `caption`, resolved `inputType`, `align`, `sortable`, and
+`ui`. `displayCell(cell, row)` returns the display string for a cell (remult's `displayValue`, the
+related row, the enum caption, ...).
 
 ```ts
 import { buildCells, displayCell } from 'firstly/svelte'
@@ -51,9 +51,9 @@ const cells = buildCells(repo(Task).metadata, ['title', 'priority', 'done'])
 // cells[0].caption === 'Task title', cells[0].ui.width === 60, ...
 ```
 
-`selected` items are terse: a bare field key (`'title'`), or a config object
-(`{ col, kind?, caption?, ui?, align?, class?, cellSnippet?, component?, rowToProps? }`), or
-`'_spacer'`. Omit `selected` to get every visible field.
+`cells` items are terse: a bare field key (`'title'`), or a config object
+(`{ col, kind?, caption?, ui?, align?, class?, sortable?, cellSnippet?, component?, props?, rowToProps? }`),
+or `'_spacer'`. Omit `cells` to get every visible field.
 
 ## `<FF_Cell>` + the input registry
 
@@ -95,62 +95,72 @@ npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/ff-grid
 
 `FF_Grid` is an opinionated read + header-sort + paginate grid, with **create / edit / delete in a
 dialog** (reusing the shared `GroupFields` form), icon buttons, and permission-driven disabling. It
-sits on a `ff(E).many` handle, so it inherits all three fetch strategies.
+sits on a `ff(E).many` handle, so it inherits all three fetch strategies. **Config is the SSoT on the
+entity (`hub`)** - the grid reads it as defaults, and every prop overrides it:
 
 ```svelte
-<FF_Grid
-	entity={Task}
-	selected={['title', 'priority', 'done']}
-	createFields={['title', 'priority']}
-	strategy="paginate"
-/>
+<FF_Grid entity={Task} />
+<!-- everything from Task.hub -->
+<FF_Grid entity={Task} cells={['title', 'done']} />
+<!-- override the columns -->
+<FF_Grid entity={Task} strategy="listen" readonly />
+<!-- read-only, live -->
 ```
 
-- `selected` - the table columns (and the default form fields).
-- `strategy` - `'paginate'` (default) / `'listen'` / `'load'`, plus `pageSize`, `where`, `orderBy`,
-  `enabled` (lazy gate).
-- `readonly` - hide the create/edit/delete dialog entirely.
-- The toolbar `+ New` and per-row `Edit` are disabled from `meta.apiInsertAllowed()` /
+- `cells` - table columns + default form fields (defaults to `hub.cells`). An entry is a field key, a
+  config object, or `'_spacer'`.
+- `strategy` / `pageSize` / `where` / `orderBy` / `enabled` - default to the hub, then sensible values.
+- `insert` / `update` / `delete` - per-action config (`{}` on, `false` off); default to the hub, then
+  **on**. `readonly` turns all three off.
+- The toolbar `+ New` and per-row `Edit` disable from `meta.apiInsertAllowed()` /
   `apiUpdateAllowed(row)` - the same permission the server enforces.
 
-### Name fields per context (`createFields` / `editFields`)
+### The entity hub
 
-The create and edit forms can show **different** fields. Name them explicitly - no magic, you own the
-decision:
-
-```svelte
-<FF_Grid
-	entity={Task}
-	selected={['title', 'priority', 'done']}
-	createFields={['title', 'priority']}
-	editFields={['title', 'priority', 'done']}
-/>
-```
-
-Both default to `selected`. Above, `done` shows in the grid and the edit dialog, but **not** when
-creating a row.
-
-:::tip[Pair UI naming with server security]
-Naming a field out of `createFields` is a UI choice - it isn't security. Enforce the rule on the
-**field** so the API rejects it too. `allowApiUpdate` as a function makes a field settable only on an
-existing row (not on insert):
+Declare the grid/form config once, on the entity - it ships with the (isomorphic) entity and is the
+single source of truth:
 
 ```ts
-// settable on edit, never on insert - the API enforces it
+@FF_Entity<Task>('tasks', {
+	hub: {
+		cells: ['title', 'priority', { col: 'done', sortable: false }],
+		insert: { cells: ['title', 'priority'] }, // `done` not settable on create
+		// `update` omitted → inherits the list cells (title, priority, done)
+		delete: {}, // {} on, false off
+	},
+})
+```
+
+- **Per-action fields**: `insert`/`update` each take their own `cells`; omit `cells` to **inherit the
+  list `cells`** (no fragile "create = edit minus X" subtraction).
+- **Sortable**: every field column sorts by default; `{ col, sortable: false }` locks one.
+- **Server-safe**: `hub` is a plain object (cheap config), so it loads fine on the server. Any UI
+  `component` must be a lazy thunk (see escape hatches).
+
+:::tip[Pair the UI with server security]
+Dropping a field from `insert.cells` is a UI choice, not security. Enforce it on the **field** too -
+`allowApiUpdate` as a function makes a field settable on edit but not insert:
+
+```ts
 @Fields.boolean({ caption: 'Done', allowApiUpdate: (t) => !getEntityRef(t).isNew() }) done = false
 ```
 
-The two are complementary: `allowApiUpdate` is the lock, `createFields` is the UI that mirrors it.
+`allowApiUpdate` is the lock; `insert.cells` is the UI that mirrors it.
+:::
+
+:::caution[A `hub` with `cells` needs the explicit generic]
+`cells` referencing field keys confuses `@Entity` / `@FF_Entity` type inference - always pass the
+generic: `@FF_Entity<Task>('tasks', { hub: {...} })`.
 :::
 
 ## 🛍️ Boutique `FF_Group`
 
 `FF_Group` is a single bound record (`ff(E).one`) shown as a group of cells - a **form when editing**,
-**values when not**. Toggle `mode`:
+**values when not**. `cells` defaults to the hub:
 
 ```svelte
-<FF_Group entity={Task} selected={['title', 'priority', 'done']} mode="edit" />
-<FF_Group entity={Task} selected={['title', 'priority', 'done']} mode="readonly" />
+<FF_Group entity={Task} mode="edit" />
+<FF_Group entity={Task} cells={['title', 'priority']} mode="readonly" />
 ```
 
 Both `FF_Grid`'s dialog and `FF_Group` render the same `GroupFields` body, so a field looks identical
@@ -159,35 +169,38 @@ readonly and edit modes are laid out to the **same height**, so switching mode d
 
 ## Escape hatches (metadata SSoT, escape when needed)
 
-Metadata covers the common case; when a cell needs to be special, the `Cell` / `CellInput` config
-carries escape hatches:
+When a cell needs to be special, the `Cell` / `CellInput` config carries escapes - all rendered by the
+published `<FF_CellValue>`, so an app's own grid gets them too:
 
-- `cellSnippet` - the app fully owns the cell's render (a `slot` kind).
-- `component` + `rowToProps` - render an explicit component from the row.
-- `class` - a Tailwind/CSS passthrough (e.g. `'col-span-2'`).
+- `component` + `props` + `rowToProps` - render a component for the cell. `component` is a **thunk**:
+  eager `() => Badge` at a `.svelte` call-site, or lazy `() => import('./Badge.svelte')` in an entity
+  `hub` (so the server never loads the `.svelte`). Static `props` + per-row `rowToProps(row)` merge in.
+- `cellSnippet` - the app fully owns the render (a `slot` kind).
+- `class` - a CSS passthrough (e.g. `'col-span-2'`); `sortable: false` - lock a column.
 
 ```svelte
+<script>
+	import Badge from './Badge.svelte'
+</script>
+
 <FF_Grid
 	entity={Task}
-	selected={[
+	cells={[
 		'title',
-		{ col: 'priority', cellSnippet: priorityBadge },
+		{ col: 'priority', component: () => Badge, rowToProps: (r) => ({ value: r.priority }) },
 	]}
 />
-
-{#snippet priorityBadge({ row })}
-	<span class="badge">{row.priority}</span>
-{/snippet}
 ```
 
 ## What ships vs what you copy
 
-| Thing                                                  | Where                | Published? |
-| ------------------------------------------------------ | -------------------- | ---------- |
-| `buildCells`, `displayCell`, `getFieldMetaType`        | `firstly/svelte`     | 📦 yes     |
-| `<FF_Cell>` + `FF_Config.cell` input registry          | `firstly/svelte`     | 📦 yes     |
-| `CellUI`, `Cell`, `CellInput`, `CellConfig` (+ types)  | `firstly/svelte`     | 📦 yes     |
-| `FF_Grid`, `FF_Group`, `GroupFields`, `Input`          | `src/boutique/grid`  | 🛍️ copy    |
+| Thing                                                       | Where               | Published? |
+| ----------------------------------------------------------- | ------------------- | ---------- |
+| `buildCells`, `displayCell`, `getFieldMetaType`             | `firstly/svelte`    | 📦 yes     |
+| `<FF_Cell>`, `<FF_CellValue>` + `FF_Config.cell` registry   | `firstly/svelte`    | 📦 yes     |
+| `hub` on `EntityOptions` + `HubConfig`/`ActionConfig` types | `firstly/svelte`    | 📦 yes     |
+| `CellUI`, `Cell`, `CellInput`, `CellComponent` (+ types)    | `firstly/svelte`    | 📦 yes     |
+| `FF_Grid`, `FF_Group`, `GroupFields`, `Input`               | `src/boutique/grid` | 🛍️ copy    |
 
 If you'd want to edit it, take the **boutique** shell. If you just want the engine, import the
 **primitives**.

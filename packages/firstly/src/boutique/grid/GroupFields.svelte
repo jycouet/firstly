@@ -7,8 +7,8 @@
 	import type { EntityMetadata } from 'remult'
 	import {
 		buildCells,
-		displayCell,
 		FF_Cell,
+		FF_CellValue,
 		ffConfig,
 		Icon,
 		LibIcon_Delete,
@@ -21,7 +21,7 @@
 		meta: EntityMetadata<T>
 		/** The record being shown/edited — bound directly (mutated in place in edit mode). */
 		draft: T
-		selected?: CellInput<T>[]
+		cells?: CellInput<T>[]
 		/** 'edit' (inputs) or 'readonly' (values). */
 		mode?: 'edit' | 'readonly'
 		errors?: Record<string, string | undefined>
@@ -39,7 +39,7 @@
 	let {
 		meta,
 		draft,
-		selected,
+		cells,
 		mode = 'edit',
 		errors = {},
 		error = '',
@@ -51,7 +51,7 @@
 		disableDelete = false,
 	}: Props = $props()
 
-	const cells = $derived(buildCells(meta, selected))
+	const cols = $derived(buildCells(meta, cells))
 	const isForm = $derived(mode === 'edit' && !!onsave)
 
 	// Read app-level config ONCE at init (getContext must run during init).
@@ -72,12 +72,14 @@
 
 {#snippet body()}
 	<FF_Cell>
-		{#each cells as cell, i (cell.col ?? `${cell.kind}-${i}`)}
+		{#each cols as cell, i (cell.col ?? `${cell.kind}-${i}`)}
 			{#if cell.col}
 				{@const col = cell.col}
 				{#if mode === 'readonly'}
 					<FF_Cell key={col} ui={cell.ui} label={{ html: cell.caption }}>
-						<span data-ff-readonly data-input-type={cell.inputType}>{displayCell(cell, draft)}</span>
+						<span data-ff-readonly data-input-type={cell.inputType}
+							><FF_CellValue {cell} row={draft} /></span
+						>
 					</FF_Cell>
 				{:else}
 					<FF_Cell

@@ -42,8 +42,10 @@ export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
 // Headless cell primitives (FF_Grid / FF_Group are boutique-only — copy from src/boutique/grid).
 export {
 	FF_Cell,
+	FF_CellValue,
 	buildCells,
 	displayCell,
+	resolveCellComponent,
 	getFieldMetaType,
 	getInputType,
 	getStyle,
@@ -53,6 +55,7 @@ export {
 export type {
 	Cell,
 	CellInput,
+	CellComponent,
 	CellUI,
 	MetaKind,
 	CellConfig,
@@ -61,6 +64,8 @@ export type {
 	CellContentProps,
 	CellElementProps,
 	CellMode,
+	HubConfig,
+	ActionConfig,
 } from './grid/index.js'
 export { default as Icon } from './ui/Icon.svelte'
 export {

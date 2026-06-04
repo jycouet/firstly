@@ -211,9 +211,10 @@ Types: `FF_Many<T, Strategy>`, `FF_One<T>`, `FF_Builder<T>`, `FF_RepoOptions`, `
 Grids and forms are built from **field metadata**, in two halves (see
 [firstly.fun /docs/svelte/cell](https://firstly.fun/docs/svelte/cell)):
 
-- **📦 Published primitives** (`firstly/svelte`): `buildCells(meta, selected?)` → headless `Cell[]`,
-  `displayCell(cell, row)`, `<FF_Cell>` (the % + mobile layout atom), and the `FF_Config.cell` input
-  registry. Plus types `CellUI`, `Cell`, `CellInput`, `CellConfig`.
+- **📦 Published primitives** (`firstly/svelte`): `buildCells(meta, cells?)` → headless `Cell[]`,
+  `displayCell(cell, row)`, `<FF_Cell>` (% + mobile layout atom), `<FF_CellValue>` (renders a cell's
+  value incl. the component escape), and the `FF_Config.cell` input registry. Plus the `hub` entity
+  config + types `CellUI`, `Cell`, `CellInput`, `CellComponent`, `HubConfig`, `ActionConfig`.
 - **🛍️ Boutique shells** (`src/boutique/grid`, copy-own): `FF_Grid` (CRUD grid, create/edit/delete in
   a dialog), `FF_Group` (bound record, edit/readonly), `GroupFields` (shared form body), `Input`.
 
@@ -223,7 +224,14 @@ Key rules:
   remult `FieldOptions`): `width`/`marginLeft`/`marginRight` are **% of the row**, plus `align`,
   `inputType` (override the editor), `order`, and `mobile: {…}` (screens `<= 40rem`). Also
   `placeholder` and `href: (row)=>string` (renders a `field_link`). Escape hatches on a `CellInput`
-  config: `cellSnippet` (app owns the render), `component` + `rowToProps`, `class`.
+  config: `cellSnippet`, `component` (a lazy `() => Comp` / `() => import('./x.svelte')` thunk) +
+  `props` + `rowToProps`, `sortable: false`, `class`.
+- **Entity hub = SSoT config.** Declare the grid/form config on the entity via the `hub` option
+  (`@FF_Entity<E>('x', { hub: { cells, where, orderBy, strategy, pageSize, insert, update, delete } })`).
+  `FF_Grid`/`FF_Group` read it as defaults; every prop overrides. A `hub` whose `cells` reference field
+  keys NEEDS the explicit generic (`@FF_Entity<E>`), else `@Entity` type inference breaks. Keep `hub` a
+  plain object (server-safe) - `component`s must be lazy thunks. `insert`/`update`/`delete` are
+  per-action `ActionConfig` (`{}` on, `false` off); an action's `cells` omitted = inherit the list cells.
 - **Input registry.** Register which component renders each `inputType` once at app root:
   `<FF_Config cell={{ inputs: { text: Input, number: Input, checkbox: Input } }}>`. firstly ships
   **no** styled input - the `grid` boutique gives a token-only `Input` to copy.
@@ -231,10 +239,10 @@ Key rules:
   init only** (Svelte 5 context) - never in a `$derived` or markup. The dialog is portaled to the app
   root (outside the page `<FF_Config>`), so `FF_Grid` captures `const cfg = ffConfig()` and
   re-provides `<FF_Config cell={cfg.cell}>` inside the dialog.
-- **`FF_Grid`** sits on `ff(E).many` (all three strategies). `selected` = columns; `createFields` /
-  `editFields` name the form fields per context (default `selected`) - explicit, no magic. `+ New` /
-  `Edit` disable from `meta.apiInsertAllowed()` / `apiUpdateAllowed(row)`.
-- **UI naming ≠ security.** Dropping a field from `createFields` is UX only. Enforce on the field:
+- **`FF_Grid`** sits on `ff(E).many` (all three strategies). `cells` = columns (default `hub.cells`);
+  the create/edit forms use `insert.cells`/`update.cells` (default: inherit `cells`). `+ New` / `Edit`
+  disable from `meta.apiInsertAllowed()` / `apiUpdateAllowed(row)`. Cell values render via `FF_CellValue`.
+- **UI naming ≠ security.** Dropping a field from `insert.cells` is UX only. Enforce on the field:
   `@Fields.boolean({ allowApiUpdate: (t) => !getEntityRef(t).isNew() })` makes it settable on edit but
   not insert (the API rejects it). The two are complementary - lock on the field, mirror in the UI.
 - **`FF_Group`** is one bound record (`ff(E).one`): a form when `mode="edit"`, values when

@@ -1,23 +1,28 @@
 <script lang="ts" generics="T extends object">
 	// Boutique grid shell — copy into your app and make it yours. Opinionated: read + header-sort
-	// + paginate, with create/edit/delete in a dialog (reusing the shared GroupFields form),
-	// icon buttons, and permission-driven disabling. Composes the published primitives.
+	// + paginate, with create/edit/delete in a dialog (reusing the shared GroupFields form). Reads the
+	// entity's `hub` config as DEFAULTS; every prop overrides it. Composes the published primitives
+	// (buildCells / FF_CellValue / FF_Cell). Renders cell values — incl. the component+props escape —
+	// via the published <FF_CellValue>, so an app's own App_Grid gets the exact same behaviour.
 	import { untrack } from 'svelte'
 
+	import { repo } from 'remult'
 	import type { ClassType, EntityFilter, EntityOrderBy } from 'remult'
 	import {
 		buildCells,
-		displayCell,
 		errorMessage,
 		ff,
+		FF_CellValue,
 		FF_Config,
 		ffConfig,
 		Icon,
 		LibIcon_Add,
 		LibIcon_Edit,
+		type ActionConfig,
 		type CellInput,
 		type DialogClose,
 		type FF_Many,
+		type HubConfig,
 		type ManyStrategy,
 	} from 'firstly/svelte'
 
@@ -25,50 +30,73 @@
 
 	type Props = {
 		entity: ClassType<T>
-		/** Columns shown in the table (and the default for the create/edit forms). */
-		selected?: CellInput<T>[]
-		/** Fields in the create form — name exactly what's settable on a new row. Defaults to `selected`. */
-		createFields?: CellInput<T>[]
-		/** Fields in the edit form. Defaults to `selected`. */
-		editFields?: CellInput<T>[]
+		/** Grid columns + the default fields for the create/edit forms. Defaults to the entity hub. */
+		cells?: CellInput<T>[]
 		where?: EntityFilter<T>
 		orderBy?: EntityOrderBy<T>
 		strategy?: ManyStrategy
 		pageSize?: number
 		enabled?: boolean
-		/** Pure read-only — hide the create/edit/delete dialog entirely. */
+		/** Pure read-only — disable create/edit/delete entirely. */
 		readonly?: boolean
+		/** Create action ({} on, false off). Defaults to the hub, then on. */
+		insert?: ActionConfig<T> | false
+		/** Edit action. */
+		update?: ActionConfig<T> | false
+		/** Delete action. */
+		delete?: ActionConfig<T> | false
 		/** Placeholder rows shown during the first load (kept the same height to avoid a shift). */
 		skeletonRows?: number
 	}
 	let {
 		entity,
-		selected,
-		createFields,
-		editFields,
+		cells,
 		where,
 		orderBy,
-		strategy = 'paginate',
-		pageSize = 25,
+		strategy: strategyProp,
+		pageSize: pageSizeProp,
 		enabled = true,
 		readonly = false,
+		insert,
+		update,
+		delete: deleteProp,
 		skeletonRows = 2,
 	}: Props = $props()
 
-	// Seed sort from the orderBy prop ONCE; the grid owns it after (untrack = intentional).
-	let sort = $state<EntityOrderBy<T> | undefined>(untrack(() => orderBy))
+	// Entity hub = the SSoT defaults. Read it off metadata BEFORE building the handle (its getter needs
+	// where/pageSize/strategy from the hub). meta.options carries the `hub` augmentation.
+	const hub = (repo(entity).metadata.options.hub ?? {}) as HubConfig<T>
+	const strategy = strategyProp ?? hub.strategy ?? 'paginate'
+	const pageSize = pageSizeProp ?? hub.pageSize ?? 25
+
+	let sort = $state<EntityOrderBy<T> | undefined>(untrack(() => orderBy ?? hub.orderBy))
 
 	const m = untrack(() =>
-		ff(entity).many(() => ({ where, orderBy: sort, pageSize, enabled }), strategy),
+		ff(entity).many(
+			() => ({ where: where ?? hub.where, orderBy: sort, pageSize, enabled }),
+			strategy,
+		),
 	) as unknown as FF_Many<T, 'paginate'>
 
-	const cells = $derived(buildCells(m.meta, selected))
-	const editable = $derived(!readonly)
+	// list columns (input) + resolved Cell[] (cols)
+	const listCells = $derived(cells ?? hub.cells)
+	const cols = $derived(buildCells(m.meta, listCells))
 	const count = $derived(m.aggregates?.$count ?? m.items.length)
 
-	// Capture the app's cell config HERE (this component is under the app's <FF_Config>). The edit
-	// dialog is portaled to the app root by FF_DialogManager — outside <FF_Config> — so we re-provide
-	// the captured config inside the dialog, else the registered inputs wouldn't resolve.
+	// actions: prop ?? hub ?? on; `false` (or readonly) disables. `false` short-circuits the ??.
+	const insertCfg = $derived(readonly ? false : (insert ?? hub.insert ?? {}))
+	const updateCfg = $derived(readonly ? false : (update ?? hub.update ?? {}))
+	const deleteCfg = $derived(readonly ? false : (deleteProp ?? hub.delete ?? {}))
+	const canCreate = $derived(insertCfg !== false)
+	const canEdit = $derived(updateCfg !== false)
+	const canDelete = $derived(deleteCfg !== false)
+	const showRowActions = $derived(canEdit || canDelete)
+
+	const newIcon = $derived(insertCfg !== false ? (insertCfg.icon ?? LibIcon_Add) : LibIcon_Add)
+	const editIcon = $derived(updateCfg !== false ? (updateCfg.icon ?? LibIcon_Edit) : LibIcon_Edit)
+
+	// Capture the app's cell config HERE (under the app's <FF_Config>). The dialog is portaled to the
+	// app root — outside <FF_Config> — so we re-provide the captured config inside the dialog snippet.
 	const cfg = ffConfig()
 
 	function toggleSort(key: string) {
@@ -82,8 +110,8 @@
 
 	let errors = $state<Record<string, string | undefined>>({})
 	let saveError = $state('')
-	// Track create vs edit explicitly — inferring from the draft's id breaks for composite PKs
-	// (an all-empty new row's getId is "," → truthy).
+	// Track create vs edit explicitly — a composite-PK new row's getId is "," (truthy), so the id
+	// can't tell create from edit.
 	let creating = $state(false)
 
 	const openEdit = (row: T) => {
@@ -103,18 +131,19 @@
 {#snippet dialogBody(close: DialogClose)}
 	{#if m.draft}
 		{@const draft = m.draft}
-		{@const editing = !creating}
+		{@const action = creating ? insertCfg : updateCfg}
+		{@const formCells = (action !== false && action.cells) || listCells}
 		<FF_Config cell={cfg.cell}>
 			<GroupFields
 				meta={m.meta}
 				{draft}
-				selected={editing ? (editFields ?? selected) : (createFields ?? selected)}
+				cells={formCells}
 				mode="edit"
 				{errors}
 				error={saveError}
 				busy={m.isWriting}
-				saveLabel={editing ? 'Save' : 'Create'}
-				canSave={editing ? m.meta.apiUpdateAllowed(draft) : m.meta.apiInsertAllowed()}
+				saveLabel={creating ? 'Create' : 'Save'}
+				canSave={creating ? m.meta.apiInsertAllowed() : m.meta.apiUpdateAllowed(draft)}
 				onsave={async () => {
 					try {
 						await m.save()
@@ -128,7 +157,7 @@
 						saveError = ms ? '' : errorMessage(err)
 					}
 				}}
-				ondelete={editing
+				ondelete={!creating && canDelete
 					? async () => {
 							const res = await m.confirmRemove(draft)
 							if (res.ok) close({ ok: true })
@@ -141,9 +170,9 @@
 
 <div data-ff-grid>
 	<div data-ff-grid-toolbar>
-		{#if editable}
+		{#if canCreate}
 			<button data-ff-grid-new title="New" disabled={!m.meta.apiInsertAllowed()} onclick={openCreate}>
-				<Icon size="1.05rem" data={LibIcon_Add} />
+				<Icon size="1.05rem" data={newIcon} />
 			</button>
 		{/if}
 		<span data-ff-grid-count>{count}</span>
@@ -152,45 +181,40 @@
 	<table>
 		<thead>
 			<tr>
-				{#each cells as cell, i (cell.col ?? `${cell.kind}-${i}`)}
+				{#each cols as cell, i (cell.col ?? `${cell.kind}-${i}`)}
 					<th
 						data-col={cell.col}
+						data-sortable={cell.sortable || undefined}
 						style:text-align={cell.align}
 						class={cell.class}
-						onclick={() => cell.col && cell.kind === 'field' && toggleSort(cell.col)}
+						onclick={() => cell.sortable && cell.col && toggleSort(cell.col)}
 					>
 						{cell.caption}{#if cell.col && sortDir(cell.col)}<span data-sort
 								>{sortDir(cell.col) === 'asc' ? ' ▲' : ' ▼'}</span
 							>{/if}
 					</th>
 				{/each}
-				{#if editable}<th></th>{/if}
+				{#if showRowActions}<th></th>{/if}
 			</tr>
 		</thead>
 		<tbody>
 			{#if m.loading.init}
 				{#each Array(skeletonRows) as _, i (i)}
 					<tr
-						>{#each cells as cell, i (cell.col ?? `${cell.kind}-${i}`)}<td><span data-sk></span></td
-							>{/each}{#if editable}<td data-ff-grid-actions><span data-sk data-sk-btn></span></td
+						>{#each cols as cell, i (cell.col ?? `${cell.kind}-${i}`)}<td><span data-sk></span></td
+							>{/each}{#if showRowActions}<td data-ff-grid-actions><span data-sk data-sk-btn></span></td
 							>{/if}</tr
 					>
 				{/each}
 			{:else}
 				{#each m.items as row (idOf(row))}
 					<tr>
-						{#each cells as cell, i (cell.col ?? `${cell.kind}-${i}`)}
+						{#each cols as cell, i (cell.col ?? `${cell.kind}-${i}`)}
 							<td data-col={cell.col} style:text-align={cell.align} class={cell.class}>
-								{#if cell.cellSnippet}{@render cell.cellSnippet({
-										row,
-										cell,
-									})}{:else if cell.kind === 'field_link' && cell.field?.options.href}<a
-										data-ff-link
-										href={cell.field.options.href(row)}>{displayCell(cell, row)}</a
-									>{:else}{displayCell(cell, row)}{/if}
+								<FF_CellValue {cell} {row} />
 							</td>
 						{/each}
-						{#if editable}
+						{#if showRowActions}
 							<td data-ff-grid-actions>
 								<button
 									data-ff-grid-edit
@@ -198,7 +222,7 @@
 									disabled={!m.meta.apiUpdateAllowed(row)}
 									onclick={() => openEdit(row)}
 								>
-									<Icon size="1.05rem" data={LibIcon_Edit} />
+									<Icon size="1.05rem" data={editIcon} />
 								</button>
 							</td>
 						{/if}

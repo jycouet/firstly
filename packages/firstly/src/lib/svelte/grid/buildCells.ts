@@ -6,8 +6,8 @@ import { getFieldMetaType } from './metaKind.js'
 
 const HIDE_BY_DEFAULT = new Set(['id', 'createdAt', 'updatedAt', 'deletedAt'])
 
-/** Default column set when `selected` is omitted: visible fields minus id/timestamps. */
-function defaultSelected<E>(meta: EntityMetadata<E>): (keyof E & string)[] {
+/** Default column set when `cells` is omitted: visible fields minus id/timestamps. */
+function defaultCells<E>(meta: EntityMetadata<E>): (keyof E & string)[] {
 	return meta.fields
 		.toArray()
 		.filter((f) => !HIDE_BY_DEFAULT.has(f.key) && !f.dbReadOnly && !f.isServerExpression)
@@ -33,11 +33,11 @@ function resolveKind(field: FieldMetadata | undefined, explicit?: MetaKind): Met
 
 /**
  * Build headless cell descriptors from entity metadata.
- * `selected` is a terse list of field keys and/or config objects; omit it to auto-build
+ * `cells` is a terse list of field keys and/or config objects; omit it to auto-build
  * from visible fields. Per-cell config overrides the field's `ui` option (escape the SSoT).
  */
-export function buildCells<E>(meta: EntityMetadata<E>, selected?: CellInput<E>[]): Cell<E>[] {
-	const input: CellInput<E>[] = selected ?? defaultSelected(meta)
+export function buildCells<E>(meta: EntityMetadata<E>, cells?: CellInput<E>[]): Cell<E>[] {
+	const input: CellInput<E>[] = cells ?? defaultCells(meta)
 	return input.map((item) => {
 		const isObj = typeof item === 'object'
 		const colRaw = isObj ? item.col : item
@@ -48,6 +48,11 @@ export function buildCells<E>(meta: EntityMetadata<E>, selected?: CellInput<E>[]
 		const fieldUI = field?.options.ui ?? {}
 		const ui: CellUI = { ...fieldUI, ...(isObj ? item.ui : undefined) }
 		const kind = spacer ? 'spacer' : resolveKind(field, isObj ? item.kind : undefined)
+		// sortable by default for real-field columns; never for custom component/slot cells.
+		const sortable =
+			isObj && item.sortable !== undefined
+				? item.sortable
+				: !!field && kind !== 'component' && kind !== 'slot'
 		return {
 			col: spacer ? undefined : (colRaw as keyof E & string),
 			field,
@@ -56,9 +61,11 @@ export function buildCells<E>(meta: EntityMetadata<E>, selected?: CellInput<E>[]
 			ui,
 			inputType: field ? getInputType(field, ui) : 'text',
 			align: alignFor(field, ui),
+			sortable,
 			class: isObj ? item.class : undefined,
 			cellSnippet: isObj ? item.cellSnippet : undefined,
 			component: isObj ? item.component : undefined,
+			props: isObj ? item.props : undefined,
 			rowToProps: isObj ? item.rowToProps : undefined,
 		}
 	})

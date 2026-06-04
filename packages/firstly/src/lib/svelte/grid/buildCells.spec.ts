@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { Entity, Fields, repo } from 'remult'
 
 import { buildCells, displayCell } from './buildCells.js'
+import type { CellComponent } from './cellTypes.js'
 
 @Entity('bc_item')
 class Item {
@@ -63,6 +64,26 @@ describe('buildCells', () => {
 		expect(buildCells(meta, [{ col: 'title', ui: { inputType: 'textarea' } }])[0].inputType).toBe(
 			'textarea',
 		)
+	})
+
+	it('sortable: field columns default true, spacer/slot/component false, explicit wins', () => {
+		const byCol = Object.fromEntries(buildCells(meta).map((c) => [c.col, c]))
+		expect(byCol['title'].sortable).toBe(true)
+		expect(byCol['ref'].sortable).toBe(true) // field_link still sorts
+		expect(buildCells(meta, [{ col: '_spacer' }])[0].sortable).toBe(false)
+		expect(buildCells(meta, [{ col: 'title', kind: 'slot' }])[0].sortable).toBe(false)
+		expect(buildCells(meta, [{ col: 'amount', sortable: false }])[0].sortable).toBe(false)
+	})
+
+	it('threads component (thunk) + props + rowToProps onto the cell', () => {
+		const comp = (() => null) as unknown as CellComponent
+		const rtp = (r: Item) => ({ x: r.id })
+		const c = buildCells(meta, [
+			{ col: 'amount', component: comp, props: { a: 1 }, rowToProps: rtp },
+		])[0]
+		expect(c.component).toBe(comp)
+		expect(c.props).toEqual({ a: 1 })
+		expect(c.rowToProps).toBe(rtp)
 	})
 })
 
