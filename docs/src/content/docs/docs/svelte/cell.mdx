@@ -50,7 +50,7 @@ export class Task {
 ```
 
 Mount `<FF_DialogManager />` once at your app root (for the create/edit dialog) and you're done.
-Override anything at the call-site - `<FF_Grid entity={Task} cells={['title', 'done']} readonly />`.
+Override anything at the call-site - `<FF_Grid entity={Task} cells={['title', 'done']} mode="readonly" />`.
 
 **Want to own the markup + look?** Copy the boutique `App_Grid` (it composes the same primitives) and
 style it yourself:
@@ -155,7 +155,7 @@ npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/app-grid
 <!-- everything from Task.hub -->
 <FF_Grid entity={Task} cells={['title', 'done']} />
 <!-- override the columns -->
-<FF_Grid entity={Task} strategy="listen" readonly />
+<FF_Grid entity={Task} strategy="listen" mode="readonly" />
 <!-- read-only, live -->
 ```
 
@@ -163,7 +163,8 @@ npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/app-grid
   config object, or `'_spacer'`.
 - `strategy` / `pageSize` / `where` / `orderBy` / `enabled` - default to the hub, then sensible values.
 - `insert` / `update` / `delete` - per-action config (`{}` on, `false` off); default to the hub, then
-  **on**. `readonly` turns all three off.
+  **on**. `mode="readonly"` turns all three off.
+- `mode` - `'edit'` (default) or `'readonly'` (a `CellMode`; future-extensible, e.g. `'filter'`).
 - The toolbar `+ New` and per-row `Edit` disable from `meta.apiInsertAllowed()` /
   `apiUpdateAllowed(row)` - the same permission the server enforces.
 

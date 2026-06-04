@@ -21,6 +21,7 @@
 		LibIcon_Edit,
 		type ActionConfig,
 		type CellInput,
+		type CellMode,
 		type DialogClose,
 		type FF_Many,
 		type HubConfig,
@@ -36,8 +37,8 @@
 		strategy?: ManyStrategy
 		pageSize?: number
 		enabled?: boolean
-		/** Pure read-only — disable create/edit/delete entirely. */
-		readonly?: boolean
+		/** Display mode. `'readonly'` disables create/edit/delete; `'edit'` (default) enables them. */
+		mode?: CellMode
 		/** Create action ({} on, false off). Defaults to the hub, then on. */
 		insert?: ActionConfig<T> | false
 		/** Edit action. */
@@ -55,7 +56,7 @@
 		strategy: strategyProp,
 		pageSize: pageSizeProp,
 		enabled = true,
-		readonly = false,
+		mode = 'edit',
 		insert,
 		update,
 		delete: deleteProp,
@@ -88,9 +89,10 @@
 	const count = $derived(m.aggregates?.$count ?? m.items.length)
 
 	// actions: prop ?? hub ?? on; `false` (or readonly) disables. `false` short-circuits the ??.
-	const insertCfg = $derived(readonly ? false : (insert ?? hub.insert ?? {}))
-	const updateCfg = $derived(readonly ? false : (update ?? hub.update ?? {}))
-	const deleteCfg = $derived(readonly ? false : (deleteProp ?? hub.delete ?? {}))
+	const isReadonly = $derived(mode === 'readonly')
+	const insertCfg = $derived(isReadonly ? false : (insert ?? hub.insert ?? {}))
+	const updateCfg = $derived(isReadonly ? false : (update ?? hub.update ?? {}))
+	const deleteCfg = $derived(isReadonly ? false : (deleteProp ?? hub.delete ?? {}))
 	const canCreate = $derived(insertCfg !== false)
 	const canEdit = $derived(updateCfg !== false)
 	const canDelete = $derived(deleteCfg !== false)

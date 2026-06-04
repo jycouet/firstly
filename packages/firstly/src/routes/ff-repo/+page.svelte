@@ -92,7 +92,7 @@
 				<button class="modebtn" class:on={lazyOn} onclick={() => (lazyOn = !lazyOn)}>
 					{lazyOn ? 'enabled: true (fetching)' : 'enabled: false (click to load)'}
 				</button>
-				<FF_Grid entity={Task} strategy="load" enabled={lazyOn} readonly />
+				<FF_Grid entity={Task} strategy="load" enabled={lazyOn} mode="readonly" />
 			</article>
 		</section>
 	</div>

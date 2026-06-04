@@ -8,15 +8,15 @@
 	import type { ClassType, EntityFilter, EntityOrderBy } from 'remult'
 
 	import { errorMessage } from '../../core/helper.js'
+	import type { DialogClose } from '../dialog.svelte.js'
 	import FF_Config from '../FF_Config.svelte'
 	import { ffConfig } from '../FF_Config.svelte.js'
 	import { ff } from '../ff.svelte.js'
 	import type { FF_Many, ManyStrategy } from '../ff.svelte.js'
-	import type { DialogClose } from '../dialog.svelte.js'
 	import Icon from '../ui/Icon.svelte'
 	import { LibIcon_Add, LibIcon_Edit } from '../ui/LibIcon.js'
 	import { buildCells } from './buildCells.js'
-	import type { ActionConfig, CellInput, HubConfig } from './cellTypes.js'
+	import type { ActionConfig, CellInput, CellMode, HubConfig } from './cellTypes.js'
 	import DefaultInput from './DefaultInput.svelte'
 	import FF_CellValue from './FF_CellValue.svelte'
 	import GroupFields from './GroupFields.svelte'
@@ -30,8 +30,9 @@
 		strategy?: ManyStrategy
 		pageSize?: number
 		enabled?: boolean
-		/** Pure read-only — disable create/edit/delete entirely. */
-		readonly?: boolean
+		/** Display mode. `'readonly'` disables create/edit/delete; `'edit'` (default) enables them.
+		 *  Extensible via `CellMode` (future: `'filter'`). */
+		mode?: CellMode
 		/** Create action ({} on, false off). Defaults to the hub, then on. */
 		insert?: ActionConfig<T> | false
 		/** Edit action. */
@@ -49,7 +50,7 @@
 		strategy: strategyProp,
 		pageSize: pageSizeProp,
 		enabled = true,
-		readonly = false,
+		mode = 'edit',
 		insert,
 		update,
 		delete: deleteProp,
@@ -63,7 +64,10 @@
 	let sort = $state<EntityOrderBy<T> | undefined>(untrack(() => orderBy ?? hub.orderBy))
 
 	const m = untrack(() =>
-		ff(entity).many(() => ({ where: where ?? hub.where, orderBy: sort, pageSize, enabled }), strategy),
+		ff(entity).many(
+			() => ({ where: where ?? hub.where, orderBy: sort, pageSize, enabled }),
+			strategy,
+		),
 	) as unknown as FF_Many<T, 'paginate'>
 
 	const cfg = ffConfig()
@@ -85,9 +89,10 @@
 	const cols = $derived(buildCells(m.meta, listCells, { defaultSortable }))
 	const count = $derived(m.aggregates?.$count ?? m.items.length)
 
-	const insertCfg = $derived(readonly ? false : (insert ?? hub.insert ?? {}))
-	const updateCfg = $derived(readonly ? false : (update ?? hub.update ?? {}))
-	const deleteCfg = $derived(readonly ? false : (deleteProp ?? hub.delete ?? {}))
+	const isReadonly = $derived(mode === 'readonly')
+	const insertCfg = $derived(isReadonly ? false : (insert ?? hub.insert ?? {}))
+	const updateCfg = $derived(isReadonly ? false : (update ?? hub.update ?? {}))
+	const deleteCfg = $derived(isReadonly ? false : (deleteProp ?? hub.delete ?? {}))
 	const canCreate = $derived(insertCfg !== false)
 	const canEdit = $derived(updateCfg !== false)
 	const canDelete = $derived(deleteCfg !== false)

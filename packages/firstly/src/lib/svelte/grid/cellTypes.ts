@@ -177,6 +177,8 @@ export interface CellElementProps {
 	html?: string
 	config?: CellElementConfig
 }
+/** Edit/readonly mode for a cell, group, or grid. Extensible — a future `'filter'` member (the cell
+ *  renders a filter input instead of a record input) slots in here. */
 export type CellMode = 'edit' | 'readonly'
 
 export type CellProps = {
