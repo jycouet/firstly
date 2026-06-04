@@ -36,7 +36,11 @@ function resolveKind(field: FieldMetadata | undefined, explicit?: MetaKind): Met
  * `cells` is a terse list of field keys and/or config objects; omit it to auto-build
  * from visible fields. Per-cell config overrides the field's `ui` option (escape the SSoT).
  */
-export function buildCells<E>(meta: EntityMetadata<E>, cells?: CellInput<E>[]): Cell<E>[] {
+export function buildCells<E>(
+	meta: EntityMetadata<E>,
+	cells?: CellInput<E>[],
+	opts?: { defaultSortable?: boolean },
+): Cell<E>[] {
 	const input: CellInput<E>[] = cells ?? defaultCells(meta)
 	return input.map((item) => {
 		const isObj = typeof item === 'object'
@@ -48,11 +52,9 @@ export function buildCells<E>(meta: EntityMetadata<E>, cells?: CellInput<E>[]): 
 		const fieldUI = field?.options.ui ?? {}
 		const ui: CellUI = { ...fieldUI, ...(isObj ? item.ui : undefined) }
 		const kind = spacer ? 'spacer' : resolveKind(field, isObj ? item.kind : undefined)
-		// sortable by default for real-field columns; never for custom component/slot cells.
+		// per-cell `sortable` wins; else the configured default (FF_Config / hub via opts), else on.
 		const sortable =
-			isObj && item.sortable !== undefined
-				? item.sortable
-				: !!field && kind !== 'component' && kind !== 'slot'
+			isObj && item.sortable !== undefined ? item.sortable : (opts?.defaultSortable ?? true)
 		return {
 			col: spacer ? undefined : (colRaw as keyof E & string),
 			field,

@@ -78,9 +78,14 @@
 		),
 	) as unknown as FF_Many<T, 'paginate'>
 
+	// Capture the app's cell config at init (context); the dialog re-provides it (portaled outside
+	// <FF_Config>), and it carries the app-wide `defaultSortable`.
+	const cfg = ffConfig()
+	const defaultSortable = $derived(hub.defaultSortable ?? cfg.cell?.defaultSortable)
+
 	// list columns (input) + resolved Cell[] (cols)
 	const listCells = $derived(cells ?? hub.cells)
-	const cols = $derived(buildCells(m.meta, listCells))
+	const cols = $derived(buildCells(m.meta, listCells, { defaultSortable }))
 	const count = $derived(m.aggregates?.$count ?? m.items.length)
 
 	// actions: prop ?? hub ?? on; `false` (or readonly) disables. `false` short-circuits the ??.
@@ -94,10 +99,6 @@
 
 	const newIcon = $derived(insertCfg !== false ? (insertCfg.icon ?? LibIcon_Add) : LibIcon_Add)
 	const editIcon = $derived(updateCfg !== false ? (updateCfg.icon ?? LibIcon_Edit) : LibIcon_Edit)
-
-	// Capture the app's cell config HERE (under the app's <FF_Config>). The dialog is portaled to the
-	// app root — outside <FF_Config> — so we re-provide the captured config inside the dialog snippet.
-	const cfg = ffConfig()
 
 	function toggleSort(key: string) {
 		const cur = (sort as Record<string, 'asc' | 'desc'> | undefined)?.[key]

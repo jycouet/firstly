@@ -13,7 +13,7 @@
 
 	const strategies: ManyStrategy[] = ['paginate', 'listen', 'load']
 
-	// A cells override: `priority` rendered by a component (escape), `done` not sortable.
+	// A cells override: `priority` rendered by a component (escape), `done` opts out of sorting.
 	const fancyCells: CellInput<Task>[] = [
 		'title',
 		{ col: 'priority', component: () => PriorityBadge, rowToProps: (r) => ({ value: r.priority }) },
@@ -60,8 +60,9 @@
 				<h2>cells override — a component cell</h2>
 				<p>
 					Override the hub's <code>cells</code> at the call-site: <code>priority</code> renders via a
-					<code>component</code> + <code>rowToProps</code> escape, and <code>done</code> is marked
-					<code>sortable: false</code> (its header doesn't sort).
+					<code>component</code> + <code>rowToProps</code> escape. Columns are sortable by default (flip
+					it with <code>defaultSortable</code>); <code>done</code> opts out with
+					<code>sortable: false</code>.
 				</p>
 			</div>
 			<article class="card">

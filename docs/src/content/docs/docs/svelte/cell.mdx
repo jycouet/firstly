@@ -12,6 +12,70 @@ The cell layer turns **field metadata** into grids and forms. It ships in two ha
 > One metadata source of truth (the field), one logic engine (the primitives), one look you own (the
 > boutique). The same engine drives every app; each app keeps its own skin.
 
+## Quick start - a full grid in 4 steps
+
+Here is a **complete, copy-pasteable example** - from nothing to a working CRUD grid. Start with your
+entity + config (the substance); the boutique copy + wiring is one-time setup at the end.
+
+```ts
+// 1. Declare the grid/form config on the entity (the SSoT). Note the explicit <Task> generic.
+import { Fields } from 'remult'
+import { FF_Entity } from 'firstly'
+
+@FF_Entity<Task>('tasks', {
+	allowApiCrud: true,
+	hub: {
+		cells: ['title', 'priority', { col: 'done', sortable: false }],
+		insert: { cells: ['title', 'priority'] }, // `done` not settable on create
+		// `update` omitted → inherits the list cells; delete is on by default
+	},
+})
+export class Task {
+	@Fields.id() id = ''
+	@Fields.string({ caption: 'Task title', required: true }) title = ''
+	@Fields.number({ caption: 'Priority' }) priority = 0
+	@Fields.boolean({ caption: 'Done' }) done = false
+}
+```
+
+```svelte
+<!-- 2. Render it — a full read + sort + paginate + create / edit / delete grid. -->
+<script lang="ts">
+	import FF_Grid from '$lib/ff-grid/FF_Grid.svelte'
+
+	import { Task } from '$lib/Task'
+</script>
+
+<FF_Grid entity={Task} />
+```
+
+That's the whole API. The remaining two steps are **one-time boutique setup** (you do them once per
+app):
+
+```bash
+# 3. Copy the boutique grid into your app (once). It's yours to restyle.
+npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/ff-grid
+```
+
+```svelte
+<!-- 4. Register the input + dialog manager once, at the app root (e.g. +layout.svelte). -->
+<script lang="ts">
+	import { FF_Config, FF_DialogManager } from 'firstly/svelte'
+
+	import Input from '$lib/ff-grid/Input.svelte'
+
+	let { children } = $props()
+</script>
+
+<FF_Config cell={{ inputs: { text: Input, number: Input, checkbox: Input } }}>
+	<FF_DialogManager />
+	{@render children()}
+</FF_Config>
+```
+
+Override anything at the call-site - `<FF_Grid entity={Task} cells={['title', 'done']} readonly />`.
+The rest of this page explains each piece.
+
 ## Metadata is the source of truth
 
 Per-field UI hints live **on the field** via `ui` (a firstly augmentation of remult's
@@ -133,7 +197,8 @@ single source of truth:
 
 - **Per-action fields**: `insert`/`update` each take their own `cells`; omit `cells` to **inherit the
   list `cells`** (no fragile "create = edit minus X" subtraction).
-- **Sortable**: every field column sorts by default; `{ col, sortable: false }` locks one.
+- **Sortable**: columns sort by default. Lock one with `{ col, sortable: false }`, or flip the default
+  with `defaultSortable: false` (here per-entity, or app-wide on `FF_Config.cell`). Per-cell wins.
 - **Server-safe**: `hub` is a plain object (cheap config), so it loads fine on the server. Any UI
   `component` must be a lazy thunk (see escape hatches).
 

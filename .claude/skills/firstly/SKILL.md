@@ -225,9 +225,11 @@ Key rules:
   `inputType` (override the editor), `order`, and `mobile: {…}` (screens `<= 40rem`). Also
   `placeholder` and `href: (row)=>string` (renders a `field_link`). Escape hatches on a `CellInput`
   config: `cellSnippet`, `component` (a lazy `() => Comp` / `() => import('./x.svelte')` thunk) +
-  `props` + `rowToProps`, `sortable: false`, `class`.
+  `props` + `rowToProps`, `sortable` (columns sort by default; per-cell wins), `class`.
+- **Sortable default** is `true`; flip it with `defaultSortable: false` on the `hub` (per-entity) or
+  `FF_Config.cell` (app-wide). Per-cell `sortable` always wins.
 - **Entity hub = SSoT config.** Declare the grid/form config on the entity via the `hub` option
-  (`@FF_Entity<E>('x', { hub: { cells, where, orderBy, strategy, pageSize, insert, update, delete } })`).
+  (`@FF_Entity<E>('x', { hub: { cells, defaultSortable?, where, orderBy, strategy, pageSize, insert, update, delete } })`).
   `FF_Grid`/`FF_Group` read it as defaults; every prop overrides. A `hub` whose `cells` reference field
   keys NEEDS the explicit generic (`@FF_Entity<E>`), else `@Entity` type inference breaks. Keep `hub` a
   plain object (server-safe) - `component`s must be lazy thunks. `insert`/`update`/`delete` are

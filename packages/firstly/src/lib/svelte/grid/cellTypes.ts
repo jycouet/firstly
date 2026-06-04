@@ -47,7 +47,7 @@ export interface Cell<E = any> {
 	/** Resolved input type for edit (getInputType). */
 	inputType: string
 	align: 'left' | 'center' | 'right'
-	/** Whether this column is sortable by header click (resolved; default: field/field_link columns). */
+	/** Whether this column is sortable by header click (resolved; opt in via `sortable: true`). */
 	sortable: boolean
 	/** Tailwind/CSS passthrough (e.g. 'col-span-2'). */
 	class?: string
@@ -69,7 +69,7 @@ export type CellInput<E> =
 			ui?: CellUI
 			align?: 'left' | 'center' | 'right'
 			class?: string
-			/** Set false to make this column non-sortable (default: field/field_link are sortable). */
+			/** Set true to make this column sortable by header click (default: not sortable). */
 			sortable?: boolean
 			cellSnippet?: Snippet<[{ row: E; cell: Cell<E> }]>
 			/** Render a component for this cell (thunk). `props` + `rowToProps()` are merged into it. */
@@ -144,6 +144,8 @@ export interface HubConfig<E = any> {
 	icon?: string
 	/** Grid columns + the default fields for the create/edit forms. */
 	cells?: CellInput<E>[]
+	/** Default for column sorting on this entity (a per-cell `sortable` overrides). Default true. */
+	defaultSortable?: boolean
 	where?: EntityFilter<E>
 	orderBy?: EntityOrderBy<E>
 	strategy?: 'paginate' | 'listen' | 'load'

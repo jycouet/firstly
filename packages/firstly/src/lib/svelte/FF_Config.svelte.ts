@@ -52,6 +52,8 @@ export type FF_ConfigValue = {
 		inputs?: Partial<Record<string, Component>>
 		/** Optional per-kind display override for grid/readonly cells. */
 		display?: Partial<Record<MetaKind, Snippet<[{ row: unknown; value: unknown }]>>>
+		/** App-wide default for column sorting (a hub or per-cell `sortable` overrides). Default true. */
+		defaultSortable?: boolean
 	}
 }
 

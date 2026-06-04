@@ -66,13 +66,14 @@ describe('buildCells', () => {
 		)
 	})
 
-	it('sortable: field columns default true, spacer/slot/component false, explicit wins', () => {
+	it('sortable: on by default, configurable via defaultSortable, per-cell wins', () => {
 		const byCol = Object.fromEntries(buildCells(meta).map((c) => [c.col, c]))
-		expect(byCol['title'].sortable).toBe(true)
-		expect(byCol['ref'].sortable).toBe(true) // field_link still sorts
-		expect(buildCells(meta, [{ col: '_spacer' }])[0].sortable).toBe(false)
-		expect(buildCells(meta, [{ col: 'title', kind: 'slot' }])[0].sortable).toBe(false)
-		expect(buildCells(meta, [{ col: 'amount', sortable: false }])[0].sortable).toBe(false)
+		expect(byCol['title'].sortable).toBe(true) // default on
+		expect(buildCells(meta, [{ col: 'title', sortable: false }])[0].sortable).toBe(false) // per-cell off
+		expect(buildCells(meta, ['title'], { defaultSortable: false })[0].sortable).toBe(false) // config off
+		expect(
+			buildCells(meta, [{ col: 'title', sortable: true }], { defaultSortable: false })[0].sortable,
+		).toBe(true) // per-cell beats config
 	})
 
 	it('threads component (thunk) + props + rowToProps onto the cell', () => {
