@@ -1,5 +1,23 @@
 # firstly
 
+## 0.6.2
+
+### Patch Changes
+
+- [#296](https://github.com/jycouet/firstly/pull/296) [`ae7d8ec`](https://github.com/jycouet/firstly/commit/ae7d8ec532e677d42e1e5730c1ef58a29bb32062) Thanks [@jycouet](https://github.com/jycouet)! - fix(svelte): portal `FF_DialogManager` panels to `<body>`
+
+  Dialog/confirm/prompt panels rendered wherever `<FF_DialogManager>` sat in the
+  layout - inside the app root that the manager marks `inert` to trap focus. When
+  the `inert` effect won the race against the panel's autofocus, the whole panel
+  stopped receiving pointer events (real clicks died; `elementFromPoint` returned
+  `<body>`; AT saw it as "ignored"), while synthetic `.click()` still worked - so
+  it looked fine in tests but was dead under a real mouse.
+
+  Panels are now portaled to `<body>` (true siblings of the app root, matching the
+  existing design comment), so inerting the root never touches them. The
+  now-obsolete `root.contains(activeElement)` race-guard is dropped, so the
+  background is reliably inerted again.
+
 ## 0.6.1
 
 ### Patch Changes
