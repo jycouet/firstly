@@ -184,6 +184,9 @@ importers:
 
   packages/firstly:
     dependencies:
+      '@kitql/helpers':
+        specifier: catalog:kitql
+        version: 0.8.15
       '@layerstack/utils':
         specifier: catalog:prod
         version: 1.0.0
@@ -221,9 +224,6 @@ importers:
         specifier: catalog:tooling
         version: 0.10.4(@typescript-eslint/types@8.59.3)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
     devDependencies:
-      '@kitql/helpers':
-        specifier: catalog:kitql
-        version: 0.8.15
       '@sveltejs/adapter-node':
         specifier: catalog:sveltekit
         version: 5.5.4(@sveltejs/kit@2.46.5(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.40.0)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3)))(svelte@5.40.0)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3)))
