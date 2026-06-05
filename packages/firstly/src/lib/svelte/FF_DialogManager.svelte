@@ -77,19 +77,33 @@
 		}
 	})
 
+	// Move a dialog panel out to `<body>` so it becomes a true sibling of the app
+	// root, NOT a descendant of it. The inert effect below marks the app root
+	// `inert`; without this portal the panels render inside that root (wherever
+	// <FF_DialogManager> is mounted in the layout) and get disabled too - the
+	// panel stops receiving pointer events the moment `inert` wins the race
+	// against the panel's autofocus, so real clicks (and AT) silently die. The
+	// `portal` runs before the inner `ffAutofocus`, so focus still lands correctly.
+	function portal(node: HTMLElement) {
+		document.body.appendChild(node)
+		return {
+			destroy() {
+				node.remove()
+			},
+		}
+	}
+
 	// Mark the app root `inert` (+ aria-hidden) while any dialog is open, so the background can't
-	// be tabbed into or read by AT. The dialog panels render at the document body level (a sibling
-	// of the app root), so inerting the root never touches the panels. SSR-safe.
+	// be tabbed into or read by AT. The dialog panels are portaled to <body> (a sibling of the app
+	// root), so inerting the root never touches them - we can apply it unconditionally (no
+	// activeElement race-guard, which previously let the background stay live). SSR-safe.
 	$effect(() => {
 		if (typeof document === 'undefined' || total === 0) return
 		const root = document.querySelector<HTMLElement>(
 			'[data-sveltekit-root], #svelte, body > div:first-child',
 		)
-		if (!root || root.contains(document.activeElement)) {
-			// Fallback: no identifiable single root, or the dialog itself lives under it - skip
-			// inert (the per-panel focus trap still contains keyboard navigation).
-			return
-		}
+		// No identifiable single root: skip (the per-panel focus trap still contains keyboard nav).
+		if (!root) return
 		root.setAttribute('inert', '')
 		root.setAttribute('aria-hidden', 'true')
 		return () => {
@@ -112,52 +126,58 @@
 			{@render d.render.body(close)}
 		{/if}
 	{/snippet}
-	{@render (shell ?? cfg.dialog.shell ?? defaultShell)({
-		id: d.id,
-		body: itemBody,
-		close: (r) => dialog._close(d.id, r),
-		dismiss: () => dialog.requestClose(d.id),
-		dismissible: d.options.dismissible,
-		width: d.options.width,
-		isTop: d.id === topId,
-	})}
+	<div use:portal>
+		{@render (shell ?? cfg.dialog.shell ?? defaultShell)({
+			id: d.id,
+			body: itemBody,
+			close: (r) => dialog._close(d.id, r),
+			dismiss: () => dialog.requestClose(d.id),
+			dismissible: d.options.dismissible,
+			width: d.options.width,
+			isTop: d.id === topId,
+		})}
+	</div>
 {/each}
 
 {#each dialog.confirmList as c (c.id)}
-	{@render (confirm ?? cfg.dialog.confirm ?? defaultConfirm)({
-		id: c.id,
-		message: resolveMessage(c.message),
-		title: c.title === undefined ? undefined : resolveMessage(c.title),
-		confirmLabel: resolveMessage(c.confirmLabel ?? cfg.messages.confirm),
-		cancelLabel: resolveMessage(c.cancelLabel ?? cfg.messages.cancel),
-		danger: c.danger,
-		confirm: () => dialog._resolveConfirm(c.id, true),
-		cancel: () => dialog._resolveConfirm(c.id, false),
-		isTop: c.id === topId,
-	})}
+	<div use:portal>
+		{@render (confirm ?? cfg.dialog.confirm ?? defaultConfirm)({
+			id: c.id,
+			message: resolveMessage(c.message),
+			title: c.title === undefined ? undefined : resolveMessage(c.title),
+			confirmLabel: resolveMessage(c.confirmLabel ?? cfg.messages.confirm),
+			cancelLabel: resolveMessage(c.cancelLabel ?? cfg.messages.cancel),
+			danger: c.danger,
+			confirm: () => dialog._resolveConfirm(c.id, true),
+			cancel: () => dialog._resolveConfirm(c.id, false),
+			isTop: c.id === topId,
+		})}
+	</div>
 {/each}
 
 {#each dialog.promptList as p (p.id)}
 	{@const promptUi = prompt ?? cfg.dialog.prompt}
-	{#if promptUi}
-		{@render promptUi({
-			id: p.id,
-			title: p.title === undefined ? undefined : resolveMessage(p.title),
-			label: p.label === undefined ? undefined : resolveMessage(p.label),
-			placeholder: p.placeholder,
-			initial: p.initial,
-			confirmLabel: resolveMessage(p.confirmLabel ?? cfg.messages.ok),
-			cancelLabel: resolveMessage(p.cancelLabel ?? cfg.messages.cancel),
-			submit: (value) => dialog._resolvePrompt(p.id, value),
-			cancel: () => dialog._resolvePrompt(p.id, null),
-		})}
-	{:else}
-		<FF_PromptDefault
-			item={p}
-			onsubmit={(value) => dialog._resolvePrompt(p.id, value)}
-			oncancel={() => dialog._resolvePrompt(p.id, null)}
-		/>
-	{/if}
+	<div use:portal>
+		{#if promptUi}
+			{@render promptUi({
+				id: p.id,
+				title: p.title === undefined ? undefined : resolveMessage(p.title),
+				label: p.label === undefined ? undefined : resolveMessage(p.label),
+				placeholder: p.placeholder,
+				initial: p.initial,
+				confirmLabel: resolveMessage(p.confirmLabel ?? cfg.messages.ok),
+				cancelLabel: resolveMessage(p.cancelLabel ?? cfg.messages.cancel),
+				submit: (value) => dialog._resolvePrompt(p.id, value),
+				cancel: () => dialog._resolvePrompt(p.id, null),
+			})}
+		{:else}
+			<FF_PromptDefault
+				item={p}
+				onsubmit={(value) => dialog._resolvePrompt(p.id, value)}
+				oncancel={() => dialog._resolvePrompt(p.id, null)}
+			/>
+		{/if}
+	</div>
 {/each}
 
 <!-- Built-in defaults: usable with zero config and theme-adaptive via semantic tokens
