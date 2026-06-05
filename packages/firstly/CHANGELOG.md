@@ -1,5 +1,16 @@
 # firstly
 
+## 0.6.3
+
+### Patch Changes
+
+- [#298](https://github.com/jycouet/firstly/pull/298) [`626db86`](https://github.com/jycouet/firstly/commit/626db8664ddcd480bc941ba38c51aaee742188c3) Thanks [@jycouet](https://github.com/jycouet)! - fix(deps): declare `@kitql/helpers` as a runtime dependency
+
+  `esm/index.js` does `import * as h from '@kitql/helpers'` (and re-exports it /
+  builds `ff_Log` from it), but the package only listed it under
+  `devDependencies`. Consumers that didn't happen to hoist it got
+  `Cannot find module '@kitql/helpers'` at runtime. Moved it into `dependencies`.
+
 ## 0.6.2
 
 ### Patch Changes
