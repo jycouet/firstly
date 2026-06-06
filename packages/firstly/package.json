@@ -1,6 +1,6 @@
 {
   "name": "firstly",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "type": "module",
   "description": "Firstly, an opinionated Remult setup!",
   "funding": "https://github.com/sponsors/jycouet",
@@ -48,7 +48,6 @@
     }
   },
   "devDependencies": {
-    "@kitql/helpers": "catalog:kitql",
     "@sveltejs/adapter-node": "catalog:sveltekit",
     "@sveltejs/kit": "catalog:sveltekit",
     "@sveltejs/package": "catalog:sveltekit",
@@ -66,6 +65,7 @@
     "vitest": "catalog:testing"
   },
   "dependencies": {
+    "@kitql/helpers": "catalog:kitql",
     "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
     "@types/nodemailer": "catalog:prod",
