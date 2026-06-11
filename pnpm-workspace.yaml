@@ -54,7 +54,7 @@ catalogs:
 
  svelte:
   'svelte': 5.40.0
-  svelte-check: 4.4.8
+  svelte-check: 4.6.0
   svelte-micro: 2.5.7
 
  sveltekit:
