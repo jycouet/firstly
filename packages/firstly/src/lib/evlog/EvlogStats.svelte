@@ -2,7 +2,7 @@
 	import { onMount, untrack } from 'svelte'
 
 	import FF_Grid from '../svelte/grid/FF_Grid.svelte'
-	import { EvlogAudit, EvlogTrace, EvlogTraceQuery } from './evlogEntities.js'
+	import { EvlogAudit, EvlogTrace } from './evlogEntities.js'
 	import { EvlogStatsController, type EvlogStatsData } from './EvlogStatsController.js'
 	import Browsers from './stats/Browsers.svelte'
 	import Crud from './stats/Crud.svelte'
@@ -122,22 +122,25 @@
 				<Modules data={stats.monthlyByModule} class="lg:col-span-4" />
 				<Browsers data={stats.browsers} class="lg:col-span-6" />
 				<OsDevices os={stats.os} devices={stats.devices} class="lg:col-span-6" />
-				<Queries data={stats.queries} class="lg:col-span-12" />
 			</div>
 		{:else}
 			<div class="py-16 text-center text-sm text-muted-foreground">Loading…</div>
 		{/if}
 	{:else if tab === 'requests'}
-		<div class="rounded-xl border border-border bg-card p-2">
+		<div class="overflow-x-auto rounded-xl border border-border bg-card p-2">
 			<FF_Grid entity={EvlogTrace} mode="readonly" />
 		</div>
 	{:else if tab === 'audit'}
-		<div class="rounded-xl border border-border bg-card p-2">
+		<div class="overflow-x-auto rounded-xl border border-border bg-card p-2">
 			<FF_Grid entity={EvlogAudit} mode="readonly" />
 		</div>
 	{:else if tab === 'sql'}
-		<div class="rounded-xl border border-border bg-card p-2">
-			<FF_Grid entity={EvlogTraceQuery} mode="readonly" />
-		</div>
+		<!-- Raw per-execution rows are a firehose; show queries grouped by SQL
+		     (slowest / most-time / hottest) with click-to-copy + expand. -->
+		{#if stats}
+			<Queries data={stats.queries} />
+		{:else}
+			<div class="py-16 text-center text-sm text-muted-foreground">Loading…</div>
+		{/if}
 	{/if}
 </div>
