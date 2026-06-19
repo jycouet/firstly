@@ -1,6 +1,6 @@
 {
   "name": "firstly",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "description": "Firstly, an opinionated Remult setup!",
   "funding": "https://github.com/sponsors/jycouet",
@@ -50,7 +50,6 @@
     }
   },
   "devDependencies": {
-    "@kitql/helpers": "catalog:kitql",
     "@sveltejs/adapter-node": "catalog:sveltekit",
     "@sveltejs/kit": "catalog:sveltekit",
     "@sveltejs/package": "catalog:sveltekit",
@@ -70,6 +69,7 @@
     "vitest": "catalog:testing"
   },
   "dependencies": {
+    "@kitql/helpers": "catalog:kitql",
     "@layerstack/utils": "catalog:prod",
     "@mdi/js": "catalog:ui",
     "@types/better-sqlite3": "7.6.13",
@@ -168,7 +168,8 @@
   "files": [
     "dist",
     "!dist/**/*.spec.*",
-    "!dist/**/*.test.*"
+    "!dist/**/*.test.*",
+    "!dist/**/_test/**"
   ],
   "keywords": [
     "remult",

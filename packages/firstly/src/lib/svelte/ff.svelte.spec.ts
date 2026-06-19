@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Entity, Fields, InMemoryDataProvider, remult, repo } from 'remult'
 
 import { dialog, type DialogClose } from './dialog.svelte'
-import { ff } from './ff.svelte'
+import { ff, type FF_Issue } from './ff.svelte'
 import { toast } from './toast'
 
 // Minimal test entity. `order` desc is the default sort so we can assert ordering.
@@ -394,5 +394,99 @@ describe('ff() - meta & guards', () => {
 	it('a reactive handle constructed outside an effect context throws', () => {
 		expect(() => ff(Row).many(() => ({}), 'load')).toThrow()
 		expect(() => ff(Row).one(() => ({}))).toThrow()
+	})
+})
+
+describe('ff - lifecycle hooks (onItem / onItems / onIssue)', () => {
+	it('one: onItem fires (with the record) on each fetch that finds a row; onFirst only once', async () => {
+		await seed(3)
+		const items: number[] = []
+		let firsts = 0
+		let min = $state(0)
+		const o = root(() =>
+			ff(Row)
+				.one(() => ({ where: { order: { $gt: min } }, orderBy: { order: 'asc' } }))
+				.onItem((item) => items.push(item.order))
+				.onFirst(() => firsts++),
+		)
+		await vi.waitFor(() => expect(o.item?.order).toBe(1))
+		min = 1 // re-runs the query -> new row
+		flushSync()
+		await vi.waitFor(() => expect(o.item?.order).toBe(2))
+		expect(items).toEqual([1, 2]) // the record itself, on each fetch
+		expect(firsts).toBe(1) // onFirst is once-only
+	})
+
+	it('one: not-found fires onIssue(notFound) and NOT onItem', async () => {
+		await seed(2)
+		const issues: FF_Issue[] = []
+		let itemFires = 0
+		const o = root(() =>
+			ff(Row)
+				.one(() => ({ where: { order: 999 } }))
+				.onItem(() => itemFires++)
+				.onIssue((i) => issues.push(i)),
+		)
+		await vi.waitFor(() => expect(o.loading.init).toBe(false))
+		expect(o.item).toBeUndefined()
+		expect(issues).toEqual([{ kind: 'notFound', status: 404 }])
+		expect(itemFires).toBe(0)
+	})
+
+	it('one: a found row does NOT report an issue', async () => {
+		await seed(2)
+		const issues: FF_Issue[] = []
+		const o = root(() =>
+			ff(Row)
+				.one(() => ({ where: { order: 1 } }))
+				.onIssue((i) => issues.push(i)),
+		)
+		await vi.waitFor(() => expect(o.item?.order).toBe(1))
+		expect(issues).toEqual([])
+	})
+
+	it('many(load): onItems fires with the fresh items', async () => {
+		await seed(3)
+		const news: number[][] = []
+		const m = root(() =>
+			ff(Row)
+				.many(() => ({}), 'load')
+				.onItems((items) => news.push(items.map((x) => x.order))),
+		)
+		await vi.waitFor(() => expect(m.items.length).toBe(3))
+		expect(news.at(-1)).toEqual([3, 2, 1])
+	})
+})
+
+describe('ff().one - id vs where', () => {
+	it('one({ id }) loads by primary key (findId)', async () => {
+		const [row] = await repo(Row).insert([{ order: 1, name: 'byId' }])
+		const o = root(() => ff(Row).one(() => ({ id: row.id })))
+		await vi.waitFor(() => expect(o.item?.id).toBe(row.id))
+		expect(o.item?.name).toBe('byId')
+	})
+
+	it('one({ where }) loads by filter (findFirst)', async () => {
+		await seed(3)
+		const o = root(() => ff(Row).one(() => ({ where: { order: 2 } })))
+		await vi.waitFor(() => expect(o.item?.order).toBe(2))
+	})
+
+	it('one({ id }) re-runs when the id changes', async () => {
+		const [a, b] = await repo(Row).insert([
+			{ order: 1, name: 'a' },
+			{ order: 2, name: 'b' },
+		])
+		let id = $state(a.id)
+		const o = root(() => ff(Row).one(() => ({ id })))
+		await vi.waitFor(() => expect(o.item?.name).toBe('a'))
+		id = b.id
+		flushSync()
+		await vi.waitFor(() => expect(o.item?.name).toBe('b'))
+	})
+
+	it('id and where are mutually exclusive (type-level)', () => {
+		// @ts-expect-error - cannot set both `id` and `where`
+		root(() => ff(Row).one(() => ({ id: 'x', where: { order: 1 } })))
 	})
 })

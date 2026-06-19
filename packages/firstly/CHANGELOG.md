@@ -1,5 +1,53 @@
 # firstly
 
+## 0.7.0
+
+### Minor Changes
+
+- [#293](https://github.com/jycouet/firstly/pull/293) [`b70928c`](https://github.com/jycouet/firstly/commit/b70928c23ef5e6392abfdd9c57df03e009855abe) Thanks [@jycouet](https://github.com/jycouet)! - Add the cell layer: metadata-driven grids/forms over remult.
+  - **Published** (`firstly/svelte`): `buildCells` / `displayCell` / `<FF_Cell>` / `<FF_CellValue>` / `<GroupFields>` + the `FF_Config.cell` registry, with `%` widths, configurable per-column `sortable` (`defaultSortable`), and a `component`/`props` escape (lazy `CellComponent` thunks). Config is the SSoT on the entity via a new `hub` option on `EntityOptions`. **Plus `<FF_Grid>`** - a batteries-included demo grid (default skin + input, zero setup).
+  - **Boutique** (`src/boutique/grid`, copy-own): `App_Grid` / `App_Group` shells you degit to own the look.
+  - `DemoGrid` / `DemoForm` removed.
+
+## 0.6.3
+
+### Patch Changes
+
+- [#298](https://github.com/jycouet/firstly/pull/298) [`626db86`](https://github.com/jycouet/firstly/commit/626db8664ddcd480bc941ba38c51aaee742188c3) Thanks [@jycouet](https://github.com/jycouet)! - fix(deps): declare `@kitql/helpers` as a runtime dependency
+
+  `esm/index.js` does `import * as h from '@kitql/helpers'` (and re-exports it /
+  builds `ff_Log` from it), but the package only listed it under
+  `devDependencies`. Consumers that didn't happen to hoist it got
+  `Cannot find module '@kitql/helpers'` at runtime. Moved it into `dependencies`.
+
+## 0.6.2
+
+### Patch Changes
+
+- [#296](https://github.com/jycouet/firstly/pull/296) [`ae7d8ec`](https://github.com/jycouet/firstly/commit/ae7d8ec532e677d42e1e5730c1ef58a29bb32062) Thanks [@jycouet](https://github.com/jycouet)! - fix(svelte): portal `FF_DialogManager` panels to `<body>`
+
+  Dialog/confirm/prompt panels rendered wherever `<FF_DialogManager>` sat in the
+  layout - inside the app root that the manager marks `inert` to trap focus. When
+  the `inert` effect won the race against the panel's autofocus, the whole panel
+  stopped receiving pointer events (real clicks died; `elementFromPoint` returned
+  `<body>`; AT saw it as "ignored"), while synthetic `.click()` still worked - so
+  it looked fine in tests but was dead under a real mouse.
+
+  Panels are now portaled to `<body>` (true siblings of the app root, matching the
+  existing design comment), so inerting the root never touches them. The
+  now-obsolete `root.contains(activeElement)` race-guard is dropped, so the
+  background is reliably inerted again.
+
+## 0.6.1
+
+### Patch Changes
+
+- [#294](https://github.com/jycouet/firstly/pull/294) [`7e8c2af`](https://github.com/jycouet/firstly/commit/7e8c2afa7806cf3383d64b048e8f3b9b5b19d237) Thanks [@jycouet](https://github.com/jycouet)! - ff: add `onNew` and `onIssue` lifecycle hooks to the reactive handle (and make `onFirst` chainable)
+  - **`onItem(record => …)`** (`one` mode) / **`onItems(items => …)`** (list modes) - run after each fetch with the loaded data, mirroring the handle's `.item` / `.items` (replaces the old `storeList`/`storeItem` `onNewData`). `onItem` fires only when a row is found - a not-found goes to `onIssue`. `onFirst` stays the once-only seed.
+  - **`onIssue(issue => …)`** - runs when a read doesn't yield the expected data. `issue` is `{ kind: 'notFound' | 'forbidden' | 'error', status?, message? }`; switch on `kind` to react (e.g. redirect). A `one` query that resolves with no row reports `{ kind: 'notFound', status: 404 }`; a rejected read reports `forbidden` (403) or `error`.
+  - All three hooks are now chainable: `ff(E).one(getter).onIssue(…).onNew(…).onFirst(…)`.
+  - **`ff(E).one()` accepts `{ id }` or `{ where }`** (mutually exclusive - a type error if both). `{ id }` loads by primary key via `findId` (no `_sort`/`_limit` on a unique lookup, and dedups with other findId callers); `{ where }` loads via `findFirst` (with optional `orderBy`). `{ id }` re-runs reactively when the id changes.
+
 ## 0.6.0
 
 ### Minor Changes

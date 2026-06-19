@@ -10,9 +10,9 @@ import { ensureEvlogIndexes } from './remultDrains.js'
 
 function indexNames(db: Database.Database, table: string): string[] {
 	return (
-		db
-			.prepare("select name from sqlite_master where type = 'index' and tbl_name = ?")
-			.all(table) as { name: string }[]
+		db.prepare("select name from sqlite_master where type = 'index' and tbl_name = ?").all(table) as {
+			name: string
+		}[]
 	).map((r) => r.name)
 }
 

@@ -51,12 +51,25 @@ const config = defineConfig(({ mode }) => {
 		test: {
 			projects: [
 				{
-					// Pure-TS tests run in node.
+					// Pure-TS tests run in node. No remult async-hooks setup here: these
+					// read entity metadata off the default global remult at collection time
+					// (initAsyncHooks would make that throw "outside a valid request cycle").
 					extends: true,
 					test: {
 						name: 'node',
 						environment: 'node',
 						include: ['src/**/*.{test,spec}.{js,ts}'],
+						exclude: ['src/**/*.svelte.{test,spec}.{js,ts}', 'src/lib/evlog/**/*.spec.ts'],
+					},
+				},
+				{
+					// evlog server/controller specs exercise `withRemult({ dataProvider })`
+					// against InMemoryDataProvider, which needs AsyncLocalStorage enabled.
+					extends: true,
+					test: {
+						name: 'evlog-node',
+						environment: 'node',
+						include: ['src/lib/evlog/**/*.spec.ts'],
 						exclude: [
 							'src/**/*.svelte.{test,spec}.{js,ts}',
 							'src/lib/evlog/stats/**/*.spec.ts',

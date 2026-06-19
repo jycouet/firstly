@@ -20,14 +20,14 @@ minimumReleaseAgeExclude:
 catalogs:
  docs:
   '@astrojs/starlight': 0.39.2
-  accessible-astro-components: 5.2.0
+  accessible-astro-components: 5.3.1
   astro: 6.3.5
   astro-icon: 1.1.5
   sharp: 0.34.1
   prettier-plugin-astro: 0.14.1
 
  best:
-  remult: 3.3.10
+  remult: 3.3.12
 
  tooling:
   '@typescript/native-preview': 7.0.0-dev.20260112.1
@@ -57,7 +57,7 @@ catalogs:
 
  svelte:
   'svelte': 5.40.0
-  svelte-check: 4.4.8
+  svelte-check: 4.6.0
   svelte-micro: 2.5.7
 
  sveltekit:
@@ -68,9 +68,9 @@ catalogs:
 
  ui:
   '@mdi/js': 7.4.47
-  tailwindcss: 4.2.2
-  '@tailwindcss/vite': 4.2.2
-  tailwind-merge: 3.5.0
+  tailwindcss: 4.3.0
+  '@tailwindcss/vite': 4.3.0
+  tailwind-merge: 3.6.0
   clsx: 2.1.1
   daisyui: 5.5.3
   svelte-sonner: 1.1.1
