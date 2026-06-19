@@ -6,9 +6,27 @@
 	let { data, class: klass = '' }: Props = $props()
 
 	const tabs = [
-		{ key: 'slowest', label: 'Slowest', hint: 'by max single duration', metric: (q: QueryStat) => q.maxMs, unit: ' ms' },
-		{ key: 'mostTime', label: 'Most time', hint: 'by total time spent', metric: (q: QueryStat) => q.totalMs, unit: ' ms' },
-		{ key: 'hottest', label: 'Hottest', hint: 'by call count', metric: (q: QueryStat) => q.count, unit: '' },
+		{
+			key: 'slowest',
+			label: 'Slowest',
+			hint: 'by max single duration',
+			metric: (q: QueryStat) => q.maxMs,
+			unit: ' ms',
+		},
+		{
+			key: 'mostTime',
+			label: 'Most time',
+			hint: 'by total time spent',
+			metric: (q: QueryStat) => q.totalMs,
+			unit: ' ms',
+		},
+		{
+			key: 'hottest',
+			label: 'Hottest',
+			hint: 'by call count',
+			metric: (q: QueryStat) => q.count,
+			unit: '',
+		},
 	] as const
 	let active = $state<'slowest' | 'mostTime' | 'hottest'>('slowest')
 	const tab = $derived(tabs.find((t) => t.key === active)!)
@@ -37,7 +55,9 @@
 			{#each rows as q (q.fullSql)}
 				<div class="flex flex-col gap-1">
 					<div class="flex items-baseline gap-3">
-						<code class="min-w-0 flex-1 truncate font-mono text-[11px] text-foreground" title={q.fullSql}>{q.sql}</code>
+						<code class="min-w-0 flex-1 truncate font-mono text-[11px] text-foreground" title={q.fullSql}
+							>{q.sql}</code
+						>
 						<span class="shrink-0 text-xs font-semibold tabular-nums text-foreground"
 							>{fmt(tab.metric(q))}{tab.unit}</span
 						>
