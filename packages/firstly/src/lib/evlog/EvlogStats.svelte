@@ -49,11 +49,21 @@
 
 	{#if error}
 		<div
+			role="alert"
 			class="border-destructive/40 bg-destructive/10 text-destructive rounded-md border px-3 py-2 text-xs"
 		>
 			{error}
 		</div>
 	{:else if stats}
+		{#if stats.truncated}
+			<div
+				role="alert"
+				class="border-warning/40 bg-warning/10 text-warning rounded-md border px-3 py-2 text-xs"
+			>
+				Showing a partial view - the row cap ({rowLimit.toLocaleString()}) was hit, so totals and
+				breakdowns undercount the earliest data. Pass a higher <code>rowLimit</code> or use a SQL-backed subclass.
+			</div>
+		{/if}
 		<Totals data={stats.totals} year={stats.year} />
 
 		<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">

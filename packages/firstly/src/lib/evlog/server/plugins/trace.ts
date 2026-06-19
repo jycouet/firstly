@@ -9,7 +9,13 @@ import { EvlogPurgeController } from '../EvlogPurgeController.js'
 import { mountSqlSpans } from '../sqlSpan.js'
 import { withSuppressedLogging } from '../suppress.js'
 
-const DEFAULT_SKIP_PATHS = [
+/**
+ * Paths the trace drain always skips (evlog's own self-traffic + liveQuery
+ * keepalive). User-supplied `skipPaths` are MERGED with these, never replace
+ * them - so adding one skip can't accidentally re-enable tracing of evlog's
+ * own endpoints.
+ */
+export const DEFAULT_SKIP_PATHS = [
 	'/api/_liveQueryKeepAlive',
 	'/api/_ff_evlog_audit*',
 	'/api/_ff_evlog_trace*',
@@ -60,7 +66,7 @@ export function firstlyTracePlugin(options: FirstlyTracePluginOptions = {}): Evl
 	const queryEntity = options.queryEntity ?? EvlogTraceQuery
 	const retentionDays = options.retentionDays ?? 90
 	const sqlSpansOpt = options.sqlSpans
-	const shouldSkip = compilePathSkip(options.skipPaths ?? DEFAULT_SKIP_PATHS)
+	const shouldSkip = compilePathSkip([...DEFAULT_SKIP_PATHS, ...(options.skipPaths ?? [])])
 
 	return definePlugin({
 		name: 'firstly-trace',

@@ -28,6 +28,7 @@
 	<select
 		bind:value={year}
 		onchange={() => onRefresh()}
+		aria-label="Select year"
 		class="border-input focus-visible:border-ring focus-visible:ring-ring rounded-md border bg-transparent px-2 py-1 text-sm outline-none focus-visible:ring-2"
 	>
 		{#each defaultYears as y (y)}

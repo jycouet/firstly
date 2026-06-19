@@ -41,4 +41,25 @@ describe('<EvlogStats>', () => {
 		await fireEvent.click(btn!)
 		expect(EvlogStatsController.getStats).toHaveBeenCalled()
 	})
+
+	it('shows a partial-view warning when stats are truncated', async () => {
+		;(EvlogStatsController.getStats as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+			year: 2026,
+			truncated: true,
+			totals: { traces: 0, audits: 0, uniqueActors: 0 },
+			monthlyTraces: [],
+			monthlyAudits: [],
+			monthlyByModule: [],
+			topPages: [],
+			pageFlows: [],
+			browsers: [],
+			os: [],
+			devices: [],
+			queries: { slowest: [], mostTime: [], hottest: [] },
+		})
+		const { container } = render(EvlogStats)
+		await new Promise((r) => setTimeout(r, 0))
+		const alerts = [...container.querySelectorAll('[role="alert"]')]
+		expect(alerts.some((el) => /partial view/i.test(el.textContent ?? ''))).toBe(true)
+	})
 })

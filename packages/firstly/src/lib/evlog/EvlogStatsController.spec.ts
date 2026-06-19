@@ -4,7 +4,21 @@ import { InMemoryDataProvider, remult, withRemult } from 'remult'
 import type { DataProvider } from 'remult'
 
 import { EvlogAudit, EvlogTrace, EvlogTraceQuery, Roles_Evlog } from './evlogEntities.js'
-import { EvlogStatsController } from './EvlogStatsController.js'
+import { clampRowLimit, EvlogStatsController } from './EvlogStatsController.js'
+
+describe('clampRowLimit', () => {
+	it('keeps a sane value untouched', () => {
+		expect(clampRowLimit(100_000)).toBe(100_000)
+	})
+	it('floors to at least 1 for zero/negative/NaN', () => {
+		expect(clampRowLimit(0)).toBe(1)
+		expect(clampRowLimit(-10)).toBe(1)
+		expect(clampRowLimit(NaN)).toBe(1)
+	})
+	it('caps an absurd client-supplied limit so it cannot OOM the server', () => {
+		expect(clampRowLimit(10_000_000)).toBeLessThanOrEqual(1_000_000)
+	})
+})
 
 async function seedAndAggregate(
 	rows: {

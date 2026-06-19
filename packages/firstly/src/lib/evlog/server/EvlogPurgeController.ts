@@ -5,7 +5,7 @@ import { purgeEvlog } from './remultDrains.js'
 
 /**
  * Manual purge endpoint exposed for admin tooling. The `evlog()` module
- * already runs `purgeEvlog` on a timer - this controller is for one-off
+ * already runs `purgeEvlog` once at boot - this controller is for one-off
  * runs ("clean up now, I'm low on disk") and dashboards that want to
  * surface a button.
  *

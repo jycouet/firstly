@@ -28,4 +28,28 @@ describe('throwLogged', () => {
 		vi.doUnmock('evlog/sveltekit')
 		vi.resetModules()
 	})
+
+	it('still throws the original error when useLogger() is unavailable (outside a request scope)', async () => {
+		vi.resetModules()
+		vi.doMock('evlog/sveltekit', () => ({
+			useLogger: () => {
+				throw new Error('[evlog] useLogger() was called outside of an evlog handle context')
+			},
+		}))
+		const { throwLogged } = await import('./throwLogged.js')
+
+		const err = createError({
+			status: 403,
+			message: 'denied',
+			why: 'rule',
+			fix: 'do other thing',
+			link: 'https://x.example/why',
+		})
+
+		// The original error must surface, not evlog's "outside handle context" error.
+		expect(() => throwLogged(err as any)).toThrow('denied')
+
+		vi.doUnmock('evlog/sveltekit')
+		vi.resetModules()
+	})
 })

@@ -9,6 +9,7 @@ import { withEvlog } from './withEvlog.js'
 // (recordAudit uses createLogger, not useLogger).
 
 const audits: any[] = []
+let throwOnEmit = false
 
 vi.mock('evlog', async (orig) => {
 	const mod = await orig<typeof import('evlog')>()
@@ -17,6 +18,7 @@ vi.mock('evlog', async (orig) => {
 
 		createLogger: (init: any) => ({
 			emit: () => {
+				if (throwOnEmit) throw new Error('audit emit boom')
 				if (init.audit) audits.push(init.audit)
 			},
 		}),
@@ -151,5 +153,24 @@ describe('withEvlog', () => {
 			await remult.repo(OptOut).insert({ id: 'o1', name: 'silent' })
 		})
 		expect(audits).toHaveLength(0)
+	})
+
+	it('an audit-capture failure does not break the user write (best-effort)', async () => {
+		const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+		throwOnEmit = true
+		try {
+			await withInMem(async () => {
+				const r = remult.repo(User)
+				// The insert must resolve even though audit emit throws.
+				await expect(r.insert({ id: 'u-fail', name: 'Dora', email: 'd@x' })).resolves.toBeTruthy()
+				// ...and the row must actually be persisted.
+				expect(await r.findId('u-fail')).toBeTruthy()
+			})
+			// The failure is logged best-effort (assert before mockRestore clears calls).
+			expect(errSpy).toHaveBeenCalled()
+		} finally {
+			throwOnEmit = false
+			errSpy.mockRestore()
+		}
 	})
 })

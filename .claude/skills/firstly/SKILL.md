@@ -134,7 +134,7 @@ import { EvlogStats } from 'firstly/evlog'         // admin dashboard
 
 Per-entity audit: wrap options with `withEvlog({ evlog: { module: '<name>' } })` (mirrors `withChangeLog`); `withEvlog({ evlog: false })` opts out.
 
-Import boundary: **runtime helpers (`createError`/`parseError`/audit) live on `firstly/evlog/server`**, not the browser-safe `firstly/evlog`. See [evlog docs](https://firstly.fun) for logging, structured errors, retention/purge, enrichers, and the individual stats panels.
+Import boundary: **`createError`/`parseError` (and the audit helpers) live on the browser-safe `firstly/evlog`**; only the request-scoped helper `throwLogged` is server-only (`firstly/evlog/server`). See [evlog docs](https://firstly.fun) for logging, structured errors, retention/purge, enrichers, and the individual stats panels.
 
 ## `FF_Allow` / `FF_Filter` - row-level helpers
 

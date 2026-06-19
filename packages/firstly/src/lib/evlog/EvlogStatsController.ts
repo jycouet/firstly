@@ -93,6 +93,14 @@ const verbOf = (action: string): 'create' | 'update' | 'delete' | 'other' => {
 const percent = (n: number, total: number) =>
 	total === 0 ? 0 : Math.round((n / total) * 1000) / 10
 
+/** Hard ceiling on rows pulled per table - the aggregation hydrates every row in
+ * memory, so an unclamped client-supplied `rowLimit` could OOM the server. */
+const MAX_ROW_LIMIT = 1_000_000
+
+/** Clamp a (possibly client-supplied) row limit to a sane [1, MAX_ROW_LIMIT] integer. */
+export const clampRowLimit = (n: number): number =>
+	Number.isFinite(n) ? Math.min(MAX_ROW_LIMIT, Math.max(1, Math.floor(n))) : 1
+
 const topN = <T>(
 	map: Map<string, T>,
 	score: (v: T) => number,
@@ -116,6 +124,7 @@ const topN = <T>(
 export class EvlogStatsController {
 	@BackendMethod({ allowed: Roles_Evlog.Evlog_Admin })
 	static async getStats(year: number, rowLimit = 100_000): Promise<EvlogStatsData> {
+		rowLimit = clampRowLimit(rowLimit)
 		const yearStart = new Date(Date.UTC(year, 0, 1))
 		const yearEnd = new Date(Date.UTC(year + 1, 0, 1))
 

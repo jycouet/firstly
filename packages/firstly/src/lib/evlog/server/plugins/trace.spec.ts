@@ -103,4 +103,18 @@ describe('firstlyTracePlugin', () => {
 			expect(await remult.repo(EvlogTrace).find()).toHaveLength(0)
 		})
 	})
+
+	it('user skipPaths MERGE with the internal defaults rather than replacing them', async () => {
+		await withInMemory(async () => {
+			const plugin = firstlyTracePlugin({ skipPaths: ['/api/health'] })
+			// A built-in default path must still be skipped even though the user
+			// supplied their own skipPaths.
+			for (const path of ['/api/health', '/api/recordNavigations', '/api/_liveQueryKeepAlive']) {
+				await plugin.drain!({
+					event: { timestamp: new Date().toISOString(), path } as any,
+				})
+			}
+			expect(await remult.repo(EvlogTrace).find()).toHaveLength(0)
+		})
+	})
 })

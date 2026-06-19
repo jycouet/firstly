@@ -122,15 +122,26 @@ export const withEvlog = <entityType>(
 		saved: async (entity, e) => {
 			await options?.saved?.(entity, e)
 			if (options?.evlog === false || !isBackend()) return
-			const { recordAudit } = await import('./server/recordAudit.js')
-			await recordAudit(entity, e, options?.evlog, 'save')
+			// Audit capture is best-effort: a failure here (bad valueConverter,
+			// non-serializable field, logger error) must never reject the user's
+			// write. The drain side is already guarded the same way.
+			try {
+				const { recordAudit } = await import('./server/recordAudit.js')
+				await recordAudit(entity, e, options?.evlog, 'save')
+			} catch (err) {
+				console.error('[firstly/evlog] audit capture failed (save):', err)
+			}
 		},
 
 		deleted: async (entity, e) => {
 			await options?.deleted?.(entity, e)
 			if (options?.evlog === false || !isBackend()) return
-			const { recordAudit } = await import('./server/recordAudit.js')
-			await recordAudit(entity, e, options?.evlog, 'delete')
+			try {
+				const { recordAudit } = await import('./server/recordAudit.js')
+				await recordAudit(entity, e, options?.evlog, 'delete')
+			} catch (err) {
+				console.error('[firstly/evlog] audit capture failed (delete):', err)
+			}
 		},
 	}
 }

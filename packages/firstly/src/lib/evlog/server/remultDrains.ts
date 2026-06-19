@@ -21,6 +21,13 @@ export async function purgeEvlog(options?: {
 	queryEntity?: typeof EvlogTraceQuery
 }): Promise<{ traces: number; queries: number }> {
 	const days = options?.days ?? 90
+	// Guard the footgun: days <= 0 (or NaN) yields a cutoff at/after "now", which
+	// would delete EVERY trace + query row. Refuse rather than silently wipe.
+	if (!Number.isFinite(days) || days <= 0) {
+		throw new Error(
+			`[firstly/evlog] purge: \`days\` must be a positive number (got ${days}) - refusing to delete all rows`,
+		)
+	}
 	const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
 	const traceEntity = options?.traceEntity ?? EvlogTrace
 	const queryEntity = options?.queryEntity ?? EvlogTraceQuery

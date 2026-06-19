@@ -200,7 +200,8 @@ throw createError({
 Remult turns thrown errors into JSON responses, which means `evlog`'s SvelteKit handle never sees the throw. Use the `throwLogged` helper to attach the structured fields onto the active wide event before the throw bubbles up:
 
 ```ts
-import { createError, throwLogged } from 'firstly/evlog/server'
+import { createError } from 'firstly/evlog'
+import { throwLogged } from 'firstly/evlog/server'
 
 throwLogged(
 	createError({
@@ -272,7 +273,7 @@ evlog({
 		enabled: true,
 		entity: MyTraceEntity,
 		queryEntity: MyTraceQueryEntity, // override for side-by-side migration
-		skipPaths: ['/api/health', '/api/_lq*'], // exact match or trailing-* prefix match
+		skipPaths: ['/api/health', '/api/_lq*'], // MERGED with the built-in defaults (evlog self-traffic + liveQuery keepalive); exact match or trailing-* prefix
 		retentionDays: 90, // boot-time purge cutoff (audits unaffected)
 	},
 	drains: [
@@ -435,6 +436,4 @@ All of this lives in your own DB under your residency / backup / role controls -
 
 ## Re-exports from `evlog`
 
-`firstly/evlog` re-exports the common evlog APIs (`createError`, `parseError`, `auditDiff`, `defineAuditAction`, plus the `AuditInput` / `WideEvent` / `DrainFn` types). You should not need to install `evlog` separately.
-
-You should not need to install `evlog` separately.
+`firstly/evlog` re-exports the common evlog APIs (`createError`, `parseError`, `auditDiff`, `defineAuditAction`, plus the `AuditInput` / `WideEvent` / `DrainFn` types). The only server-only helper is `throwLogged` (from `firstly/evlog/server`). You should not need to install `evlog` separately.
