@@ -13,18 +13,21 @@ const wellKnownDst = join(repoRoot, 'docs/public/.well-known/agent-skills')
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/
 const DESCRIPTION_RE = /^description:\s*(.*)$/m
+const NEWLINE_RE = /\r?\n/
+const FM_KEY_VALUE_RE = /^([A-Za-z0-9_-]+):\s+(.*)$/
+const COLON_SPACE_RE = /:\s/
 
 // The `skills` CLI parses SKILL.md frontmatter with a strict YAML parser. An
 // unquoted scalar containing `: ` (colon + space) is read as a nested mapping
 // and throws, so `npx skills add https://firstly.fun` silently finds 0 skills.
 // Catch that here so a bad description fails the build instead of the endpoint.
 function assertParsableFrontmatter(skillName, fm) {
-	for (const line of fm.split(/\r?\n/)) {
-		const m = line.match(/^([A-Za-z0-9_-]+):\s+(.*)$/)
+	for (const line of fm.split(NEWLINE_RE)) {
+		const m = line.match(FM_KEY_VALUE_RE)
 		if (!m) continue
 		const value = m[2]
 		if (value.startsWith('"') || value.startsWith("'")) continue // already quoted
-		if (/:\s/.test(value)) {
+		if (COLON_SPACE_RE.test(value)) {
 			throw new Error(
 				`skill "${skillName}": frontmatter \`${m[1]}\` contains a colon followed by a space ` +
 					`("${value}"). This breaks the YAML parser used by \`npx skills add\`. ` +
