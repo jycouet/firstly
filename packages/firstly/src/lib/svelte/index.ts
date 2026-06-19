@@ -1,3 +1,4 @@
+export { errorMessage, isError } from '../core/helper.js'
 export { ff } from './ff.svelte.js'
 export type {
 	FF_Many,
@@ -38,8 +39,37 @@ export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
 export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
 
-export { default as DemoGrid } from './DemoGrid.svelte'
-export { default as DemoForm } from './DemoForm.svelte'
+// Headless cell primitives (FF_Grid / FF_Group are boutique-only — copy from src/boutique/grid).
+export {
+	FF_Cell,
+	FF_CellValue,
+	FF_Grid,
+	GroupFields,
+	DefaultInput,
+	buildCells,
+	displayCell,
+	resolveCellComponent,
+	getFieldMetaType,
+	getInputType,
+	getStyle,
+	getCellElementConfig,
+	defaultConfig,
+} from './grid/index.js'
+export type {
+	Cell,
+	CellInput,
+	CellComponent,
+	CellUI,
+	MetaKind,
+	CellConfig,
+	CellElementConfig,
+	CellProps,
+	CellContentProps,
+	CellElementProps,
+	CellMode,
+	HubConfig,
+	ActionConfig,
+} from './grid/index.js'
 export { default as Icon } from './ui/Icon.svelte'
 export {
 	LibIcon_Empty,

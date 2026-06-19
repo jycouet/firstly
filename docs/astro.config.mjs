@@ -87,6 +87,10 @@ export default defineConfig({
 							link: '/docs/svelte/ff',
 						},
 						{
+							label: 'cell layer (grid & form)',
+							link: '/docs/svelte/cell',
+						},
+						{
 							label: 'dialog',
 							link: '/docs/svelte/dialog',
 						},

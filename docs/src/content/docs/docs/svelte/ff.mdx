@@ -272,18 +272,16 @@ await repo(Task).deleteMany({ where: { done: true } })
 const n = await repo(Task).count()
 ```
 
-## Demo components
+## Grid & form - the cell layer
 
-`DemoGrid` (a full CRUD grid from one `many` handle) and `DemoForm` (a `one` bound form) ship from
-`firstly/svelte` as ready demos and starting points:
+`many` and `one` are the data engine under firstly's **cell layer** - metadata-driven grids and
+forms. firstly ships the headless primitives (`buildCells`, `<FF_Cell>`, the `FF_Config.cell` input
+registry); the opinionated `FF_Grid` (CRUD grid) and `FF_Group` (bound-record form) are **boutique**
+shells you copy from `src/boutique/grid` and own. Full chapter: [cell layer](/docs/svelte/cell).
 
 ```svelte
-<script lang="ts">
-	import { DemoForm, DemoGrid } from 'firstly/svelte'
-</script>
-
-<DemoGrid entity={Task} fields={['title']} where={{ done: false }} strategy="listen" />
-<DemoForm entity={Task} fields={['title']} />
+<FF_Grid entity={Task} selected={['title']} where={{ done: false }} strategy="listen" />
+<FF_Group entity={Task} selected={['title']} mode="edit" />
 ```
 
 ## Type helpers

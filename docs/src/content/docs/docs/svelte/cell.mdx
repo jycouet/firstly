@@ -1,0 +1,261 @@
+---
+title: cell layer (grid & form)
+---
+
+The cell layer turns **field metadata** into grids and forms. It ships as:
+
+- **📦 Published** (`firstly/svelte`) - the headless primitives (`buildCells`, `<FF_Cell>`,
+  `<FF_CellValue>`, the `FF_Config.cell` registry) **plus `<FF_Grid>`**, a batteries-included demo grid
+  (default skin + input) you import and use directly.
+- **🛍️ Boutique** (`src/boutique/grid`) - `App_Grid` / `App_Group`, copy-own shells you degit when you
+  want to own the markup + look. Same engine, your skin.
+
+> `FF_` = firstly publishes it; `App_` = it becomes your app's (you copy + own it). Same engine, each
+> app keeps its own look.
+
+## Quick start - a grid in 2 steps
+
+`<FF_Grid>` is **published and batteries-included** (default skin + input). A complete example:
+
+```ts
+// 1. Declare the grid/form config on the entity (the SSoT). Note the explicit <Task> generic.
+import { Fields } from 'remult'
+import { FF_Entity } from 'firstly'
+
+@FF_Entity<Task>('tasks', {
+	allowApiCrud: true,
+	hub: {
+		cells: ['title', 'priority', { col: 'done', sortable: false }],
+		insert: { cells: ['title', 'priority'] }, // `done` not settable on create
+		// `update` omitted → inherits the list cells; delete is on by default
+	},
+})
+export class Task {
+	@Fields.id() id = ''
+	@Fields.string({ caption: 'Task title', required: true }) title = ''
+	@Fields.number({ caption: 'Priority' }) priority = 0
+	@Fields.boolean({ caption: 'Done' }) done = false
+}
+```
+
+```svelte
+<!-- 2. Import & render — a full read + sort + paginate + create / edit / delete grid. Zero setup. -->
+<script lang="ts">
+	import { FF_Grid } from 'firstly/svelte'
+
+	import { Task } from '$lib/Task'
+</script>
+
+<FF_Grid entity={Task} />
+```
+
+Mount `<FF_DialogManager />` once at your app root (for the create/edit dialog) and you're done.
+Override anything at the call-site - `<FF_Grid entity={Task} cells={['title', 'done']} mode="readonly" />`.
+
+**Want to own the markup + look?** Copy the boutique `App_Grid` (it composes the same primitives) and
+style it yourself:
+
+```bash
+npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/app-grid
+```
+
+The rest of this page explains each piece.
+
+## Metadata is the source of truth
+
+Per-field UI hints live **on the field** via `ui` (a firstly augmentation of remult's
+`FieldOptions`). Widths and margins are **percentages of the row** - so layout is fluid and mobile
+gets its own geometry:
+
+```ts
+import { Entity, Fields, getEntityRef } from 'remult'
+
+@Entity('tasks', { allowApiCrud: true })
+export class Task {
+	@Fields.id() id = ''
+	@Fields.string({ caption: 'Task title', required: true, ui: { width: 60 } }) title = ''
+	@Fields.number({ caption: 'Priority', ui: { width: 40, align: 'right' } }) priority = 0
+	@Fields.boolean({ caption: 'Done' }) done = false
+}
+```
+
+`ui` carries `width` / `marginLeft` / `marginRight` (%), `align`, `inputType` (override the resolved
+editor), `order`, and a `mobile: { width?, marginLeft?, marginRight? }` for screens `<= 40rem`. Two
+more field options feed the cell layer: `placeholder`, and `href: (row) => string` (renders the cell
+as a link - a `field_link` cell).
+
+## `buildCells` + `displayCell`
+
+`buildCells(meta, cells?)` resolves a list of headless `Cell` descriptors from the entity
+metadata. Each cell knows its `kind` (`field` / `field_link` / `relation` / `enum` / `enum_multi` /
+`slot` / `component` / `header` / `spacer`), `caption`, resolved `inputType`, `align`, `sortable`, and
+`ui`. `displayCell(cell, row)` returns the display string for a cell (remult's `displayValue`, the
+related row, the enum caption, ...).
+
+```ts
+import { buildCells, displayCell } from 'firstly/svelte'
+
+// terse author input: a bare key, a config object, or '_spacer'
+const cells = buildCells(repo(Task).metadata, ['title', 'priority', 'done'])
+// cells[0].caption === 'Task title', cells[0].ui.width === 60, ...
+```
+
+`cells` items are terse: a bare field key (`'title'`), or a config object
+(`{ col, kind?, caption?, ui?, align?, class?, sortable?, cellSnippet?, component?, props?, rowToProps? }`),
+or `'_spacer'`. Omit `cells` to get every visible field.
+
+## `<FF_Cell>` + the input registry
+
+`<FF_Cell>` is the headless layout atom - it arranges four sub-elements (label / content / error /
+hint) by **percentage** geometry, with an independent mobile breakpoint. You rarely touch it directly;
+the boutique shells render it for you. What you **do** own is the input registry: which component
+renders each `inputType`. Register it once at the app root via `<FF_Config cell={...}>`:
+
+```svelte
+<script lang="ts">
+	import { FF_Config } from 'firstly/svelte'
+
+	import Input from '$lib/ff-grid/Input.svelte'
+</script>
+
+<FF_Config cell={{ inputs: { text: Input, number: Input, checkbox: Input } }}>
+	{@render children()}
+</FF_Config>
+```
+
+Every cell of `inputType: 'text'` now renders your `Input`. Add `select` / `date` / `multiSelect`
+variants to match your design system. firstly ships **no** styled input on purpose - the boutique
+`grid` recipe gives you a token-only starting point.
+
+:::caution[Read config at init]
+Components read `ffConfig()` **once at component init** (Svelte 5 context rule) - never inside a
+`$derived` or in markup. The boutique shells already follow this; if you write your own, capture
+`const cfg = ffConfig()` in `<script>`. The dialog is portaled to the app root (outside the page's
+`<FF_Config>`), so `FF_Grid` re-provides the captured `cfg.cell` inside the dialog.
+:::
+
+## The grid: `FF_Grid` (published) & `App_Grid` (boutique)
+
+Both are the same opinionated read + header-sort + paginate grid, with **create / edit / delete in a
+dialog** (the shared `GroupFields` form), icon buttons, and permission-driven disabling, on a
+`ff(E).many` handle. The difference is ownership:
+
+- **`FF_Grid`** (`import { FF_Grid } from 'firstly/svelte'`) - published, batteries-included (default
+  skin + input). Use it directly.
+- **`App_Grid`** - the boutique copy you degit when you want to own the markup + look:
+
+```bash
+npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/app-grid
+```
+
+**Config is the SSoT on the entity (`hub`)** - the grid reads it as defaults, and every prop overrides:
+
+```svelte
+<FF_Grid entity={Task} />
+<!-- everything from Task.hub -->
+<FF_Grid entity={Task} cells={['title', 'done']} />
+<!-- override the columns -->
+<FF_Grid entity={Task} strategy="listen" mode="readonly" />
+<!-- read-only, live -->
+```
+
+- `cells` - table columns + default form fields (defaults to `hub.cells`). An entry is a field key, a
+  config object, or `'_spacer'`.
+- `strategy` / `pageSize` / `where` / `orderBy` / `enabled` - default to the hub, then sensible values.
+- `insert` / `update` / `delete` - per-action config (`{}` on, `false` off); default to the hub, then
+  **on**. `mode="readonly"` turns all three off.
+- `mode` - `'edit'` (default) or `'readonly'` (a `CellMode`; future-extensible, e.g. `'filter'`).
+- The toolbar `+ New` and per-row `Edit` disable from `meta.apiInsertAllowed()` /
+  `apiUpdateAllowed(row)` - the same permission the server enforces.
+
+### The entity hub
+
+Declare the grid/form config once, on the entity - it ships with the (isomorphic) entity and is the
+single source of truth:
+
+```ts
+@FF_Entity<Task>('tasks', {
+	hub: {
+		cells: ['title', 'priority', { col: 'done', sortable: false }],
+		insert: { cells: ['title', 'priority'] }, // `done` not settable on create
+		// `update` omitted → inherits the list cells (title, priority, done)
+		delete: {}, // {} on, false off
+	},
+})
+```
+
+- **Per-action fields**: `insert`/`update` each take their own `cells`; omit `cells` to **inherit the
+  list `cells`** (no fragile "create = edit minus X" subtraction).
+- **Sortable**: columns sort by default. Lock one with `{ col, sortable: false }`, or flip the default
+  with `defaultSortable: false` (here per-entity, or app-wide on `FF_Config.cell`). Per-cell wins.
+- **Server-safe**: `hub` is a plain object (cheap config), so it loads fine on the server. Any UI
+  `component` must be a lazy thunk (see escape hatches).
+
+:::tip[Pair the UI with server security]
+Dropping a field from `insert.cells` is a UI choice, not security. Enforce it on the **field** too -
+`allowApiUpdate` as a function makes a field settable on edit but not insert:
+
+```ts
+@Fields.boolean({ caption: 'Done', allowApiUpdate: (t) => !getEntityRef(t).isNew() }) done = false
+```
+
+`allowApiUpdate` is the lock; `insert.cells` is the UI that mirrors it.
+:::
+
+:::caution[A `hub` with `cells` needs the explicit generic]
+`cells` referencing field keys confuses `@Entity` / `@FF_Entity` type inference - always pass the
+generic: `@FF_Entity<Task>('tasks', { hub: {...} })`.
+:::
+
+## 🛍️ Boutique `App_Group`
+
+`App_Group` is a single bound record (`ff(E).one`) shown as a group of cells - a **form when editing**,
+**values when not**. `cells` defaults to the hub:
+
+```svelte
+<App_Group entity={Task} mode="edit" />
+<App_Group entity={Task} cells={['title', 'priority']} mode="readonly" />
+```
+
+The grid's dialog and `App_Group` render the same published `GroupFields` body, so a field looks
+identical whether you edit it inline or in a dialog. `disableDelete` shows Delete but disabled (pure
+UI). The readonly and edit modes are laid out to the **same height**, so switching mode doesn't shift
+the page.
+
+## Escape hatches (metadata SSoT, escape when needed)
+
+When a cell needs to be special, the `Cell` / `CellInput` config carries escapes - all rendered by the
+published `<FF_CellValue>`, so an app's own grid gets them too:
+
+- `component` + `props` + `rowToProps` - render a component for the cell. `component` is a **thunk**:
+  eager `() => Badge` at a `.svelte` call-site, or lazy `() => import('./Badge.svelte')` in an entity
+  `hub` (so the server never loads the `.svelte`). Static `props` + per-row `rowToProps(row)` merge in.
+- `cellSnippet` - the app fully owns the render (a `slot` kind).
+- `class` - a CSS passthrough (e.g. `'col-span-2'`); `sortable: false` - lock a column.
+
+```svelte
+<script>
+	import Badge from './Badge.svelte'
+</script>
+
+<FF_Grid
+	entity={Task}
+	cells={[
+		'title',
+		{ col: 'priority', component: () => Badge, rowToProps: (r) => ({ value: r.priority }) },
+	]}
+/>
+```
+
+## What ships vs what you copy
+
+| Thing                                                         | Where               | Published? |
+| ------------------------------------------------------------- | ------------------- | ---------- |
+| `buildCells`, `displayCell`, `getFieldMetaType`               | `firstly/svelte`    | 📦 yes     |
+| `<FF_Cell>`, `<FF_CellValue>` + `FF_Config.cell` registry     | `firstly/svelte`    | 📦 yes     |
+| `hub` on `EntityOptions` + `HubConfig`/`ActionConfig` types   | `firstly/svelte`    | 📦 yes     |
+| `CellUI`, `Cell`, `CellInput`, `CellComponent` (+ types)      | `firstly/svelte`    | 📦 yes     |
+| `<FF_Grid>` (batteries demo), `<GroupFields>`, `DefaultInput` | `firstly/svelte`    | 📦 yes     |
+| `App_Grid`, `App_Group`, `Input`                              | `src/boutique/grid` | 🛍️ copy    |
+
+If you just want a grid, import `<FF_Grid>`. If you want to own the markup + look, copy `App_Grid`.

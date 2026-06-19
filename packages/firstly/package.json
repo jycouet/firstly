@@ -153,7 +153,8 @@
   "files": [
     "dist",
     "!dist/**/*.spec.*",
-    "!dist/**/*.test.*"
+    "!dist/**/*.test.*",
+    "!dist/**/_test/**"
   ],
   "keywords": [
     "remult",

@@ -1,9 +1,10 @@
 import { getContext, setContext } from 'svelte'
-import type { Snippet } from 'svelte'
+import type { Component, Snippet } from 'svelte'
 import type { ToasterProps } from 'svelte-sonner'
 
 import type { LocalizedMessage } from '../core/FF_Validators.js'
 import type { DialogConfirmArgs, DialogPromptArgs, DialogShellArgs } from './dialog.svelte.js'
+import type { CellConfig, MetaKind } from './grid/cellTypes.js'
 
 /**
  * App-wide config for firstly's Svelte components, provided once via `<FF_Config>` and read by
@@ -40,6 +41,20 @@ export type FF_ConfigValue = {
 	}
 	/** svelte-sonner `<Toaster>` defaults applied by `<FF_ToastManager>` (position, richColors, …). */
 	toast?: Partial<ToasterProps>
+	/**
+	 * Cell/Grid/Form skin, applied once at the app root. firstly ships no styled input -
+	 * register your own per-inputType components here so the app keeps its look.
+	 */
+	cell?: {
+		/** App-level geometry defaults for the label/error/content/hint sub-elements. */
+		config?: CellConfig
+		/** Per-inputType edit component (receives `bind:value` + { id, type, placeholder, valueConverter }). */
+		inputs?: Partial<Record<string, Component>>
+		/** Optional per-kind display override for grid/readonly cells. */
+		display?: Partial<Record<MetaKind, Snippet<[{ row: unknown; value: unknown }]>>>
+		/** App-wide default for column sorting (a hub or per-cell `sortable` overrides). Default true. */
+		defaultSortable?: boolean
+	}
 }
 
 const KEY = Symbol('ff-config')
@@ -79,6 +94,9 @@ export function ffConfig() {
 		},
 		get toast() {
 			return get?.().toast ?? {}
+		},
+		get cell() {
+			return get?.().cell ?? {}
 		},
 	}
 }
