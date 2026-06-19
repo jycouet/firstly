@@ -1,6 +1,6 @@
 ---
 name: firstly
-description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, ff (reactive Svelte layer: many/one), the cell layer (buildCells, FF_Cell, boutique FF_Grid/FF_Group), published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth, grid). Use when the user mentions firstly, FF_Entity, BaseEnum, ff/FF_Many/FF_One, buildCells/FF_Cell/FF_Grid/FF_Group, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
+description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, ff (reactive Svelte layer, many/one), the cell layer (buildCells, FF_Cell, boutique FF_Grid/FF_Group), published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth, grid). Use when the user mentions firstly, FF_Entity, BaseEnum, ff/FF_Many/FF_One, buildCells/FF_Cell/FF_Grid/FF_Group, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
 ---
 
 # Firstly Patterns

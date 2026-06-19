@@ -14,6 +14,26 @@ const wellKnownDst = join(repoRoot, 'docs/public/.well-known/agent-skills')
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/
 const DESCRIPTION_RE = /^description:\s*(.*)$/m
 
+// The `skills` CLI parses SKILL.md frontmatter with a strict YAML parser. An
+// unquoted scalar containing `: ` (colon + space) is read as a nested mapping
+// and throws, so `npx skills add https://firstly.fun` silently finds 0 skills.
+// Catch that here so a bad description fails the build instead of the endpoint.
+function assertParsableFrontmatter(skillName, fm) {
+	for (const line of fm.split(/\r?\n/)) {
+		const m = line.match(/^([A-Za-z0-9_-]+):\s+(.*)$/)
+		if (!m) continue
+		const value = m[2]
+		if (value.startsWith('"') || value.startsWith("'")) continue // already quoted
+		if (/:\s/.test(value)) {
+			throw new Error(
+				`skill "${skillName}": frontmatter \`${m[1]}\` contains a colon followed by a space ` +
+					`("${value}"). This breaks the YAML parser used by \`npx skills add\`. ` +
+					`Quote the value or remove the colon-space.`,
+			)
+		}
+	}
+}
+
 rmSync(wellKnownDst, { recursive: true, force: true })
 mkdirSync(wellKnownDst, { recursive: true })
 
@@ -34,6 +54,7 @@ const skills = entries.map((entry) => {
 
 	const skillMd = readFileSync(join(srcDir, 'SKILL.md'), 'utf8')
 	const fm = skillMd.match(FRONTMATTER_RE)?.[1] ?? ''
+	assertParsableFrontmatter(entry.name, fm)
 	const description = fm.match(DESCRIPTION_RE)?.[1]?.trim() ?? ''
 
 	return { name: entry.name, description, files }
