@@ -345,7 +345,19 @@ group by 1 order by 2 desc;
 
 ## Display stats
 
+> **Tailwind setup (required).** The stats UI ships as unbundled Svelte and styles itself with semantic utility classes (`bg-card`, `text-muted-foreground`, `grid`, ...). Tailwind v4 ignores `node_modules` by default, so tell it to scan firstly or the dashboard renders **unstyled**:
+>
+> ```css
+> /* app.css */
+> @import 'tailwindcss';
+> @source '../node_modules/firstly/esm';
+> ```
+>
+> Your app must also define the shadcn-style theme tokens it uses - `background` `foreground` `card` `muted` `muted-foreground` `border` `input` `ring` `primary` `accent` `destructive`, plus the status tokens `success` `info` `warning` `error` (used for CRUD verbs, HTTP status and slow-query highlights). Apps already on shadcn tokens only need to add the status four.
+
 Two ways to use the stats UI: the all-in-one orchestrator, or pick the panels you want.
+
+`<EvlogStats>` and the `Requests` / `Audit` / `SQL` tabs use `<FF_Grid>`, so the host must call `initRemultSvelteReactivity()` once (the standard firstly/svelte setup).
 
 ### All-in-one - `<EvlogStats>`
 

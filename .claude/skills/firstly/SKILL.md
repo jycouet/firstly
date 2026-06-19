@@ -128,9 +128,11 @@ That alone gives **server-only tracking** (the default). Two opt-ins:
 import { initClientTrace } from 'firstly/evlog'   // +layout.svelte: ONLY browser piece (SPA-nav capture)
 initClientTrace()
 
-import { EvlogStats } from 'firstly/evlog'         // admin dashboard
+import { EvlogStats } from 'firstly/evlog'         // admin dashboard (tabs use <FF_Grid>)
 <EvlogStats />
 ```
+
+`<EvlogStats>` (and any firstly component) is unbundled Svelte styled with Tailwind utilities. Tailwind v4 skips `node_modules`, so the consumer MUST add `@source '../node_modules/firstly/esm';` to `app.css` or it renders **unstyled** - plus define the shadcn theme tokens incl. the status four (`success`/`info`/`warning`/`error`). Its grid tabs need `initRemultSvelteReactivity()`.
 
 Per-entity audit: wrap options with `withEvlog({ evlog: { module: '<name>' } })` (mirrors `withChangeLog`); `withEvlog({ evlog: false })` opts out.
 
