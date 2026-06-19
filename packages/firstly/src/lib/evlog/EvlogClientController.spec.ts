@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { InMemoryDataProvider, remult, withRemult } from 'remult'
+import { InMemoryDataProvider, withRemult } from 'remult'
 import type { DataProvider } from 'remult'
 
 import { EvlogClientController, type ClientNavInput } from './EvlogClientController.js'
@@ -48,9 +48,7 @@ describe('EvlogClientController.recordNavigations', () => {
 
 	it('caps routeId and referrer length', async () => {
 		emitted.length = 0
-		await run([
-			{ pathname: '/p', routeId: 'r'.repeat(5000), referrer: 'f'.repeat(5000) },
-		])
+		await run([{ pathname: '/p', routeId: 'r'.repeat(5000), referrer: 'f'.repeat(5000) }])
 		expect(emitted).toHaveLength(1)
 		expect(emitted[0].routeId.length).toBeLessThanOrEqual(512)
 		expect(emitted[0].referrer.length).toBeLessThanOrEqual(2048)
