@@ -1,56 +1,53 @@
 <script lang="ts">
 	import type { UserAgentStat } from '../EvlogStatsController.js'
+	import BarRow from './_ui/BarRow.svelte'
+	import Section from './_ui/Section.svelte'
 
-	type Props = {
-		os: UserAgentStat[]
-		devices: UserAgentStat[]
-	}
-	let { os, devices }: Props = $props()
+	type Props = { os: UserAgentStat[]; devices: UserAgentStat[]; class?: string }
+	let { os, devices, class: klass = '' }: Props = $props()
 
-	const fmt = (n: number) => n.toLocaleString()
+	const osMax = $derived(Math.max(0, ...os.map((d) => d.count)))
+	const devMax = $derived(Math.max(0, ...devices.map((d) => d.count)))
 </script>
 
-<div class="rounded-lg border border-border bg-card shadow-sm">
-	<div class="flex flex-col gap-3 p-5">
-		<h3 class="text-base font-semibold text-foreground">OS &amp; devices</h3>
-		{#if os.length === 0 && devices.length === 0}
-			<p class="text-xs text-muted-foreground">
-				Set <code>context: &lbrace; userAgent: true &rbrace;</code> in <code>evlog()</code> to populate
-				<code>event.userAgent.os</code> and <code>.device</code>.
-			</p>
-		{:else}
-			<div class="grid grid-cols-2 gap-4">
-				<div>
-					<div class="mb-1 text-xs tracking-wide text-muted-foreground uppercase">OS</div>
-					<ul class="space-y-1">
-						{#each os as item (item.name)}
-							<li class="flex items-center gap-2 text-xs">
-								<span class="grow truncate">{item.name}</span>
-								<span class="font-mono text-muted-foreground">{fmt(item.count)}</span>
-								<span
-									class="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
-									>{item.percent}%</span
-								>
-							</li>
-						{/each}
-					</ul>
-				</div>
-				<div>
-					<div class="mb-1 text-xs tracking-wide text-muted-foreground uppercase">Device</div>
-					<ul class="space-y-1">
-						{#each devices as item (item.name)}
-							<li class="flex items-center gap-2 text-xs">
-								<span class="grow truncate">{item.name}</span>
-								<span class="font-mono text-muted-foreground">{fmt(item.count)}</span>
-								<span
-									class="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
-									>{item.percent}%</span
-								>
-							</li>
-						{/each}
-					</ul>
-				</div>
+<Section title="OS & devices" hint="from parsed user-agent" class={klass}>
+	{#if os.length || devices.length}
+		<div class="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+			<div class="flex flex-col">
+				<div class="mb-1 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">OS</div>
+				{#each os as item (item.name)}
+					<BarRow
+						label={item.name}
+						value={item.count}
+						max={osMax}
+						sub={`${item.percent}%`}
+						barClass="bg-primary"
+					/>
+				{:else}
+					<p class="text-xs text-muted-foreground">No data.</p>
+				{/each}
 			</div>
-		{/if}
-	</div>
-</div>
+			<div class="flex flex-col">
+				<div class="mb-1 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+					Device
+				</div>
+				{#each devices as item (item.name)}
+					<BarRow
+						label={item.name}
+						value={item.count}
+						max={devMax}
+						sub={`${item.percent}%`}
+						barClass="bg-info"
+					/>
+				{:else}
+					<p class="text-xs text-muted-foreground">No data.</p>
+				{/each}
+			</div>
+		</div>
+	{:else}
+		<p class="py-8 text-center text-xs text-muted-foreground">
+			Enable <code class="font-mono">context: {'{'} userAgent: true }</code> in
+			<code class="font-mono">evlog()</code>.
+		</p>
+	{/if}
+</Section>

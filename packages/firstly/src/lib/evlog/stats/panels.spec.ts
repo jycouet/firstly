@@ -7,9 +7,7 @@ import Header from './Header.svelte'
 import Modules from './Modules.svelte'
 import OsDevices from './OsDevices.svelte'
 import PageFlows from './PageFlows.svelte'
-import QueriesHot from './QueriesHot.svelte'
-import QueriesSlowest from './QueriesSlowest.svelte'
-import QueriesTopTime from './QueriesTopTime.svelte'
+import Queries from './Queries.svelte'
 import TopPages from './TopPages.svelte'
 import Totals from './Totals.svelte'
 import Traces from './Traces.svelte'
@@ -55,9 +53,11 @@ describe('stats panels render with non-empty data', () => {
 			},
 		],
 		['PageFlows', PageFlows, { data: [{ fromPage: '/a', toPage: '/b', count: 4 }] }],
-		['QueriesHot', QueriesHot, { data: [SAMPLE_QUERY] }],
-		['QueriesSlowest', QueriesSlowest, { data: [SAMPLE_QUERY] }],
-		['QueriesTopTime', QueriesTopTime, { data: [SAMPLE_QUERY] }],
+		[
+			'Queries',
+			Queries,
+			{ data: { slowest: [SAMPLE_QUERY], mostTime: [SAMPLE_QUERY], hottest: [SAMPLE_QUERY] } },
+		],
 		['TopPages', TopPages, { data: [{ pathname: '/', count: 9, users: 2 }] }],
 		['Totals', Totals, { data: { traces: 10, audits: 3, uniqueActors: 2 }, year: 2026 }],
 		['Traces', Traces, { data: [SAMPLE_TRACE_MONTH] }],
@@ -77,7 +77,7 @@ describe('stats panels render empty state', () => {
 		['Crud', Crud, { data: [] }],
 		['Modules', Modules, { data: [] }],
 		['PageFlows', PageFlows, { data: [] }],
-		['QueriesHot', QueriesHot, { data: [] }],
+		['Queries', Queries, { data: { slowest: [], mostTime: [], hottest: [] } }],
 		['TopPages', TopPages, { data: [] }],
 		['Traces', Traces, { data: [] }],
 	]

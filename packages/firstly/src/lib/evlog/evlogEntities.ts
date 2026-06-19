@@ -12,6 +12,20 @@ export const Roles_Evlog = {
 	allowApiDelete: Roles_Evlog.Evlog_Admin,
 	defaultOrderBy: { timestamp: 'desc' },
 	changeLog: false,
+	hub: {
+		strategy: 'paginate',
+		pageSize: 15,
+		cells: [
+			{ col: 'timestamp', ui: { width: 14 } },
+			{ col: 'module', ui: { width: 10 } },
+			{ col: 'action', class: 'font-mono', ui: { width: 22 } },
+			{ col: 'outcome', align: 'center', ui: { width: 10 } },
+			{ col: 'actorType', ui: { width: 9 } },
+			{ col: 'actorId', ui: { width: 11 } },
+			{ col: 'targetType', ui: { width: 11 } },
+			{ col: 'targetId', class: 'font-mono', ui: { width: 13 } },
+		],
+	},
 })
 export class EvlogAudit {
 	@Fields.id()
@@ -68,6 +82,38 @@ export class EvlogAudit {
 	allowApiDelete: Roles_Evlog.Evlog_Admin,
 	defaultOrderBy: { timestamp: 'desc' },
 	changeLog: false,
+	hub: {
+		strategy: 'paginate',
+		pageSize: 15,
+		cells: [
+			{ col: 'timestamp', ui: { width: 14 } },
+			{
+				col: 'source',
+				align: 'center',
+				ui: { width: 8 },
+				component: () => import('./stats/cells/Source.svelte'),
+				rowToProps: (r) => ({ value: r.source }),
+			},
+			{ col: 'method', ui: { width: 8 } },
+			{ col: 'path', class: 'font-mono', ui: { width: 30 } },
+			{
+				col: 'status',
+				align: 'right',
+				ui: { width: 8 },
+				component: () => import('./stats/cells/Status.svelte'),
+				rowToProps: (r) => ({ value: r.status }),
+			},
+			{
+				col: 'duration',
+				align: 'right',
+				ui: { width: 10 },
+				component: () => import('./stats/cells/Ms.svelte'),
+				rowToProps: (r) => ({ value: r.duration }),
+			},
+			{ col: 'module', ui: { width: 10 } },
+			{ col: 'actorId', ui: { width: 12 } },
+		],
+	},
 })
 export class EvlogTrace {
 	@Fields.id()
@@ -140,6 +186,22 @@ export class EvlogTrace {
 	allowApiDelete: Roles_Evlog.Evlog_Admin,
 	defaultOrderBy: { timestamp: 'desc' },
 	changeLog: false,
+	hub: {
+		strategy: 'paginate',
+		pageSize: 20,
+		cells: [
+			{ col: 'timestamp', ui: { width: 14 } },
+			{
+				col: 'duration',
+				align: 'right',
+				ui: { width: 9 },
+				component: () => import('./stats/cells/Ms.svelte'),
+				rowToProps: (r) => ({ value: r.duration }),
+			},
+			{ col: 'path', class: 'font-mono', ui: { width: 25 } },
+			{ col: 'sql', class: 'font-mono', ui: { width: 52 } },
+		],
+	},
 })
 export class EvlogTraceQuery {
 	@Fields.id()

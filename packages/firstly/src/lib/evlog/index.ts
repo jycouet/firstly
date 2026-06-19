@@ -33,13 +33,13 @@ export { default as EvlogStats } from './EvlogStats.svelte'
  *
  * ```svelte
  * <script>
- *   import { EvlogStatsController, EvlogStatsTotals, EvlogStatsQueriesSlowest } from 'firstly/evlog'
+ *   import { EvlogStatsController, EvlogStatsTotals, EvlogStatsQueries } from 'firstly/evlog'
  *   let stats = $state(null)
  *   onMount(async () => stats = await EvlogStatsController.getStats(2026))
  * </script>
  * {#if stats}
  *   <EvlogStatsTotals data={stats.totals} year={stats.year} />
- *   <EvlogStatsQueriesSlowest data={stats.queries.slowest} />
+ *   <EvlogStatsQueries data={stats.queries} />
  * {/if}
  * ```
  */
@@ -52,9 +52,7 @@ export { default as EvlogStatsTopPages } from './stats/TopPages.svelte'
 export { default as EvlogStatsPageFlows } from './stats/PageFlows.svelte'
 export { default as EvlogStatsBrowsers } from './stats/Browsers.svelte'
 export { default as EvlogStatsOsDevices } from './stats/OsDevices.svelte'
-export { default as EvlogStatsQueriesSlowest } from './stats/QueriesSlowest.svelte'
-export { default as EvlogStatsQueriesTopTime } from './stats/QueriesTopTime.svelte'
-export { default as EvlogStatsQueriesHot } from './stats/QueriesHot.svelte'
+export { default as EvlogStatsQueries } from './stats/Queries.svelte'
 export { initClientTrace } from './clientTrace.js'
 
 /** Re-exported from `evlog` so consumers don't have to install it directly. */

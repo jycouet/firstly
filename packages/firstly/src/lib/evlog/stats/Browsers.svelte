@@ -1,34 +1,31 @@
 <script lang="ts">
 	import type { UserAgentStat } from '../EvlogStatsController.js'
+	import BarRow from './_ui/BarRow.svelte'
+	import Section from './_ui/Section.svelte'
 
-	type Props = { data: UserAgentStat[] }
-	let { data }: Props = $props()
+	type Props = { data: UserAgentStat[]; class?: string }
+	let { data, class: klass = '' }: Props = $props()
 
-	const fmt = (n: number) => n.toLocaleString()
+	const max = $derived(Math.max(0, ...data.map((d) => d.count)))
 </script>
 
-<div class="rounded-lg border border-border bg-card shadow-sm">
-	<div class="flex flex-col gap-3 p-5">
-		<h3 class="text-base font-semibold text-foreground">Browsers</h3>
-		{#if data.length === 0}
-			<p class="text-xs text-muted-foreground">
-				No <code>event.userAgent</code> on traces. Set
-				<code>context: &lbrace; userAgent: true &rbrace;</code>
-				in <code>evlog()</code> - see the firstly/evlog README.
-			</p>
-		{:else}
-			<ul class="space-y-1">
-				{#each data as item (item.name)}
-					<li class="flex items-center gap-2 text-xs">
-						<span class="grow truncate">{item.name}</span>
-						<span class="font-mono text-muted-foreground">{fmt(item.count)}</span>
-						<span
-							class="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
-							>{item.percent}%</span
-						>
-					</li>
-				{/each}
-			</ul>
-		{/if}
-	</div>
-</div>
+<Section title="Browsers" hint="from parsed user-agent" class={klass}>
+	{#if data.length}
+		<div class="flex flex-col">
+			{#each data as item (item.name)}
+				<BarRow
+					label={item.name}
+					value={item.count}
+					{max}
+					sub={`${item.percent}%`}
+					barClass="bg-info"
+				/>
+			{/each}
+		</div>
+	{:else}
+		<p class="py-8 text-center text-xs text-muted-foreground">
+			Enable <code class="font-mono">context: {'{'} userAgent: true }</code> in
+			<code class="font-mono">evlog()</code>.
+		</p>
+	{/if}
+</Section>
