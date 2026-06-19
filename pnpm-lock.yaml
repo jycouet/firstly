@@ -14,8 +14,8 @@ catalogs:
       specifier: 0.39.2
       version: 0.39.2
     accessible-astro-components:
-      specifier: 5.2.0
-      version: 5.2.0
+      specifier: 5.3.1
+      version: 5.3.1
     astro:
       specifier: 6.3.5
       version: 6.3.5
@@ -164,7 +164,7 @@ importers:
         version: 0.39.2(astro@6.3.5(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(yaml@2.8.3))(typescript@5.9.3)
       accessible-astro-components:
         specifier: catalog:docs
-        version: 5.2.0
+        version: 5.3.1
       astro:
         specifier: catalog:docs
         version: 6.3.5(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.1)(yaml@2.8.3)
@@ -1821,8 +1821,8 @@ packages:
   '@vitest/utils@3.2.3':
     resolution: {integrity: sha512-4zFBCU5Pf+4Z6v+rwnZ1HU1yzOKKvDkMXZrymE2PBlbjKJRlrOxbvpfPSvJTGRIwGoahaOGvp+kbCoxifhzJ1Q==}
 
-  accessible-astro-components@5.2.0:
-    resolution: {integrity: sha512-l40PPeXR9Tc3cQQEKTmVF9hSxhVRgGI2ZsAJapngcEwEmsAr2COHXdW09VhxcINrsqflEuES6phDjsfVihCxBQ==}
+  accessible-astro-components@5.3.1:
+    resolution: {integrity: sha512-yNGmS7521szLSNNAT1/WJJUgSyBEXZREgYmcVK8U1EfLyGyFYOVIW1GtGq6GLWmoe0kcdI0mfUSpSxZImEkAqQ==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -5814,7 +5814,7 @@ snapshots:
       loupe: 3.2.1
       tinyrainbow: 2.0.0
 
-  accessible-astro-components@5.2.0: {}
+  accessible-astro-components@5.3.1: {}
 
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:
