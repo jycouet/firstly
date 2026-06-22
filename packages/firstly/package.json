@@ -26,8 +26,10 @@
     "test:e2e": "CI=true PORT=4142 playwright test",
     "test:unit": "TZ=Europe/Paris vitest",
     "test:unit:ci": "TZ=Europe/Paris vitest run",
+    "//// ---- DOCS ---- ////": "",
+    "sync-docs": "node ./scripts/sync-docs.js",
     "//// ---- PROD ---- ////": "",
-    "compile": "vite build && npm run package && node ./scripts/package.js",
+    "compile": "npm run sync-docs && vite build && npm run package && node ./scripts/package.js",
     "package": "svelte-package",
     "//// ---- THE END ---- ////": ""
   },
@@ -53,9 +55,13 @@
     "@sveltejs/package": "catalog:sveltekit",
     "@sveltejs/vite-plugin-svelte": "catalog:sveltekit",
     "@tailwindcss/vite": "catalog:ui",
+    "@testing-library/svelte": "5.3.1",
+    "@types/better-sqlite3": "7.6.13",
     "@typescript/native-preview": "catalog:tooling",
     "@vitest/browser": "catalog:testing",
+    "better-sqlite3": "12.9.0",
     "eslint": "catalog:kitql",
+    "jsdom": "29.1.1",
     "playwright": "catalog:testing",
     "remult": "catalog:best",
     "svelte": "catalog:svelte",
@@ -72,6 +78,7 @@
     "clsx": "catalog:ui",
     "cron": "catalog:prod",
     "esm-env": "catalog:tooling",
+    "evlog": "~2.18.1",
     "nodemailer": "catalog:prod",
     "svelte-sonner": "catalog:ui",
     "tailwind-merge": "catalog:ui",
@@ -110,6 +117,14 @@
     "./changeLog/server": {
       "types": "./esm/changeLog/server/index.d.ts",
       "default": "./esm/changeLog/server/index.js"
+    },
+    "./evlog": {
+      "types": "./esm/evlog/index.d.ts",
+      "default": "./esm/evlog/index.js"
+    },
+    "./evlog/server": {
+      "types": "./esm/evlog/server/index.d.ts",
+      "default": "./esm/evlog/server/index.js"
     },
     "./cron/server": {
       "types": "./esm/cron/server/index.d.ts",

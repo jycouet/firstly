@@ -1,0 +1,208 @@
+import type { Handle, RequestEvent } from '@sveltejs/kit'
+import { initLogger, type DrainFn, type EnrichContext, type EvlogPlugin } from 'evlog'
+import { createUserAgentEnricher } from 'evlog/enrichers'
+import { evlog as evlogSvelteKitHandle } from 'evlog/sveltekit'
+import {
+	composeDrains,
+	composeEnrichers,
+	defineEvlog,
+	toLoggerConfig,
+	toMiddlewareOptions,
+	type EvlogConfig,
+} from 'evlog/toolkit'
+
+import { remult } from 'remult'
+import { Module } from 'remult/server'
+
+import { EvlogClientController } from '../EvlogClientController.js'
+import { EvlogAudit, EvlogTrace, EvlogTraceQuery } from '../evlogEntities.js'
+import { EvlogStatsController } from '../EvlogStatsController.js'
+import { captureDataProvider } from './dataProviderCapture.js'
+import { EvlogPurgeController } from './EvlogPurgeController.js'
+import { firstlyAuditPlugin } from './plugins/audit.js'
+import { firstlyTracePlugin } from './plugins/trace.js'
+import { markResponseProduced, runWithResponseTracking } from './postResponse.js'
+import { ensureEvlogIndexes } from './remultDrains.js'
+
+// Re-exports
+export { withSuppressedLogging, isLoggingSuppressed } from './suppress.js'
+export { mountSqlSpans } from './sqlSpan.js'
+export { EvlogPurgeController } from './EvlogPurgeController.js'
+export { firstlyAuditPlugin } from './plugins/audit.js'
+export { firstlyTracePlugin } from './plugins/trace.js'
+export { defineEvlog, composePlugins, composeDrains } from 'evlog/toolkit'
+export { purgeEvlog, ensureEvlogIndexes } from './remultDrains.js'
+export { throwLogged } from './throwLogged.js'
+
+export interface EvlogModuleOptions {
+	service?: string
+	environment?: string
+	audit?: { enabled?: boolean; entity?: typeof EvlogAudit; denied?: boolean }
+	trace?: {
+		enabled?: boolean
+		entity?: typeof EvlogTrace
+		queryEntity?: typeof EvlogTraceQuery
+		skipPaths?: string[]
+		retentionDays?: number
+	}
+	/** Additional drains to fan out alongside the firstly plugins. */
+	drains?: DrainFn[]
+	/** Additional toolkit plugins (Axiom, OTLP, custom). */
+	plugins?: EvlogPlugin[]
+	/** Capture SQL queries on the request wide event. @default true */
+	sqlSpans?: boolean | { tablesToHide?: string[]; minDurationMs?: number }
+	/** Enrichers (event mutators) wired into the SvelteKit handle. */
+	enrich?: (ctx: EnrichContext) => void | Promise<void>
+	/** Opt into request-context enrichment. Off by default. */
+	context?: EvlogContextOptions
+}
+
+export interface EvlogContextOptions {
+	/**
+	 * Parse the `User-Agent` header into `event.userAgent`
+	 * (`{ raw, browser:{name,version}, os:{name,version}, device:{type} }`),
+	 * which powers the Browsers / OS / Devices dashboard panels.
+	 */
+	userAgent?: boolean
+}
+
+export interface FirstlyEvlog {
+	/** Remult module: register in `remultApi({ modules: [ev.module, ...] })`. */
+	module: Module<RequestEvent>
+	/** SvelteKit handle: place BEFORE `handleRemult` in `sequence(...)`. */
+	handle: Handle
+	/** The toolkit config object. Useful for advanced composition. */
+	config: EvlogConfig
+}
+
+/**
+ * `firstly/evlog` setup. Returns a Remult Module + a SvelteKit Handle derived
+ * from a single `evlog/toolkit` config object - no module-level state.
+ *
+ * @example
+ * ```ts
+ * // shared
+ * const ev = evlog({ service: 'my-app' })
+ *
+ * // server/api.ts
+ * export const api = remultApi({ modules: [ev.module, task()] })
+ *
+ * // hooks.server.ts
+ * export const handle = sequence(ev.handle, handleRemult)
+ * ```
+ */
+export const evlog = (options: EvlogModuleOptions = {}): FirstlyEvlog => {
+	const auditEnabled = options.audit?.enabled !== false
+	const traceEnabled = options.trace?.enabled !== false
+	const retentionDays = options.trace?.retentionDays ?? 90
+	const sqlSpans = options.sqlSpans
+
+	const plugins: EvlogPlugin[] = []
+	if (auditEnabled) {
+		plugins.push(
+			firstlyAuditPlugin({
+				entity: options.audit?.entity,
+				denied: options.audit?.denied,
+			}),
+		)
+	}
+	if (traceEnabled) {
+		plugins.push(
+			firstlyTracePlugin({
+				entity: options.trace?.entity,
+				queryEntity: options.trace?.queryEntity,
+				skipPaths: options.trace?.skipPaths,
+				retentionDays,
+				sqlSpans,
+			}),
+		)
+	}
+	if (options.plugins?.length) plugins.push(...options.plugins)
+
+	// `EvlogConfig.drain` is a single callback. Compose user-supplied fan-out
+	// drains into one through the toolkit's `composeDrains` helper.
+	const composedDrain =
+		options.drains?.length === 1
+			? options.drains[0]
+			: options.drains?.length
+				? composeDrains(options.drains, { name: 'firstly-user-drains' })
+				: undefined
+
+	// Built-in enrichers requested via `context`, composed before the user's
+	// `enrich` so user code can override what they set.
+	const contextEnrichers: ((ctx: EnrichContext) => void | Promise<void>)[] = []
+	if (options.context?.userAgent) contextEnrichers.push(createUserAgentEnricher())
+	if (options.enrich) contextEnrichers.push(options.enrich)
+	const composedEnrich =
+		contextEnrichers.length === 0
+			? undefined
+			: contextEnrichers.length === 1
+				? contextEnrichers[0]
+				: composeEnrichers(contextEnrichers, { name: 'firstly-context' })
+
+	const config = defineEvlog({
+		service: options.service ?? 'firstly',
+		environment: options.environment ?? process.env.NODE_ENV ?? 'development',
+		plugins,
+		drain: composedDrain,
+		enrich: composedEnrich,
+	} as EvlogConfig)
+
+	const module = new Module<RequestEvent>({
+		key: 'evlog',
+		entities: [
+			...(auditEnabled ? [options.audit?.entity ?? EvlogAudit] : []),
+			...(traceEnabled
+				? [options.trace?.entity ?? EvlogTrace, options.trace?.queryEntity ?? EvlogTraceQuery]
+				: []),
+		],
+		controllers: [EvlogClientController, EvlogStatsController, EvlogPurgeController],
+
+		initApi: async () => {
+			if (remult.dataProvider) captureDataProvider(remult.dataProvider)
+			// `initLogger` calls `runSetup` on registered plugins automatically,
+			// which is how `firstlyTracePlugin` mounts SQL spans and kicks off
+			// the boot purge. Don't double-call setup here.
+			initLogger({ ...toLoggerConfig(config), _suppressDrainWarning: true })
+			// remult only indexes the primary key; add the timestamp / traceId
+			// indexes getStats + purge rely on (idempotent, runs after schema ensure).
+			await ensureEvlogIndexes([
+				auditEnabled ? (options.audit?.entity ?? EvlogAudit) : undefined,
+				traceEnabled ? (options.trace?.entity ?? EvlogTrace) : undefined,
+				traceEnabled ? (options.trace?.queryEntity ?? EvlogTraceQuery) : undefined,
+			])
+		},
+
+		initRequest: async () => {
+			if (remult.dataProvider) captureDataProvider(remult.dataProvider)
+			try {
+				const { useLogger } = await import('evlog/sveltekit')
+				const log = useLogger()
+				log.set({ userId: remult.user?.id })
+			} catch {
+				// useLogger unavailable - silent skip
+			}
+		},
+	})
+
+	const innerHandle = evlogSvelteKitHandle(toMiddlewareOptions(config)) as unknown as Handle
+
+	// Track the response-produced boundary per request so SQL-span capture can
+	// tell pre- from post-response queries apart (see ./postResponse.ts). evlog
+	// emits the wide event once the response is produced; streaming bodies
+	// (remult liveQuery SSE) keep querying afterwards, and those late spans must
+	// be skipped rather than attached to the already-sealed event.
+	const handle: Handle = (input) =>
+		runWithResponseTracking(() =>
+			innerHandle({
+				...input,
+				resolve: async (event, opts) => {
+					const response = await input.resolve(event, opts)
+					markResponseProduced()
+					return response
+				},
+			}),
+		)
+
+	return { module, handle, config }
+}

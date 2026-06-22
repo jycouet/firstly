@@ -3,12 +3,13 @@
   "type": "module",
   "version": "0.0.2",
   "scripts": {
+    "sync-docs": "pnpm -F firstly sync-docs",
     "sync-skills": "node scripts/sync-skills.mjs",
-    "dev": "pnpm sync-skills && astro dev",
+    "dev": "pnpm sync-docs && pnpm sync-skills && astro dev",
     "lint": "kitql-lint -d",
     "format": "kitql-lint -f -d",
-    "start": "astro dev",
-    "build": "pnpm sync-skills && astro build",
+    "start": "pnpm sync-docs && pnpm sync-skills && astro dev",
+    "build": "pnpm sync-docs && pnpm sync-skills && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

@@ -1,0 +1,453 @@
+---
+title: Module - Evlog
+---
+
+Audit + request tracing + structured errors for Remult, built on top of [evlog](https://www.evlog.dev/).
+
+Replaces the older `firstly/changeLog` table-write pattern with one logging surface that:
+
+- emits **per-action audit events** (one wide event per entity create / update / delete) into `_ff_evlog_audit`
+- emits **per-request wide events** (method, path, status, duration) into `_ff_evlog_trace`
+- emits **one row per SQL query** into `_ff_evlog_trace_query`, linked to its parent trace via `traceId`
+- captures **client-side SPA navigations** as `source: 'client'` trace rows, batched in the browser and flushed via `sendBeacon` on `pagehide`
+- emits a **`denied` audit row** when a request gets 401/403 on an `/api/*` path - so audit dashboards see attempts, not just successes
+- supports **structured errors** with `why` / `fix` / `link` so failures stay debuggable
+- supports **fan-out drains** so the same events can also flow to Axiom / OTLP / Datadog / Sentry / file
+- ships a **boot-time purge** that drops trace + trace-query rows older than `retentionDays` (default 90); audit rows are never purged
+
+> **Scope.** evlog answers _"who changed which entity, what did this request do, which SQL ran"_ - backend audit + observability, stored in your own DB and joinable to your Remult entities. It is **not** a product-analytics tool: for funnels, retention, session replay, or feature flags use a dedicated platform (e.g. PostHog) alongside it. The two are complementary, not competing.
+
+## Installation
+
+```bash
+npm add firstly@latest
+```
+
+`evlog` ships transitively - you do not need to install it directly.
+
+## Setup
+
+Three pieces:
+
+1. Construct the `evlog()` setup once
+2. Register `ev.module` in your `remultApi` and place `ev.handle` in your SvelteKit hooks
+3. (Optional) Hook client-side navigations from your root layout
+
+```ts
+// src/server/_evlog.ts
+import { evlog } from 'firstly/evlog/server'
+
+export const ev = evlog({ service: 'my-app' })
+```
+
+```ts
+// src/server/api.ts
+import { remultApi } from 'remult/remult-sveltekit'
+
+import { ev } from './_evlog'
+
+export const api = remultApi({
+	dataProvider: /* your provider */,
+	modules: [
+		ev.module,
+		// ...other modules
+	],
+})
+```
+
+```ts
+// src/hooks.server.ts
+import { sequence } from '@sveltejs/kit/hooks'
+
+import { ev } from './server/_evlog'
+import { api as handleRemult } from './server/api'
+
+// ev.handle MUST come before handleRemult so useLogger() resolves
+// inside Remult lifecycle hooks and BackendMethod handlers.
+export const handle = sequence(ev.handle, handleRemult)
+```
+
+```svelte
+<!-- src/routes/+layout.svelte -->
+<script lang="ts">
+	import { initClientTrace } from 'firstly/evlog'
+
+	initClientTrace()
+</script>
+```
+
+## Usage - logging from your code
+
+This is the **everyday API**. Anywhere reachable from a request (`+page.server.ts` actions/loaders, `BackendMethod`s, Remult hooks), call `useLogger()` to grab the request-scoped logger.
+
+**You do not call `emit()`.** `ev.handle` emits exactly one wide event at the end of every request - your job is just to attach data to it.
+
+```ts
+import { useLogger } from 'evlog/sveltekit'
+
+import { BackendMethod } from 'remult'
+
+export class OrderController {
+	@BackendMethod({ allowed: true })
+	static async refund(orderId: string, amount: number) {
+		const log = useLogger()
+
+		// Attach fields to the request's wide event (the 80% case)
+		log.set({ orderId, amount, channel: 'admin' })
+
+		// Capture an info message on the same wide event
+		log.info('refund.started')
+
+		// ... do the work ...
+
+		log.set({ refunded: true })
+	}
+}
+```
+
+After the request, **one row** lands in `_ff_evlog_trace` carrying `orderId`, `amount`, `channel`, `refunded`, plus the standard method/path/status/duration fields. No extra calls.
+
+### The four tools, one event
+
+| Call                       | What it does                                                              |
+| -------------------------- | ------------------------------------------------------------------------- |
+| `log.set({ ... })`         | Merge fields into the wide event. Plain objects are merged recursively.   |
+| `log.info('msg', { ... })` | Capture an info-level message + optional fields on the same wide event.   |
+| `log.warn('msg', { ... })` | Same, warn level.                                                         |
+| `log.error(err, { ... })`  | Capture an `Error` (or string) + optional fields. Adds `error.stack` etc. |
+
+`set` accumulates. Calling it twice with `{ user: { id: '123' } }` then `{ user: { plan: 'pro' } }` ends up as `user: { id: '123', plan: 'pro' }` on the row.
+
+### Standalone events (cron, queue, CLI - outside a request)
+
+`useLogger()` only resolves inside a SvelteKit request. For background work, use `createLogger` from `evlog` and emit explicitly:
+
+```ts
+import { createLogger } from 'evlog'
+
+const log = createLogger({ jobId: 'nightly-billing', queue: 'cron' })
+log.set({ batch: { size: 50 } })
+log.info('billing.run.started')
+log.emit() // <- explicit emit; the request-handle auto-emit is not available here
+```
+
+## Usage - audit on entities
+
+Wrap entity options with `withEvlog` (mirrors `withChangeLog`'s shape). Tag the owning module so the audit row carries it:
+
+```ts
+import { Allow, Entity, Fields } from 'remult'
+import { withEvlog } from 'firstly/evlog'
+
+@Entity<Task>(
+	'tasks',
+	withEvlog({
+		allowApiCrud: Allow.everyone,
+		evlog: { module: 'tasks' },
+	}),
+)
+export class Task {
+	@Fields.id() id = ''
+	@Fields.string() title = ''
+	@Fields.boolean() completed = false
+}
+```
+
+Every save / delete now produces one `audit()` event with `action: 'tasks.create' | 'tasks.update' | 'tasks.delete'`, the actor (`remult.user`), the target (`{ type: 'tasks', id }`), and a JSON Patch `changes.patch[]` array.
+
+### Excluding fields
+
+```ts
+withEvlog({
+	evlog: {
+		module: 'users',
+		excludeColumns: (f) => [f.passwordHash], // skip entirely
+		excludeValues: (f) => [f.dob, f.ssn], // log key+op but value -> "[REDACTED]"
+	},
+})
+```
+
+### Opting out per-entity
+
+```ts
+withEvlog({ evlog: false })
+```
+
+### Migrating from `changeLog`
+
+`firstly/evlog` is the successor to `firstly/changeLog`; `withChangeLog` is `@deprecated` in favour of `withEvlog`. The two coexist cleanly - different tables (`_ff_change_logs` vs `_ff_evlog_audit`) and roles (`Roles_ChangeLog` vs `Roles_Evlog`) - so you can migrate entity by entity:
+
+1. **Leave existing data in place.** Old `_ff_change_logs` rows stay readable through the still-exported `ChangeLog` entity / `Roles_ChangeLog`. There is **no automatic backfill** - history is not copied into the audit table.
+2. **Swap per entity:** replace `withChangeLog({...})` with `withEvlog({ evlog: { module: '<name>' } })`. New mutations now land in `_ff_evlog_audit` as JSON-Patch `changes`, instead of flat `{ key, oldValue, newValue }` rows.
+3. **Cut over the dashboards** to `<EvlogStats>` (or the individual panels). The old changelog data remains queryable on its own table for as long as you keep it.
+
+Run both side by side during the transition; drop `changeLog` once every entity has moved over.
+
+## Usage - structured errors
+
+```ts
+import { createError } from 'firstly/evlog'
+
+throw createError({
+	status: 403,
+	message: 'Cannot refund - invoice already settled',
+	why: 'Settlement runs nightly; once an invoice is in the batch it cannot be reversed.',
+	fix: 'Issue a credit note instead via /admin/credit-notes.',
+	link: 'https://docs.example.com/refunds#post-settlement',
+})
+```
+
+Remult turns thrown errors into JSON responses, which means `evlog`'s SvelteKit handle never sees the throw. Use the `throwLogged` helper to attach the structured fields onto the active wide event before the throw bubbles up:
+
+```ts
+import { createError } from 'firstly/evlog'
+import { throwLogged } from 'firstly/evlog/server'
+
+throwLogged(
+	createError({
+		status: 403,
+		message: 'Cannot refund - invoice already settled',
+		why: 'Settlement runs nightly; once an invoice is in the batch it cannot be reversed.',
+		fix: 'Issue a credit note instead via /admin/credit-notes.',
+		link: 'https://docs.example.com/refunds#post-settlement',
+	}),
+)
+```
+
+The frontend can read the same fields on the rejected response from the BackendMethod call.
+
+## Usage - SQL spans
+
+Enabled by default. Each query is persisted as a row in `_ff_evlog_trace_query`, linked to its parent trace via `traceId`:
+
+```sql
+select sql, duration, args, traceId, path
+from _ff_evlog_trace_query
+order by timestamp desc
+limit 20;
+```
+
+Triggering route is denormalized onto each query row (`path`) so common aggregations need no join.
+
+Disable or filter:
+
+```ts
+evlog({
+	sqlSpans: false, // off
+	// or:
+	sqlSpans: { tablesToHide: ['cache'], minDurationMs: 1 }, // tune
+})
+```
+
+The audit / trace / trace-query tables themselves are auto-skipped (and a request-scoped suppression flag stops the drain's own writes from re-emitting and looping).
+
+Queries that run **after** the response is produced - notably remult **liveQuery SSE** re-runs, which keep querying for the life of the stream - can no longer attach to the request's already-emitted wide event. evlog skips those spans cleanly (they simply don't appear in `_ff_evlog_trace_query`); they do **not** warn or affect the trace row.
+
+## Retention
+
+Trace + trace-query rows older than `trace.retentionDays` (default 90) are purged once at every server boot.
+
+**Audit rows are never purged - by design.** The audit table is an immutable who-did-what-to-whom log, so time-based purging is deliberately not applied to it. If you need to satisfy a GDPR Art. 17 erasure (or your own retention policy), delete the relevant rows yourself: `_ff_evlog_audit` allows `delete` for `Roles_Evlog.Evlog_Admin`, so an admin can remove a subject's rows via the REST API or a Remult `repo(EvlogAudit).deleteMany(...)`. Be aware that audit `changes` can contain field values - see [Excluding fields](#excluding-fields) to keep sensitive columns out of the log in the first place.
+
+Admins can run an ad-hoc purge (trace + trace-query only):
+
+```ts
+import { EvlogPurgeController } from 'firstly/evlog/server'
+
+const { traces, queries } = await EvlogPurgeController.purgeOlderThan(30)
+```
+
+The BackendMethod is gated by `Roles_Evlog.Evlog_Admin`; surface it from a dashboard button or wire it to a cron of your choice.
+
+> **Stable dataProvider required.** Drains run _after_ the request resolves, in a detached Remult context bound to the first dataProvider evlog sees. evlog therefore expects a single, stable dataProvider - per-request (multi-tenant) dataProviders are not supported; point the `_ff_evlog_*` tables at one shared store.
+
+## Configuration
+
+```ts
+evlog({
+	service: 'my-app',
+	environment: 'production', // defaults to NODE_ENV
+	audit: {
+		enabled: true, // default true; set false to disable audit storage
+		entity: MyAuditEntity, // override for side-by-side migration
+	},
+	trace: {
+		enabled: true,
+		entity: MyTraceEntity,
+		queryEntity: MyTraceQueryEntity, // override for side-by-side migration
+		skipPaths: ['/api/health', '/api/_lq*'], // MERGED with the built-in defaults (evlog self-traffic + liveQuery keepalive); exact match or trailing-* prefix
+		retentionDays: 90, // boot-time purge cutoff (audits unaffected)
+	},
+	drains: [
+		// fan out alongside the Remult drains
+		// import { createAxiomDrain } from 'evlog/axiom'
+		// createAxiomDrain({ token: process.env.AXIOM_TOKEN, dataset: 'my-app' }),
+	],
+	sqlSpans: true, // see above
+})
+```
+
+### Enrich events (browser, geo, request size, ...)
+
+#### Browser / OS / device - the `context` option
+
+To populate the **Browsers / OS / Devices** dashboard panels, opt into user-agent parsing:
+
+```ts
+// src/server/_evlog.ts
+import { evlog } from 'firstly/evlog/server'
+
+export const ev = evlog({
+	service: 'my-app',
+	context: { userAgent: true }, // off by default
+})
+```
+
+That wires evlog's user-agent enricher, writing `event.userAgent = { raw, browser:{name,version}, os:{name,version}, device:{type} }` onto each request. The panels group by **name + major version** (e.g. `Chrome 120`, `macOS 14`); device shows the UA `device.type`.
+
+> Client-side SPA navigation rows (`source: 'client'`) are emitted without the server enricher, so browser stats come from server request rows. The aggregation skips rows that have no `event.userAgent`.
+
+#### Other enrichers - the `enrich` option
+
+For geo / request size / trace context, wire evlog's other enrichers through `enrich` (composed alongside `context`):
+
+```ts
+import {
+	createGeoEnricher,
+	createRequestSizeEnricher,
+	createTraceContextEnricher,
+} from 'evlog/enrichers'
+
+import { evlog } from 'firstly/evlog/server'
+
+const enrichers = [
+	createGeoEnricher(), // event.geo = { country, region, city, ... } (Vercel/CF headers)
+	createRequestSizeEnricher(), // event.requestSize
+	createTraceContextEnricher(), // event.traceContext + event.traceId/spanId
+]
+
+export const ev = evlog({
+	service: 'my-app',
+	context: { userAgent: true },
+	enrich: (ctx) => {
+		for (const e of enrichers) e(ctx)
+	},
+})
+```
+
+The fields land on `_ff_evlog_trace.event` (JSON column). Query them with the JSON ops your dialect provides - in Postgres:
+
+```sql
+select event->'userAgent'->'browser'->>'name' as browser, count(*)
+from _ff_evlog_trace
+group by 1 order by 2 desc;
+```
+
+`<EvlogStats>` already does this aggregation in JS, so no SQL needed for the demo dashboard.
+
+## Display stats
+
+> **Tailwind setup (required).** The stats UI ships as unbundled Svelte and styles itself with semantic utility classes (`bg-card`, `text-muted-foreground`, `grid`, ...). Tailwind v4 ignores `node_modules` by default, so tell it to scan firstly or the dashboard renders **unstyled**:
+>
+> ```css
+> /* app.css */
+> @import 'tailwindcss';
+> @source '../node_modules/firstly/esm';
+> ```
+>
+> Your app must also define the shadcn-style theme tokens it uses - `background` `foreground` `card` `muted` `muted-foreground` `border` `input` `ring` `primary` `accent` `destructive`, plus the status tokens `success` `info` `warning` `error` (used for CRUD verbs, HTTP status and slow-query highlights). Apps already on shadcn tokens only need to add the status four.
+
+Two ways to use the stats UI: the all-in-one orchestrator, or pick the panels you want.
+
+`<EvlogStats>` and the `Requests` / `Audit` / `SQL` tabs use `<FF_Grid>`, so the host must call `initRemultSvelteReactivity()` once (the standard firstly/svelte setup).
+
+### All-in-one - `<EvlogStats>`
+
+Drop it anywhere a logged-in admin can reach. It calls `EvlogStatsController.getStats(year)` once, which fetches `_ff_evlog_audit` + `_ff_evlog_trace` for the year and aggregates in JS - dialect-agnostic, works on Postgres / SQLite / anything Remult drives. Built-in year selector + Refresh button.
+
+```svelte
+<script lang="ts">
+	import { EvlogStats } from 'firstly/evlog'
+</script>
+
+<EvlogStats />
+<!-- or pin the year / cap rows -->
+<EvlogStats year={2026} rowLimit={50_000} />
+```
+
+### Pick and choose
+
+Each panel is a standalone component that takes its data as a prop. Fetch once in the parent, pass slices to whichever panels you want. Use `<EvlogStatsHeader>` for the year selector + Refresh button.
+
+```svelte
+<script lang="ts">
+	import { onMount } from 'svelte'
+
+	import {
+		EvlogStatsController,
+		EvlogStatsHeader,
+		EvlogStatsQueriesHot,
+		EvlogStatsTotals,
+		type EvlogStatsData,
+	} from 'firstly/evlog'
+
+	let year = $state(new Date().getFullYear())
+	let stats = $state<EvlogStatsData | null>(null)
+	let loading = $state(false)
+
+	async function load() {
+		loading = true
+		stats = await EvlogStatsController.getStats(year)
+		loading = false
+	}
+	onMount(load)
+</script>
+
+<EvlogStatsHeader bind:year {loading} onRefresh={load} title="My dashboard" />
+
+{#if stats}
+	<EvlogStatsTotals data={stats.totals} year={stats.year} />
+	<EvlogStatsQueriesHot data={stats.queries.hottest} />
+{/if}
+```
+
+### Available panels
+
+| Component                    | Data prop                      | Shows                                                                                            |
+| ---------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `<EvlogStatsHeader>`         | (own state)                    | Year selector + Refresh button + spinner. `bind:year`, `loading`, `onRefresh`, optional `title`. |
+| `<EvlogStatsTotals>`         | `data: stats.totals`, `year`   | Traces, audits, unique actors.                                                                   |
+| `<EvlogStatsTraces>`         | `data: stats.monthlyTraces`    | Per-month traces, server vs client (SPA navs) split.                                             |
+| `<EvlogStatsCrud>`           | `data: stats.monthlyAudits`    | Per-month creates / updates / deletes (parsed from `action` verb suffix).                        |
+| `<EvlogStatsModules>`        | `data: stats.monthlyByModule`  | Events per `module` per month - tag emits with `module: 'reports'` to slice.                     |
+| `<EvlogStatsTopPages>`       | `data: stats.topPages`         | Most-visited pathnames (client navs).                                                            |
+| `<EvlogStatsPageFlows>`      | `data: stats.pageFlows`        | Top from→to navigation pairs (LAG by `actorId`).                                                 |
+| `<EvlogStatsBrowsers>`       | `data: stats.browsers`         | Browser %, requires `context: { userAgent: true }` (see Setup).                                  |
+| `<EvlogStatsOsDevices>`      | `os`, `devices`                | OS + device breakdown (same `context: { userAgent: true }` opt-in).                              |
+| `<EvlogStatsQueriesSlowest>` | `data: stats.queries.slowest`  | Top 10 SQL by `max(duration)` - one-off pathological queries.                                    |
+| `<EvlogStatsQueriesTopTime>` | `data: stats.queries.mostTime` | Top 10 SQL by `sum(duration)` - fast-but-frequent killers.                                       |
+| `<EvlogStatsQueriesHot>`     | `data: stats.queries.hottest`  | Top 10 SQL by call count - good for spotting N+1.                                                |
+
+`getStats` does one `repo.find()` per table, capped at `rowLimit` (default 100k); aggregation is in JS so it works on Postgres / SQLite / anything Remult drives. Above that volume, subclass `EvlogStatsController` and replace `getStats` with a dialect-specific SQL view.
+
+At boot, evlog creates `timestamp` + `traceId` indexes on the `_ff_evlog_*` tables (remult only indexes the primary key), so the year-range scans here and the retention purge stay fast as the tables grow. It's an idempotent `create index if not exists`, portable across SQLite + Postgres, and a no-op for non-SQL providers - call `ensureEvlogIndexes([...])` from `firstly/evlog/server` yourself if you manage schema separately.
+
+## Roles
+
+`Roles_Evlog.Evlog_Admin` controls **read**, **insert**, and **delete** on the storage entities. The dashboard panels read through `EvlogStatsController.getStats()`, so the role grant flows through. Grant it to operators / dashboards; never default users.
+
+> **Read access is admin-only by default.** Audit rows leak who-did-what to whom; trace rows leak schema names + parameter values + paths. Both entities default `allowApiRead: Roles_Evlog.Evlog_Admin`.
+
+### What gets captured (and how to minimise it)
+
+evlog records **actual values**, not just "a change happened" - so it can capture PII. By default:
+
+- **Audit `changes`** hold the real before/after values of changed fields. Redact per entity with [`excludeColumns` / `excludeValues`](#excluding-fields).
+- **SQL `args`** hold the bound parameter values of every captured query (`_ff_evlog_trace_query.args`). SQL spans are on by default - turn them off with `evlog({ sqlSpans: false })`, or skip noisy tables with `evlog({ sqlSpans: { tablesToHide: [...] } })`.
+- **Client `searchParams`** of each SPA navigation are stored on the trace event. Don't put secrets in query strings, or skip client tracing by not calling `initClientTrace()`.
+
+All of this lives in your own DB under your residency / backup / role controls - nothing leaves to a third party. Tune the above to your privacy requirements before enabling in production.
+
+## Re-exports from `evlog`
+
+`firstly/evlog` re-exports the common evlog APIs (`createError`, `parseError`, `auditDiff`, `defineAuditAction`, plus the `AuditInput` / `WideEvent` / `DrainFn` types). The only server-only helper is `throwLogged` (from `firstly/evlog/server`). You should not need to install `evlog` separately.

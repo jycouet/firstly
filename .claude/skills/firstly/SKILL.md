@@ -1,6 +1,6 @@
 ---
 name: firstly
-description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, ff (reactive Svelte layer, many/one), the cell layer (buildCells, FF_Cell, boutique FF_Grid/FF_Group), published modules (mail, cron, changeLog), and the Boutique copy-paste recipes (auth, grid). Use when the user mentions firstly, FF_Entity, BaseEnum, ff/FF_Many/FF_One, buildCells/FF_Cell/FF_Grid/FF_Group, firstly/mail, firstly/cron, or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
+description: Firstly-specific patterns on top of Remult - FF_Entity (with built-in changelog), BaseEnum, ff (reactive Svelte layer, many/one), the cell layer (buildCells, FF_Cell, boutique FF_Grid/FF_Group), published modules (mail, cron, changeLog, evlog - in-DB audit/trace observability that supersedes changeLog), and the Boutique copy-paste recipes (auth, grid). Use when the user mentions firstly, FF_Entity, BaseEnum, ff/FF_Many/FF_One, buildCells/FF_Cell/FF_Grid/FF_Group, firstly/mail, firstly/cron, firstly/evlog (withEvlog/EvlogStats/initClientTrace), or the boutique folder, or when building with `firstly` alongside Remult. Framework-agnostic but SvelteKit is the reference setup.
 ---
 
 # Firstly Patterns
@@ -83,7 +83,7 @@ export const api = remultApi({
 })
 ```
 
-Available today: `mail`, `cron`, `changeLog`, `sqlAdmin`. See [firstly.fun](https://firstly.fun) for the full list.
+Available today: `mail`, `cron`, `changeLog`, `evlog`, `sqlAdmin`. See [firstly.fun](https://firstly.fun) for the full list.
 
 ### `sqlAdmin` - drop-in raw SQL page
 
@@ -106,6 +106,37 @@ export const api = remultApi({ modules: [sqlAdmin({ path: '/sql/admin' })] })
 ```
 
 The component ships prefilled queries (DB size, table sizes, indexes, default `SELECT`) and logs results as `for AI: <rows>` in the browser console - so chrome-devtools / AI agents can grab them with `list_console_messages`.
+
+### `evlog` - in-database observability (supersedes `changeLog`)
+
+Self-hosted audit + request traces + per-query SQL spans, stored in your own DB (`_ff_evlog_audit` / `_ff_evlog_trace` / `_ff_evlog_trace_query`), JOINable to your entities. The successor to `changeLog` - `withChangeLog` is `@deprecated` in favour of `withEvlog`. Built on the external `evlog` pkg (pinned in firstly; you don't install it).
+
+Three server touch points - define once, register the module, add the handle:
+
+```ts
+// src/server/_evlog.ts
+import { evlog } from 'firstly/evlog/server'
+export const ev = evlog({ service: 'my-app', context: { userAgent: true } })
+
+// api.ts          -> modules: [ev.module, ...]
+// hooks.server.ts -> handle = sequence(ev.handle, handleRemult)  // ev.handle FIRST
+```
+
+That alone gives **server-only tracking** (the default). Two opt-ins:
+
+```svelte
+import { initClientTrace } from 'firstly/evlog'   // +layout.svelte: ONLY browser piece (SPA-nav capture)
+initClientTrace()
+
+import { EvlogStats } from 'firstly/evlog'         // admin dashboard (tabs use <FF_Grid>)
+<EvlogStats />
+```
+
+`<EvlogStats>` (and any firstly component) is unbundled Svelte styled with Tailwind utilities. Tailwind v4 skips `node_modules`, so the consumer MUST add `@source '../node_modules/firstly/esm';` to `app.css` or it renders **unstyled** - plus define the shadcn theme tokens incl. the status four (`success`/`info`/`warning`/`error`). Its grid tabs need `initRemultSvelteReactivity()`.
+
+Per-entity audit: wrap options with `withEvlog({ evlog: { module: '<name>' } })` (mirrors `withChangeLog`); `withEvlog({ evlog: false })` opts out.
+
+Import boundary: **`createError`/`parseError` (and the audit helpers) live on the browser-safe `firstly/evlog`**; only the request-scoped helper `throwLogged` is server-only (`firstly/evlog/server`). See [evlog docs](https://firstly.fun) for logging, structured errors, retention/purge, enrichers, and the individual stats panels.
 
 ## `FF_Allow` / `FF_Filter` - row-level helpers
 

@@ -43,6 +43,11 @@ declare module 'remult' {
  * }
  * ```
  */
+/**
+ * @deprecated Since 0.5 - use `evlog()` from `firstly/evlog/server` instead.
+ * The `evlog()` setup registers audit + trace + SQL-span entities through a
+ * single config object and exposes a SvelteKit handle. See `firstly/evlog`.
+ */
 export const changeLog = () => {
 	return new Module({
 		key: 'changeLog',

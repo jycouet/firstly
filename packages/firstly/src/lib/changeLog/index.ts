@@ -134,6 +134,15 @@ export class FieldDecider<entityType> {
 	}
 }
 
+/**
+ * @deprecated Since 0.5 - use `withEvlog` from `firstly/evlog` instead.
+ * `withChangeLog` writes one row per field change into `_ff_change_logs`;
+ * `withEvlog` emits a single audit event per action through evlog's drain
+ * pipeline (default storage: `_ff_evlog_audit`), which composes with traces,
+ * SQL spans, and external sinks (Axiom / OTLP / Datadog / Sentry / file).
+ * The two stay side-by-side: tables and APIs do not collide. See
+ * `firstly/evlog`'s README for migration.
+ */
 export const withChangeLog = <entityType>(options?: EntityOptions<entityType>) => {
 	return {
 		...options,

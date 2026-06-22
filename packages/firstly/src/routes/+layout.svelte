@@ -7,6 +7,7 @@
 
 	import '../app.css'
 
+	import { initClientTrace } from 'firstly/evlog'
 	import { FF_DialogManager, initRemultSvelteReactivity } from 'firstly/svelte'
 
 	import type { LayoutData } from './$types'
@@ -19,10 +20,13 @@
 	let { children, data }: Props = $props()
 	remult.user = data.user
 
+	initClientTrace()
+
 	let sidebarOpen = $state(false)
 
 	const links: { path: string; text: string; target?: string }[] = [
 		{ path: route('/'), text: 'Home' },
+		{ path: '/tasks', text: '📝 Tasks (evlog demo)' },
 		{ path: route('/ff-repo'), text: 'Demo Grid' },
 		{ path: '/dialog', text: 'Dialogs' },
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },

@@ -2,6 +2,9 @@ packages:
  - docs
  - packages/*
 
+onlyBuiltDependencies:
+ - better-sqlite3
+
 # Supply-chain cooldown: don't install package versions published less than a day
 # ago (mitigates a compromised-release window). Trusted publishers are excluded so
 # our own/closely-tracked packages still update immediately.

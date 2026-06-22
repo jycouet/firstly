@@ -1,5 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
+import { svelteTesting } from '@testing-library/svelte/vite'
 import { defineConfig, loadEnv } from 'vite'
 
 import type { KIT_ROUTES } from '$modules/ROUTES'
@@ -50,13 +51,31 @@ const config = defineConfig(({ mode }) => {
 		test: {
 			projects: [
 				{
-					// Pure-TS tests run in node.
+					// Pure-TS tests run in node. No remult async-hooks setup here: these
+					// read entity metadata off the default global remult at collection time
+					// (initAsyncHooks would make that throw "outside a valid request cycle").
 					extends: true,
 					test: {
 						name: 'node',
 						environment: 'node',
 						include: ['src/**/*.{test,spec}.{js,ts}'],
-						exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+						exclude: ['src/**/*.svelte.{test,spec}.{js,ts}', 'src/lib/evlog/**/*.spec.ts'],
+					},
+				},
+				{
+					// evlog server/controller specs exercise `withRemult({ dataProvider })`
+					// against InMemoryDataProvider, which needs AsyncLocalStorage enabled.
+					extends: true,
+					test: {
+						name: 'evlog-node',
+						environment: 'node',
+						include: ['src/lib/evlog/**/*.spec.ts'],
+						exclude: [
+							'src/**/*.svelte.{test,spec}.{js,ts}',
+							'src/lib/evlog/stats/**/*.spec.ts',
+							'src/lib/evlog/EvlogStats.spec.ts',
+						],
+						setupFiles: ['./src/test-setup.ts'],
 					},
 				},
 				{
@@ -73,6 +92,17 @@ const config = defineConfig(({ mode }) => {
 							headless: true,
 							instances: [{ browser: 'chromium' }],
 						},
+					},
+				},
+				{
+					// evlog dashboard panels: presentational, asserted via @testing-library/svelte in jsdom.
+					extends: true,
+					plugins: [svelteTesting()],
+					test: {
+						name: 'svelte-jsdom',
+						include: ['src/lib/evlog/stats/**/*.spec.ts', 'src/lib/evlog/EvlogStats.spec.ts'],
+						environment: 'jsdom',
+						setupFiles: ['./src/test-setup.ts'],
 					},
 				},
 			],
