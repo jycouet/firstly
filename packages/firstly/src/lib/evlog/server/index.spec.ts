@@ -74,6 +74,35 @@ describe('evlog() factory', () => {
 		expect((ctx.event.userAgent as { browser?: { name?: string } }).browser?.name).toBe('Chrome')
 	})
 
+	it('handle wraps evlog: calls resolve, marks the response produced, returns the response', async () => {
+		const { initLogger } = await import('evlog')
+		const { isPostResponse } = await import('./postResponse.js')
+		initLogger({ env: { service: 'test' } } as never)
+
+		const ev = evlog({ service: 'x' })
+		const response = new Response('ok')
+		let postWhileResolving: boolean | undefined
+
+		const out = await ev.handle({
+			event: {
+				// A default skip-path so the trace drain no-ops (no DB context here).
+				request: new Request('http://localhost/api/_liveQueryKeepAlive'),
+				url: new URL('http://localhost/api/_liveQueryKeepAlive'),
+				locals: {},
+			},
+			resolve: async () => {
+				// Still inside the request, before the wide event is emitted.
+				postWhileResolving = isPostResponse()
+				return response
+			},
+		} as never)
+
+		expect(postWhileResolving).toBe(false)
+		expect(out).toBe(response)
+		// The tracking scope is exited once the handle settles.
+		expect(isPostResponse()).toBe(false)
+	})
+
 	it('context.userAgent still runs the user-supplied enrich', async () => {
 		let called = false
 		const ev = evlog({

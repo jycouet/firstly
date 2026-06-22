@@ -239,6 +239,8 @@ evlog({
 
 The audit / trace / trace-query tables themselves are auto-skipped (and a request-scoped suppression flag stops the drain's own writes from re-emitting and looping).
 
+Queries that run **after** the response is produced - notably remult **liveQuery SSE** re-runs, which keep querying for the life of the stream - can no longer attach to the request's already-emitted wide event. evlog skips those spans cleanly (they simply don't appear in `_ff_evlog_trace_query`); they do **not** warn or affect the trace row.
+
 ## Retention
 
 Trace + trace-query rows older than `trace.retentionDays` (default 90) are purged once at every server boot.

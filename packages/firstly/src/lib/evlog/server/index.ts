@@ -21,6 +21,7 @@ import { captureDataProvider } from './dataProviderCapture.js'
 import { EvlogPurgeController } from './EvlogPurgeController.js'
 import { firstlyAuditPlugin } from './plugins/audit.js'
 import { firstlyTracePlugin } from './plugins/trace.js'
+import { markResponseProduced, runWithResponseTracking } from './postResponse.js'
 import { ensureEvlogIndexes } from './remultDrains.js'
 
 // Re-exports
@@ -184,7 +185,24 @@ export const evlog = (options: EvlogModuleOptions = {}): FirstlyEvlog => {
 		},
 	})
 
-	const handle = evlogSvelteKitHandle(toMiddlewareOptions(config)) as unknown as Handle
+	const innerHandle = evlogSvelteKitHandle(toMiddlewareOptions(config)) as unknown as Handle
+
+	// Track the response-produced boundary per request so SQL-span capture can
+	// tell pre- from post-response queries apart (see ./postResponse.ts). evlog
+	// emits the wide event once the response is produced; streaming bodies
+	// (remult liveQuery SSE) keep querying afterwards, and those late spans must
+	// be skipped rather than attached to the already-sealed event.
+	const handle: Handle = (input) =>
+		runWithResponseTracking(() =>
+			innerHandle({
+				...input,
+				resolve: async (event, opts) => {
+					const response = await input.resolve(event, opts)
+					markResponseProduced()
+					return response
+				},
+			}),
+		)
 
 	return { module, handle, config }
 }

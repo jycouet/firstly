@@ -2,6 +2,7 @@ import { useLogger } from 'evlog/sveltekit'
 
 import { SqlDatabase } from 'remult'
 
+import { isPostResponse } from './postResponse.js'
 import { isLoggingSuppressed } from './suppress.js'
 
 let mounted = false
@@ -44,6 +45,13 @@ export function mountSqlSpans(options?: { tablesToHide?: string[]; minDurationMs
 
 	SqlDatabase.LogToConsole = async (duration: number, query: string, args: Record<string, any>) => {
 		if (isLoggingSuppressed()) {
+			await callPrevious(previous, duration, query, args)
+			return
+		}
+		// The response is already produced (streaming body / liveQuery SSE re-run):
+		// evlog has emitted + sealed the wide event, so attaching would be dropped
+		// with a warning. Skip the span instead of attaching it after the fact.
+		if (isPostResponse()) {
 			await callPrevious(previous, duration, query, args)
 			return
 		}
