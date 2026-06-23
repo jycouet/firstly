@@ -53,7 +53,7 @@ catalogs:
   '@changesets/cli': 2.31.0
 
  svelte:
-  'svelte': 5.40.0
+  'svelte': 5.56.4
   svelte-check: 4.6.0
   svelte-micro: 2.5.7
 
