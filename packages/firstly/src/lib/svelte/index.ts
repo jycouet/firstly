@@ -38,7 +38,7 @@ export { default as FF_ToastManager } from './FF_ToastManager.svelte'
 export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
 export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
-export { remultApiUniversalLoad } from './remultApiLoad.js'
+export { remultApiUniversalLoad, remultApiServerLoad } from './remultApiLoad.js'
 
 // Headless cell primitives (FF_Grid / FF_Group are boutique-only — copy from src/boutique/grid).
 export {

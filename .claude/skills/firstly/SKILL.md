@@ -221,19 +221,18 @@ export const load = remultApiUniversalLoad(async ({ params }) => ({
 }))
 
 // +page.server.ts - gate a SERVER read (instead of the privileged in-process DB)
-import { remultApiServerLoad } from 'firstly/svelte/server'
+import { remultApiServerLoad } from 'firstly/svelte'
 export const load = remultApiServerLoad(async () => ({ tasks: await repo(Task).find() }))
 ```
 
-Key rules:
+Both (from `firstly/svelte`) run the body in a scoped `withRemult` bound to `event.fetch`, so plain
+global `repo()` / `ff()` reads through `/api` (gated) and a concurrent `+page.server.ts` is unaffected.
 
-- **`remultApiUniversalLoad`** (`firstly/svelte`): SSR runs the body in a scoped `withRemult` bound to
-  `event.fetch` (gated, and isolated from a concurrent `+page.server.ts`); CSR reuses the inlined SSR
-  response. Plain global `repo()` / `ff()` inside the body just works.
-- **`remultApiServerLoad`** (`firstly/svelte/server`, server-only): wraps the ambient
-  `remult.dataProvider` so direct `repo()` reads pass the API gate as the current user. Use it only
-  when a server load should see exactly what the API exposes; otherwise a server `load` keeps the
-  privileged DB (and gate rows with `backendPrefilter`). BackendMethods keep their own `allowed` gate.
+- **`remultApiUniversalLoad`**: on CSR/hydration it points the client `remult` at `event.fetch` to
+  reuse the inlined SSR response; on SSR it scopes the gated read.
+- **`remultApiServerLoad`**: same gating for a `+page.server.ts`. Use it only when a server load should
+  see exactly what the API exposes; otherwise a server load keeps the privileged DB (gate rows with
+  `backendPrefilter`). BackendMethods keep their own `allowed` gate.
 - Both carry `remult.user` into the scope and pass `event` through untouched.
 
 ## Cell layer - metadata-driven grid & form (Svelte 5)
