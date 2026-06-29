@@ -1,6 +1,6 @@
 import { repo } from 'remult'
 
-import { remultApiServerLoad } from '$lib/svelte'
+import { remultApiServerLoad } from '$lib/svelte/server'
 
 import { ApiItem } from '$modules/demo/ApiItem'
 
