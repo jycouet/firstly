@@ -1,5 +1,11 @@
 # firstly
 
+## 0.7.1
+
+### Patch Changes
+
+- [#309](https://github.com/jycouet/firstly/pull/309) [`a47b6a7`](https://github.com/jycouet/firstly/commit/a47b6a75285a0643342b35107963c3f56dbd71ca) Thanks [@jycouet](https://github.com/jycouet)! - Add `remultApiUniversalLoad` (`firstly/svelte`) and `remultApiServerLoad` (`firstly/svelte/server`): wrap a SvelteKit load so plain `repo()` reads apply the entity's API rules (`allowApiRead` / `apiPrefilter`) as the current user. The universal one binds to `event.fetch` (SSR + CSR); the server one dispatches in-process via `TestApiDataProvider`.
+
 ## 0.7.0
 
 ### Minor Changes
