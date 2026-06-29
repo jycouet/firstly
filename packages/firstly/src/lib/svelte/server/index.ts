@@ -1,7 +1,7 @@
+import type { ServerLoadEvent } from '@sveltejs/kit'
+
 import { remult, withRemult } from 'remult'
 import { TestApiDataProvider } from 'remult/server'
-
-import type { ServerLoadEvent } from '@sveltejs/kit'
 
 // SERVER-ONLY (imports `remult/server`). Never import from client-reachable code.
 

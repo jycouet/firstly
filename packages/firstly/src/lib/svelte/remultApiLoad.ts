@@ -1,6 +1,6 @@
-import { RestDataProvider, isBackend, remult, withRemult } from 'remult'
-
 import type { LoadEvent } from '@sveltejs/kit'
+
+import { isBackend, remult, RestDataProvider, withRemult } from 'remult'
 
 /**
  * Wrap a SvelteKit UNIVERSAL load (`+page.ts` / `+layout.ts`) so plain global

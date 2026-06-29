@@ -1,8 +1,7 @@
 import { repo } from 'remult'
 
-import { remultApiServerLoad } from '$lib/svelte/server'
-
 import { ApiItem } from '$modules/demo/ApiItem'
+import { remultApiServerLoad } from '$lib/svelte/server'
 
 // Server load wrapped so its repo() reads pass the API gate (only `pub` rows),
 // instead of the privileged in-process provider that would see all rows.

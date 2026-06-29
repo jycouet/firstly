@@ -1,8 +1,7 @@
 import { remult, repo } from 'remult'
 
-import { remultApiUniversalLoad } from '$lib/svelte'
-
 import { ApiItem } from '$modules/demo/ApiItem'
+import { remultApiUniversalLoad } from '$lib/svelte'
 
 // Universal load: plain global repo(), gated by the API on SSR and CSR.
 // Only `pub` rows come back (the private one is filtered by apiPrefilter).
