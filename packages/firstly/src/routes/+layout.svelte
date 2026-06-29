@@ -25,6 +25,8 @@
 		{ path: route('/'), text: 'Home' },
 		{ path: route('/ff-repo'), text: 'Demo Grid' },
 		{ path: '/dialog', text: 'Dialogs' },
+		{ path: '/remult-api-universal', text: 'API load (universal)' },
+		{ path: '/remult-api-server', text: 'API load (server)' },
 		{ path: route('remult_admin'), text: '🌐 Remult Admin', target: '_blank' },
 		{
 			path: route('github', { owner: 'remult', repo: 'remult' }),

@@ -206,6 +206,36 @@ refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → g
 
 Types: `FF_Many<T, Strategy>`, `FF_One<T>`, `FF_Builder<T>`, `FF_RepoOptions`, `ManyStrategy`.
 
+## `remultApiUniversalLoad` / `remultApiServerLoad` - reading in loads with API rules
+
+`ff` is component-level (browser-only). To read in a SvelteKit **`load`** with the entity's API
+rules applied (`allowApiRead` / `apiPrefilter`, as the current user), wrap the load. Server code is
+privileged by default - a bare `repo()` on the server bypasses the API gate - so these wrappers route
+the read through the API instead.
+
+```ts
+// +page.ts (universal) - gated on SSR AND CSR, plain global repo()
+import { remultApiUniversalLoad } from 'firstly/svelte'
+export const load = remultApiUniversalLoad(async ({ params }) => ({
+	tasks: await repo(Task).find({ where: { done: false } }),
+}))
+
+// +page.server.ts - gate a SERVER read (instead of the privileged in-process DB)
+import { remultApiServerLoad } from 'firstly/svelte/server'
+export const load = remultApiServerLoad(async () => ({ tasks: await repo(Task).find() }))
+```
+
+Key rules:
+
+- **`remultApiUniversalLoad`** (`firstly/svelte`): SSR runs the body in a scoped `withRemult` bound to
+  `event.fetch` (gated, and isolated from a concurrent `+page.server.ts`); CSR reuses the inlined SSR
+  response. Plain global `repo()` / `ff()` inside the body just works.
+- **`remultApiServerLoad`** (`firstly/svelte/server`, server-only): wraps the ambient
+  `remult.dataProvider` so direct `repo()` reads pass the API gate as the current user. Use it only
+  when a server load should see exactly what the API exposes; otherwise a server `load` keeps the
+  privileged DB (and gate rows with `backendPrefilter`). BackendMethods keep their own `allowed` gate.
+- Both carry `remult.user` into the scope and pass `event` through untouched.
+
 ## Cell layer - metadata-driven grid & form (Svelte 5)
 
 Grids and forms are built from **field metadata**, in two halves (see

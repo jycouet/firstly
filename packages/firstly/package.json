@@ -95,6 +95,10 @@
       "svelte": "./esm/svelte/index.js",
       "default": "./esm/svelte/index.js"
     },
+    "./svelte/server": {
+      "types": "./esm/svelte/server/index.d.ts",
+      "default": "./esm/svelte/server/index.js"
+    },
     "./vite": {
       "types": "./esm/vite/index.d.ts",
       "default": "./esm/vite/index.js"
