@@ -9,7 +9,8 @@ Grids and forms are built from **field metadata** declared once on the entity an
   `<FF_Grid>`** — the batteries-included demo grid (default skin + bundled input, zero setup:
   `import { FF_Grid } from 'firstly/svelte'`; just mount `<FF_DialogManager>` once).
 - **🛍️ Boutique** (`src/boutique/grid`, copy-own — degit when you want to own the look): `App_Grid`
-  (CRUD grid), `App_Group` (bound record), `Input`. `FF_` = firstly publishes it; `App_` = your app's.
+  (CRUD grid), `App_Group` (bound record), `Input`. (`FF_` = firstly's, `App_` = yours - full rule in
+  the SKILL.md Naming section.)
 
 Key rules:
 

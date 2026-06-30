@@ -342,6 +342,14 @@ export const Roles = {
 
 Use `Roles.*` in `allowApi*` decorators and assign them to users via the auth boutique's `addRolesToUser` helper or `SUPER_ADMIN_EMAILS`.
 
-## Naming - `FF_` Prefix
+## Naming - `FF_` (firstly's) vs `App_` (yours)
 
-Types and helpers exported by firstly that could collide with user code use the `FF_` prefix: `FF_Entity`, `FF_Role`, `FF_Allow`, `FF_Filter`, `FF_Icon`, `FF_LogToConsole`, `FF_Many` / `FF_One` (reactive handle types). If you see it in an import path, it's firstly's. Factory functions stay camelCase (e.g. `ff`).
+The prefix tells you who owns the code:
+
+- **`FF_` = firstly publishes it** - imported from the package, upgrades with it. Used for exports
+  that could collide with user code: `FF_Entity`, `FF_Role`, `FF_Allow`, `FF_Filter`, `FF_Icon`,
+  `FF_LogToConsole`, `FF_Many` / `FF_One` (reactive handle types), `FF_Grid` / `FF_CellValue`. If you
+  see it in an import path, it's firstly's. Factory functions stay camelCase (e.g. `ff`).
+- **`App_` = your app's** - the copy-own **boutique** version you degit into your codebase and own from
+  then on (e.g. `App_Grid` / `App_Group`, copied from `FF_Grid` / `GroupFields`). Often a boutique
+  recipe is the same code as its `FF_` counterpart, just yours to restyle.
