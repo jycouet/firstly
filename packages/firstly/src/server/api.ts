@@ -1,11 +1,12 @@
 import Database from 'better-sqlite3'
 
-import { SqlDatabase } from 'remult'
+import { repo, SqlDatabase } from 'remult'
 import { BetterSqlite3DataProvider } from 'remult/remult-better-sqlite3'
 import { remultApi } from 'remult/remult-sveltekit'
 import { carbone } from 'firstly/carbone/server'
 import { changeLog } from 'firstly/changeLog/server'
 
+import { ApiItem } from '$modules/demo/ApiItem'
 import { Task } from '$modules/demo/Task'
 import { MailController } from '$modules/mail/MailController'
 import { task } from '$modules/task/server'
@@ -32,8 +33,16 @@ export const getDataProvider = () => {
 export const api = remultApi({
 	dataProvider: async () => getDataProvider(),
 	admin: true,
-	entities: [Task],
+	entities: [Task, ApiItem],
 	controllers: [MailController],
+	initApi: async () => {
+		if ((await repo(ApiItem).count()) === 0) {
+			await repo(ApiItem).insert([
+				{ title: 'public item', pub: true },
+				{ title: 'private item', pub: false },
+			])
+		}
+	},
 	modules: [
 		ev.module,
 		changeLog(),

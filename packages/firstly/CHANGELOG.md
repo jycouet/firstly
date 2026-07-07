@@ -1,5 +1,17 @@
 # firstly
 
+## 0.7.2
+
+### Patch Changes
+
+- [#313](https://github.com/jycouet/firstly/pull/313) [`501d922`](https://github.com/jycouet/firstly/commit/501d92220ec32a19622eed403c85f445c3ccc68e) Thanks [@jycouet](https://github.com/jycouet)! - `remultApiServerLoad` reads through `event.fetch` instead of `TestApiDataProvider`: concurrency-safe on released remult (no process-global static swap), and the API side runs the app's real auth/hooks.
+
+## 0.7.1
+
+### Patch Changes
+
+- [#309](https://github.com/jycouet/firstly/pull/309) [`a47b6a7`](https://github.com/jycouet/firstly/commit/a47b6a75285a0643342b35107963c3f56dbd71ca) Thanks [@jycouet](https://github.com/jycouet)! - Add `remultApiUniversalLoad` (`firstly/svelte`) and `remultApiServerLoad` (`firstly/svelte/server`): wrap a SvelteKit load so plain `repo()` reads apply the entity's API rules (`allowApiRead` / `apiPrefilter`) as the current user. The universal one binds to `event.fetch` (SSR + CSR); the server one dispatches in-process via `TestApiDataProvider`.
+
 ## 0.7.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "firstly",
-  "version": "0.7.0",
+  "version": "0.7.2",
   "type": "module",
   "description": "Firstly, an opinionated Remult setup!",
   "funding": "https://github.com/sponsors/jycouet",
@@ -101,6 +101,10 @@
       "types": "./esm/svelte/index.d.ts",
       "svelte": "./esm/svelte/index.js",
       "default": "./esm/svelte/index.js"
+    },
+    "./svelte/server": {
+      "types": "./esm/svelte/server/index.d.ts",
+      "default": "./esm/svelte/server/index.js"
     },
     "./vite": {
       "types": "./esm/vite/index.d.ts",
