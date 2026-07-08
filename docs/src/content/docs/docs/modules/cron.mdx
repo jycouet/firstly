@@ -49,20 +49,21 @@ export const api = remultApi({
 
 ## Logs
 
-By default, each tick logs a single line:
+By default, a tick only logs when it took at least 100ms:
 
 ```bash
- cron  ✔ [first_cron] done in 12ms
+ cron  ✔ [first_cron] done in 230ms
 ```
 
-Failures and concurrency skips are always logged. The rest is configurable per job:
+Fast ticks stay silent. Failures and concurrency skips are always logged. The rest is configurable
+per job:
 
 ```ts
 logs: {
   setup: true, // at registration: "setup done (running, next at ...)"
-  ended: true, // after each tick: "done in 12ms"
+  ended: 100, // min duration (ms) to log "done in Xms". true = always, false = never
   starting: false, // before each tick: "starting..."
-  result: false, // attach onTick's return value to the "done" line
+  result: false, // attach onTick's return value to the "done" line (when it logs)
 }
 ```
 

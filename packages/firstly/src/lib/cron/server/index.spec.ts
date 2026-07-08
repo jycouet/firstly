@@ -25,7 +25,7 @@ describe('cron', () => {
 		errorSpy = vi.spyOn(log, 'error').mockImplementation(() => [])
 	})
 
-	it('stores the run and logs a single done line by default', async () => {
+	it('stores the run and stays silent for a fast tick by default', async () => {
 		const job = await register({
 			topic: 'c_default',
 			cronTime: '0 3 * * *',
@@ -43,19 +43,31 @@ describe('cron', () => {
 		expect(row.result).toEqual({ ok: 1 })
 		expect(row.endedAt).not.toBeNull()
 
-		await vi.waitFor(() => expect(successSpy).toHaveBeenCalledTimes(2))
-		const doneCall = successSpy.mock.calls[1]
-		expect(doneCall[0]).toContain('done in')
-		// no starting/result lines by default
-		expect(doneCall).toHaveLength(1)
+		// under the 100ms default, no done line (and no starting/result lines)
+		expect(successSpy).toHaveBeenCalledOnce()
 		expect(infoSpy).not.toHaveBeenCalled()
 	})
 
-	it('logs starting and result when opted in', async () => {
+	it('logs the done line when the tick is slower than the threshold', async () => {
+		const job = await register({
+			topic: 'c_slow',
+			cronTime: '0 3 * * *',
+			logs: { ended: 50 },
+			onTick: async () => {
+				await new Promise((r) => setTimeout(r, 60))
+				return { ok: 1 }
+			},
+		})
+		await job.fireOnTick()
+		await vi.waitFor(() => expect(successSpy).toHaveBeenCalledTimes(2))
+		expect(successSpy.mock.calls[1][0]).toContain('done in')
+	})
+
+	it('logs starting and result when opted in (ended: true = always)', async () => {
 		const job = await register({
 			topic: 'c_verbose',
 			cronTime: '0 3 * * *',
-			logs: { starting: true, result: true },
+			logs: { starting: true, result: true, ended: true },
 			onTick: () => ({ ok: 1 }),
 		})
 		await job.fireOnTick()

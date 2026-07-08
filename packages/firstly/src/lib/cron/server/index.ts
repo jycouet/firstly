@@ -56,11 +56,12 @@ export type CronJobParams = {
 	topic: string
 	concurrent?: number
 	/**
-	 * Defaults: one `done in Xms` line per tick + a `setup done` line at registration.
+	 * Defaults: a tick logs `done in Xms` only when it took at least `ended` ms
+	 * (default 100, `true` = always, `false` = never) + a `setup done` line at registration.
 	 * `starting` & `result` are opt-in (full history incl. results is stored in `_ff_crons`).
 	 * Failures and concurrency skips are always logged.
 	 */
-	logs?: { setup?: boolean; starting?: boolean; result?: boolean; ended?: boolean }
+	logs?: { setup?: boolean; starting?: boolean; result?: boolean; ended?: boolean | number }
 	start?: boolean
 	runOnInit?: boolean
 	timeZone?: string
@@ -68,10 +69,9 @@ export type CronJobParams = {
 	onComplete?: () => void
 }
 
-const duration = (startedAt: number) => {
-	const ms = Date.now() - startedAt
-	return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`
-}
+const DEFAULT_ENDED_MIN_MS = 100
+
+const fmtDuration = (ms: number) => (ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`)
 
 /**
  * usage:
@@ -110,6 +110,12 @@ export const cron: (jobsInfos: CronJobParams[]) => Module<unknown> = (jobsInfos)
 
 			const concurrentToUse = concurrent ?? 1
 			const prefix = magenta(`[${topic}]`)
+			const endedMinMs =
+				logs?.ended === false
+					? Infinity
+					: logs?.ended === true
+						? 0
+						: (logs?.ended ?? DEFAULT_ENDED_MIN_MS)
 
 			// Create a wrapper that converts the return type to void for CronJob
 			const wrappedOnTick = async (): Promise<void> => {
@@ -134,8 +140,9 @@ export const cron: (jobsInfos: CronJobParams[]) => Module<unknown> = (jobsInfos)
 					rCron.status = 'ended'
 					await repo(Cron).save(rCron)
 
-					if (logs?.ended !== false) {
-						const msg = `${prefix} done in ${duration(startedAt)}`
+					const ms = Date.now() - startedAt
+					if (ms >= endedMinMs) {
+						const msg = `${prefix} done in ${fmtDuration(ms)}`
 						if (logs?.result) {
 							log.success(msg, res)
 						} else {
@@ -147,7 +154,7 @@ export const cron: (jobsInfos: CronJobParams[]) => Module<unknown> = (jobsInfos)
 					rCron.endedAt = new Date()
 					rCron.status = 'failed'
 					await repo(Cron).save(rCron)
-					log.error(`${prefix} failed after ${duration(startedAt)}`, error)
+					log.error(`${prefix} failed after ${fmtDuration(Date.now() - startedAt)}`, error)
 				} finally {
 					jobs[topic].concurrentInProgress--
 				}

@@ -87,7 +87,7 @@ Available today: `mail`, `cron`, `changeLog`, `sqlAdmin`. See [firstly.fun](http
 
 ### `cron` - logs & failures
 
-Each tick logs one `done in Xms` line; tune per job with `logs: { setup?, starting?, result?, ended? }` (`starting`/`result` are opt-in, failures and concurrency skips always log). Full run history (results, errors, skips) lives in the `_ff_crons` entity ("FF Crons" in Admin UI, gated by `Roles_Cron.Cron_Admin`). A throwing `onTick` is stored as `failed` and never stops the schedule.
+A tick logs one `done in Xms` line only when it took at least `logs.ended` ms (default 100; `true` = always, `false` = never); `starting`/`result` are opt-in, failures and concurrency skips always log. Full run history (results, errors, skips) lives in the `_ff_crons` entity ("FF Crons" in Admin UI, gated by `Roles_Cron.Cron_Admin`). A throwing `onTick` is stored as `failed` and never stops the schedule.
 
 ### `sqlAdmin` - drop-in raw SQL page
 
