@@ -55,12 +55,22 @@ export type CronJobParams = {
 	onTick: CronOnTick
 	topic: string
 	concurrent?: number
-	logs?: { starting?: boolean; ended?: boolean }
+	/**
+	 * Defaults: one `done in Xms` line per tick + a `setup done` line at registration.
+	 * `starting` & `result` are opt-in (full history incl. results is stored in `_ff_crons`).
+	 * Failures and concurrency skips are always logged.
+	 */
+	logs?: { setup?: boolean; starting?: boolean; result?: boolean; ended?: boolean }
 	start?: boolean
 	runOnInit?: boolean
 	timeZone?: string
 	utcOffset?: string | number
 	onComplete?: () => void
+}
+
+const duration = (startedAt: number) => {
+	const ms = Date.now() - startedAt
+	return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`
 }
 
 /**
@@ -94,64 +104,52 @@ export const cron: (jobsInfos: CronJobParams[]) => Module<unknown> = (jobsInfos)
 		entities: [Cron],
 	})
 
-	const logJobs = (
-		topic: string,
-		job: CronJob<null, unknown>,
-		message: string,
-		with_metadata = true,
-		isSuccess = true,
-	) => {
-		const l = []
-		l.push(magenta(`[${topic}]`))
-		l.push(message)
-		if (with_metadata) {
-			// If the job is "stopped", there will still be a next date, but it will not fire it. The job has to start.
-			l.push(
-				`(${job.isActive ? green('running') : red('stopped')}, next at ${yellow(job.nextDate().toISO()!)})`,
-			)
-		}
-
-		if (isSuccess) {
-			log.success(l.join(' '))
-		} else {
-			log.info(l.join(' '))
-		}
-	}
-
 	m.initApi = async () => {
 		jobsInfos.forEach((infos) => {
 			const { topic, runOnInit, logs, concurrent, onTick: originalOnTick, ...params } = infos
 
 			const concurrentToUse = concurrent ?? 1
+			const prefix = magenta(`[${topic}]`)
 
 			// Create a wrapper that converts the return type to void for CronJob
 			const wrappedOnTick = async (): Promise<void> => {
-				if (jobs[topic].concurrentInProgress < concurrentToUse) {
-					jobs[topic].concurrentInProgress = jobs[topic].concurrentInProgress + 1
-					const rCron = await repo(Cron).insert({ topic })
-					if (logs?.starting === undefined || logs?.starting === true) {
-						logJobs(topic, job, 'starting...', false, false)
-					}
+				if (jobs[topic].concurrentInProgress >= concurrentToUse) {
+					await repo(Cron).insert({ topic, status: 'skipped' })
+					log.info(
+						`${prefix} skipped because of concurrent limit (${yellow(concurrentToUse.toString())})`,
+					)
+					return
+				}
+
+				jobs[topic].concurrentInProgress++
+				const startedAt = Date.now()
+				const rCron = await repo(Cron).insert({ topic })
+				if (logs?.starting) {
+					log.info(`${prefix} starting...`)
+				}
+				try {
 					const res = await originalOnTick()
-					log.info(`[${topic}] result:`, res)
 					rCron.result = res
 					rCron.endedAt = new Date()
 					rCron.status = 'ended'
 					await repo(Cron).save(rCron)
 
-					if (logs?.ended === undefined || logs?.ended === true) {
-						logJobs(topic, job, 'done')
+					if (logs?.ended !== false) {
+						const msg = `${prefix} done in ${duration(startedAt)}`
+						if (logs?.result) {
+							log.success(msg, res)
+						} else {
+							log.success(msg)
+						}
 					}
-					jobs[topic].concurrentInProgress = jobs[topic].concurrentInProgress - 1
-				} else {
-					await repo(Cron).insert({ topic, status: 'skipped' })
-					logJobs(
-						topic,
-						job,
-						`skipped because of concurrent limit (${yellow(concurrentToUse.toString())})`,
-						false,
-						false,
-					)
+				} catch (error) {
+					rCron.result = { error: error instanceof Error ? error.message : String(error) }
+					rCron.endedAt = new Date()
+					rCron.status = 'failed'
+					await repo(Cron).save(rCron)
+					log.error(`${prefix} failed after ${duration(startedAt)}`, error)
+				} finally {
+					jobs[topic].concurrentInProgress--
 				}
 			}
 
@@ -163,7 +161,12 @@ export const cron: (jobsInfos: CronJobParams[]) => Module<unknown> = (jobsInfos)
 
 			jobs[topic] = { job, concurrentInProgress: 0 }
 
-			logJobs(topic, job, 'setup done')
+			if (logs?.setup !== false) {
+				// A stopped job still reports a next date, it just won't fire it.
+				log.success(
+					`${prefix} setup done (${job.isActive ? green('running') : red('stopped')}, next at ${yellow(job.nextDate().toISO()!)})`,
+				)
+			}
 
 			// If not it will be done too early
 			if (runOnInit) {

@@ -2,7 +2,7 @@ import { Entity, Fields } from 'remult'
 
 import { Roles_Cron } from './Roles_Cron'
 
-const statuses = ['starting', 'ended', 'skipped'] as const
+const statuses = ['starting', 'ended', 'skipped', 'failed'] as const
 type StatusType = (typeof statuses)[number]
 
 @Entity<Cron>('_ff_crons', {
