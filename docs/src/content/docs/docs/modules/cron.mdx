@@ -40,9 +40,37 @@ export const api = remultApi({
 
         // OPTIONAL
         concurrent: 1, // Default is 1, if we are at the limit, the job will be skipped.
-        logs: {}, // to log more or less stuff, I let you look the ts definition.
+        logs: {}, // to log more or less stuff, see Logs below.
       }
     ])
   ]
 })
 ```
+
+## Logs
+
+By default, a tick only logs when it took at least 100ms:
+
+```bash
+cron ✔ [first_cron] done in 230ms
+```
+
+Fast ticks stay silent. Failures and concurrency skips are always logged. The rest is configurable
+per job:
+
+```ts
+logs: {
+  setup: true, // at registration: "setup done (running, next at ...)"
+  ended: 100, // min duration (ms) to log "done in Xms". true = always, false = never
+  starting: false, // before each tick: "starting..."
+  result: false, // attach onTick's return value to the "done" line (when it logs)
+}
+```
+
+The full run history (results, errors, skips) is always stored in the `FF Crons` entity, so quiet
+logs don't lose anything.
+
+## Errors
+
+If `onTick` throws, the run is stored with the status `failed` (the error message lands in
+`result`) and an error line is logged. The job keeps running on schedule.

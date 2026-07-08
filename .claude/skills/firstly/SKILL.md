@@ -85,6 +85,10 @@ export const api = remultApi({
 
 Available today: `mail`, `cron`, `changeLog`, `sqlAdmin`. See [firstly.fun](https://firstly.fun) for the full list.
 
+### `cron` - logs & failures
+
+A tick logs one `done in Xms` line only when it took at least `logs.ended` ms (default 100; `true` = always, `false` = never); `starting`/`result` are opt-in, failures and concurrency skips always log. Full run history (results, errors, skips) lives in the `_ff_crons` entity ("FF Crons" in Admin UI, gated by `Roles_Cron.Cron_Admin`). A throwing `onTick` is stored as `failed` and never stops the schedule.
+
 ### `sqlAdmin` - drop-in raw SQL page
 
 A backend `BackendMethod` + a `<SqlAdmin />` Svelte component, both shipped from one module. Gated by `Roles_SqlAdmin.SqlAdmin_Admin` (or the global `FF_Role.FF_Role_Admin`).
