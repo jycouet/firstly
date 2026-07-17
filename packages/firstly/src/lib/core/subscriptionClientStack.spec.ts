@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import type { SubscriptionClient, SubscriptionClientConnection } from 'remult'
 
 import { stackSubscriptionClient, withTabSharing } from './subscriptionClientStack'
@@ -121,8 +122,16 @@ describe('withTabSharing', () => {
 
 		const got1: unknown[] = []
 		const got2: unknown[] = []
-		await tab1.subscribe('news', (m) => got1.push(m), () => {})
-		await tab2.subscribe('news', (m) => got2.push(m), () => {})
+		await tab1.subscribe(
+			'news',
+			(m) => got1.push(m),
+			() => {},
+		)
+		await tab2.subscribe(
+			'news',
+			(m) => got2.push(m),
+			() => {},
+		)
 		await flush()
 
 		expect(real.opened).toBe(1)
@@ -142,8 +151,16 @@ describe('withTabSharing', () => {
 		const tab2 = await shared.openConnection(() => {})
 		await flush()
 
-		const un1 = await tab1.subscribe('news', () => {}, () => {})
-		const un2 = await tab2.subscribe('news', () => {}, () => {})
+		const un1 = await tab1.subscribe(
+			'news',
+			() => {},
+			() => {},
+		)
+		const un2 = await tab2.subscribe(
+			'news',
+			() => {},
+			() => {},
+		)
 		await flush()
 
 		un2()
@@ -164,7 +181,11 @@ describe('withTabSharing', () => {
 		const tab2 = await shared.openConnection(() => tab2Reconnects++)
 		await flush()
 
-		await tab2.subscribe('news', () => {}, () => {})
+		await tab2.subscribe(
+			'news',
+			() => {},
+			() => {},
+		)
 		await flush()
 		expect(real.subscribed).toEqual(['news'])
 
