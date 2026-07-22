@@ -13,9 +13,10 @@ title: Boutique - Auth
 | `entities.ts`                   | `User`, `Session`, `Account`, `Verification` + `Roles_Auth`   |
 | `roles.ts`                      | App-wide `Roles` (merges `Roles_Auth`)                        |
 | `server/auth.ts`                | `betterAuth` instance wired to `remultAdapter`                |
-| `server/handle.ts`              | SvelteKit `handleAuth`                                        |
+| `server/handle.ts`              | SvelteKit `handleAuth` (forwards refreshed session cookies)   |
 | `server/module.ts`              | `auth()` remult Module (entities + `initApi` + `initRequest`) |
 | `server/authHelpers.ts`         | `addRolesToUser(emails, roles)`                               |
+| `server/sessionCookie.ts`       | `getSessionAndSlideCookie` + `forwardAuthSetCookies`          |
 | `svelte/components/Auth.svelte` | Sign up / Sign in / Sign out UI                               |
 
 ## 🚀 Install
@@ -127,6 +128,17 @@ export const auth = betterAuth({
 	},
 })
 ```
+
+## 🍪 Session cookie sliding
+
+better-auth only re-issues the session cookie (sliding `Max-Age`) inside its own endpoints. A server-side `auth.api.getSession()` (like the module's `initRequest`) extends the session in DB but discards the refreshed `Set-Cookie` - so the browser cookie keeps its sign-in expiry and users get force-logged-out after `expiresIn` (7 days by default), even mid-session.
+
+`server/sessionCookie.ts` fixes that ([#327](https://github.com/jycouet/firstly/issues/327)):
+
+- `getSessionAndSlideCookie(auth)` - calls `getSession` with `returnHeaders: true` and stashes any `Set-Cookie` in `event.locals` (via `remult.context.request`). Used by `server/module.ts`.
+- `forwardAuthSetCookies(event, response)` - appends those cookies onto the response. Used by `server/handle.ts`.
+
+Both are already wired - nothing to do. If you're on better-auth <= 1.2.x, `returnHeaders` is missing from the types (works at runtime): add a `@ts-expect-error` on that line.
 
 ## 🧪 Regenerating better-auth entities
 

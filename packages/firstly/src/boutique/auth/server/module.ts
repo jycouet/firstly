@@ -5,6 +5,7 @@ import { authEntities } from '../entities'
 import { Roles } from '../roles'
 import { auth as authConfig } from './auth'
 import { addRolesToUser } from './authHelpers'
+import { getSessionAndSlideCookie } from './sessionCookie'
 
 export const auth = (o?: { SUPER_ADMIN_EMAILS?: string }) =>
 	new Module({
@@ -22,9 +23,7 @@ export const auth = (o?: { SUPER_ADMIN_EMAILS?: string }) =>
 		},
 
 		initRequest: async () => {
-			const s = await authConfig.api.getSession({
-				headers: new Headers(remult.context.headers?.getAll()),
-			})
+			const s = await getSessionAndSlideCookie(authConfig)
 
 			if (s) {
 				const roles = s.user.roles

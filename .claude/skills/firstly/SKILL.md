@@ -99,6 +99,8 @@ import { auth } from '$lib/modules/auth/server/module'
 export const api = remultApi({ modules: [auth({ SUPER_ADMIN_EMAILS })] })
 ```
 
+The auth recipe ships `server/sessionCookie.ts` (`getSessionAndSlideCookie` + `forwardAuthSetCookies`), already wired in `server/module.ts` + `server/handle.ts`: a server-side `getSession` alone never refreshes the browser cookie's sliding `Max-Age`, so without it users get force-logged-out at sign-in expiry even mid-session. Keep both wired when customizing.
+
 Full instructions live in each boutique's README.
 
 ## Roles Convention
