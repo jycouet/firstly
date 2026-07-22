@@ -1,6 +1,6 @@
 ---
 name: firstly
-description: "firstly - a thin opinionated layer on top of Remult (framework-agnostic, SvelteKit reference). Use when the user mentions firstly, FF_Entity, BaseEnum, the reactive ff layer (ff/FF_Many/FF_One), the cell layer (buildCells/FF_Cell/FF_Grid/GroupFields), firstly modules (mail, cron, changeLog, sqlAdmin), or the boutique copy-paste recipes (auth, grid) - or when building with firstly alongside Remult."
+description: 'firstly - a thin opinionated layer on top of Remult (framework-agnostic, SvelteKit reference). Use when the user mentions firstly, FF_Entity, BaseEnum, the reactive ff layer (ff/FF_Many/FF_One), the cell layer (buildCells/FF_Cell/FF_Grid/GroupFields), firstly modules (mail, cron, changeLog, sqlAdmin), or the boutique copy-paste recipes (auth, grid) - or when building with firstly alongside Remult.'
 ---
 
 # Firstly Patterns
@@ -220,12 +220,13 @@ the read through the API instead.
 ```ts
 // +page.ts (universal) - gated on SSR AND CSR, plain global repo()
 import { remultApiUniversalLoad } from 'firstly/svelte'
+// +page.server.ts - gate a SERVER read (instead of the privileged in-process DB)
+import { remultApiServerLoad } from 'firstly/svelte/server'
+
 export const load = remultApiUniversalLoad(async ({ params }) => ({
 	tasks: await repo(Task).find({ where: { done: false } }),
 }))
 
-// +page.server.ts - gate a SERVER read (instead of the privileged in-process DB)
-import { remultApiServerLoad } from 'firstly/svelte/server'
 export const load = remultApiServerLoad(async () => ({ tasks: await repo(Task).find() }))
 ```
 
@@ -302,16 +303,41 @@ one-shot guard, no reload loop), passing every other error to `next`.
 // src/hooks.client.js
 import { stackHandleClientError, withStaleDeployReload } from 'firstly/svelte'
 
-export const handleError = stackHandleClientError(
-	withStaleDeployReload(),
-	(next) => (input) => {
-		report(input.error) // your logging
-		return next(input) // or return { message: 'Oops' } to stop here
-	},
-)
+export const handleError = stackHandleClientError(withStaleDeployReload(), (next) => (input) => {
+	report(input.error) // your logging
+	return next(input) // or return { message: 'Oops' } to stop here
+})
 ```
 
 Only chunk-load errors reload (a blind 404 reload would break client-side not-found routes).
+
+## Prod server (adapter-node) - compression without breaking SSE
+
+adapter-node ships **no compression** - a data-heavy page can send 100KB+ of uncompressed HTML.
+Wrap the built handler with `@polka/compression` (streaming-safe; gzip by default, `brotli: true`
+to enable), and **bypass remult's SSE endpoint** (`<apiPrefix>/stream`, default `/api/stream`) - a
+compressed/buffered event stream stalls liveQuery, so `'listen'` never updates.
+
+```js
+// scripts/prod-server.js - `node scripts/prod-server.js` (also the Docker CMD)
+import compression from '@polka/compression'
+import polka from 'polka'
+
+import { handler } from '../build/handler.js'
+
+const compress = compression({ threshold: 1024 })
+
+polka()
+	.use((req, res, next) => {
+		if (req.url.startsWith('/api/stream')) return next() // SSE: never compress
+		compress(req, res, next)
+	})
+	.use(handler)
+	.listen(Number(process.env.PORT ?? 3000))
+```
+
+`polka` + `@polka/compression` are runtime deps (not devDeps) - the script imports them in the
+production image.
 
 ## i18n - `LocalizedMessage`
 
