@@ -99,8 +99,8 @@ catalogs:
       specifier: 1.2.2
       version: 1.2.2
     prettier:
-      specifier: 3.8.1
-      version: 3.8.1
+      specifier: 3.9.6
+      version: 3.9.6
     tslib:
       specifier: 2.8.0
       version: 2.8.0
@@ -145,7 +145,7 @@ importers:
         version: 2.31.0(@types/node@25.5.2)
       '@kitql/eslint-config':
         specifier: catalog:kitql
-        version: 0.9.0(eslint@10.7.0(jiti@2.6.1))(oxlint@1.66.0)(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(svelte@5.40.0(@typescript-eslint/types@8.59.3))(typescript@5.9.3)
+        version: 0.9.0(eslint@10.7.0(jiti@2.6.1))(oxlint@1.66.0)(prettier-plugin-astro@0.14.1)(prettier@3.9.6)(svelte@5.40.0(@typescript-eslint/types@8.59.3))(typescript@5.9.3)
       '@playwright/test':
         specifier: catalog:testing
         version: 1.60.0
@@ -154,7 +154,7 @@ importers:
         version: 10.7.0(jiti@2.6.1)
       prettier:
         specifier: catalog:tooling
-        version: 3.8.1
+        version: 3.9.6
     publishDirectory: dist
 
   docs:
@@ -3716,6 +3716,11 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  prettier@3.9.6:
+    resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
+    engines: {node: '>=14'}
+    hasBin: true
+
   pretty-format@27.5.1:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -5175,13 +5180,13 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@ianvs/prettier-plugin-sort-imports@4.7.1(prettier@3.8.1)':
+  '@ianvs/prettier-plugin-sort-imports@4.7.1(prettier@3.9.6)':
     dependencies:
       '@babel/generator': 7.29.1
       '@babel/parser': 7.29.2
       '@babel/traverse': 7.29.0
       '@babel/types': 7.29.0
-      prettier: 3.8.1
+      prettier: 3.9.6
       semver: 7.7.4
     transitivePeerDependencies:
       - supports-color
@@ -5429,12 +5434,12 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kitql/eslint-config@0.9.0(eslint@10.7.0(jiti@2.6.1))(oxlint@1.66.0)(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(svelte@5.40.0(@typescript-eslint/types@8.59.3))(typescript@5.9.3)':
+  '@kitql/eslint-config@0.9.0(eslint@10.7.0(jiti@2.6.1))(oxlint@1.66.0)(prettier-plugin-astro@0.14.1)(prettier@3.9.6)(svelte@5.40.0(@typescript-eslint/types@8.59.3))(typescript@5.9.3)':
     dependencies:
       '@e18e/eslint-plugin': 0.5.0(eslint@10.7.0(jiti@2.6.1))(oxlint@1.66.0)
       '@eslint/compat': 2.1.0(eslint@10.7.0(jiti@2.6.1))
       '@eslint/js': 10.0.1(eslint@10.7.0(jiti@2.6.1))
-      '@ianvs/prettier-plugin-sort-imports': 4.7.1(prettier@3.8.1)
+      '@ianvs/prettier-plugin-sort-imports': 4.7.1(prettier@3.9.6)
       '@kitql/helpers': 0.8.15
       '@types/eslint': 9.6.1
       '@typescript-eslint/parser': 8.59.3(eslint@10.7.0(jiti@2.6.1))(typescript@5.9.3)
@@ -5444,15 +5449,15 @@ snapshots:
       eslint-plugin-svelte: 3.17.1(eslint@10.7.0(jiti@2.6.1))(svelte@5.40.0(@typescript-eslint/types@8.59.3))
       globals: 17.6.0
       jsonc-eslint-parser: 3.1.0
-      prettier-plugin-sh: 0.18.1(prettier@3.8.1)
-      prettier-plugin-svelte: 4.0.1(prettier@3.8.1)(svelte@5.40.0(@typescript-eslint/types@8.59.3))
-      prettier-plugin-tailwindcss: 0.8.0(@ianvs/prettier-plugin-sort-imports@4.7.1(prettier@3.8.1))(prettier-plugin-astro@0.14.1)(prettier-plugin-svelte@4.0.1(prettier@3.8.1)(svelte@5.40.0(@typescript-eslint/types@8.59.3)))(prettier@3.8.1)
+      prettier-plugin-sh: 0.18.1(prettier@3.9.6)
+      prettier-plugin-svelte: 4.0.1(prettier@3.9.6)(svelte@5.40.0(@typescript-eslint/types@8.59.3))
+      prettier-plugin-tailwindcss: 0.8.0(@ianvs/prettier-plugin-sort-imports@4.7.1(prettier@3.9.6))(prettier-plugin-astro@0.14.1)(prettier-plugin-svelte@4.0.1(prettier@3.9.6)(svelte@5.40.0(@typescript-eslint/types@8.59.3)))(prettier@3.9.6)
       typescript-eslint: 8.59.3(eslint@10.7.0(jiti@2.6.1))(typescript@5.9.3)
       yaml-eslint-parser: 2.0.0
     optionalDependencies:
       eslint: 10.7.0(jiti@2.6.1)
       oxlint: 1.66.0
-      prettier: 3.8.1
+      prettier: 3.9.6
     transitivePeerDependencies:
       - '@prettier/plugin-hermes'
       - '@prettier/plugin-oxc'
@@ -8351,28 +8356,30 @@ snapshots:
       prettier: 3.8.1
       sass-formatter: 0.7.9
 
-  prettier-plugin-sh@0.18.1(prettier@3.8.1):
+  prettier-plugin-sh@0.18.1(prettier@3.9.6):
     dependencies:
       '@reteps/dockerfmt': 0.5.2
-      prettier: 3.8.1
+      prettier: 3.9.6
       sh-syntax: 0.5.8
 
-  prettier-plugin-svelte@4.0.1(prettier@3.8.1)(svelte@5.40.0(@typescript-eslint/types@8.59.3)):
+  prettier-plugin-svelte@4.0.1(prettier@3.9.6)(svelte@5.40.0(@typescript-eslint/types@8.59.3)):
     dependencies:
-      prettier: 3.8.1
+      prettier: 3.9.6
       svelte: 5.40.0(@typescript-eslint/types@8.59.3)
 
-  prettier-plugin-tailwindcss@0.8.0(@ianvs/prettier-plugin-sort-imports@4.7.1(prettier@3.8.1))(prettier-plugin-astro@0.14.1)(prettier-plugin-svelte@4.0.1(prettier@3.8.1)(svelte@5.40.0(@typescript-eslint/types@8.59.3)))(prettier@3.8.1):
+  prettier-plugin-tailwindcss@0.8.0(@ianvs/prettier-plugin-sort-imports@4.7.1(prettier@3.9.6))(prettier-plugin-astro@0.14.1)(prettier-plugin-svelte@4.0.1(prettier@3.9.6)(svelte@5.40.0(@typescript-eslint/types@8.59.3)))(prettier@3.9.6):
     dependencies:
-      prettier: 3.8.1
+      prettier: 3.9.6
     optionalDependencies:
-      '@ianvs/prettier-plugin-sort-imports': 4.7.1(prettier@3.8.1)
+      '@ianvs/prettier-plugin-sort-imports': 4.7.1(prettier@3.9.6)
       prettier-plugin-astro: 0.14.1
-      prettier-plugin-svelte: 4.0.1(prettier@3.8.1)(svelte@5.40.0(@typescript-eslint/types@8.59.3))
+      prettier-plugin-svelte: 4.0.1(prettier@3.9.6)(svelte@5.40.0(@typescript-eslint/types@8.59.3))
 
   prettier@2.8.8: {}
 
   prettier@3.8.1: {}
+
+  prettier@3.9.6: {}
 
   pretty-format@27.5.1:
     dependencies:
