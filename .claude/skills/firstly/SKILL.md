@@ -1,6 +1,6 @@
 ---
 name: firstly
-description: 'firstly - a thin opinionated layer on top of Remult (framework-agnostic, SvelteKit reference). Use when the user mentions firstly, FF_Entity, BaseEnum, the reactive ff layer (ff/FF_Many/FF_One), the cell layer (buildCells/FF_Cell/FF_Grid/GroupFields), firstly modules (mail, cron, changeLog, sqlAdmin), or the boutique copy-paste recipes (auth, grid) - or when building with firstly alongside Remult.'
+description: 'firstly - a thin opinionated layer on top of Remult (framework-agnostic, SvelteKit reference). Use when the user mentions firstly, FF_Entity, BaseEnum, the reactive ff layer (ff/FF_Many/FF_One), the cell layer (buildCells/FF_Cell/FF_Grid/GroupFields), firstly modules (mail, cron, changeLog, sqlAdmin), the client stack (stackHttpClient/withShortTermCache/withTabSharing), or the boutique copy-paste recipes (auth, grid) - or when building with firstly alongside Remult.'
 ---
 
 # Firstly Patterns
@@ -144,6 +144,33 @@ API:
 
 - `FF_Allow.owner<T>(col?)` / `FF_Filter.owner<T>(col?)` - owner-only.
 - `FF_Allow.ownerOr<T>({ col?, roles })` / `FF_Filter.ownerOr<T>({ col?, roles })` - admin (or any of `roles`) OR owner.
+
+## Client stack - fetch & SSE middlewares
+
+From root `'firstly'` (pure TS, framework-agnostic). Compose remult's `apiClient` clients from middlewares - typically once in the root layout:
+
+```ts
+import {
+	stackHttpClient,
+	stackSubscriptionClient,
+	withHeader,
+	withShortTermCache,
+	withTabSharing,
+} from 'firstly'
+
+remult.apiClient.httpClient = stackHttpClient(
+	withHeader('X-Correlation-Id', getCorrelationId),
+	withShortTermCache({ ttlMs: 2000 }),
+)
+remult.apiClient.subscriptionClient = stackSubscriptionClient(withTabSharing())
+```
+
+- **`stackHttpClient(...mw)`** - compose `fetch` middlewares (outermost-first) over the base `fetch`. `withHeader(name, getValue)` sets a header when `getValue()` returns a value.
+- **`withShortTermCache({ ttlMs?, shouldCache? })`** - tiny client-side cache: dedupes identical read requests (GET + remult's read-only `__action=get|groupBy` POSTs, keyed by URL+body) within the TTL (default 2000ms). Two components mounting the same query = one network call; failures evicted so the next call retries.
+- **`stackSubscriptionClient(...mw)`** - compose a `SubscriptionClient`, bottoming out at `directSseSubscriptionClient()` (a public mirror of remult's internal SSE client).
+- **`withTabSharing()`** - ONE real SSE connection shared across all same-origin tabs (leader via `navigator.locks`, fanout via `BroadcastChannel`). Why: the browser's ~6-connections-per-domain HTTP/1.1 limit. liveQuery-safe: leader handoff and reconnects fire `onReconnect` in every tab (queries resync); channel interest is refcounted per tab. No-ops in SSR.
+
+(`withShortTermCache` + the subscription stack landed in firstly 0.8 - older versions lack them.)
 
 ## `ff` - reactive layer (Svelte 5)
 
