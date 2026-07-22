@@ -50,8 +50,7 @@ export function ffHandleError(options: FfHandleErrorOptions = {}): HandleClientE
 
 	return (input: HandleClientErrorInput) => {
 		const looksStale =
-			(options.recoverOn404 === true && input.status === 404) ||
-			pattern.test(String(input.message))
+			(options.recoverOn404 === true && input.status === 404) || pattern.test(String(input.message))
 
 		if (looksStale && reloadOnce(key, windowMs, input.event.url.href)) {
 			return // page is unloading; no error surfaces
