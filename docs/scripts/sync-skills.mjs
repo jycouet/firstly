@@ -13,6 +13,7 @@ const wellKnownDst = join(repoRoot, 'docs/public/.well-known/agent-skills')
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/
 const DESCRIPTION_RE = /^description:\s*(.*)$/m
+const SURROUNDING_QUOTES_RE = /^(["'])([\s\S]*)\1$/
 const NEWLINE_RE = /\r?\n/
 const FM_KEY_VALUE_RE = /^([A-Za-z0-9_-]+):\s+(.*)$/
 const COLON_SPACE_RE = /:\s/
@@ -58,7 +59,10 @@ const skills = entries.map((entry) => {
 	const skillMd = readFileSync(join(srcDir, 'SKILL.md'), 'utf8')
 	const fm = skillMd.match(FRONTMATTER_RE)?.[1] ?? ''
 	assertParsableFrontmatter(entry.name, fm)
-	const description = fm.match(DESCRIPTION_RE)?.[1]?.trim() ?? ''
+	const rawDescription = fm.match(DESCRIPTION_RE)?.[1]?.trim() ?? ''
+	// Frontmatter values may be quoted (to survive the CLI's YAML parser); index.json
+	// wants the bare string, not one with literal surrounding quotes.
+	const description = rawDescription.replace(SURROUNDING_QUOTES_RE, '$2')
 
 	return { name: entry.name, description, files }
 })
