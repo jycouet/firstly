@@ -14,6 +14,8 @@ export type {
 } from './ff.svelte.js'
 export { infiniteScroll } from './infiniteScroll.js'
 export type { InfiniteScrollOptions } from './infiniteScroll.js'
+export { ffHandleError } from './handleError.js'
+export type { FfHandleErrorOptions } from './handleError.js'
 export { dialog, ffAutofocus, resolveMessage } from './dialog.svelte.js'
 export type {
 	DialogResult,
