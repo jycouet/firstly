@@ -1,5 +1,5 @@
 # Build stage
-FROM ubuntu:24.04 AS build
+FROM ubuntu:26.04 AS build
 
 # To bring the env inside.
 # ARG TZ
