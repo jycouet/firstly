@@ -7,8 +7,8 @@ settings:
 catalogs:
   best:
     remult:
-      specifier: 3.3.13
-      version: 3.3.13
+      specifier: 3.3.16
+      version: 3.3.16
   docs:
     '@astrojs/starlight':
       specifier: 0.41.3
@@ -253,7 +253,7 @@ importers:
         version: 1.60.0
       remult:
         specifier: catalog:best
-        version: 3.3.13
+        version: 3.3.16
       svelte:
         specifier: catalog:svelte
         version: 5.40.0(@typescript-eslint/types@8.59.3)
@@ -3828,8 +3828,8 @@ packages:
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
-  remult@3.3.13:
-    resolution: {integrity: sha512-L9joB8LEKvg/cEzxc1MV/vUFVnsETo13zDAqqG4ctE9BFYhI3lRUq/o5UQicvUmNu9BwI+5dX/gL+0vN7RVOAA==}
+  remult@3.3.16:
+    resolution: {integrity: sha512-rfSSvaPkrYMrfV81AzexMAYsL36NgcKn1mllG9WXH4mMiw8CitgLRyGoNwlyKKJMtK2xK/NYY5+ekq0jt1c6xQ==}
 
   resolve-from@5.0.0:
     resolution: {integrity: sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==}
@@ -8550,7 +8550,7 @@ snapshots:
       mdast-util-to-markdown: 2.1.2
       unified: 11.0.5
 
-  remult@3.3.13:
+  remult@3.3.16:
     dependencies:
       tslib: 2.8.1
 
