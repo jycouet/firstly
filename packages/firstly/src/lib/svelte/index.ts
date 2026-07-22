@@ -14,7 +14,7 @@ export type {
 } from './ff.svelte.js'
 export { infiniteScroll } from './infiniteScroll.js'
 export type { InfiniteScrollOptions } from './infiniteScroll.js'
-export { dialog, ffAutofocus, resolveMessage } from './dialog.svelte.js'
+export { dialog, ffAutofocus, ffTrapFocus, resolveMessage } from './dialog.svelte.js'
 export type {
 	DialogResult,
 	DialogClose,
