@@ -287,26 +287,31 @@ functions for i18n). `many.confirmRemove` uses `toast.fromError` on a failed del
 user or network/error text (XSS). `toast.fromError` HTML-escapes its extracted message, so error text
 is always safe to show; titles are always plain text.
 
-## `ffHandleError` - recover stale-deploy chunk failures
+## `stackHandleClientError` - stack `hooks.client.js` error handlers
 
-`ffHandleError` (from `firstly/svelte`) wraps `hooks.client.js`'s `handleError`. After a deploy an
-open client (esp. SPA builds) 404s on a lazy chunk; SvelteKit's `updated.check()` recovery lies
-behind a CDN caching `version.json`. `ffHandleError` trusts the failure signal instead: on a
-chunk-load error it hard-reloads once (time-boxed one-shot guard, no reload loop), and delegates
-every other error to your handler.
+`stackHandleClientError` (from `firstly/svelte`) composes `handleError` middlewares, mirroring
+`stackHttpClient`. Middlewares run outermost-first; each either short-circuits (return without
+calling `next`) or calls `next(input)`. The base returns `{ message: 'Something went wrong' }`.
+
+`withStaleDeployReload()` is the built-in middleware: after a deploy an open client (esp. SPA builds)
+404s on a lazy chunk; SvelteKit's `updated.check()` recovery lies behind a CDN caching `version.json`.
+It trusts the failure signal instead - on a chunk-load error it hard-reloads once (time-boxed
+one-shot guard, no reload loop), passing every other error to `next`.
 
 ```js
 // src/hooks.client.js
-import { ffHandleError } from 'firstly/svelte'
+import { stackHandleClientError, withStaleDeployReload } from 'firstly/svelte'
 
-export const handleError = ffHandleError(({ error }) => {
-	report(error) // your logging
-	return { message: 'Oops' }
-})
+export const handleError = stackHandleClientError(
+	withStaleDeployReload(),
+	(next) => (input) => {
+		report(input.error) // your logging
+		return next(input) // or return { message: 'Oops' } to stop here
+	},
+)
 ```
 
-No handler → returns `{ message: 'Something went wrong' }`. Only chunk-load errors reload (a blind
-404 reload would break client-side not-found routes).
+Only chunk-load errors reload (a blind 404 reload would break client-side not-found routes).
 
 ## i18n - `LocalizedMessage`
 
