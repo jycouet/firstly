@@ -1,5 +1,11 @@
 # firstly
 
+## 0.7.3
+
+### Patch Changes
+
+- [#315](https://github.com/jycouet/firstly/pull/315) [`3403d6c`](https://github.com/jycouet/firstly/commit/3403d6cffa657ad04acdac26024bdf6e989df7b4) Thanks [@jycouet](https://github.com/jycouet)! - cron: quieter logs by default - a tick only logs `done in Xms` when it took at least `logs.ended` ms (default 100; `true` = always, `false` = never). `starting` and `result` lines are opt-in, `logs.setup` can silence the registration line. If `onTick` throws, the run is now stored as `failed` (error in `result`), always logged, and no longer leaks the concurrency slot.
+
 ## 0.7.2
 
 ### Patch Changes
