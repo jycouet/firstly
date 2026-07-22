@@ -2,9 +2,9 @@
 	/**
 	 * SQL Admin UI.
 	 *
-	 * Dark theme (zinc + indigo accent), styled with raw Tailwind utilities only -
-	 * no plugin (daisyUI, shadcn, etc.) required. Drop into any Tailwind-powered
-	 * project and it just works.
+	 * Styled against the semantic theme tokens (`bg-card`, `text-foreground`,
+	 * `border-border`, `bg-primary`, `bg-destructive`, ...) defined by the host
+	 * app, so it inherits the userland theme instead of a hard-coded palette.
 	 *
 	 * Results are logged to the browser console as `for AI: <json rows>` after
 	 * each successful query - chrome-devtools / AI agents inspecting the page
@@ -18,9 +18,11 @@ FROM "public"."users"
 LIMIT 10`
 
 	let sqlInput = $state(defaultQuery)
-	let result: any = $state()
+	let result: { rows: any[]; rowCount: number; took: number } | undefined = $state()
 	let error = $state('')
 	let isLoading = $state(false)
+	let notReadOnly = $state(false)
+	let copied = $state(false)
 
 	const queries = {
 		default: { label: 'Default', sql: defaultQuery },
@@ -62,8 +64,8 @@ ORDER BY tablename, indexname`,
 		try {
 			error = ''
 			isLoading = true
-			result = { ...(await SqlAdminController.exec(sqlInput)) }
-			log.info('for AI:', JSON.stringify(result.r.rows))
+			result = await SqlAdminController.exec(sqlInput, notReadOnly)
+			log.info('for AI:', JSON.stringify(result.rows))
 			log.info('for humans:', result)
 		} catch (e) {
 			error = JSON.stringify(e, null, 2)
@@ -76,12 +78,42 @@ ORDER BY tablename, indexname`,
 		if (!rows || rows.length === 0) return []
 		return Object.keys(rows[0])
 	}
+
+	function cellToText(cell: unknown): string {
+		if (cell === null || cell === undefined) return ''
+		if (typeof cell === 'object') return JSON.stringify(cell)
+		return String(cell)
+	}
+
+	/** Render the result as a GitHub-flavoured markdown table (paste into a chat). */
+	function toMarkdown(rows: any[]): string {
+		const headers = getHeaders(rows)
+		if (headers.length === 0) return ''
+		const esc = (s: string) => s.replaceAll('|', '\\|').replaceAll('\n', ' ')
+		const head = `| ${headers.map(esc).join(' | ')} |`
+		const sep = `| ${headers.map(() => '---').join(' | ')} |`
+		const body = rows
+			.map((row) => `| ${headers.map((h) => esc(cellToText(row[h]))).join(' | ')} |`)
+			.join('\n')
+		return `${head}\n${sep}\n${body}`
+	}
+
+	async function copyTable() {
+		if (!result?.rows?.length) return
+		try {
+			await navigator.clipboard.writeText(toMarkdown(result.rows))
+			copied = true
+			setTimeout(() => (copied = false), 1500)
+		} catch (e) {
+			log.error('copy failed', e)
+		}
+	}
 </script>
 
-<div class="border border-slate-700 bg-slate-800 text-slate-200">
-	<header class="border-b border-slate-700 px-5 py-4">
-		<h2 class="text-lg font-semibold text-slate-100">SQL Admin</h2>
-		<p class="mt-1 text-sm text-slate-400">
+<div class="border border-border bg-card text-card-foreground">
+	<header class="border-b border-border px-5 py-4">
+		<h2 class="text-lg font-semibold text-foreground">SQL Admin</h2>
+		<p class="mt-1 text-sm text-muted-foreground">
 			Execute SQL queries directly on the database. Results are displayed below and also logged to the
 			browser console.
 		</p>
@@ -92,7 +124,7 @@ ORDER BY tablename, indexname`,
 			{#each Object.entries(queries) as [id, query] (id)}
 				<button
 					type="button"
-					class="border border-slate-600 bg-slate-700 px-3 py-1.5 text-sm font-medium text-slate-100 hover:bg-slate-600 disabled:opacity-50"
+					class="border border-border bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
 					onclick={() => setPresetQuery(id as keyof typeof queries)}>{query.label}</button
 				>
 			{/each}
@@ -100,14 +132,14 @@ ORDER BY tablename, indexname`,
 		<form onsubmit={handleSubmit} class="flex flex-col gap-4">
 			<textarea
 				bind:value={sqlInput}
-				class="h-52 w-full border border-slate-700 bg-slate-900 p-3 font-mono text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+				class="h-52 w-full border border-input bg-background p-3 font-mono text-sm text-foreground placeholder-muted-foreground focus:border-ring focus:outline-none disabled:opacity-50"
 				placeholder="Enter SQL command..."
 				disabled={isLoading}
 			></textarea>
 			<div class="flex flex-wrap items-center gap-4">
 				<button
 					type="submit"
-					class="inline-flex items-center gap-2 bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-400 disabled:opacity-50"
+					class="inline-flex items-center gap-2 bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
 					disabled={isLoading}
 				>
 					{#if isLoading}
@@ -126,55 +158,78 @@ ORDER BY tablename, indexname`,
 					{/if}
 					Execute SQL
 				</button>
+
+				<label
+					class="inline-flex items-center gap-2 text-sm font-medium select-none"
+					class:text-destructive={notReadOnly}
+					class:text-muted-foreground={!notReadOnly}
+					title="Read-only runs your query in a READ ONLY transaction so the database rejects any write. Tick this only when you know what you are doing."
+				>
+					<input type="checkbox" bind:checked={notReadOnly} class="accent-destructive" />
+					{notReadOnly ? 'Writes enabled (I know what I am doing)' : 'Read-only'}
+				</label>
+
 				{#if error}
 					<pre
-						class="flex-1 overflow-auto border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">{error.replaceAll(
+						class="flex-1 overflow-auto border border-destructive bg-destructive/10 p-3 text-sm text-destructive">{error.replaceAll(
 							'\\n',
 							'\n',
 						)}</pre>
 				{/if}
 				{#if result}
 					<div
-						class="flex flex-1 justify-between border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-200"
+						class="flex flex-1 items-center justify-between gap-3 border border-border bg-muted p-3 text-sm text-muted-foreground"
 					>
 						<span>{result.took.toFixed(0)} ms</span>
-						<span>{result.r.rowCount} rows</span>
+						<span>{result.rowCount} row{result.rowCount === 1 ? '' : 's'}</span>
 					</div>
 				{/if}
 			</div>
 		</form>
 		{#if result}
+			{#if result.rows && result.rows.length > 0}
+				<div class="flex items-center justify-between">
+					<span class="text-sm text-muted-foreground">
+						{result.rowCount} row{result.rowCount === 1 ? '' : 's'}
+					</span>
+					<button
+						type="button"
+						onclick={copyTable}
+						class="inline-flex items-center gap-2 border border-border bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-accent hover:text-accent-foreground"
+					>
+						{copied ? 'Copied!' : 'Copy as markdown'}
+					</button>
+				</div>
+			{/if}
 			<!-- contain: paint isolates the scroll container's repaint area; without
 				 it, scrolling a wide result table forces the whole page to repaint
 				 every frame, which is what made horizontal scroll feel laggy. -->
-			<div class="max-h-[600px] overflow-auto border border-slate-700 [contain:paint]">
-				{#if result.r.rows && result.r.rows.length > 0}
+			<div class="max-h-[600px] overflow-auto border border-border [contain:paint]">
+				{#if result.rows && result.rows.length > 0}
 					<table class="w-full border-collapse text-sm">
-						<thead class="sticky top-0 z-10 bg-slate-700">
+						<thead class="sticky top-0 z-10 bg-secondary">
 							<tr>
-								{#each getHeaders(result.r.rows) as header, i (i)}
-									<th class="border-b border-slate-600 px-3 py-2 text-left font-semibold text-slate-100"
+								{#each getHeaders(result.rows) as header, i (i)}
+									<th
+										class="border-b border-border px-3 py-2 text-left font-semibold text-secondary-foreground"
 										>{header}</th
 									>
 								{/each}
 							</tr>
 						</thead>
 						<tbody>
-							{#each result.r.rows as row, r (r)}
-								<!-- Solid stripe (no /50 alpha) so the GPU doesn't have to alpha-
-									 composite every cell on every scroll frame. -->
-								<tr class="even:bg-slate-900">
+							{#each result.rows as row, r (r)}
+								<tr class="even:bg-muted/40">
 									{#each Object.values(row) as cell, c (c)}
 										<!-- min-w to keep short cells readable, max-w-xs to cap
 											 wide ones, break-all so long unbroken strings (URLs,
 											 DIDs) wrap inside their cell instead of forcing the
-											 column to ~940px and the table to 2.5kpx (which is
-											 what made horizontal scroll laggy). -->
+											 column too wide and making horizontal scroll laggy. -->
 										<td
-											class="max-w-xs min-w-[8rem] border-b border-slate-700 px-3 py-2 align-top text-sm break-all text-slate-200"
+											class="max-w-xs min-w-[8rem] border-b border-border px-3 py-2 align-top text-sm break-all text-foreground"
 										>
-											{#if typeof cell === 'object'}<pre
-													class="text-xs whitespace-pre-wrap text-slate-400">{JSON.stringify(
+											{#if typeof cell === 'object' && cell !== null}<pre
+													class="text-xs whitespace-pre-wrap text-muted-foreground">{JSON.stringify(
 														cell,
 														null,
 														2,
@@ -187,9 +242,7 @@ ORDER BY tablename, indexname`,
 						</tbody>
 					</table>
 				{:else}
-					<div class="border border-slate-700 bg-slate-800 p-3 text-sm text-slate-300">
-						No rows returned
-					</div>
+					<div class="bg-card p-3 text-sm text-muted-foreground">No rows returned</div>
 				{/if}
 			</div>
 		{/if}
