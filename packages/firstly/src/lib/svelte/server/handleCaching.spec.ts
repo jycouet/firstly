@@ -12,9 +12,7 @@ async function run(pathname: string, status = 200) {
 
 describe('handleCaching', () => {
 	it('caches hashed assets forever', async () => {
-		expect(await run('/_app/immutable/chunks/abc123.js')).toBe(
-			'public, max-age=31536000, immutable',
-		)
+		expect(await run('/_app/immutable/chunks/abc123.js')).toBe('public, max-age=31536000, immutable')
 	})
 
 	it('never caches a 404 chunk (stale-deploy brick)', async () => {
