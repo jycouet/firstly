@@ -2,6 +2,8 @@ import type { ServerLoadEvent } from '@sveltejs/kit'
 
 import { withRemultFetch } from '../remultApiLoad.js'
 
+export { handleCaching } from './handleCaching.js'
+
 /**
  * Wrap a SvelteKit SERVER load (`+page.server.ts`) so plain global `repo()` reads
  * apply the API gate (as the current user) instead of the privileged DB provider.

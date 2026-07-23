@@ -338,6 +338,23 @@ export const handleError = stackHandleClientError(withStaleDeployReload(), (next
 
 Only chunk-load errors reload (a blind 404 reload would break client-side not-found routes).
 
+## `handleCaching` - deploy-safe `Cache-Control` headers
+
+`handleCaching` (from `firstly/svelte/server`) is the server-side twin of `withStaleDeployReload`:
+a `hooks.server.js` handle that sets `Cache-Control` so browsers/CDNs survive deploys without
+purge-everything. `/_app/immutable/*` (200 only) → immutable 1 year; HTML, API and **every non-200**
+→ `no-cache, no-store, must-revalidate`. Never widen the immutable rule: `/_app/version.json` is not
+hashed, and an immutable **404** (chunk requested mid-deploy) gets cached by the browser for a year -
+a permanent white page only "disable cache" fixes.
+
+```js
+// src/hooks.server.js
+import { sequence } from '@sveltejs/kit/hooks'
+import { handleCaching } from 'firstly/svelte/server'
+
+export const handle = sequence(handleCaching /* , ...rest */)
+```
+
 ## Prod server (adapter-node) - compression without breaking SSE
 
 adapter-node ships **no compression** - a data-heavy page can send 100KB+ of uncompressed HTML.
