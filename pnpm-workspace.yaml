@@ -43,9 +43,9 @@ catalogs:
   eslint: 10.7.0
 
  testing:
-  '@playwright/test': 1.60.0
+  '@playwright/test': 1.61.1
   '@vitest/browser': 3.2.3
-  playwright: 1.60.0
+  playwright: 1.61.1
   vitest: 3.2.3
 
  lib-author-helper:
