@@ -63,8 +63,8 @@ catalogs:
       specifier: 5.40.0
       version: 5.40.0
     svelte-check:
-      specifier: 4.6.0
-      version: 4.6.0
+      specifier: 4.7.3
+      version: 4.7.3
   sveltekit:
     '@sveltejs/adapter-node':
       specifier: 5.5.4
@@ -259,7 +259,7 @@ importers:
         version: 5.40.0(@typescript-eslint/types@8.59.3)
       svelte-check:
         specifier: catalog:svelte
-        version: 4.6.0(picomatch@4.0.4)(svelte@5.40.0(@typescript-eslint/types@8.59.3))(typescript@5.9.3)
+        version: 4.7.3(picomatch@4.0.4)(svelte@5.40.0(@typescript-eslint/types@8.59.3))(typescript@5.9.3)
       tslib:
         specifier: catalog:tooling
         version: 2.8.0
@@ -1707,8 +1707,8 @@ packages:
       '@opentelemetry/api':
         optional: true
 
-  '@sveltejs/load-config@0.1.1':
-    resolution: {integrity: sha512-BXXm+VOH/9X4N7Dd1iZ2MqA1h7M+9i2noI8QYuLDY8QcN2WHYn7D/VK/+IJNfcAmRw7ACNJ538UT9GXIhnBTiA==}
+  '@sveltejs/load-config@0.2.0':
+    resolution: {integrity: sha512-1LgZ/qUqSoq+QorD83lk2hka79Px0wXNW2q5V1nZlxGhQgw1jrsIbVz5YiCeucVLo4XvFLjXukUaQjIiqowkcg==}
     engines: {node: '>= 18.0.0'}
 
   '@sveltejs/package@2.5.4':
@@ -3711,11 +3711,6 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.8.1:
-    resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
-    engines: {node: '>=14'}
-    hasBin: true
-
   prettier@3.9.6:
     resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
     engines: {node: '>=14'}
@@ -4030,8 +4025,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte-check@4.6.0:
-    resolution: {integrity: sha512-KhVnDFDSid57mmZtHz8gfW8AAGylOZ0vPnOIzVmAL+urzwK8sBYXRss953gD8T0OdgAQ11mdWhE6uadmtOz8TQ==}
+  svelte-check@4.7.3:
+    resolution: {integrity: sha512-DHdTCGX62R0fCxBEaT+USdASAnoaRBaaNczkRJl0K7o3WyoCeVUbVxo6fKqpOll/B+WMWCsiFK0eFrJSNBKZIg==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
     peerDependencies:
@@ -5916,7 +5911,7 @@ snapshots:
       svelte: 5.40.0(@typescript-eslint/types@8.59.3)
       vite: 7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3)
 
-  '@sveltejs/load-config@0.1.1': {}
+  '@sveltejs/load-config@0.2.0': {}
 
   '@sveltejs/package@2.5.4(svelte@5.40.0(@typescript-eslint/types@8.59.3))(typescript@5.9.3)':
     dependencies:
@@ -8353,7 +8348,7 @@ snapshots:
   prettier-plugin-astro@0.14.1:
     dependencies:
       '@astrojs/compiler': 2.13.1
-      prettier: 3.8.1
+      prettier: 3.9.6
       sass-formatter: 0.7.9
 
   prettier-plugin-sh@0.18.1(prettier@3.9.6):
@@ -8376,8 +8371,6 @@ snapshots:
       prettier-plugin-svelte: 4.0.1(prettier@3.9.6)(svelte@5.40.0(@typescript-eslint/types@8.59.3))
 
   prettier@2.8.8: {}
-
-  prettier@3.8.1: {}
 
   prettier@3.9.6: {}
 
@@ -8837,10 +8830,10 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-check@4.6.0(picomatch@4.0.4)(svelte@5.40.0(@typescript-eslint/types@8.59.3))(typescript@5.9.3):
+  svelte-check@4.7.3(picomatch@4.0.4)(svelte@5.40.0(@typescript-eslint/types@8.59.3))(typescript@5.9.3):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
-      '@sveltejs/load-config': 0.1.1
+      '@sveltejs/load-config': 0.2.0
       chokidar: 4.0.3
       fdir: 6.5.0(picomatch@4.0.4)
       picocolors: 1.1.1
