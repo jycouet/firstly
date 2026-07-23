@@ -1,5 +1,11 @@
 # firstly
 
+## 0.8.1
+
+### Patch Changes
+
+- [#335](https://github.com/jycouet/firstly/pull/335) [`c551a73`](https://github.com/jycouet/firstly/commit/c551a730969252e89b0a1d1a59a54580a380237b) Thanks [@jycouet](https://github.com/jycouet)! - Add `handleCaching` (`firstly/svelte/server`): a `hooks.server.js` handle setting deploy-safe `Cache-Control` headers - immutable for `/_app/immutable/*` 200s, no-store for HTML/API and all non-200s (a cached 404 chunk would brick the client until "disable cache").
+
 ## 0.8.0
 
 ### Minor Changes
