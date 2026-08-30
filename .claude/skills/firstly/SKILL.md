@@ -210,36 +210,37 @@ refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → g
 
 Types: `FF_Many<T, Strategy>`, `FF_One<T>`, `FF_Builder<T>`, `FF_RepoOptions`, `ManyStrategy`.
 
-## `remultApiUniversalLoad` / `remultApiServerLoad` - reading in loads with API rules
+## `repoFetch` / `loadRepo` - reading in loads with API rules
 
-`ff` is component-level (browser-only). To read in a SvelteKit **`load`** with the entity's API
-rules applied (`allowApiRead` / `apiPrefilter`, as the current user), wrap the load. Server code is
-privileged by default - a bare `repo()` on the server bypasses the API gate - so these wrappers route
-the read through the API instead.
+`ff` is component-level (browser-only). In a SvelteKit **`load`**, a bare `repo()` reads the DB
+privileged on SSR (API rules skipped - leaks) and calls the API on CSR: same line, different data,
+plus a second query on hydration. Fix: bind a repo to `event.fetch`.
 
 ```ts
-// +page.ts (universal) - gated on SSR AND CSR, plain global repo()
-import { remultApiUniversalLoad } from 'firstly/svelte'
-export const load = remultApiUniversalLoad(async ({ params }) => ({
-	tasks: await repo(Task).find({ where: { done: false } }),
+// +page.ts - API rules on SSR and CSR, ONE query (hydration replays the SSR response)
+import { loadRepo } from 'firstly/svelte'
+export const load = loadRepo(async (repoClient, { params }) => ({
+	tasks: await repoClient(Task).find({ where: { done: false } }),
 }))
 
-// +page.server.ts - gate a SERVER read (instead of the privileged in-process DB)
-import { remultApiServerLoad } from 'firstly/svelte/server'
-export const load = remultApiServerLoad(async () => ({ tasks: await repo(Task).find() }))
+// or the primitive, when you want the event typing untouched
+import { repoFetch } from 'firstly/svelte'
+export const load = async (event) => {
+	const repoClient = repoFetch(event.fetch)
+	return { tasks: await repoClient(Task).find() }
+}
 ```
 
-Both run the body in a scoped `withRemult` bound to `event.fetch`, so plain global `repo()` /
-`ff()` is gated and a concurrent load keeps its own provider. On the server, SvelteKit dispatches
-same-origin `event.fetch` in-process (no network) with cookies forwarded, so the app's real
-auth/hooks run per read.
-
-- **`remultApiUniversalLoad`** (`firstly/svelte`): a universal load runs on the client too; on
-  CSR/hydration it reuses the inlined SSR response.
-- **`remultApiServerLoad`** (`firstly/svelte/server`, server-only): use it only when a server load
-  should see exactly what the API exposes; otherwise a server load keeps the privileged DB (gate
-  rows with `backendPrefilter`). BackendMethods keep their own `allowed` gate.
-- Both carry `remult.user` into the scope and pass `event` through untouched.
+- Nothing global is mutated: parallel `+layout.ts` / `+page.ts` each get their own bound repo, and
+  `invalidate('/api/...')` reruns the right load. The ambient remult (user, context) stays in charge.
+- Name the bound repo `repoClient` - a bare `repo()` in the same file still reads the DB on SSR.
+- `loadRepo` is typed structurally on `{ fetch }`: works for universal AND server loads. In a server
+  load, only use it when the load should see exactly what the API exposes; otherwise keep the
+  privileged DB (gate rows with `backendPrefilter`). BackendMethods keep their own `allowed` gate.
+- `repoFetch(fetch, { url })` overrides the API root per call; otherwise `remult.apiClient` config applies.
+- TODO(remult): both are framework-free - candidates to graduate into remult itself.
+- `remultApiUniversalLoad` / `remultApiServerLoad` still exist but are deprecated (the universal one
+  mutates the global `httpClient` on CSR, which leaks between parallel loads).
 
 ## Cell layer - metadata-driven grids & forms (Svelte 5)
 
