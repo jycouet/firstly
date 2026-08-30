@@ -1,6 +1,19 @@
 import type { ServerLoadEvent } from '@sveltejs/kit'
 
-import { withRemultFetch } from '../remultApiLoad.js'
+import { remult, RestDataProvider, withRemult } from 'remult'
+
+/** Run `body` in a scoped `withRemult` whose reads go through the API via `fetch`;
+ * `remult.user` is carried in so the body can read it. Server-only (needs async storage). */
+function withRemultFetch<T>(fetch: typeof globalThis.fetch, body: () => Promise<T>) {
+	const user = remult.user
+	return withRemult(
+		async () => {
+			remult.user = user
+			return body()
+		},
+		{ dataProvider: new RestDataProvider(() => ({ httpClient: fetch })) },
+	)
+}
 
 /**
  * Wrap a SvelteKit SERVER load (`+page.server.ts`) so plain global `repo()` reads

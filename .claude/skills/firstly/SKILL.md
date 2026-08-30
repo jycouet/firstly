@@ -220,10 +220,10 @@ plus a second query on hydration. Fix: bind a repo to `event.fetch`.
 // +page.ts - API rules on SSR and CSR, ONE query (hydration replays the SSR response)
 import { loadRepo } from 'firstly/svelte'
 export const load = loadRepo(async (repoClient, { params }) => ({
-	tasks: await repoClient(Task).find({ where: { done: false } }),
+	task: await repoClient(Task).findFirst({ id: params.id }),
 }))
 
-// or the primitive, when you want the event typing untouched
+// or the primitive
 import { repoFetch } from 'firstly/svelte'
 export const load = async (event) => {
 	const repoClient = repoFetch(event.fetch)
@@ -234,13 +234,14 @@ export const load = async (event) => {
 - Nothing global is mutated: parallel `+layout.ts` / `+page.ts` each get their own bound repo, and
   `invalidate('/api/...')` reruns the right load. The ambient remult (user, context) stays in charge.
 - Name the bound repo `repoClient` - a bare `repo()` in the same file still reads the DB on SSR.
-- `loadRepo` is typed structurally on `{ fetch }`: works for universal AND server loads. In a server
-  load, only use it when the load should see exactly what the API exposes; otherwise keep the
-  privileged DB (gate rows with `backendPrefilter`). BackendMethods keep their own `allowed` gate.
+- `loadRepo`'s event defaults to `LoadEvent` (so `{ params }` etc. just work); the constraint is
+  structural (`{ fetch }`), so it also fits server loads with an explicit event type.
 - `repoFetch(fetch, { url })` overrides the API root per call; otherwise `remult.apiClient` config applies.
-- TODO(remult): both are framework-free - candidates to graduate into remult itself.
-- `remultApiUniversalLoad` / `remultApiServerLoad` still exist but are deprecated (the universal one
-  mutates the global `httpClient` on CSR, which leaks between parallel loads).
+- TODO(remult): candidates to graduate into remult itself (only the `LoadEvent` default is kit-specific).
+- `remultApiUniversalLoad` was removed (its CSR path mutated the global `httpClient` - leaked between
+  parallel loads). `remultApiServerLoad` (`firstly/svelte/server`) stays: it gates *ambient* `repo()`
+  in a server load - use it only when the load should see exactly what the API exposes; otherwise keep
+  the privileged DB (gate rows with `backendPrefilter`). BackendMethods keep their own `allowed` gate.
 
 ## Cell layer - metadata-driven grids & forms (Svelte 5)
 
