@@ -1,5 +1,11 @@
 # firstly
 
+## 0.9.0
+
+### Minor Changes
+
+- [#341](https://github.com/jycouet/firstly/pull/341) [`ea9b4b6`](https://github.com/jycouet/firstly/commit/ea9b4b67544dc755374b3178c22082dac986472e) Thanks [@jycouet](https://github.com/jycouet)! - svelte: added `repoFetch(fetch)` and `loadRepo(loadFn)` - bind a repo to a load's `event.fetch` so API rules apply on SSR, hydration reuses the SSR response (one query), and parallel `+layout.ts`/`+page.ts` loads can't leak into each other. Removed `remultApiUniversalLoad`, `remultApiServerLoad`, `withRemultFetch`; migrate to `loadRepo` (works for universal AND server loads) or the `repoFetch(event.fetch)` primitive.
+
 ## 0.8.1
 
 ### Patch Changes
