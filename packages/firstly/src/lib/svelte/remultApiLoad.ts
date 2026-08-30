@@ -1,6 +1,6 @@
 import type { LoadEvent, ServerLoadEvent } from '@sveltejs/kit'
 
-import { remult, repo as globalRepo, RestDataProvider } from 'remult'
+import { repo as globalRepo, remult, RestDataProvider } from 'remult'
 
 export type Repo = typeof globalRepo
 
@@ -20,10 +20,7 @@ export type Repo = typeof globalRepo
  * TODO(remult): framework-agnostic (only needs a fetch) - candidate to live in
  * remult directly.
  */
-export function repoFetch(
-	fetch: typeof globalThis.fetch,
-	options?: { url?: string },
-): Repo {
+export function repoFetch(fetch: typeof globalThis.fetch, options?: { url?: string }): Repo {
 	const dp = new RestDataProvider(() => ({
 		...remult.apiClient,
 		httpClient: fetch,
@@ -54,5 +51,3 @@ export function loadRepo<
 >(loadFn: (repoClient: Repo, event: Ev) => R): (event: Ev) => R {
 	return (event) => loadFn(repoFetch(event.fetch), event)
 }
-
-
