@@ -1,11 +1,12 @@
-import { repo } from 'remult'
-
 import { ApiItem } from '$modules/demo/ApiItem'
-import { remultApiServerLoad } from '$lib/svelte/server'
+import { loadRepo } from '$lib/svelte'
 
-// Server load wrapped so its repo() reads pass the API gate (only `pub` rows),
-// instead of the privileged in-process provider that would see all rows.
-export const load = remultApiServerLoad(async () => {
-	const items = await repo(ApiItem).find()
+import type { PageServerLoad } from './$types'
+
+// Server load reading through the API gate (only `pub` rows), instead of the
+// privileged in-process provider that would see all rows. SvelteKit dispatches
+// same-origin server fetch in-process (no network) with cookies forwarded.
+export const load = loadRepo(async (repoClient) => {
+	const items = await repoClient(ApiItem).find()
 	return { items: items.map((i) => ({ id: i.id, title: i.title })) }
-})
+}) satisfies PageServerLoad
