@@ -1,6 +1,6 @@
 ---
 name: firstly
-description: "firstly - a thin opinionated layer on top of Remult (framework-agnostic, SvelteKit reference). Use when the user mentions firstly, FF_Entity, BaseEnum, the reactive ff layer (ff/FF_Many/FF_One), the cell layer (buildCells/FF_Cell/FF_Grid/GroupFields), firstly modules (mail, cron, changeLog, sqlAdmin), or the boutique copy-paste recipes (auth, grid) - or when building with firstly alongside Remult."
+description: 'firstly - a thin opinionated layer on top of Remult (framework-agnostic, SvelteKit reference). Use when the user mentions firstly, FF_Entity, BaseEnum, the reactive ff layer (ff/FF_Many/FF_One), the cell layer (buildCells/FF_Cell/FF_Grid/GroupFields), firstly modules (mail, cron, changeLog, sqlAdmin), the client stack (stackHttpClient/withShortTermCache/withTabSharing), or the boutique copy-paste recipes (auth, grid) - or when building with firstly alongside Remult.'
 ---
 
 # Firstly Patterns
@@ -145,6 +145,33 @@ API:
 - `FF_Allow.owner<T>(col?)` / `FF_Filter.owner<T>(col?)` - owner-only.
 - `FF_Allow.ownerOr<T>({ col?, roles })` / `FF_Filter.ownerOr<T>({ col?, roles })` - admin (or any of `roles`) OR owner.
 
+## Client stack - fetch & SSE middlewares
+
+From root `'firstly'` (pure TS, framework-agnostic). Compose remult's `apiClient` clients from middlewares - typically once in the root layout:
+
+```ts
+import {
+	stackHttpClient,
+	stackSubscriptionClient,
+	withHeader,
+	withShortTermCache,
+	withTabSharing,
+} from 'firstly'
+
+remult.apiClient.httpClient = stackHttpClient(
+	withHeader('X-Correlation-Id', getCorrelationId),
+	withShortTermCache({ ttlMs: 2000 }),
+)
+remult.apiClient.subscriptionClient = stackSubscriptionClient(withTabSharing())
+```
+
+- **`stackHttpClient(...mw)`** - compose `fetch` middlewares (outermost-first) over the base `fetch`. `withHeader(name, getValue)` sets a header when `getValue()` returns a value.
+- **`withShortTermCache({ ttlMs?, shouldCache? })`** - tiny client-side cache: dedupes identical read requests (GET + remult's read-only `__action=get|groupBy` POSTs, keyed by URL+body) within the TTL (default 2000ms). Two components mounting the same query = one network call; failures evicted so the next call retries.
+- **`stackSubscriptionClient(...mw)`** - compose a `SubscriptionClient`, bottoming out at `directSseSubscriptionClient()` (a public mirror of remult's internal SSE client).
+- **`withTabSharing()`** - ONE real SSE connection shared across all same-origin tabs (leader via `navigator.locks`, fanout via `BroadcastChannel`). Why: the browser's ~6-connections-per-domain HTTP/1.1 limit. liveQuery-safe: leader handoff and reconnects fire `onReconnect` in every tab (queries resync); channel interest is refcounted per tab. No-ops in SSR.
+
+(`withShortTermCache` + the subscription stack landed in firstly 0.8 - older versions lack them.)
+
 ## `ff` - reactive layer (Svelte 5)
 
 `ff` (from `firstly/svelte`) exposes a Remult entity as Svelte runes. **Two shapes**, both take a
@@ -243,7 +270,8 @@ export const load = async (event) => {
 - `repoFetch(fetch, { url })` overrides the API root per call; otherwise `remult.apiClient` config applies.
 - TODO(remult): candidates to graduate into remult itself (only the `LoadEvent` default is kit-specific).
 - Removed: `remultApiUniversalLoad` (its CSR path mutated the global `httpClient` - leaked between
-  parallel loads), `remultApiServerLoad`, `withRemultFetch`, and the `firstly/svelte/server` entry.
+  parallel loads), `remultApiServerLoad` and `withRemultFetch`. `firstly/svelte/server` now only
+  exports `handleCaching`.
 
 ## Cell layer - metadata-driven grids & forms (Svelte 5)
 
@@ -290,6 +318,74 @@ functions for i18n). `many.confirmRemove` uses `toast.fromError` on a failed del
 **Security:** the description renders as **HTML** - pass only trusted/sanitized content, never raw
 user or network/error text (XSS). `toast.fromError` HTML-escapes its extracted message, so error text
 is always safe to show; titles are always plain text.
+
+## `stackHandleClientError` - stack `hooks.client.js` error handlers
+
+`stackHandleClientError` (from `firstly/svelte`) composes `handleError` middlewares, mirroring
+`stackHttpClient`. Middlewares run outermost-first; each either short-circuits (return without
+calling `next`) or calls `next(input)`. The base returns `{ message: 'Something went wrong' }`.
+
+`withStaleDeployReload()` is the built-in middleware: after a deploy an open client (esp. SPA builds)
+404s on a lazy chunk; SvelteKit's `updated.check()` recovery lies behind a CDN caching `version.json`.
+It trusts the failure signal instead - on a chunk-load error it hard-reloads once (time-boxed
+one-shot guard, no reload loop), passing every other error to `next`.
+
+```js
+// src/hooks.client.js
+import { stackHandleClientError, withStaleDeployReload } from 'firstly/svelte'
+
+export const handleError = stackHandleClientError(withStaleDeployReload(), (next) => (input) => {
+	report(input.error) // your logging
+	return next(input) // or return { message: 'Oops' } to stop here
+})
+```
+
+Only chunk-load errors reload (a blind 404 reload would break client-side not-found routes).
+
+## `handleCaching` - deploy-safe `Cache-Control` headers
+
+`handleCaching` (from `firstly/svelte/server`) is the server-side twin of `withStaleDeployReload`:
+a `hooks.server.js` handle that sets `Cache-Control` so browsers/CDNs survive deploys without
+purge-everything. `/_app/immutable/*` (200 only) → immutable 1 year; HTML, API and **every non-200**
+→ `no-cache, no-store, must-revalidate`. Never widen the immutable rule: `/_app/version.json` is not
+hashed, and an immutable **404** (chunk requested mid-deploy) gets cached by the browser for a year -
+a permanent white page only "disable cache" fixes.
+
+```js
+// src/hooks.server.js
+import { sequence } from '@sveltejs/kit/hooks'
+import { handleCaching } from 'firstly/svelte/server'
+
+export const handle = sequence(handleCaching /* , ...rest */)
+```
+
+## Prod server (adapter-node) - compression without breaking SSE
+
+adapter-node ships **no compression** - a data-heavy page can send 100KB+ of uncompressed HTML.
+Wrap the built handler with `@polka/compression` (streaming-safe; gzip by default, `brotli: true`
+to enable), and **bypass remult's SSE endpoint** (`<apiPrefix>/stream`, default `/api/stream`) - a
+compressed/buffered event stream stalls liveQuery, so `'listen'` never updates.
+
+```js
+// scripts/prod-server.js - `node scripts/prod-server.js` (also the Docker CMD)
+import compression from '@polka/compression'
+import polka from 'polka'
+
+import { handler } from '../build/handler.js'
+
+const compress = compression({ threshold: 1024 })
+
+polka()
+	.use((req, res, next) => {
+		if (req.url.startsWith('/api/stream')) return next() // SSE: never compress
+		compress(req, res, next)
+	})
+	.use(handler)
+	.listen(Number(process.env.PORT ?? 3000))
+```
+
+`polka` + `@polka/compression` are runtime deps (not devDeps) - the script imports them in the
+production image.
 
 ## i18n - `LocalizedMessage`
 

@@ -16,15 +16,15 @@ minimumReleaseAgeExclude:
 
 catalogs:
  docs:
-  '@astrojs/starlight': 0.39.2
-  accessible-astro-components: 5.3.1
+  '@astrojs/starlight': 0.41.3
+  accessible-astro-components: 5.4.0
   astro: 6.4.8
   astro-icon: 1.1.5
-  sharp: 0.34.1
+  sharp: 0.35.3
   prettier-plugin-astro: 0.14.1
 
  best:
-  remult: 3.3.13
+  remult: 3.3.16
 
  tooling:
   '@typescript/native-preview': 7.0.0-dev.20260112.1
@@ -35,17 +35,17 @@ catalogs:
   vite-plugin-kit-routes: 1.0.6
   vite-plugin-stripper: 0.10.4
   esm-env: 1.2.2
-  prettier: 3.8.1
+  prettier: 3.9.6
 
  kitql:
   '@kitql/helpers': 0.8.15
   '@kitql/eslint-config': 0.9.0
-  eslint: 10.4.0
+  eslint: 10.7.0
 
  testing:
-  '@playwright/test': 1.60.0
+  '@playwright/test': 1.61.1
   '@vitest/browser': 3.2.3
-  playwright: 1.60.0
+  playwright: 1.61.1
   vitest: 3.2.3
 
  lib-author-helper:
@@ -54,7 +54,7 @@ catalogs:
 
  svelte:
   'svelte': 5.40.0
-  svelte-check: 4.6.0
+  svelte-check: 4.7.3
   svelte-micro: 2.5.7
 
  sveltekit:

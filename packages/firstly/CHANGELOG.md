@@ -1,5 +1,31 @@
 # firstly
 
+## 0.8.1
+
+### Patch Changes
+
+- [#335](https://github.com/jycouet/firstly/pull/335) [`c551a73`](https://github.com/jycouet/firstly/commit/c551a730969252e89b0a1d1a59a54580a380237b) Thanks [@jycouet](https://github.com/jycouet)! - Add `handleCaching` (`firstly/svelte/server`): a `hooks.server.js` handle setting deploy-safe `Cache-Control` headers - immutable for `/_app/immutable/*` 200s, no-store for HTML/API and all non-200s (a cached 404 chunk would brick the client until "disable cache").
+
+## 0.8.0
+
+### Minor Changes
+
+- [#318](https://github.com/jycouet/firstly/pull/318) [`89cb7ee`](https://github.com/jycouet/firstly/commit/89cb7ee93ee783283156c0adeda8b642233f6876) Thanks [@jycouet](https://github.com/jycouet)! - feat: `withShortTermCache` http middleware (dedupes identical read requests within a TTL) and `stackSubscriptionClient` + `withTabSharing` (one shared SSE connection across tabs via `navigator.locks`, with liveQuery resync on leader handoff and reconnect)
+
+- [#322](https://github.com/jycouet/firstly/pull/322) [`fdcc2b7`](https://github.com/jycouet/firstly/commit/fdcc2b7249d737b9bdb08de6feeddc37ca86a952) Thanks [@jycouet](https://github.com/jycouet)! - svelte: add `stackHandleClientError(...middlewares)` and a `withStaleDeployReload()` middleware for `hooks.client.js`, mirroring `stackHttpClient`. Stack your own error handlers alongside stale-deploy recovery: `withStaleDeployReload` hard-reloads once on a chunk-load failure (time-boxed guard, no reload loop), trusting the failure signal instead of `updated.check()` (which lies behind a CDN caching `version.json`).
+
+### Patch Changes
+
+- [#321](https://github.com/jycouet/firstly/pull/321) [`27579a1`](https://github.com/jycouet/firstly/commit/27579a135f970e92b4f491c9c735b8200a49a73e) Thanks [@jycouet](https://github.com/jycouet)! - svelte: re-export `ffTrapFocus` from `firstly/svelte` so custom dialog shells can trap Tab focus without copying the implementation.
+
+- [#325](https://github.com/jycouet/firstly/pull/325) [`0ae3295`](https://github.com/jycouet/firstly/commit/0ae32956dbe3e601e9e194a1275128b7d07612a3) Thanks [@jycouet](https://github.com/jycouet)! - sqlAdmin: run queries read-only by default (Postgres `READ ONLY` transaction, opt out via a UI checkbox), fix the missing row count, add a "copy as markdown" button, and restyle against the semantic theme tokens so it inherits the host app's theme.
+
+## 0.7.3
+
+### Patch Changes
+
+- [#315](https://github.com/jycouet/firstly/pull/315) [`3403d6c`](https://github.com/jycouet/firstly/commit/3403d6cffa657ad04acdac26024bdf6e989df7b4) Thanks [@jycouet](https://github.com/jycouet)! - cron: quieter logs by default - a tick only logs `done in Xms` when it took at least `logs.ended` ms (default 100; `true` = always, `false` = never). `starting` and `result` lines are opt-in, `logs.setup` can silence the registration line. If `onTick` throws, the run is now stored as `failed` (error in `result`), always logged, and no longer leaks the concurrency slot.
+
 ## 0.7.2
 
 ### Patch Changes
