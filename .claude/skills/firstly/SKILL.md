@@ -234,11 +234,12 @@ export const load = async (event) => {
 - Nothing global is mutated: parallel `+layout.ts` / `+page.ts` each get their own bound repo, and
   `invalidate('/api/...')` reruns the right load. The ambient remult (user, context) stays in charge.
 - Name the bound repo `repoClient` - a bare `repo()` in the same file still reads the DB on SSR.
-- `loadRepo`'s event defaults to `LoadEvent` (so `{ params }` etc. just work). In a
-  `+page.server.ts`, use `repoFetch(event.fetch)` directly - SvelteKit dispatches server fetch
-  in-process with cookies forwarded - and only when the load should see exactly what the API
-  exposes; otherwise keep the privileged DB (gate rows with `backendPrefilter`). A bare `repo()`
-  stays privileged either way; BackendMethods keep their own `allowed` gate.
+- `loadRepo` works for universal AND server loads (`satisfies PageLoad` or `PageServerLoad`); the
+  event defaults to `LoadEvent | ServerLoadEvent`, so `{ params }`/`url` just work - annotate the
+  event (`event: ServerLoadEvent`) for `cookies`/`locals`. In a server load, use it only when the
+  load should see exactly what the API exposes (server fetch runs in-process, cookies forwarded);
+  otherwise keep the privileged DB (gate rows with `backendPrefilter`). A bare `repo()` stays
+  privileged either way; BackendMethods keep their own `allowed` gate.
 - `repoFetch(fetch, { url })` overrides the API root per call; otherwise `remult.apiClient` config applies.
 - TODO(remult): candidates to graduate into remult itself (only the `LoadEvent` default is kit-specific).
 - Removed: `remultApiUniversalLoad` (its CSR path mutated the global `httpClient` - leaked between

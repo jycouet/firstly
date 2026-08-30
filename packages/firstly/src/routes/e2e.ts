@@ -14,7 +14,7 @@ test('loadRepo gates the universal read (SSR)', async ({ page }) => {
 	await expect(page.locator('[data-item]')).toHaveText('public item')
 })
 
-test('repoFetch gates the server read', async ({ page }) => {
+test('loadRepo gates the server read', async ({ page }) => {
 	await page.goto('/remult-api-server')
 	await expect(page.locator('[data-count]')).toHaveText('1')
 	await expect(page.locator('[data-item]')).toHaveText('public item')

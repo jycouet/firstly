@@ -1,4 +1,4 @@
-import type { LoadEvent } from '@sveltejs/kit'
+import type { LoadEvent, ServerLoadEvent } from '@sveltejs/kit'
 
 import { remult, repo as globalRepo, RestDataProvider } from 'remult'
 
@@ -34,21 +34,24 @@ export function repoFetch(
 
 /**
  * Wrap a load: the callback receives a repo bound to `event.fetch`, then the event.
- * Defaults to a universal `LoadEvent`; pass a server load's event type explicitly
- * for `+page.server.ts` (only `fetch` is required, structurally).
+ * Works for universal (`+page.ts`) AND server (`+page.server.ts`) loads.
  *
  * ```ts
  * export const load = loadRepo(async (repoClient, { params }) => ({
  * 	task: await repoClient(Task).findFirst({ id: params.id }),
- * })) satisfies PageLoad
+ * })) satisfies PageLoad // or PageServerLoad
  * ```
  *
- * TODO(remult): candidate to live in remult - only the `LoadEvent` default is
- * SvelteKit-specific, the constraint itself is structural.
+ * For server-only event members (`cookies`, `locals`, ...) annotate the event:
+ * `loadRepo(async (repoClient, event: ServerLoadEvent) => ...)`.
+ *
+ * TODO(remult): candidate to live in remult - only the event default is
+ * SvelteKit-specific, the constraint itself is structural (`{ fetch }`).
  */
-export function loadRepo<R, Ev extends { fetch: typeof globalThis.fetch } = LoadEvent>(
-	loadFn: (repoClient: Repo, event: Ev) => R,
-): (event: Ev) => R {
+export function loadRepo<
+	R,
+	Ev extends { fetch: typeof globalThis.fetch } = LoadEvent | ServerLoadEvent,
+>(loadFn: (repoClient: Repo, event: Ev) => R): (event: Ev) => R {
 	return (event) => loadFn(repoFetch(event.fetch), event)
 }
 
