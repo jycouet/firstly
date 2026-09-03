@@ -21,7 +21,7 @@ LIMIT 10`
 	let result: { rows: any[]; rowCount: number; took: number } | undefined = $state()
 	let error = $state('')
 	let isLoading = $state(false)
-	let notReadOnly = $state(false)
+	let allowWrites = $state(false)
 	let copied = $state(false)
 
 	const queries = {
@@ -64,7 +64,7 @@ ORDER BY tablename, indexname`,
 		try {
 			error = ''
 			isLoading = true
-			result = await SqlAdminController.exec(sqlInput, notReadOnly)
+			result = await SqlAdminController.exec(sqlInput, allowWrites)
 			log.info('for AI:', JSON.stringify(result.rows))
 			log.info('for humans:', result)
 		} catch (e) {
@@ -159,14 +159,16 @@ ORDER BY tablename, indexname`,
 					Execute SQL
 				</button>
 
+				<!-- Static label: the checkbox state is the signal, the text never
+					 flips so the user always knows what ticking it does. -->
 				<label
 					class="inline-flex items-center gap-2 text-sm font-medium select-none"
-					class:text-destructive={notReadOnly}
-					class:text-muted-foreground={!notReadOnly}
-					title="Read-only runs your query in a READ ONLY transaction so the database rejects any write. Tick this only when you know what you are doing."
+					class:text-destructive={allowWrites}
+					class:text-muted-foreground={!allowWrites}
+					title="Unchecked: the query runs in a READ ONLY transaction, so the database rejects any write. Tick only when you know what you are doing."
 				>
-					<input type="checkbox" bind:checked={notReadOnly} class="accent-destructive" />
-					{notReadOnly ? 'Writes enabled (I know what I am doing)' : 'Read-only'}
+					<input type="checkbox" bind:checked={allowWrites} class="accent-destructive" />
+					Allow writes
 				</label>
 
 				{#if error}

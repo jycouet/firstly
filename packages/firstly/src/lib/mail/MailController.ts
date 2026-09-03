@@ -22,7 +22,7 @@ export class MailController {
 	 * trimming, lowercasing, and per-entry validation happen here on the
 	 * server - the client just hands over what the user typed.
 	 */
-	@BackendMethod({ allowed: Roles_Mail.Mail_Admin })
+	@BackendMethod({ allowed: Roles_Mail.Mail_Admin, apiPrefix: 'ff/mail' })
 	static async sendTest(input: {
 		to: string
 		cc?: string

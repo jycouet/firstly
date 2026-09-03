@@ -10,7 +10,7 @@ export class CarboneController {
 
 	@BackendMethod({
 		allowed: [Roles_Carbon.Carbon_Admin, Roles_Carbon.Carbon_UploadTemplate],
-		apiPrefix: 'carbone',
+		apiPrefix: 'ff/carbone',
 	})
 	static async uploadTemplate(config: {
 		name: string
@@ -54,7 +54,7 @@ export class CarboneController {
 
 	@BackendMethod({
 		allowed: [Roles_Carbon.Carbon_Admin, Roles_Carbon.Carbon_DownloadTemplate],
-		apiPrefix: 'carbone',
+		apiPrefix: 'ff/carbone',
 	})
 	static async downloadTemplate(config: {
 		templateName?: string
@@ -97,7 +97,7 @@ export class CarboneController {
 
 	@BackendMethod({
 		allowed: [Roles_Carbon.Carbon_Admin, Roles_Carbon.Carbon_DeleteTemplate],
-		apiPrefix: 'carbone',
+		apiPrefix: 'ff/carbone',
 	})
 	static async deleteTemplate(config: { templateId: string }) {
 		const { templateId } = config
@@ -117,7 +117,7 @@ export class CarboneController {
 
 	@BackendMethod({
 		allowed: [Roles_Carbon.Carbon_Admin, Roles_Carbon.Carbon_Render],
-		apiPrefix: 'carbone',
+		apiPrefix: 'ff/carbone',
 	})
 	static async render(config: {
 		templateName?: string

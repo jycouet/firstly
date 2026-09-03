@@ -75,25 +75,25 @@
 	}
 
 	function badgeClass(status: Mail['status']): string {
-		if (status === 'sent') return 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300'
+		if (status === 'sent') return 'bg-emerald-500/10 border-emerald-500/40 text-emerald-700'
 		if (status === 'transport_not_configured')
-			return 'bg-amber-500/10 border-amber-500/40 text-amber-300'
-		return 'bg-red-500/10 border-red-500/40 text-red-300'
+			return 'bg-amber-500/10 border-amber-500/40 text-amber-700'
+		return 'bg-destructive/10 border-destructive text-destructive'
 	}
 </script>
 
-<div class="border border-slate-700 bg-slate-800 text-slate-200">
-	<header class="flex flex-wrap items-center gap-3 border-b border-slate-700 px-5 py-4">
+<div class="border border-border bg-card text-card-foreground">
+	<header class="flex flex-wrap items-center gap-3 border-b border-border px-5 py-4">
 		<div class="flex flex-col">
-			<h2 class="text-lg font-semibold text-slate-100">Last mails</h2>
-			<p class="text-sm text-slate-400">Recent mails sent through this app.</p>
+			<h2 class="text-lg font-semibold text-foreground">Last mails</h2>
+			<p class="text-sm text-muted-foreground">Recent mails sent through this app.</p>
 		</div>
 		{#if hasAccess}
 			<button
 				type="button"
 				onclick={refresh}
 				disabled={isLoading}
-				class="ml-auto inline-flex items-center gap-2 border border-slate-600 bg-slate-700 px-3 py-1.5 text-sm font-medium text-slate-100 hover:bg-slate-600 disabled:opacity-50"
+				class="ml-auto inline-flex items-center gap-2 border border-border bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
 			>
 				{#if isLoading}
 					<svg
@@ -111,24 +111,26 @@
 				{/if}
 				Refresh
 			</button>
-			<span class="text-xs text-slate-500">
+			<span class="text-xs text-muted-foreground">
 				{mails.length} mail{mails.length === 1 ? '' : 's'}
-				{#if live}<span class="text-indigo-400">· live</span>{/if}
+				{#if live}<span class="text-primary">· live</span>{/if}
 			</span>
 		{/if}
 	</header>
 
 	<div class="p-5">
 		{#if !hasAccess}
-			<div class="border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
+			<div class="border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700">
 				You need the
-				<code class="bg-amber-500/20 px-1 py-0.5 text-xs text-amber-100">Mail.Admin</code>
+				<code class="bg-amber-500/20 px-1 py-0.5 text-xs text-amber-800">Mail.Admin</code>
 				role to use this.
 			</div>
 		{:else if error}
-			<div class="border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>
+			<div class="border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
+				{error}
+			</div>
 		{:else if mails.length === 0}
-			<div class="border border-slate-700 bg-slate-900 p-3 text-sm text-slate-400">No mails yet.</div>
+			<div class="border border-border bg-muted p-3 text-sm text-muted-foreground">No mails yet.</div>
 		{:else}
 			<div class="flex flex-col gap-3">
 				{#each mails as m (m.id)}
@@ -137,24 +139,24 @@
 					{@const bcc = formatList(m.metadata?.bcc)}
 					{@const messageId = m.metadata?.transport?.messageId as string | undefined}
 					{@const preview = m.metadata?.transport?.preview as string | undefined}
-					<article class="flex flex-col gap-2 border border-slate-700 bg-slate-900 p-4">
+					<article class="flex flex-col gap-2 border border-border bg-background p-4">
 						<div class="flex flex-wrap items-center gap-2">
 							<span class="border px-2 py-0.5 text-xs font-medium {badgeClass(m.status)}">{m.status}</span>
 							<span
-								class="border border-slate-600 bg-slate-700/50 px-2 py-0.5 text-xs font-medium text-slate-200"
+								class="border border-border bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
 								>{m.topic}</span
 							>
-							<span class="text-xs text-slate-400">{parseTo(m.to)}</span>
-							<span class="ml-auto text-xs text-slate-500">{formatDate(m.createdAt)}</span>
+							<span class="text-xs text-muted-foreground">{parseTo(m.to)}</span>
+							<span class="ml-auto text-xs text-muted-foreground">{formatDate(m.createdAt)}</span>
 						</div>
 
-						<div class="text-base font-medium text-slate-100">{subject || '(no subject)'}</div>
+						<div class="text-base font-medium text-foreground">{subject || '(no subject)'}</div>
 
 						{#if cc}
-							<div class="text-xs text-slate-500">cc: {cc}</div>
+							<div class="text-xs text-muted-foreground">cc: {cc}</div>
 						{/if}
 						{#if bcc}
-							<div class="text-xs text-slate-500">bcc: {bcc}</div>
+							<div class="text-xs text-muted-foreground">bcc: {bcc}</div>
 						{/if}
 
 						{#if preview}
@@ -163,18 +165,18 @@
 									href={preview}
 									target="_blank"
 									rel="noopener noreferrer"
-									class="text-indigo-400 underline hover:text-indigo-300">preview (mail not really sent)</a
+									class="text-primary underline hover:opacity-80">preview (mail not really sent)</a
 								>
 							</div>
 						{/if}
 
 						{#if messageId}
-							<div class="text-xs break-all text-slate-500">id: <code>{messageId}</code></div>
+							<div class="text-xs break-all text-muted-foreground">id: <code>{messageId}</code></div>
 						{/if}
 
 						{#if m.status === 'error' && m.errorInfo}
 							<pre
-								class="border border-red-500/40 bg-red-500/10 p-2 text-xs whitespace-pre-wrap text-red-200">{m.errorInfo}</pre>
+								class="border border-destructive bg-destructive/10 p-2 text-xs whitespace-pre-wrap text-destructive">{m.errorInfo}</pre>
 						{/if}
 					</article>
 				{/each}
