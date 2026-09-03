@@ -1,5 +1,13 @@
 # firstly
 
+## 0.9.1
+
+### Patch Changes
+
+- [#344](https://github.com/jycouet/firstly/pull/344) [`857d7b3`](https://github.com/jycouet/firstly/commit/857d7b3b272ae6bc6b0ca7ccff7d838c4f463bc6) Thanks [@jycouet](https://github.com/jycouet)! - - BackendMethods of `mail`, `sqlAdmin`, `feedback` and `carbone` now carry an `apiPrefix` (`/api/ff/mail/sendTest`, `/api/ff/sqlAdmin/exec`, ...) so a host app method with the same name (e.g. its own `sendTest`) can no longer shadow them.
+  - `WriteMail` / `LastMails` read the semantic theme tokens (`bg-card`, `border-border`, `text-primary`, ...) like `SqlAdmin` instead of a hardcoded slate palette.
+  - `SqlAdmin`: the write toggle is a static "Allow writes" checkbox; the label no longer flips with the state.
+
 ## 0.9.0
 
 ### Minor Changes
