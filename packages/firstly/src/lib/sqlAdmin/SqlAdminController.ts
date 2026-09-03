@@ -14,7 +14,10 @@ export class SqlAdminController {
 	 *   (INSERT/UPDATE/DELETE/DDL). Set `true` only when you deliberately want
 	 *   to mutate - the UI gates this behind an explicit checkbox.
 	 */
-	@BackendMethod({ allowed: [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin] })
+	@BackendMethod({
+		allowed: [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin],
+		apiPrefix: 'sqlAdmin',
+	})
 	static async exec(cmd: string, notReadOnly = false) {
 		const db = SqlAdminController.dp ?? SqlDatabase.getDb()
 		const start = performance.now()

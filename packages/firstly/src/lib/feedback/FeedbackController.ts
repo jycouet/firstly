@@ -69,7 +69,7 @@ async function addMetaData(issueId: string, obj: Record<string, any>) {
 }
 
 export class FeedbackController {
-	@BackendMethod({ allowed: Allow.authenticated })
+	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'feedback' })
 	static async getMilestones() {
 		const data = await getGitHub(
 			`query Milestones(
@@ -111,7 +111,7 @@ export class FeedbackController {
 		)
 	}
 
-	@BackendMethod({ allowed: Allow.authenticated })
+	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'feedback' })
 	static async getIssues(milestoneNumber: number, issueState: 'OPEN' | 'CLOSED') {
 		const issueOrder =
 			issueState === 'CLOSED'
@@ -174,7 +174,7 @@ export class FeedbackController {
 		}) as { id: string; number: number; titleHTML: string; state: string; highlight: boolean }[]
 	}
 
-	@BackendMethod({ allowed: Allow.authenticated })
+	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'feedback' })
 	static async getIssue(issueNumber: number) {
 		const data = await getGitHub(
 			`query Issue($repository: String!, $owner: String!, $issueNumber: Int!) {
@@ -280,7 +280,7 @@ repository(name: $repository, owner: $owner) {
 		return toRet
 	}
 
-	@BackendMethod({ allowed: Allow.authenticated })
+	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'feedback' })
 	static async createIssue(
 		milestoneId: string,
 		title: string,
@@ -357,7 +357,7 @@ repository(name: $repository, owner: $owner) {
 		return toRet
 	}
 
-	@BackendMethod({ allowed: Allow.authenticated })
+	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'feedback' })
 	static async addCommentOnIssue(
 		issueId: string,
 		issueNumber: number,
@@ -418,7 +418,7 @@ repository(name: $repository, owner: $owner) {
 		return 'done'
 	}
 
-	@BackendMethod({ allowed: Allow.authenticated })
+	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'feedback' })
 	static async close(issueId: string, labels: { id: string; name: string }[]) {
 		const inputClose: { issueId: string } = {
 			issueId,
@@ -455,7 +455,7 @@ repository(name: $repository, owner: $owner) {
 		return 'done'
 	}
 
-	@BackendMethod({ allowed: Allow.authenticated })
+	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'feedback' })
 	static async reOpen(issueId: string) {
 		const input: { issueId: string } = {
 			issueId,
