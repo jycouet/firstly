@@ -16,7 +16,7 @@ export class SqlAdminController {
 	 */
 	@BackendMethod({
 		allowed: [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin],
-		apiPrefix: 'sqlAdmin',
+		apiPrefix: 'ff/sqlAdmin',
 	})
 	static async exec(cmd: string, notReadOnly = false) {
 		const db = SqlAdminController.dp ?? SqlDatabase.getDb()
