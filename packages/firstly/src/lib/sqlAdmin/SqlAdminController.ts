@@ -17,21 +17,21 @@ export class SqlAdminController {
 	@BackendMethod({
 		allowed: [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin],
 		apiPrefix: 'ff/sqlAdmin',
+		// Remult wraps BackendMethods in a transaction by default; ours would then be
+		// nested, which Postgres rejects. We open our own below instead.
+		transactional: false,
 	})
 	static async exec(cmd: string, notReadOnly = false) {
 		const db = SqlAdminController.dp ?? SqlDatabase.getDb()
 		const start = performance.now()
 		let rows: any[] = []
-		if (notReadOnly) {
-			rows = (await db.execute(cmd)).rows
-		} else {
-			await db.transaction(async (tx) => {
-				const txDb = SqlDatabase.getDb(tx)
-				// Postgres: makes the whole transaction reject writes at the DB level.
-				await txDb.execute('SET TRANSACTION READ ONLY')
-				rows = (await txDb.execute(cmd)).rows
-			})
-		}
+		// One transaction either way: a failing multi-statement script leaves nothing behind.
+		await db.transaction(async (tx) => {
+			const txDb = SqlDatabase.getDb(tx)
+			// Postgres: makes the whole transaction reject writes at the DB level.
+			if (!notReadOnly) await txDb.execute('SET TRANSACTION READ ONLY')
+			rows = (await txDb.execute(cmd)).rows
+		})
 		const took = performance.now() - start
 		return { rows, rowCount: rows.length, took }
 	}
