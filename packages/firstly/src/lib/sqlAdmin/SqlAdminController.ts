@@ -17,6 +17,9 @@ export class SqlAdminController {
 	@BackendMethod({
 		allowed: [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin],
 		apiPrefix: 'ff/sqlAdmin',
+		// Remult wraps BackendMethods in a transaction by default; the READ ONLY tx
+		// below would then be nested, which Postgres rejects.
+		transactional: false,
 	})
 	static async exec(cmd: string, notReadOnly = false) {
 		const db = SqlAdminController.dp ?? SqlDatabase.getDb()
