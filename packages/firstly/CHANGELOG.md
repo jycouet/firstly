@@ -1,5 +1,11 @@
 # firstly
 
+## 0.9.2
+
+### Patch Changes
+
+- [#347](https://github.com/jycouet/firstly/pull/347) [`2a6576c`](https://github.com/jycouet/firstly/commit/2a6576ce7955ad73b38b3c07a3daf7c0fde78525) Thanks [@jycouet](https://github.com/jycouet)! - fix(sqlAdmin): read-only queries no longer fail with "nested transactions not allowed" on Postgres
+
 ## 0.9.1
 
 ### Patch Changes
