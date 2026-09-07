@@ -135,6 +135,8 @@ export class FeedbackController {
                 number
                 titleHTML
                 state
+                createdAt
+                updatedAt
                 labels(first:10){
                   nodes {
                     name
@@ -159,19 +161,31 @@ export class FeedbackController {
 		)
 
 		return data.repository.milestone.issues.nodes.map((issue: any) => {
+			const labels: string[] = issue.labels.nodes.map((label: any) => label.name)
 			const hasWaitingForAnswerLabel = remult.context.feedbackOptions.highlight_label
-				? issue.labels.nodes.some((label: any) =>
-						label.name.includes(remult.context.feedbackOptions.highlight_label),
-					)
+				? labels.some((name) => name.includes(remult.context.feedbackOptions.highlight_label!))
 				: false
 			return {
 				id: issue.id,
 				number: issue.number,
 				titleHTML: issue.titleHTML,
 				state: issue.state,
+				createdAt: issue.createdAt,
+				updatedAt: issue.updatedAt,
+				labels,
 				highlight: hasWaitingForAnswerLabel,
 			}
-		}) as { id: string; number: number; titleHTML: string; state: string; highlight: boolean }[]
+		}) as {
+			id: string
+			number: number
+			titleHTML: string
+			state: string
+			createdAt: string
+			updatedAt: string
+			/** GitHub label names. */
+			labels: string[]
+			highlight: boolean
+		}[]
 	}
 
 	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'ff/feedback' })
@@ -286,6 +300,8 @@ repository(name: $repository, owner: $owner) {
 		title: string,
 		body: string,
 		metadata: { page: string },
+		/** Extra label names applied on top of `create_label` (unknown names are ignored). */
+		labels: string[] = [],
 	) {
 		const repoInfo = await getGitHub(
 			`query RepoInfo(
@@ -313,9 +329,8 @@ repository(name: $repository, owner: $owner) {
 			labels: { nodes: { id: string; name: string }[] }
 		}
 
-		const create_label = repoInfoData.labels.nodes.find(
-			(c) => c.name === remult.context.feedbackOptions.create_label,
-		)
+		const wanted = new Set([remult.context.feedbackOptions.create_label, ...labels])
+		const labelIds = repoInfoData.labels.nodes.filter((c) => wanted.has(c.name)).map((c) => c.id)
 
 		const newIssue = await getGitHub(
 			`mutation CreateIssue($input: CreateIssueInput!) {
@@ -331,7 +346,7 @@ repository(name: $repository, owner: $owner) {
 				input: {
 					repositoryId: repoInfoData.id,
 					milestoneId: milestoneId,
-					labelIds: [create_label?.id],
+					labelIds,
 					title: title ?? 'New Feedback (wo title...)',
 					body: body,
 				},
