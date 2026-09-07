@@ -1,5 +1,11 @@
 # firstly
 
+## 0.9.4
+
+### Patch Changes
+
+- [#352](https://github.com/jycouet/firstly/pull/352) [`53ec5e1`](https://github.com/jycouet/firstly/commit/53ec5e12f744ed207b9fce6fa80f3bc9b4918a92) Thanks [@jycouet](https://github.com/jycouet)! - feedback: `getIssues` returned nothing when `milestones.labels_filters` was unset (GitHub treats `labels: []` as "match nothing"); the filter is now omitted in that case.
+
 ## 0.9.3
 
 ### Patch Changes
