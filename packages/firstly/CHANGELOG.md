@@ -1,5 +1,13 @@
 # firstly
 
+## 0.9.3
+
+### Patch Changes
+
+- [#349](https://github.com/jycouet/firstly/pull/349) [`b285731`](https://github.com/jycouet/firstly/commit/b285731fe8e6cd41e5a257a044524486319e5544) Thanks [@jycouet](https://github.com/jycouet)! - feedback: `getIssues` now returns `labels` (names), `createdAt` and `updatedAt` per issue; `createIssue` accepts an optional `labels: string[]` applied on top of `create_label`.
+
+- [#351](https://github.com/jycouet/firstly/pull/351) [`9701c40`](https://github.com/jycouet/firstly/commit/9701c404c7c2e6e2f94a7e3eab536b6a55d0c9c2) Thanks [@jycouet](https://github.com/jycouet)! - `withShortTermCache`: mutations (POST writes, PUT, PATCH, DELETE) now clear the cache once they settle, so a follow-up refresh no longer serves the pre-mutation read.
+
 ## 0.9.2
 
 ### Patch Changes
