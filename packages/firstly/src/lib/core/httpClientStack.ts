@@ -52,7 +52,8 @@ const defaultShouldCache: NonNullable<ShortTermCacheOptions['shouldCache']> = (
  * Middleware that dedupes identical read requests within a short TTL - a tiny
  * client-side cache. Two components mounting and issuing the same query result in
  * ONE network call; each caller gets its own `Response` clone. Failed requests are
- * evicted immediately so the next call retries.
+ * evicted immediately so the next call retries. Any mutation (non-GET that isn't a
+ * cached read) clears the cache once it settles, so a follow-up refresh sees fresh data.
  *
  * ```ts
  * remult.apiClient.httpClient = stackHttpClient(withShortTermCache({ ttlMs: 2000 }))
@@ -77,7 +78,16 @@ export function withShortTermCache(opts: ShortTermCacheOptions = {}): HttpClient
 		}
 
 		if (!shouldCache(input, init, cacheKey)) {
-			return next(input, init)
+			const method = init?.method?.toUpperCase() ?? 'GET'
+			if (method === 'GET') return next(input, init)
+			// Mutation: drop cached reads once it settles (not before, so a read racing the
+			// write can't re-cache pre-mutation data). Cleared on error too: the server may
+			// have partially mutated.
+			try {
+				return await next(input, init)
+			} finally {
+				cache.clear()
+			}
 		}
 
 		const now = Date.now()
