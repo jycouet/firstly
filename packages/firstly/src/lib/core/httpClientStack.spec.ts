@@ -98,6 +98,43 @@ describe('withShortTermCache', () => {
 		expect(seen).toHaveLength(2)
 	})
 
+	it('clears cached reads after a mutation settles', async () => {
+		let calls = 0
+		vi.stubGlobal('fetch', () => {
+			calls++
+			return Promise.resolve(new Response('ok'))
+		})
+
+		const client = stackHttpClient(withShortTermCache({ ttlMs: 10_000 }))
+		await client('/api/tasks')
+		await client('/api/tasks')
+		expect(calls).toBe(1)
+
+		await client('/api/tasks', { method: 'POST', body: '{}' })
+		await client('/api/tasks')
+		expect(calls).toBe(3)
+
+		await client('/api/tasks/1', { method: 'DELETE' })
+		await client('/api/tasks')
+		expect(calls).toBe(5)
+	})
+
+	it('clears cached reads even when the mutation fails', async () => {
+		let calls = 0
+		vi.stubGlobal('fetch', (_i: RequestInfo | URL, init?: RequestInit) => {
+			calls++
+			return init?.method === 'PUT'
+				? Promise.reject(new Error('boom'))
+				: Promise.resolve(new Response('ok'))
+		})
+
+		const client = stackHttpClient(withShortTermCache({ ttlMs: 10_000 }))
+		await client('/api/tasks')
+		await expect(client('/api/tasks/1', { method: 'PUT', body: '{}' })).rejects.toThrow('boom')
+		await client('/api/tasks')
+		expect(calls).toBe(3)
+	})
+
 	it('evicts failed requests so the next call retries', async () => {
 		let calls = 0
 		vi.stubGlobal('fetch', () => {
