@@ -153,7 +153,10 @@ export class FeedbackController {
 				owner: remult.context.feedbackOptions.repo.owner,
 				milestoneNumber,
 				filters: {
-					labels: remult.context.feedbackOptions.milestones?.labels_filters ?? [],
+					// GitHub treats `labels: []` as "match nothing", so omit the key when unset.
+					labels: remult.context.feedbackOptions.milestones?.labels_filters?.length
+						? remult.context.feedbackOptions.milestones.labels_filters
+						: undefined,
 					states: [issueState],
 				},
 				issueOrder,
