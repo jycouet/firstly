@@ -16,7 +16,7 @@ minimumReleaseAgeExclude:
 
 catalogs:
  docs:
-  '@astrojs/starlight': 0.41.3
+  '@astrojs/starlight': 0.42.0
   accessible-astro-components: 5.4.0
   astro: 7.2.10
   astro-icon: 1.1.5
