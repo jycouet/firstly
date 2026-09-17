@@ -14,8 +14,8 @@ catalogs:
       specifier: 0.41.3
       version: 0.41.3
     accessible-astro-components:
-      specifier: 5.4.0
-      version: 5.4.0
+      specifier: 5.8.0
+      version: 5.8.0
     astro:
       specifier: 7.2.10
       version: 7.2.10
@@ -164,7 +164,7 @@ importers:
         version: 0.41.3(astro@7.2.10(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@25.5.2)(jiti@2.6.1)(yaml@2.8.3))(typescript@5.9.3)
       accessible-astro-components:
         specifier: catalog:docs
-        version: 5.4.0
+        version: 5.8.0(astro@7.2.10(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@25.5.2)(jiti@2.6.1)(yaml@2.8.3))
       astro:
         specifier: catalog:docs
         version: 7.2.10(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@25.5.2)(jiti@2.6.1)(yaml@2.8.3)
@@ -2477,8 +2477,11 @@ packages:
   '@vitest/utils@3.2.3':
     resolution: {integrity: sha512-4zFBCU5Pf+4Z6v+rwnZ1HU1yzOKKvDkMXZrymE2PBlbjKJRlrOxbvpfPSvJTGRIwGoahaOGvp+kbCoxifhzJ1Q==}
 
-  accessible-astro-components@5.4.0:
-    resolution: {integrity: sha512-ckP3OQPoa7kHLlMX3dOXVSZaqwq2gfAP/EmtTFrr7Df/qSZ72iX8j7yhAaqWU/3Sp2qli/mDXzz5dyfPBX4gAQ==}
+  accessible-astro-components@5.8.0:
+    resolution: {integrity: sha512-TYGVy+u0pCRQJl4gp0r397YsNfM6R+ZTDj5sbatadFuxAdQ92qlhJg31S55nWUkFUre8zHoZvPIo4GWxCHVXTQ==}
+    engines: {node: ^18.20.8 || ^20.3.0 || >=22.0.0}
+    peerDependencies:
+      astro: ^5.0.0 || ^6.0.0 || ^7.0.0
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -6967,7 +6970,9 @@ snapshots:
       loupe: 3.2.1
       tinyrainbow: 2.0.0
 
-  accessible-astro-components@5.4.0: {}
+  accessible-astro-components@5.8.0(astro@7.2.10(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@25.5.2)(jiti@2.6.1)(yaml@2.8.3)):
+    dependencies:
+      astro: 7.2.10(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@25.5.2)(jiti@2.6.1)(yaml@2.8.3)
 
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:
