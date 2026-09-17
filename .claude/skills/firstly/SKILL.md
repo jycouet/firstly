@@ -111,6 +111,8 @@ export const api = remultApi({ modules: [sqlAdmin({ path: '/sql/admin' })] })
 
 The component ships prefilled queries (DB size, table sizes, indexes, default `SELECT`) and logs results as `for AI: <rows>` in the browser console - so chrome-devtools / AI agents can grab them with `list_console_messages`.
 
+Opt-in `tokens: { caps: ['read'], pool, userFromId? }` adds bearer tokens (`<SqlTokens />`, `POST /api/ff/sqlToken/sql`) so a script or an AI on a dev machine can query prod. `read` = Postgres `READ ONLY` transaction + extended protocol (one statement, no `commit; insert` escape); the token acts as its minter, answers one path only, needs a live session to mint/revoke, every call logged. `console: false` drops the `<SqlAdmin />` endpoint.
+
 ## `FF_Allow` / `FF_Filter` - row-level helpers
 
 Tiny helpers for the common "owner-only" / "admin or owner" patterns. `FF_Allow` is for `allowApi*` (per-row predicates), `FF_Filter` is for `apiPrefilter` / `backendPrefilter` (where-clauses). Both default the column name to `'userId'`.
@@ -245,13 +247,13 @@ plus a second query on hydration. Fix: bind a repo to `event.fetch`.
 
 ```ts
 // +page.ts - API rules on SSR and CSR, ONE query (hydration replays the SSR response)
-import { loadRepo } from 'firstly/svelte'
+// or the primitive
+import { loadRepo, repoFetch } from 'firstly/svelte'
+
 export const load = loadRepo(async (repoClient, { params }) => ({
 	task: await repoClient(Task).findFirst({ id: params.id }),
 }))
 
-// or the primitive
-import { repoFetch } from 'firstly/svelte'
 export const load = async (event) => {
 	const repoClient = repoFetch(event.fetch)
 	return { tasks: await repoClient(Task).find() }
@@ -354,6 +356,7 @@ a permanent white page only "disable cache" fixes.
 ```js
 // src/hooks.server.js
 import { sequence } from '@sveltejs/kit/hooks'
+
 import { handleCaching } from 'firstly/svelte/server'
 
 export const handle = sequence(handleCaching /* , ...rest */)

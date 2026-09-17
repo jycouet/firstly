@@ -62,3 +62,59 @@ user.roles = [Roles_SqlAdmin.SqlAdmin_Admin]
 ```
 
 That's it! 🎉
+
+## SQL tokens - run SQL from outside the browser
+
+Bearer tokens for a script or an AI on a dev machine that needs a fact only the production database
+holds. Nothing is registered unless you opt in - no entities, no endpoints.
+
+```ts
+// src/server/api.ts
+import { Pool } from 'pg'
+
+const pool = new Pool({ connectionString: DATABASE_URL })
+
+sqlAdmin({
+	// OPTIONAL - false removes the <SqlAdmin /> endpoint, keep only tokens.
+	// console: true,
+	tokens: {
+		// Which capabilities may be minted. `read` runs inside a READ ONLY transaction,
+		// one statement at a time (extended query protocol). `write` runs SQL as is.
+		caps: ['read'],
+		// `pg.Pool` - required for `read`.
+		pool,
+		// OPTIONAL - the token then acts as its minter with their LIVE roles
+		// (lose admin, tokens die). Without it the token is its own authority.
+		userFromId: (id) => loadUser(id),
+		// OPTIONAL - prefix: 'ffsql_', apiPath: '/api', callLogRetentionDays: 30
+	},
+})
+```
+
+```svelte
+<script lang="ts">
+	import { SqlTokens } from 'firstly/sqlAdmin'
+</script>
+
+<!-- `command` is what the admin copies once the token is shown. -->
+<SqlTokens caps={['read']} command={(t) => `MY_TOKEN=${t} pnpm sql:prod "select 1"`} />
+```
+
+The rules the module enforces:
+
+- A token is a bag of capabilities that acts as its minter, for a fixed lifetime (`1h`, `24h`,
+  `7d`). Only the sha256 is stored; the raw value is shown once.
+- Minting and revoking need a live session - a token can never mint, extend or revoke a token.
+- A token answers exactly one path (`/api/ff/sqlToken/sql`). Anywhere else it authenticates nobody.
+- Every call is logged in `_ff_sql_token_calls` (SQL text, row count, ms, error - never the rows) and
+  pruned after `callLogRetentionDays`.
+- `remult.context.sqlTokenBearer` is set whenever a bearer with the prefix is seen, valid or not - your
+  own `initRequest` can `return` on it so a token request never falls back to a cookie.
+
+Calling it:
+
+```bash
+curl -X POST https://my.app/api/ff/sqlToken/sql \
+	-H "authorization: Bearer ffsql_..." -H "content-type: application/json" \
+	-d '{"args":["select count(*) from users"]}'
+```
