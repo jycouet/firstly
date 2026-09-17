@@ -3,9 +3,9 @@ import { Entity, Fields } from 'remult'
 import { FF_Role } from '../core/common'
 import { Roles_SqlAdmin } from './Roles_SqlAdmin'
 
-/** One capability = one thing a token may do. `write` runs SQL as is, `read` inside a READ ONLY transaction. */
-export const SQL_TOKEN_CAPS = ['read', 'write'] as const
-export type SqlTokenCap = (typeof SQL_TOKEN_CAPS)[number]
+/** What a call may do: `read` runs inside a READ ONLY transaction (one statement), `write` runs SQL as is. */
+export const SQL_CAPABILITIES = ['read', 'write'] as const
+export type SqlCapability = (typeof SQL_CAPABILITIES)[number]
 
 export const SQL_TOKEN_TTLS = { '1h': 3_600_000, '24h': 86_400_000, '7d': 604_800_000 } as const
 export type SqlTokenTtl = keyof typeof SQL_TOKEN_TTLS
@@ -34,7 +34,8 @@ export class SqlToken {
 	@Fields.string({ includeInApi: false }) tokenHash = ''
 	/** Minter (`remult.user.id`). The token acts as this user when `userFromId` is configured. */
 	@Fields.string({ allowApiUpdate: false }) userId = ''
-	@Fields.json<SqlToken, SqlTokenCap[]>({ allowApiUpdate: false }) caps: SqlTokenCap[] = []
+	@Fields.json<SqlToken, SqlCapability[]>({ allowApiUpdate: false }) capabilities: SqlCapability[] =
+		[]
 	@Fields.createdAt() createdAt = new Date()
 	@Fields.date({ allowApiUpdate: false }) expiresAt = new Date()
 	@Fields.date({ allowNull: true, allowApiUpdate: false }) lastUsedAt: Date | null = null
@@ -49,7 +50,7 @@ export class SqlToken {
 export class SqlTokenCall {
 	@Fields.id() id = ''
 	@Fields.string() tokenId = ''
-	@Fields.string() cap = ''
+	@Fields.string() capability = ''
 	@Fields.string() cmd = ''
 	@Fields.integer() rowCount = 0
 	@Fields.integer() tookMs = 0

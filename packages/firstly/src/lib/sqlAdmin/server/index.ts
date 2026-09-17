@@ -67,7 +67,7 @@ function readPathname(req: any): string {
  * import { sqlAdmin } from 'firstly/sqlAdmin/server'
  *
  * export const api = remultApi({
- *   modules: [sqlAdmin({ tokens: { caps: ['read'] } })],
+ *   modules: [sqlAdmin({ tokens: { capabilities: ['read'] } })],
  * })
  * ```
  *
@@ -121,7 +121,7 @@ export const sqlAdmin: (opts?: SqlAdminOptions) => Module<unknown> = (opts) => {
 					if (!row.lastUsedAt || Date.now() - row.lastUsedAt.getTime() > 60_000) {
 						await repo(SqlToken).update(row, { lastUsedAt: new Date() })
 					}
-					remult.context.sqlToken = { id: row.id, userId: row.userId, caps: row.caps }
+					remult.context.sqlToken = { id: row.id, userId: row.userId, capabilities: row.capabilities }
 					if (tokens.userFromId) remult.user = await tokens.userFromId(row.userId)
 				}
 			: undefined,

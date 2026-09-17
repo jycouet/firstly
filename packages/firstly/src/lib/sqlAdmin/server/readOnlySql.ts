@@ -1,3 +1,5 @@
+import { SqlDatabase } from 'remult'
+
 import type { SqlResult, SqlTokenPool } from '../SqlAdminController'
 
 /**
@@ -11,8 +13,16 @@ import type { SqlResult, SqlTokenPool } from '../SqlAdminController'
  * still leave behind (advisory locks, set_config) must not leak to the app.
  * A connection the query killed (pg_terminate_backend) is destroyed, not
  * returned, and its error is swallowed here rather than crashing the process.
+ *
+ * Without a pg pool (custom `dp`, another database) it falls back to remult's
+ * transaction + `SET TRANSACTION READ ONLY`: same intent, simple protocol.
  */
-export async function readOnlySql(pool: SqlTokenPool, cmd: string): Promise<SqlResult> {
+export async function readOnlySql(
+	db: SqlDatabase,
+	pool: SqlTokenPool | undefined,
+	cmd: string,
+): Promise<SqlResult> {
+	if (!pool) return readOnlyViaTransaction(db, cmd)
 	const client = await pool.connect()
 	let died: Error | undefined
 	const onError = (err: Error) => {
@@ -33,4 +43,15 @@ export async function readOnlySql(pool: SqlTokenPool, cmd: string): Promise<SqlR
 		client.off('error', onError)
 		client.release(died)
 	}
+}
+
+async function readOnlyViaTransaction(db: SqlDatabase, cmd: string): Promise<SqlResult> {
+	const start = performance.now()
+	let rows: any[] = []
+	await db.transaction(async (tx) => {
+		const txDb = SqlDatabase.getDb(tx)
+		await txDb.execute('SET TRANSACTION READ ONLY')
+		rows = (await txDb.execute(cmd)).rows
+	})
+	return { rows, rowCount: rows.length, took: performance.now() - start }
 }

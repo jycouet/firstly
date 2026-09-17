@@ -2,7 +2,9 @@
 title: Module - SQL Admin
 ---
 
-A drop-in SQL console to run raw queries against your database, gated by a role. Comes with a
+A drop-in SQL console to run raw queries against your database, gated by a role. By default a
+query runs with `['read']`: a `READ ONLY` transaction, one statement at a time (Postgres extended
+protocol), so the database itself rejects writes. The "allow writes" box adds `'write'`. Comes with a
 companion `<SqlAdmin />` Svelte component styled with raw Tailwind utilities (no daisyUI / shadcn
 plugin needed).
 
@@ -76,7 +78,7 @@ sqlAdmin({
 	tokens: {
 		// Which capabilities may be minted. `read` runs inside a READ ONLY transaction,
 		// one statement at a time (extended query protocol). `write` runs SQL as is.
-		caps: ['read'],
+		capabilities: ['read'],
 		// OPTIONAL - the token then acts as its minter with their LIVE roles
 		// (lose admin, tokens die). Without it the token is its own authority.
 		userFromId: (id) => loadUser(id),
@@ -92,7 +94,7 @@ sqlAdmin({
 </script>
 
 <!-- `command` is what the admin copies once the token is shown. -->
-<SqlTokens caps={['read']} command={(t) => `MY_TOKEN=${t} pnpm sql:prod "select 1"`} />
+<SqlTokens capabilities={['read']} command={(t) => `MY_TOKEN=${t} pnpm sql:prod "select 1"`} />
 ```
 
 The rules the module enforces:

@@ -9,28 +9,28 @@
 	import { log } from '../index'
 	import { SqlAdminController } from '../SqlAdminController'
 	import {
-		SQL_TOKEN_CAPS,
+		SQL_CAPABILITIES,
 		SQL_TOKEN_TTLS,
 		SqlToken,
 		SqlTokenCall,
-		type SqlTokenCap,
+		type SqlCapability,
 		type SqlTokenTtl,
 	} from '../sqlTokenEntities'
 
 	type Props = {
 		/** Capabilities offered in the form. Others render disabled. @default ['read'] */
-		caps?: SqlTokenCap[]
+		capabilities?: SqlCapability[]
 		/** Command shown once a token is minted (what the user pastes). Defaults to a curl line. */
 		command?: (token: string) => string
 	}
-	let { caps: enabledCaps = ['read'], command }: Props = $props()
+	let { capabilities: enabled = ['read'], command }: Props = $props()
 
 	const TTLS = Object.keys(SQL_TOKEN_TTLS) as SqlTokenTtl[]
 	const defaultCommand = (token: string) =>
 		`curl -X POST ${location.origin}/api/ff/sqlAdmin/exec -H "authorization: Bearer ${token}" -H "content-type: application/json" -d '{"args":["select 1"]}'`
 
 	let name = $state('')
-	let caps = $state<SqlTokenCap[]>(['read'])
+	let picked = $state<SqlCapability[]>(['read'])
 	let ttl = $state<SqlTokenTtl>('1h')
 	let minted = $state<string | null>(null)
 	let busy = $state(false)
@@ -56,7 +56,7 @@
 		busy = true
 		error = ''
 		try {
-			minted = await SqlAdminController.mintToken(name, caps, ttl)
+			minted = await SqlAdminController.mintToken(name, picked, ttl)
 			name = ''
 			await refresh()
 		} catch (err) {
@@ -76,8 +76,8 @@
 		}
 	}
 
-	function toggleCap(cap: SqlTokenCap, on: boolean) {
-		caps = on ? [...new Set([...caps, cap])] : caps.filter((c) => c !== cap)
+	function toggle(c: SqlCapability, on: boolean) {
+		picked = on ? [...new Set([...picked, c])] : picked.filter((x) => x !== c)
 	}
 
 	async function copy(text: string) {
@@ -134,21 +134,21 @@
 			<fieldset class="flex flex-col gap-1">
 				<legend class="text-xs text-muted-foreground">Capabilities</legend>
 				<div class="flex gap-4 py-1.5">
-					{#each SQL_TOKEN_CAPS as cap (cap)}
-						{@const disabled = !enabledCaps.includes(cap)}
+					{#each SQL_CAPABILITIES as c (c)}
+						{@const disabled = !enabled.includes(c)}
 						<label
 							class="inline-flex items-center gap-2 select-none"
 							class:text-muted-foreground={disabled}
-							class:text-destructive={cap === 'write' && caps.includes('write')}
+							class:text-destructive={c === 'write' && picked.includes('write')}
 						>
 							<input
 								type="checkbox"
-								checked={caps.includes(cap)}
+								checked={picked.includes(c)}
 								{disabled}
-								onchange={(e) => toggleCap(cap, e.currentTarget.checked)}
-								class={cap === 'write' ? 'accent-destructive' : ''}
+								onchange={(e) => toggle(c, e.currentTarget.checked)}
+								class={c === 'write' ? 'accent-destructive' : ''}
 							/>
-							{cap}{disabled ? ' (off)' : ''}
+							{c}{disabled ? ' (off)' : ''}
 						</label>
 					{/each}
 				</div>
@@ -200,7 +200,7 @@
 						<tr>
 							<th class={th}>Name</th>
 							<th class={th}>Hint</th>
-							<th class={th}>Caps</th>
+							<th class={th}>Capabilities</th>
 							<th class={th}>Created</th>
 							<th class={th}>Expires</th>
 							<th class={th}>Last used</th>
@@ -214,7 +214,7 @@
 							<tr class="border-b border-border" class:text-muted-foreground={s !== 'live'}>
 								<td class={td}>{t.name}</td>
 								<td class="{td} font-mono">{t.hint}…</td>
-								<td class="{td} font-mono">{t.caps.join(' ')}</td>
+								<td class="{td} font-mono">{t.capabilities.join(' ')}</td>
 								<td class={td}>{fmt(t.createdAt)}</td>
 								<td class={td}>{fmt(t.expiresAt)}</td>
 								<td class={td}>{fmt(t.lastUsedAt)}</td>
@@ -240,7 +240,7 @@
 					<thead class="border-b border-border bg-muted">
 						<tr>
 							<th class={th}>When</th>
-							<th class={th}>Cap</th>
+							<th class={th}>Capability</th>
 							<th class={th}>SQL</th>
 							<th class={th}>Rows</th>
 							<th class={th}>ms</th>
@@ -251,7 +251,7 @@
 						{#each calls as c (c.id)}
 							<tr class="border-b border-border">
 								<td class="{td} whitespace-nowrap">{fmt(c.ts)}</td>
-								<td class="{td} font-mono">{c.cap}</td>
+								<td class="{td} font-mono">{c.capability}</td>
 								<td class={td}><pre class="max-w-2xl font-mono whitespace-pre-wrap">{c.cmd}</pre></td>
 								<td class={td}>{c.rowCount}</td>
 								<td class={td}>{c.tookMs}</td>
