@@ -2,7 +2,9 @@
 title: Module - SQL Admin
 ---
 
-A drop-in SQL console to run raw queries against your database, gated by a role. Comes with a
+A drop-in SQL console to run raw queries against your database, gated by a role. By default a
+query runs with `['read']`: a `READ ONLY` transaction, one statement at a time (Postgres extended
+protocol), so the database itself rejects writes. The "allow writes" box adds `'write'`. Comes with a
 companion `<SqlAdmin />` Svelte component styled with raw Tailwind utilities (no daisyUI / shadcn
 plugin needed).
 
@@ -62,3 +64,54 @@ user.roles = [Roles_SqlAdmin.SqlAdmin_Admin]
 ```
 
 That's it! 🎉
+
+## SQL tokens - run SQL from outside the browser
+
+Bearer tokens for a script or an AI on a dev machine that needs a fact only the production database
+holds. Nothing is registered unless you opt in - no entities, no endpoints.
+
+```ts
+// src/server/api.ts
+sqlAdmin({
+	// `sqlAdmin: false` registers no controller at all; combined with `tokens` it throws,
+	// because tokens run through that same `exec` endpoint.
+	tokens: {
+		// Which capabilities may be minted. `read` runs inside a READ ONLY transaction,
+		// one statement at a time (extended query protocol). `write` runs SQL as is.
+		capabilities: ['read'],
+		// OPTIONAL - the token then acts as its minter with their LIVE roles
+		// (lose admin, tokens die). Without it the token is its own authority.
+		userFromId: (id) => loadUser(id),
+		// OPTIONAL - prefix: 'ffsql_', apiPath: '/api', callLogRetentionDays: 30,
+		// pool (defaults to the Postgres pool behind your data provider)
+	},
+})
+```
+
+```svelte
+<script lang="ts">
+	import { SqlTokens } from 'firstly/sqlAdmin'
+</script>
+
+<!-- `command` is what the admin copies once the token is shown. -->
+<SqlTokens capabilities={['read']} command={(t) => `MY_TOKEN=${t} pnpm sql:prod "select 1"`} />
+```
+
+The rules the module enforces:
+
+- A token is a bag of capabilities that acts as its minter, for a fixed lifetime (`1h`, `24h`,
+  `7d`). Only the sha256 is stored; the raw value is shown once.
+- Minting and revoking need a live session - a token can never mint, extend or revoke a token.
+- A token answers exactly one path: the console's own `/api/ff/sqlAdmin/exec`. Anywhere else it authenticates nobody. Revoking is a plain `repo(SqlToken).update(id, { revokedAt })` - the only writable field, and final.
+- Every call is logged in `_ff_sql_token_calls` (SQL text, row count, ms, error - never the rows) and
+  pruned after `callLogRetentionDays`.
+- `remult.context.sqlTokenBearer` is set whenever a bearer with the prefix is seen, valid or not - your
+  own `initRequest` can `return` on it so a token request never falls back to a cookie.
+
+Calling it:
+
+```bash
+curl -X POST https://my.app/api/ff/sqlAdmin/exec \
+	-H "authorization: Bearer ffsql_..." -H "content-type: application/json" \
+	-d '{"args":["select count(*) from users"]}'
+```

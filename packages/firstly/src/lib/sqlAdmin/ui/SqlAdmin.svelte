@@ -64,7 +64,7 @@ ORDER BY tablename, indexname`,
 		try {
 			error = ''
 			isLoading = true
-			result = await SqlAdminController.exec(sqlInput, allowWrites)
+			result = await SqlAdminController.exec(sqlInput, allowWrites ? ['read', 'write'] : ['read'])
 			log.info('for AI:', JSON.stringify(result.rows))
 			log.info('for humans:', result)
 		} catch (e) {
@@ -165,7 +165,7 @@ ORDER BY tablename, indexname`,
 					class="inline-flex items-center gap-2 text-sm font-medium select-none"
 					class:text-destructive={allowWrites}
 					class:text-muted-foreground={!allowWrites}
-					title="Unchecked: the query runs in a READ ONLY transaction, so the database rejects any write. Tick only when you know what you are doing."
+					title="Unchecked: the query runs in a READ ONLY transaction, one statement at a time, so the database rejects any write. Tick only when you know what you are doing."
 				>
 					<input type="checkbox" bind:checked={allowWrites} class="accent-destructive" />
 					Allow writes
