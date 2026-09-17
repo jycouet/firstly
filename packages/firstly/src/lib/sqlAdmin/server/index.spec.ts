@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
+
 import { sqlAdmin } from './index'
+
 describe('sqlAdmin options', () => {
 	it('throws on tokens without the controller', () => {
 		expect(() => sqlAdmin({ sqlAdmin: false, tokens: { caps: ['read'] } })).toThrow(/exec endpoint/)
