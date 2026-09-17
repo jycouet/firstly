@@ -1,5 +1,11 @@
 # firstly
 
+## 0.10.0
+
+### Minor Changes
+
+- [#358](https://github.com/jycouet/firstly/pull/358) [`f34be07`](https://github.com/jycouet/firstly/commit/f34be07119855025e9384ddff92f7a40dd46d8bb) Thanks [@jycouet](https://github.com/jycouet)! - sqlAdmin: `exec(sql, capabilities = ['read'])` replaces the `notReadOnly` flag - reads run in a READ ONLY transaction over the extended protocol (one statement). Opt-in `tokens` (bearer tokens to run SQL from a script or an AI through the same `exec` endpoint; acts as the minter, logged) + `<SqlTokens />`; `sqlAdmin: false` registers no controller (throws when combined with `tokens`).
+
 ## 0.9.4
 
 ### Patch Changes
