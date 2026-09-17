@@ -3,12 +3,11 @@ import { Module } from 'remult/server'
 import { yellow } from '@kitql/helpers'
 
 import { log } from '..'
-import { SqlAdminController } from '../SqlAdminController'
-import { SqlTokenController, type SqlTokensOptions } from '../SqlTokenController'
+import { SqlAdminController, type SqlTokensOptions } from '../SqlAdminController'
 import { isSqlTokenLive, SqlToken, sqlTokenEntities } from '../sqlTokenEntities'
 import { hashToken } from './token'
 
-export type { SqlTokensOptions, SqlTokenPool } from '../SqlTokenController'
+export type { SqlTokensOptions, SqlTokenPool } from '../SqlAdminController'
 
 export type SqlAdminOptions = {
 	/**
@@ -23,14 +22,32 @@ export type SqlAdminOptions = {
 	 * @default '/sql/admin'
 	 */
 	path?: string
-	/** Register the `<SqlAdmin />` endpoint. @default true */
+	/** Let admin sessions run SQL through `<SqlAdmin />`. @default true */
 	console?: boolean
 	/**
 	 * Bearer tokens that can run SQL from outside a browser session (a script,
 	 * an AI on a dev machine). Nothing is registered unless set - no entities,
-	 * no endpoints. See `<SqlTokens />`.
+	 * no mint endpoint, no request hook. See `<SqlTokens />`.
 	 */
 	tokens?: SqlTokensOptions | false
+}
+
+// Framework-agnostic: remult hands initRequest the native request (SvelteKit
+// RequestEvent, express req, a fetch Request...).
+function readAuthorization(req: any): string {
+	const h = req?.request?.headers ?? req?.headers
+	if (!h) return ''
+	if (typeof h.get === 'function') return h.get('authorization') ?? ''
+	return h.authorization ?? h.Authorization ?? ''
+}
+function readPathname(req: any): string {
+	if (typeof req?.url?.pathname === 'string') return req.url.pathname
+	const u = req?.request?.url ?? req?.originalUrl ?? req?.url ?? req?.path ?? ''
+	try {
+		return new URL(u, 'http://localhost').pathname
+	} catch {
+		return ''
+	}
 }
 
 /**
@@ -44,7 +61,7 @@ export type SqlAdminOptions = {
  * import { sqlAdmin } from 'firstly/sqlAdmin/server'
  *
  * export const api = remultApi({
- *   modules: [sqlAdmin({ tokens: { caps: ['read'], pool } })],
+ *   modules: [sqlAdmin({ tokens: { caps: ['read'] } })],
  * })
  * ```
  *
@@ -62,33 +79,32 @@ export const sqlAdmin: (opts?: SqlAdminOptions) => Module<unknown> = (opts) => {
 	const console = opts?.console ?? true
 	const tokens = opts?.tokens || undefined
 	const prefix = tokens?.prefix ?? 'ffsql_'
-	const sqlPath = `${tokens?.apiPath ?? '/api'}/ff/sqlToken/sql`
+	const execPath = `${tokens?.apiPath ?? '/api'}/ff/sqlAdmin/exec`
 
 	return new Module({
 		key: 'sqlAdmin',
 		// Before the app's own initRequest, so a bearer is resolved before cookies would be.
 		priority: -900,
 		entities: tokens ? Object.values(sqlTokenEntities) : [],
-		controllers: [...(console ? [SqlAdminController] : []), ...(tokens ? [SqlTokenController] : [])],
+		controllers: [SqlAdminController],
 		initApi: async () => {
 			if (opts?.dp) {
 				SqlAdminController.dp = await opts.dp()
 			}
-			if (tokens) SqlTokenController.options = tokens
+			SqlAdminController.options = { console, tokens }
 			if (console) log.info(`AI Hint: visit ${yellow(path)} to query raw SQL.`)
 		},
 		initRequest: tokens
-			? async (event: any) => {
-					const auth: string = event?.request?.headers?.get?.('authorization') ?? ''
+			? async (req) => {
+					const auth = readAuthorization(req)
 					if (!auth.toLowerCase().startsWith('bearer ')) return
 					const raw = auth.slice(7).trim()
 					if (!raw.startsWith(prefix)) return
 					remult.context.sqlTokenBearer = true
 
-					// A dead token, or one aimed outside its caps, authenticates nobody:
+					// A dead token, or one aimed anywhere but exec, authenticates nobody:
 					// the request stays anonymous and the target's own `allowed` rejects it.
-					const pathname: string | undefined = event?.url?.pathname
-					if (pathname !== sqlPath) return
+					if (readPathname(req) !== execPath) return
 					const row = await repo(SqlToken).findFirst({ tokenHash: hashToken(raw) })
 					if (!row || !isSqlTokenLive(row)) return
 

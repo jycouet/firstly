@@ -1,4 +1,4 @@
-import type { SqlResult, SqlTokenPool } from '../SqlTokenController'
+import type { SqlResult, SqlTokenPool } from '../SqlAdminController'
 
 /**
  * READ ONLY is only as strong as "one statement": over the simple protocol a

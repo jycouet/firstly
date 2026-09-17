@@ -70,23 +70,18 @@ holds. Nothing is registered unless you opt in - no entities, no endpoints.
 
 ```ts
 // src/server/api.ts
-import { Pool } from 'pg'
-
-const pool = new Pool({ connectionString: DATABASE_URL })
-
 sqlAdmin({
-	// OPTIONAL - false removes the <SqlAdmin /> endpoint, keep only tokens.
+	// OPTIONAL - false: admin sessions can no longer run SQL, only tokens can.
 	// console: true,
 	tokens: {
 		// Which capabilities may be minted. `read` runs inside a READ ONLY transaction,
 		// one statement at a time (extended query protocol). `write` runs SQL as is.
 		caps: ['read'],
-		// `pg.Pool` - required for `read`.
-		pool,
 		// OPTIONAL - the token then acts as its minter with their LIVE roles
 		// (lose admin, tokens die). Without it the token is its own authority.
 		userFromId: (id) => loadUser(id),
-		// OPTIONAL - prefix: 'ffsql_', apiPath: '/api', callLogRetentionDays: 30
+		// OPTIONAL - prefix: 'ffsql_', apiPath: '/api', callLogRetentionDays: 30,
+		// pool (defaults to the Postgres pool behind your data provider)
 	},
 })
 ```
@@ -105,7 +100,7 @@ The rules the module enforces:
 - A token is a bag of capabilities that acts as its minter, for a fixed lifetime (`1h`, `24h`,
   `7d`). Only the sha256 is stored; the raw value is shown once.
 - Minting and revoking need a live session - a token can never mint, extend or revoke a token.
-- A token answers exactly one path (`/api/ff/sqlToken/sql`). Anywhere else it authenticates nobody.
+- A token answers exactly one path: the console's own `/api/ff/sqlAdmin/exec`. Anywhere else it authenticates nobody. Revoking is a plain `repo(SqlToken).update(id, { revokedAt })` - the only writable field, and final.
 - Every call is logged in `_ff_sql_token_calls` (SQL text, row count, ms, error - never the rows) and
   pruned after `callLogRetentionDays`.
 - `remult.context.sqlTokenBearer` is set whenever a bearer with the prefix is seen, valid or not - your
@@ -114,7 +109,7 @@ The rules the module enforces:
 Calling it:
 
 ```bash
-curl -X POST https://my.app/api/ff/sqlToken/sql \
+curl -X POST https://my.app/api/ff/sqlAdmin/exec \
 	-H "authorization: Bearer ffsql_..." -H "content-type: application/json" \
 	-d '{"args":["select count(*) from users"]}'
 ```

@@ -2,11 +2,12 @@
 	/**
 	 * Sql tokens UI: mint, list/revoke, last calls. Styled against the semantic
 	 * theme tokens like `<SqlAdmin />`. Server side: `sqlAdmin({ tokens })`.
+	 * Revoking is a plain entity update; only `revokedAt` is writable.
 	 */
 	import { repo } from 'remult'
 
 	import { log } from '../index'
-	import { SqlTokenController } from '../SqlTokenController'
+	import { SqlAdminController } from '../SqlAdminController'
 	import {
 		SQL_TOKEN_CAPS,
 		SQL_TOKEN_TTLS,
@@ -26,7 +27,7 @@
 
 	const TTLS = Object.keys(SQL_TOKEN_TTLS) as SqlTokenTtl[]
 	const defaultCommand = (token: string) =>
-		`curl -X POST ${location.origin}/api/ff/sqlToken/sql -H "authorization: Bearer ${token}" -H "content-type: application/json" -d '{"args":["select 1"]}'`
+		`curl -X POST ${location.origin}/api/ff/sqlAdmin/exec -H "authorization: Bearer ${token}" -H "content-type: application/json" -d '{"args":["select 1"]}'`
 
 	let name = $state('')
 	let caps = $state<SqlTokenCap[]>(['read'])
@@ -55,7 +56,7 @@
 		busy = true
 		error = ''
 		try {
-			minted = await SqlTokenController.mint(name, caps, ttl)
+			minted = await SqlAdminController.mintToken(name, caps, ttl)
 			name = ''
 			await refresh()
 		} catch (err) {
@@ -68,7 +69,7 @@
 	async function revoke(t: SqlToken) {
 		error = ''
 		try {
-			await SqlTokenController.revoke(t.id)
+			await repo(SqlToken).update(t.id, { revokedAt: new Date() })
 			await refresh()
 		} catch (err) {
 			error = err instanceof Error ? err.message : String(err)
@@ -114,8 +115,8 @@
 		<p class="mt-1 text-sm text-muted-foreground">
 			A token is a bag of capabilities that acts as you, for a short while. Minting needs a live
 			session - a token can never mint or revoke a token. <code>read</code> runs inside a
-			<code>READ ONLY</code> transaction, one statement at a time. Every call is logged below (SQL
-			text, rows, ms, error - never the rows themselves). Revoking is immediate.
+			<code>READ ONLY</code> transaction, one statement at a time. Every call is logged below (SQL text,
+			rows, ms, error - never the rows themselves). Revoking is immediate.
 		</p>
 	</header>
 
@@ -173,7 +174,8 @@
 		</form>
 
 		{#if error}
-			<pre class="border border-destructive bg-destructive/10 p-3 text-sm text-destructive">{error}</pre>
+			<pre
+				class="border border-destructive bg-destructive/10 p-3 text-sm text-destructive">{error}</pre>
 		{/if}
 
 		{#if minted}

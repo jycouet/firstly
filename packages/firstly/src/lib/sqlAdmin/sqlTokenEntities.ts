@@ -12,25 +12,32 @@ export type SqlTokenTtl = keyof typeof SQL_TOKEN_TTLS
 
 const admins = [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin]
 
-// Read-only API for the admin list; minting/revoking go through
-// SqlTokenController so the raw token is generated server-side and never stored.
+// Minting is `SqlAdminController.mintToken` (the raw value is generated
+// server-side, shown once, never stored). Revoking is the one update the API
+// allows: set `revokedAt`; nothing else is writable and a revoke is final.
 @Entity<SqlToken>('_ff_sql_tokens', {
 	caption: 'FF Sql Tokens',
 	allowApiRead: admins,
+	allowApiUpdate: admins,
 	defaultOrderBy: { createdAt: 'desc' },
+	saving: (t, e) => {
+		if (!e.isNew && e.fields.revokedAt.valueChanged() && !t.revokedAt) {
+			throw new Error('A revoked token stays revoked')
+		}
+	},
 })
 export class SqlToken {
 	@Fields.id() id = ''
-	@Fields.string() name = ''
+	@Fields.string({ allowApiUpdate: false }) name = ''
 	/** First chars of the raw token, so a leaked value can be matched to its row. */
-	@Fields.string() hint = ''
+	@Fields.string({ allowApiUpdate: false }) hint = ''
 	@Fields.string({ includeInApi: false }) tokenHash = ''
 	/** Minter (`remult.user.id`). The token acts as this user when `userFromId` is configured. */
-	@Fields.string() userId = ''
-	@Fields.json<SqlToken, SqlTokenCap[]>() caps: SqlTokenCap[] = []
+	@Fields.string({ allowApiUpdate: false }) userId = ''
+	@Fields.json<SqlToken, SqlTokenCap[]>({ allowApiUpdate: false }) caps: SqlTokenCap[] = []
 	@Fields.createdAt() createdAt = new Date()
-	@Fields.date() expiresAt = new Date()
-	@Fields.date({ allowNull: true }) lastUsedAt: Date | null = null
+	@Fields.date({ allowApiUpdate: false }) expiresAt = new Date()
+	@Fields.date({ allowNull: true, allowApiUpdate: false }) lastUsedAt: Date | null = null
 	@Fields.date({ allowNull: true }) revokedAt: Date | null = null
 }
 
