@@ -111,7 +111,7 @@ export const api = remultApi({ modules: [sqlAdmin({ path: '/sql/admin' })] })
 
 The component ships prefilled queries (DB size, table sizes, indexes, default `SELECT`) and logs results as `for AI: <rows>` in the browser console - so chrome-devtools / AI agents can grab them with `list_console_messages`.
 
-Opt-in `tokens: { caps: ['read'], userFromId? }` adds bearer tokens (`<SqlTokens />`, same `POST /api/ff/sqlAdmin/exec` endpoint, `mintToken`; revoke = entity update of `revokedAt`) so a script or an AI on a dev machine can query prod. `read` = Postgres `READ ONLY` transaction + extended protocol (one statement, no `commit; insert` escape); the token acts as its minter, answers one path only, needs a live session to mint/revoke, every call logged. `console: false` closes exec to admin sessions (tokens only). The pg pool is taken from the data provider, nothing to pass.
+Opt-in `tokens: { caps: ['read'], userFromId? }` adds bearer tokens (`<SqlTokens />`, same `POST /api/ff/sqlAdmin/exec` endpoint, `mintToken`; revoke = entity update of `revokedAt`) so a script or an AI on a dev machine can query prod. `read` = Postgres `READ ONLY` transaction + extended protocol (one statement, no `commit; insert` escape); the token acts as its minter, answers one path only, needs a live session to mint/revoke, every call logged. `sqlAdmin: false` registers no controller (and throws if `tokens` is set - they share the `exec` endpoint). The pg pool is taken from the data provider, nothing to pass.
 
 ## `FF_Allow` / `FF_Filter` - row-level helpers
 

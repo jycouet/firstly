@@ -73,7 +73,7 @@ export class SqlAdminController {
 	/** Optional override set by the `sqlAdmin()` module's `initApi`. Falls back to `SqlDatabase.getDb()`. */
 	static dp?: SqlDatabase
 	/** Set by the `sqlAdmin()` module's `initApi`. */
-	static options: { console: boolean; tokens?: SqlTokensOptions } = { console: true }
+	static options: { tokens?: SqlTokensOptions } = {}
 
 	/**
 	 * @param cmd SQL to run.
@@ -91,7 +91,7 @@ export class SqlAdminController {
 		allowed: () => {
 			const o = SqlAdminController.options
 			if (remult.context.sqlToken) return o.tokens?.userFromId ? remult.isAllowed(SQL_ADMINS) : true
-			return o.console && remult.isAllowed(SQL_ADMINS)
+			return remult.isAllowed(SQL_ADMINS)
 		},
 		apiPrefix: 'ff/sqlAdmin',
 		// Remult wraps BackendMethods in a transaction by default; ours would then be

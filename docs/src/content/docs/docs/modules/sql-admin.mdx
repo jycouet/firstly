@@ -71,8 +71,8 @@ holds. Nothing is registered unless you opt in - no entities, no endpoints.
 ```ts
 // src/server/api.ts
 sqlAdmin({
-	// OPTIONAL - false: admin sessions can no longer run SQL, only tokens can.
-	// console: true,
+	// `sqlAdmin: false` registers no controller at all; combined with `tokens` it throws,
+	// because tokens run through that same `exec` endpoint.
 	tokens: {
 		// Which capabilities may be minted. `read` runs inside a READ ONLY transaction,
 		// one statement at a time (extended query protocol). `write` runs SQL as is.

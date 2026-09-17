@@ -22,12 +22,18 @@ export type SqlAdminOptions = {
 	 * @default '/sql/admin'
 	 */
 	path?: string
-	/** Let admin sessions run SQL through `<SqlAdmin />`. @default true */
-	console?: boolean
+	/**
+	 * Register the `SqlAdminController` (the `exec` endpoint behind `<SqlAdmin />`).
+	 * `false` registers nothing - and is an error combined with `tokens`, which
+	 * run through that same endpoint.
+	 *
+	 * @default true
+	 */
+	sqlAdmin?: boolean
 	/**
 	 * Bearer tokens that can run SQL from outside a browser session (a script,
 	 * an AI on a dev machine). Nothing is registered unless set - no entities,
-	 * no mint endpoint, no request hook. See `<SqlTokens />`.
+	 * no mint endpoint, no request hook. Needs `sqlAdmin: true`. See `<SqlTokens />`.
 	 */
 	tokens?: SqlTokensOptions | false
 }
@@ -76,8 +82,11 @@ function readPathname(req: any): string {
  */
 export const sqlAdmin: (opts?: SqlAdminOptions) => Module<unknown> = (opts) => {
 	const path = opts?.path ?? '/sql/admin'
-	const console = opts?.console ?? true
+	const enabled = opts?.sqlAdmin ?? true
 	const tokens = opts?.tokens || undefined
+	if (tokens && !enabled) {
+		throw new Error('sqlAdmin({ sqlAdmin: false, tokens }): tokens run through the exec endpoint')
+	}
 	const prefix = tokens?.prefix ?? 'ffsql_'
 	const execPath = `${tokens?.apiPath ?? '/api'}/ff/sqlAdmin/exec`
 
@@ -86,13 +95,13 @@ export const sqlAdmin: (opts?: SqlAdminOptions) => Module<unknown> = (opts) => {
 		// Before the app's own initRequest, so a bearer is resolved before cookies would be.
 		priority: -900,
 		entities: tokens ? Object.values(sqlTokenEntities) : [],
-		controllers: [SqlAdminController],
+		controllers: enabled ? [SqlAdminController] : [],
 		initApi: async () => {
 			if (opts?.dp) {
 				SqlAdminController.dp = await opts.dp()
 			}
-			SqlAdminController.options = { console, tokens }
-			if (console) log.info(`AI Hint: visit ${yellow(path)} to query raw SQL.`)
+			SqlAdminController.options = { tokens }
+			if (enabled) log.info(`AI Hint: visit ${yellow(path)} to query raw SQL.`)
 		},
 		initRequest: tokens
 			? async (req) => {
