@@ -102,14 +102,19 @@ export class SqlAdminController {
 
 	private static async run(cmd: string, capabilities: SqlCapability[]): Promise<SqlResult> {
 		const db = getDb()
-		// Anything that is not an explicit list (null, a stray boolean) is a read.
-		if (Array.isArray(capabilities) && capabilities.includes('write')) {
-			const start = performance.now()
-			const rows = (await db.execute(cmd)).rows
-			return { rows, rowCount: rows.length, took: performance.now() - start }
+		try {
+			// Anything that is not an explicit list (null, a stray boolean) is a read.
+			if (Array.isArray(capabilities) && capabilities.includes('write')) {
+				const start = performance.now()
+				const rows = (await db.execute(cmd)).rows
+				return { rows, rowCount: rows.length, took: performance.now() - start }
+			}
+			const { readOnlySql } = await import('./server/readOnlySql')
+			return await readOnlySql(db, SqlAdminController.options.tokens?.pool ?? poolFrom(db), cmd)
+		} catch (err) {
+			const { enrichSqlError } = await import('./server/sqlError')
+			throw await enrichSqlError(db, err)
 		}
-		const { readOnlySql } = await import('./server/readOnlySql')
-		return readOnlySql(db, SqlAdminController.options.tokens?.pool ?? poolFrom(db), cmd)
 	}
 
 	private static async execAsToken(
@@ -144,7 +149,10 @@ export class SqlAdminController {
 
 	/**
 	 * Returns the raw token exactly once. Needs a live session: a token can never
-	 * mint a token. Revoking is a plain update of `SqlToken.revokedAt`.
+	 * mint a token. Revoking is a plain update of `SqlToken.revokedAt`, deleting
+	 * is a plain delete.
+	 *
+	 * @param name free text, or empty for an `adjective-animal` one.
 	 */
 	@BackendMethod({
 		allowed: () =>
@@ -160,8 +168,6 @@ export class SqlAdminController {
 		if (!o) throw new Error('sql tokens not enabled (sqlAdmin({ tokens }))')
 		const userId = remult.user?.id
 		if (!userId) throw new Error('Forbidden')
-		const clean = name.trim()
-		if (!clean) throw new Error('Name is required')
 		const ttlMs = SQL_TOKEN_TTLS[ttl]
 		if (!ttlMs) throw new Error('Unknown ttl')
 		const unique = [...new Set(capabilities)]
@@ -171,11 +177,11 @@ export class SqlAdminController {
 			if (!o.capabilities.includes(c)) throw new Error(`${c} is not enabled`)
 		}
 
-		const { newRawToken, hashToken, tokenHint } = await import('./server/token')
+		const { newRawToken, hashToken, tokenHint, randomTokenName } = await import('./server/token')
 		const prefix = o.prefix ?? 'ffsql_'
 		const raw = newRawToken(prefix)
 		await repo(SqlToken).insert({
-			name: clean,
+			name: name.trim() || randomTokenName(),
 			hint: tokenHint(raw, prefix),
 			tokenHash: hashToken(raw),
 			userId,
@@ -183,5 +189,20 @@ export class SqlAdminController {
 			expiresAt: new Date(Date.now() + ttlMs),
 		})
 		return raw
+	}
+
+	/** Deletes every token that can no longer be used (expired or revoked), and their calls. */
+	@BackendMethod({
+		allowed: () =>
+			!!SqlAdminController.options.tokens && !remult.context.sqlToken && remult.isAllowed(SQL_ADMINS),
+		apiPrefix: 'ff/sqlAdmin',
+	})
+	static async purgeTokens(): Promise<number> {
+		const dead = await repo(SqlToken).find({
+			where: { $or: [{ revokedAt: { $ne: null } }, { expiresAt: { $lt: new Date() } }] },
+		})
+		// One by one: the cascade to the call log lives in the entity's `deleting` hook.
+		for (const t of dead) await repo(SqlToken).delete(t)
+		return dead.length
 	}
 }

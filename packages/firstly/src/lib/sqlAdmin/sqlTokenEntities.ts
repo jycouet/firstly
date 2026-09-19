@@ -1,4 +1,4 @@
-import { Entity, Fields } from 'remult'
+import { Entity, Fields, repo } from 'remult'
 
 import { FF_Role } from '../core/common'
 import { Roles_SqlAdmin } from './Roles_SqlAdmin'
@@ -15,15 +15,24 @@ const admins = [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin]
 // Minting is `SqlAdminController.mintToken` (the raw value is generated
 // server-side, shown once, never stored). Revoking is the one update the API
 // allows: set `revokedAt`; nothing else is writable and a revoke is final.
+//
+// Revoke and delete are not the same gesture: a revoked token keeps its row and
+// its call log, which is the audit trail; deleting one says it never existed,
+// so its calls go with it - a call log pointing at a token nobody can name is
+// noise, not history.
 @Entity<SqlToken>('_ff_sql_tokens', {
 	caption: 'FF Sql Tokens',
 	allowApiRead: admins,
 	allowApiUpdate: admins,
+	allowApiDelete: admins,
 	defaultOrderBy: { createdAt: 'desc' },
 	saving: (t, e) => {
 		if (!e.isNew && e.fields.revokedAt.valueChanged() && !t.revokedAt) {
 			throw new Error('A revoked token stays revoked')
 		}
+	},
+	deleting: async (t) => {
+		await repo(SqlTokenCall).deleteMany({ where: { tokenId: t.id } })
 	},
 })
 export class SqlToken {

@@ -76,6 +76,31 @@
 		}
 	}
 
+	async function remove(t: SqlToken) {
+		if (!confirm(`Delete "${t.name}" and its calls? Revoke instead to keep the audit trail.`)) return
+		error = ''
+		try {
+			await repo(SqlToken).delete(t)
+			await refresh()
+		} catch (err) {
+			error = err instanceof Error ? err.message : String(err)
+		}
+	}
+
+	async function purge() {
+		if (!confirm('Delete every expired or revoked token, with their calls?')) return
+		error = ''
+		busy = true
+		try {
+			await SqlAdminController.purgeTokens()
+			await refresh()
+		} catch (err) {
+			error = err instanceof Error ? err.message : String(err)
+		} finally {
+			busy = false
+		}
+	}
+
 	function toggle(c: SqlCapability, on: boolean) {
 		picked = on ? [...new Set([...picked, c])] : picked.filter((x) => x !== c)
 	}
@@ -103,6 +128,8 @@
 	const status = (t: SqlToken) =>
 		t.revokedAt ? 'revoked' : t.expiresAt.getTime() < Date.now() ? 'expired' : 'live'
 
+	const deadCount = $derived(tokens.filter((t) => status(t) !== 'live').length)
+
 	const th = 'px-4 py-2 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase'
 	const td = 'px-4 py-2 align-top'
 	const btn =
@@ -116,18 +143,18 @@
 			A token is a bag of capabilities that acts as you, for a short while. Minting needs a live
 			session - a token can never mint or revoke a token. <code>read</code> runs inside a
 			<code>READ ONLY</code> transaction, one statement at a time. Every call is logged below (SQL text,
-			rows, ms, error - never the rows themselves). Revoking is immediate.
+			rows, ms, error - never the rows themselves). Revoking is immediate and keeps the trail; deleting drops
+			the token and its calls.
 		</p>
 	</header>
 
 	<div class="flex flex-col gap-6 p-5">
 		<form onsubmit={mint} class="flex flex-wrap items-end gap-4 text-sm">
 			<label class="flex flex-col gap-1">
-				<span class="text-xs text-muted-foreground">Name</span>
+				<span class="text-xs text-muted-foreground">Name (optional)</span>
 				<input
 					bind:value={name}
-					required
-					placeholder="laptop · claude"
+					placeholder="auto: swift-otter-3f9"
 					class="w-56 border border-input bg-background px-2 py-1.5 text-foreground focus:border-ring focus:outline-none"
 				/>
 			</label>
@@ -193,7 +220,14 @@
 		{/if}
 
 		<section>
-			<h3 class="mb-2 text-sm font-semibold text-foreground">Tokens</h3>
+			<div class="mb-2 flex items-center justify-between">
+				<h3 class="text-sm font-semibold text-foreground">Tokens</h3>
+				{#if deadCount}
+					<button type="button" class={btn} disabled={busy} onclick={purge}>
+						Delete {deadCount} dead
+					</button>
+				{/if}
+			</div>
 			<div class="overflow-x-auto border border-border">
 				<table class="w-full text-sm">
 					<thead class="border-b border-border bg-muted">
@@ -219,10 +253,11 @@
 								<td class={td}>{fmt(t.expiresAt)}</td>
 								<td class={td}>{fmt(t.lastUsedAt)}</td>
 								<td class={td} class:text-primary={s === 'live'}>{s}</td>
-								<td class="{td} text-right">
+								<td class="{td} space-x-2 text-right whitespace-nowrap">
 									{#if s === 'live'}
 										<button type="button" class={btn} onclick={() => revoke(t)}>Revoke</button>
 									{/if}
+									<button type="button" class={btn} onclick={() => remove(t)}>Delete</button>
 								</td>
 							</tr>
 						{:else}
