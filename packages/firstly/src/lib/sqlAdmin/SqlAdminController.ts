@@ -113,7 +113,7 @@ export class SqlAdminController {
 			return await readOnlySql(db, SqlAdminController.options.tokens?.pool ?? poolFrom(db), cmd)
 		} catch (err) {
 			const { enrichSqlError } = await import('./server/sqlError')
-			throw await enrichSqlError(db, err)
+			throw await enrichSqlError(db, err, cmd)
 		}
 	}
 

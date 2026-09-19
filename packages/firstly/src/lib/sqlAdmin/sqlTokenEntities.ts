@@ -22,6 +22,8 @@ const admins = [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin]
 // noise, not history.
 @Entity<SqlToken>('_ff_sql_tokens', {
 	caption: 'FF Sql Tokens',
+	// Admins means a session: a bearer is only ever resolved for the exec path
+	// (`server/index.ts`), so a token reaching this entity is an anonymous request.
 	allowApiRead: admins,
 	allowApiUpdate: admins,
 	allowApiDelete: admins,

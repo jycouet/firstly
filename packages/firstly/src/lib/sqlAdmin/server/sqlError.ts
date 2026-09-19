@@ -17,44 +17,56 @@ const RELATION_MISSING = /relation "([^"]+)" does not exist/
 const COLUMN_MISSING = /column "?([\w$.]+)"? does not exist/
 const NON_ALPHANUM = /[^a-z0-9]/g
 
+const SQLSTATE = /^[0-9A-Z]{5}$/
+
 const UNDEFINED_TABLE = '42P01'
 const UNDEFINED_COLUMN = '42703'
+/** SQLSTATE class 08: the connection is gone, so asking it about its catalog only adds a timeout. */
+const CONNECTION_CLASS = '08'
 const MAX_CANDIDATES = 3
+const MIN_MATCH_LENGTH = 3
 
-type PgError = { code?: string; hint?: string; position?: string; message?: string }
+type PgError = {
+	code?: string
+	hint?: string
+	detail?: string
+	position?: string
+	message?: string
+}
+
+type Candidate = { label: string; name: string; table?: string }
 
 /** Comparison key: an unquoted identifier is folded to lowercase, and `_` is how the same name is spelled in snake_case. */
 const norm = (s: string) => s.toLowerCase().replace(NON_ALPHANUM, '')
 
-function distance(a: string, b: string): number {
-	if (a === b) return 0
-	let prev = Array.from({ length: b.length + 1 }, (_, i) => i)
-	for (let i = 1; i <= a.length; i++) {
-		const row = [i]
-		for (let j = 1; j <= b.length; j++) {
-			row[j] = Math.min(
-				prev[j] + 1,
-				row[j - 1] + 1,
-				prev[j - 1] + (a[i - 1] === b[i - 1] ? 0 : 1),
-			)
-		}
-		prev = row
-	}
-	return prev[b.length]
+/** `a.analysisversion` and `public.users` are about their last part. */
+const lastPart = (s: string) => s.split('.').at(-1)!
+
+/**
+ * Same name modulo case and underscores, then one name being the start of the
+ * other - which is what a singular/plural or a truncated guess looks like
+ * (`key_value` for `keyValues`). Deliberately not a typo distance: real misses
+ * are spellings of the right word, and Postgres already suggests actual typos
+ * through its own HINT.
+ */
+function closest(wanted: string, candidates: Candidate[]): Candidate[] {
+	const target = norm(wanted)
+	if (target.length < MIN_MATCH_LENGTH) return []
+	const exact = candidates.filter((c) => norm(c.name) === target)
+	if (exact.length) return exact.slice(0, MAX_CANDIDATES)
+	return candidates
+		.filter((c) => {
+			const n = norm(c.name)
+			return n.length >= MIN_MATCH_LENGTH && (n.startsWith(target) || target.startsWith(n))
+		})
+		.slice(0, MAX_CANDIDATES)
 }
 
-/** Same name modulo case/underscores wins; otherwise a typo's worth of distance, scaled to the name length. */
-function closest(wanted: string, candidates: { label: string; name: string }[]): string[] {
-	const target = norm(wanted)
-	const exact = candidates.filter((c) => norm(c.name) === target)
-	if (exact.length) return exact.slice(0, MAX_CANDIDATES).map((c) => c.label)
-	const budget = target.length <= 4 ? 1 : target.length <= 8 ? 2 : 3
-	return candidates
-		.map((c) => ({ label: c.label, d: distance(target, norm(c.name)) }))
-		.filter((c) => c.d <= budget)
-		.sort((a, b) => a.d - b.d)
-		.slice(0, MAX_CANDIDATES)
-		.map((c) => c.label)
+/** A column suggestion from a table the query never mentions is noise; keep those last. */
+function preferMentioned(candidates: Candidate[], cmd: string): Candidate[] {
+	const haystack = norm(cmd)
+	const mentioned = candidates.filter((c) => c.table && haystack.includes(norm(c.table)))
+	return mentioned.length ? mentioned : candidates
 }
 
 async function catalog(db: SqlDatabase, sql: string): Promise<any[]> {
@@ -66,7 +78,7 @@ async function catalog(db: SqlDatabase, sql: string): Promise<any[]> {
 	}
 }
 
-async function suggest(db: SqlDatabase, err: PgError): Promise<string[]> {
+async function suggest(db: SqlDatabase, err: PgError, cmd: string): Promise<string[]> {
 	const message = err.message ?? ''
 
 	if (err.code === UNDEFINED_TABLE) {
@@ -76,7 +88,11 @@ async function suggest(db: SqlDatabase, err: PgError): Promise<string[]> {
 			db,
 			`select table_name from information_schema.tables where table_schema not in ('pg_catalog', 'information_schema')`,
 		)
-		return closest(wanted.split('.').at(-1)!, rows.map((r) => ({ label: `"${r.table_name}"`, name: r.table_name })))
+		const found = closest(
+			lastPart(wanted),
+			rows.map((r) => ({ label: `"${r.table_name}"`, name: r.table_name })),
+		)
+		return found.map((c) => c.label)
 	}
 
 	if (err.code === UNDEFINED_COLUMN) {
@@ -86,10 +102,15 @@ async function suggest(db: SqlDatabase, err: PgError): Promise<string[]> {
 			db,
 			`select table_name, column_name from information_schema.columns where table_schema not in ('pg_catalog', 'information_schema')`,
 		)
-		return closest(
-			wanted.split('.').at(-1)!,
-			rows.map((r) => ({ label: `"${r.table_name}"."${r.column_name}"`, name: r.column_name })),
+		const found = closest(
+			lastPart(wanted),
+			rows.map((r) => ({
+				label: `"${r.table_name}"."${r.column_name}"`,
+				name: r.column_name,
+				table: r.table_name,
+			})),
 		)
+		return preferMentioned(found, cmd).map((c) => c.label)
 	}
 
 	return []
@@ -99,20 +120,28 @@ async function suggest(db: SqlDatabase, err: PgError): Promise<string[]> {
  * Never throws and never hides the original message - the returned error is the
  * one to rethrow, with the code and any hint appended.
  */
-export async function enrichSqlError(db: SqlDatabase, err: unknown): Promise<unknown> {
+export async function enrichSqlError(db: SqlDatabase, err: unknown, cmd = ''): Promise<unknown> {
 	if (!(err instanceof Error)) return err
 	const pg = err as Error & PgError
-	if (!pg.code) return err
+	// A SQLSTATE, not any error that happens to carry a `code` (ENOTFOUND, MODULE_NOT_FOUND...).
+	if (!pg.code || !SQLSTATE.test(pg.code) || pg.code.startsWith(CONNECTION_CLASS)) return err
 
 	const parts = [pg.message]
 	if (pg.hint) parts.push(pg.hint)
 	else {
-		const found = await suggest(db, pg)
+		const found = await suggest(db, pg, cmd)
 		if (found.length) parts.push(`Did you mean ${found.join(' or ')}?`)
 	}
+	if (pg.detail) parts.push(pg.detail)
 	parts.push(`[${pg.code}${pg.position ? ` at ${pg.position}` : ''}]`)
 
 	const out = new Error(parts.join(' · '))
-	Object.assign(out, { code: pg.code, hint: pg.hint, position: pg.position, cause: err })
+	Object.assign(out, {
+		code: pg.code,
+		hint: pg.hint,
+		detail: pg.detail,
+		position: pg.position,
+		cause: err,
+	})
 	return out
 }
