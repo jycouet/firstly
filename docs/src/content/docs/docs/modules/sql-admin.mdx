@@ -118,13 +118,17 @@ firstly ships an `ff-sql` bin, so an app only needs a script that points it at a
 
 ```json
 // package.json
-{ "scripts": { "sql:prod": "FF_SQL_ORIGIN=https://my.app node --env-file=.env node_modules/.bin/ff-sql" } }
+{
+	"scripts": {
+		"sql:prod": "FF_SQL_ORIGIN=https://my.app node --env-file=.env node_modules/.bin/ff-sql"
+	}
+}
 ```
 
 ```bash
 FF_SQL_TOKEN=ffsql_… pnpm sql:prod "select count(*) from users"
-pnpm sql:prod --json "select * from users limit 3"   # FF_SQL_TOKEN from .env
-pnpm sql:prod <<'SQL'
+pnpm sql:prod --json "select * from users limit 3" # FF_SQL_TOKEN from .env
+pnpm sql:prod << 'SQL'
   select handle from "users" where "createdAt" > now() - interval '7 days'
 SQL
 ```
