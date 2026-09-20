@@ -55,6 +55,9 @@ export type SqlTokensOptions = {
 
 export const SQL_ADMINS = [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin]
 const CALL_LOG_CMD_MAX = 4000
+/** Retention is a housekeeping sweep, not something to pay for on every query. */
+const CALL_LOG_SWEEP_EVERY_MS = 3_600_000
+let lastCallLogSweep = 0
 
 function getDb() {
 	return SqlAdminController.dp ?? SqlDatabase.getDb()
@@ -140,10 +143,13 @@ export class SqlAdminController {
 			throw err
 		} finally {
 			await repo(SqlTokenCall).insert(call)
-			const days = o.callLogRetentionDays ?? 30
-			await repo(SqlTokenCall).deleteMany({
-				where: { ts: { $lt: new Date(Date.now() - days * 86_400_000) } },
-			})
+			if (Date.now() - lastCallLogSweep > CALL_LOG_SWEEP_EVERY_MS) {
+				lastCallLogSweep = Date.now()
+				const days = o.callLogRetentionDays ?? 30
+				await repo(SqlTokenCall).deleteMany({
+					where: { ts: { $lt: new Date(Date.now() - days * 86_400_000) } },
+				})
+			}
 		}
 	}
 
@@ -191,7 +197,11 @@ export class SqlAdminController {
 		return raw
 	}
 
-	/** Deletes every token that can no longer be used (expired or revoked), and their calls. */
+	/**
+	 * Deletes every token that can no longer be used (expired or revoked), and
+	 * their calls. Returns how many were actually deleted: no transaction spans
+	 * the loop, so a failure halfway leaves the rest in place.
+	 */
 	@BackendMethod({
 		allowed: () =>
 			!!SqlAdminController.options.tokens && !remult.context.sqlToken && remult.isAllowed(SQL_ADMINS),
@@ -201,8 +211,12 @@ export class SqlAdminController {
 		const dead = await repo(SqlToken).find({
 			where: { $or: [{ revokedAt: { $ne: null } }, { expiresAt: { $lt: new Date() } }] },
 		})
-		// One by one: the cascade to the call log lives in the entity's `deleting` hook.
-		for (const t of dead) await repo(SqlToken).delete(t)
-		return dead.length
+		// One by one: the cascade to the call log lives in the entity's hooks.
+		let deleted = 0
+		for (const t of dead) {
+			await repo(SqlToken).delete(t)
+			deleted++
+		}
+		return deleted
 	}
 }

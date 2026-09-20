@@ -35,6 +35,11 @@ describe('enrichSqlError', () => {
 		expect(await enrichSqlError(catalog, err)).toBe(err)
 	})
 
+	it('leaves alone a node errno that looks exactly like a SQLSTATE', async () => {
+		const err = pgError('write EPIPE', 'EPIPE', { errno: -32, syscall: 'write' })
+		expect(await enrichSqlError(catalog, err)).toBe(err)
+	})
+
 	it('leaves alone a lost connection instead of asking it for a catalog', async () => {
 		const err = pgError('terminating connection', '08006')
 		expect(await enrichSqlError(catalog, err)).toBe(err)

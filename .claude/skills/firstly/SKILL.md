@@ -126,7 +126,7 @@ The caller is a script or an AI that cannot see the database, and nearly every f
 From a terminal, use the `ff-sql` bin (`FF_SQL_TOKEN`, `--origin=`/`FF_SQL_ORIGIN`, `--api-path=`, `--json`, stdin) rather than hand-rolling curl - the mint screen copies the full line, nothing to configure. Prefer a heredoc over nested shell quotes:
 
 ```bash
-FF_SQL_TOKEN=ffsql_… pnpm exec ff-sql --origin=https://my.app << 'SQL'
+FF_SQL_TOKEN=ffsql_… npx ff-sql --origin=https://my.app << 'SQL'
   select handle from "users" where "createdAt" > now() - interval '7 days'
 SQL
 ```

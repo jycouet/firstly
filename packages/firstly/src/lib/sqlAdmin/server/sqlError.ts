@@ -30,6 +30,10 @@ const CATALOG_TTL_MS = 10_000
 
 type PgError = {
 	code?: string
+	errno?: number
+	syscall?: string
+	severity?: string
+	routine?: string
 	hint?: string
 	detail?: string
 	position?: string
@@ -133,8 +137,10 @@ async function suggest(db: SqlDatabase, err: PgError, cmd: string): Promise<stri
 export async function enrichSqlError(db: SqlDatabase, err: unknown, cmd = ''): Promise<unknown> {
 	if (!(err instanceof Error)) return err
 	const pg = err as Error & PgError
-	// A SQLSTATE, not any error that happens to carry a `code` (ENOTFOUND, MODULE_NOT_FOUND...).
+	// A SQLSTATE, not any error that happens to carry a `code`: ENOTFOUND is too
+	// long to match, but EPIPE and EBUSY have the exact same shape.
 	if (!pg.code || !SQLSTATE.test(pg.code) || pg.code.startsWith(CONNECTION_CLASS)) return err
+	if (pg.errno !== undefined || pg.syscall !== undefined) return err
 
 	const parts = [pg.message]
 	if (pg.hint) parts.push(pg.hint)

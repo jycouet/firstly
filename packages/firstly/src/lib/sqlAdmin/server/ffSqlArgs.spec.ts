@@ -34,6 +34,22 @@ describe('ff-sql parseArgs', () => {
 		expect(parseArgs(['--jsno', 'select 1']).error).toBe('unknown flag --jsno')
 	})
 
+	it('refuses the same flag twice rather than silently keeping the last', () => {
+		expect(parseArgs(['--origin=a', '--origin=b', 's']).error).toBe('--origin given twice')
+		expect(parseArgs(['--json', '--json']).error).toBe('--json given twice')
+	})
+
+	it('reads a sql comment as sql, not as a flag', () => {
+		expect(parseArgs(['-- only live rows\nselect 1']).sql).toBe('-- only live rows\nselect 1')
+	})
+
+	it('stops reading flags after --', () => {
+		expect(parseArgs(['--json', '--', '--jsno', 'select 1'])).toMatchObject({
+			json: true,
+			sql: '--jsno select 1',
+		})
+	})
+
 	it('knows about help', () => {
 		expect(parseArgs(['-h']).help).toBe(true)
 		expect(parseArgs(['--help']).help).toBe(true)

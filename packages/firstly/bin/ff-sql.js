@@ -15,6 +15,7 @@ const HELP = `ff-sql - run SQL through a firstly sql token
   SQL
 
   --json          raw JSON instead of a table
+  --              end of flags, everything after is SQL
   --origin=URL    the app to query (or FF_SQL_ORIGIN)
   --api-path=P    remult api root (default /api)
   --help, -h      this
@@ -23,7 +24,7 @@ The app's <SqlTokens /> page hands you the whole command, token included -
 nothing to configure here. Reads run inside a READ ONLY transaction, one
 statement per call. Identifiers usually come from entity classes, so they are
 camelCase and need double quotes: "createdAt", not created_at. A heredoc avoids
-fighting the shell over single quotes.`
+fighting the shell over single quotes, and keeps the token out of the line.`
 
 const TRAILING_SLASH = /\/$/
 

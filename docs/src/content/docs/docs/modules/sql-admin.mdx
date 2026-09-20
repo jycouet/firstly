@@ -119,12 +119,17 @@ firstly ships an `ff-sql` bin, and the mint screen hands over the whole command 
 api path inlined - so there is nothing to configure, no env file to point at:
 
 ```bash
-FF_SQL_TOKEN=ffsql_… pnpm exec ff-sql --origin=https://my.app "select count(*) from users"
-FF_SQL_TOKEN=ffsql_… pnpm exec ff-sql --origin=https://my.app --json "select * from users limit 3"
-FF_SQL_TOKEN=ffsql_… pnpm exec ff-sql --origin=https://my.app << 'SQL'
+FF_SQL_TOKEN=ffsql_… npx ff-sql --origin=https://my.app "select count(*) from users"
+FF_SQL_TOKEN=ffsql_… npx ff-sql --origin=https://my.app --json "select * from users limit 3"
+FF_SQL_TOKEN=ffsql_… npx ff-sql --origin=https://my.app << 'SQL'
   select handle from "users" where "createdAt" > now() - interval '7 days'
 SQL
 ```
+
+The token sits in the command line, so paste it with a leading space (or keep it in an env file) to
+keep it out of your shell history. Multi-line SQL goes through stdin (the heredoc above); as an
+argument, anything that is not flag-shaped is SQL, and `--` ends the flags - so a leading `--
+comment` is fine.
 
 `--origin` also reads `FF_SQL_ORIGIN`, so an app that queries the same place all day can wrap it:
 `"sql:prod": "FF_SQL_ORIGIN=https://my.app ff-sql"` (package scripts have `ff-sql` on their PATH).

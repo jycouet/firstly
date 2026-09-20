@@ -33,7 +33,8 @@
 	const defaultCommand = (token: string) =>
 		[
 			`FF_SQL_TOKEN=${token}`,
-			'pnpm exec ff-sql',
+			// npx, not `pnpm exec`: the line must run wherever it is pasted.
+			'npx ff-sql',
 			`--origin=${location.origin}`,
 			apiPath === '/api' ? '' : `--api-path=${apiPath}`,
 			'"select 1"',
@@ -228,6 +229,10 @@
 			<div class="border border-primary bg-muted p-4 text-sm">
 				<p class="text-xs font-medium tracking-wide text-primary uppercase">Shown once - copy it now</p>
 				<code class="mt-2 block font-mono break-all select-all">{line}</code>
+				<p class="mt-2 text-xs text-muted-foreground">
+					The token is in the line: paste it with a leading space, or put it in an env file, to keep it
+					out of your shell history.
+				</p>
 				<div class="mt-3 flex gap-2">
 					<button type="button" class={btn} onclick={() => copy(line)}>
 						{copied ? 'Copied' : 'Copy'}

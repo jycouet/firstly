@@ -35,8 +35,11 @@ export const SQL_TOKEN_DELETE_LIVE = 'Revoke a live token before deleting it'
 			throw new Error('A revoked token stays revoked')
 		}
 	},
-	deleting: async (t) => {
+	deleting: (t) => {
 		if (isSqlTokenLive(t)) throw new Error(SQL_TOKEN_DELETE_LIVE)
+	},
+	// After, not before: a failed row delete must not have dropped the calls already.
+	deleted: async (t) => {
 		await repo(SqlTokenCall).deleteMany({ where: { tokenId: t.id } })
 	},
 })
