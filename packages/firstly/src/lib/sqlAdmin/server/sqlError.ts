@@ -25,6 +25,8 @@ const UNDEFINED_COLUMN = '42703'
 const CONNECTION_CLASS = '08'
 const MAX_CANDIDATES = 3
 const MIN_MATCH_LENGTH = 3
+/** A caller looping on bad SQL must not turn each failure into a catalog scan. */
+const CATALOG_TTL_MS = 10_000
 
 type PgError = {
 	code?: string
@@ -69,13 +71,21 @@ function preferMentioned(candidates: Candidate[], cmd: string): Candidate[] {
 	return mentioned.length ? mentioned : candidates
 }
 
+const catalogCache = new WeakMap<SqlDatabase, Map<string, { at: number; rows: any[] }>>()
+
 async function catalog(db: SqlDatabase, sql: string): Promise<any[]> {
+	let perDb = catalogCache.get(db)
+	if (!perDb) catalogCache.set(db, (perDb = new Map()))
+	const hit = perDb.get(sql)
+	if (hit && Date.now() - hit.at < CATALOG_TTL_MS) return hit.rows
+	let rows: any[] = []
 	try {
-		return (await db.execute(sql)).rows ?? []
+		rows = (await db.execute(sql)).rows ?? []
 	} catch {
 		// Not Postgres, no catalog access, connection gone: the plain error is still useful.
-		return []
 	}
+	perDb.set(sql, { at: Date.now(), rows })
+	return rows
 }
 
 async function suggest(db: SqlDatabase, err: PgError, cmd: string): Promise<string[]> {

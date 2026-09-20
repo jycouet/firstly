@@ -4,61 +4,56 @@
 import { Console } from 'node:console'
 import { text } from 'node:stream/consumers'
 
+import { parseArgs } from './args.js'
+
 const HELP = `ff-sql - run SQL through a firstly sql token
 
-  FF_SQL_TOKEN=ffsql_… FF_SQL_ORIGIN=https://example.com ff-sql "select 1"
+  FF_SQL_TOKEN=ffsql_… ff-sql --origin=https://example.com "select 1"
   ff-sql --json "select * from users limit 3"
   ff-sql <<'SQL'
     select handle from "users" where "createdAt" > now() - interval '7 days'
   SQL
 
-  --json        raw JSON instead of a table
-  --origin=URL  overrides FF_SQL_ORIGIN
-  --api-path=P  remult api root (default /api)
-  --help, -h    this
+  --json          raw JSON instead of a table
+  --origin=URL    the app to query (or FF_SQL_ORIGIN)
+  --api-path=P    remult api root (default /api)
+  --help, -h      this
 
-Mint a token in the app's <SqlTokens /> page. Reads run inside a READ ONLY
-transaction, one statement per call. Identifiers usually come from entity
-classes, so they are camelCase and need double quotes: "createdAt", not
-created_at. A heredoc avoids fighting the shell over single quotes.`
+The app's <SqlTokens /> page hands you the whole command, token included -
+nothing to configure here. Reads run inside a READ ONLY transaction, one
+statement per call. Identifiers usually come from entity classes, so they are
+camelCase and need double quotes: "createdAt", not created_at. A heredoc avoids
+fighting the shell over single quotes.`
 
 const TRAILING_SLASH = /\/$/
 
-const KNOWN = ['json', 'origin', 'api-path', 'help']
+const cli = parseArgs(process.argv.slice(2))
 
-const args = process.argv.slice(2)
-const flag = (name) => args.find((a) => a === `--${name}` || a.startsWith(`--${name}=`))
-const value = (name, fallback) => flag(name)?.split('=').slice(1).join('=') || fallback
-
-if (flag('help') || args.includes('-h') || (args.length === 0 && process.stdin.isTTY)) {
+if (cli.help) {
 	console.info(HELP)
-	process.exit(flag('help') || args.includes('-h') ? 0 : 2)
+	process.exit(0)
 }
-
-// A typo'd flag must not be silently dropped from the SQL: `--jsno "select 1"`
-// would otherwise run and quietly print a table.
-const unknown = args.filter((a) => a.startsWith('--') && !KNOWN.includes(a.slice(2).split('=')[0]))
-if (unknown.length) {
-	console.error(`unknown flag ${unknown.join(' ')}. ff-sql --help`)
+if (cli.error) {
+	console.error(`${cli.error}. ff-sql --help`)
 	process.exit(2)
 }
 
 const token = process.env.FF_SQL_TOKEN
-const origin = value('origin', process.env.FF_SQL_ORIGIN)
-const apiPath = value('api-path', '/api')
+const origin = cli.origin ?? process.env.FF_SQL_ORIGIN
+const apiPath = cli.apiPath ?? '/api'
 
 if (!token) {
 	console.error('FF_SQL_TOKEN missing - mint one in the app (<SqlTokens />). ff-sql --help')
 	process.exit(2)
 }
 if (!origin) {
-	console.error('FF_SQL_ORIGIN missing - the app to query, e.g. https://example.com')
+	console.error('origin missing - --origin=https://example.com, or FF_SQL_ORIGIN')
 	process.exit(2)
 }
 
-const cmd = (
-	args.filter((a) => !a.startsWith('--')).join(' ') || (await text(process.stdin))
-).trim()
+// Only read stdin when there is nothing else to run: on a tty that would hang.
+let cmd = cli.sql
+if (!cmd && !process.stdin.isTTY) cmd = (await text(process.stdin)).trim()
 if (!cmd) {
 	console.error('no sql given. ff-sql --help')
 	process.exit(2)
@@ -86,6 +81,6 @@ if (!res.ok) {
 const { rows, rowCount, took } = body.data ?? body
 // Table and rows on stdout, the summary on stderr, so `| jq` and `> file` stay clean.
 const out = new Console(process.stdout)
-if (flag('json')) out.log(JSON.stringify(rows, null, 2))
+if (cli.json) out.log(JSON.stringify(rows, null, 2))
 else if (rowCount) out.table(rows)
-console.error(`${rowCount} row(s) · ${Math.round(took)} ms`)
+console.error(`${rowCount ?? 0} row(s) · ${Math.round(took ?? 0)} ms`)

@@ -20,14 +20,26 @@
 	type Props = {
 		/** Capabilities offered in the form. Others render disabled. @default ['read'] */
 		capabilities?: SqlCapability[]
-		/** Command shown once a token is minted (what the user pastes). Defaults to a curl line. */
+		/** Command shown once a token is minted (what the user pastes). Defaults to a full `ff-sql` line. */
 		command?: (token: string) => string
+		/** Remult api root, when the app moved it. @default '/api' */
+		apiPath?: string
 	}
-	let { capabilities: enabled = ['read'], command }: Props = $props()
+	let { capabilities: enabled = ['read'], command, apiPath = '/api' }: Props = $props()
 
 	const TTLS = Object.keys(SQL_TOKEN_TTLS) as SqlTokenTtl[]
+	// Self-contained on purpose: every parameter is in the line, so the copy runs
+	// as is from any terminal - no env file, nothing to set up first.
 	const defaultCommand = (token: string) =>
-		`curl -X POST ${location.origin}/api/ff/sqlAdmin/exec -H "authorization: Bearer ${token}" -H "content-type: application/json" -d '{"args":["select 1"]}'`
+		[
+			`FF_SQL_TOKEN=${token}`,
+			'pnpm exec ff-sql',
+			`--origin=${location.origin}`,
+			apiPath === '/api' ? '' : `--api-path=${apiPath}`,
+			'"select 1"',
+		]
+			.filter(Boolean)
+			.join(' ')
 
 	let name = $state('')
 	let picked = $state<SqlCapability[]>(['read'])
@@ -68,22 +80,28 @@
 
 	async function revoke(t: SqlToken) {
 		error = ''
+		busy = true
 		try {
 			await repo(SqlToken).update(t.id, { revokedAt: new Date() })
 			await refresh()
 		} catch (err) {
 			error = err instanceof Error ? err.message : String(err)
+		} finally {
+			busy = false
 		}
 	}
 
 	async function remove(t: SqlToken) {
-		if (!confirm(`Delete "${t.name}" and its calls? Revoke instead to keep the audit trail.`)) return
+		if (!confirm(`Delete "${t.name}" and its calls? The audit trail goes with it.`)) return
 		error = ''
+		busy = true
 		try {
 			await repo(SqlToken).delete(t)
 			await refresh()
 		} catch (err) {
 			error = err instanceof Error ? err.message : String(err)
+		} finally {
+			busy = false
 		}
 	}
 
@@ -143,8 +161,8 @@
 			A token is a bag of capabilities that acts as you, for a short while. Minting needs a live
 			session - a token can never mint or revoke a token. <code>read</code> runs inside a
 			<code>READ ONLY</code> transaction, one statement at a time. Every call is logged below (SQL text,
-			rows, ms, error - never the rows themselves). Revoking is immediate and keeps the trail; deleting drops
-			the token and its calls.
+			rows, ms, error - never the rows themselves). Revoking is immediate and keeps the trail; a dead token
+			can then be deleted, which drops its calls too.
 		</p>
 	</header>
 
@@ -254,10 +272,16 @@
 								<td class={td}>{fmt(t.lastUsedAt)}</td>
 								<td class={td} class:text-primary={s === 'live'}>{s}</td>
 								<td class="{td} space-x-2 text-right whitespace-nowrap">
+									<!-- Revoke is the kill switch, delete is cleanup: a live token can only be revoked. -->
 									{#if s === 'live'}
-										<button type="button" class={btn} onclick={() => revoke(t)}>Revoke</button>
+										<button type="button" class={btn} disabled={busy} onclick={() => revoke(t)}>
+											Revoke
+										</button>
+									{:else}
+										<button type="button" class={btn} disabled={busy} onclick={() => remove(t)}>
+											Delete
+										</button>
 									{/if}
-									<button type="button" class={btn} onclick={() => remove(t)}>Delete</button>
 								</td>
 							</tr>
 						{:else}

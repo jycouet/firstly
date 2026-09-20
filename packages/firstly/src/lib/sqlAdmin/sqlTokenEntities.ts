@@ -16,10 +16,12 @@ const admins = [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin]
 // server-side, shown once, never stored). Revoking is the one update the API
 // allows: set `revokedAt`; nothing else is writable and a revoke is final.
 //
-// Revoke and delete are not the same gesture: a revoked token keeps its row and
-// its call log, which is the audit trail; deleting one says it never existed,
-// so its calls go with it - a call log pointing at a token nobody can name is
-// noise, not history.
+// Revoke and delete are not the same gesture: revoking is the kill switch and
+// keeps the row plus its call log, which is the audit trail; deleting is
+// cleanup and takes the calls with it - a call log pointing at a token nobody
+// can name is noise, not history. So only a dead token can be deleted: killing
+// a live one is always a revoke.
+export const SQL_TOKEN_DELETE_LIVE = 'Revoke a live token before deleting it'
 @Entity<SqlToken>('_ff_sql_tokens', {
 	caption: 'FF Sql Tokens',
 	// Admins means a session: a bearer is only ever resolved for the exec path
@@ -34,6 +36,7 @@ const admins = [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin]
 		}
 	},
 	deleting: async (t) => {
+		if (isSqlTokenLive(t)) throw new Error(SQL_TOKEN_DELETE_LIVE)
 		await repo(SqlTokenCall).deleteMany({ where: { tokenId: t.id } })
 	},
 })
