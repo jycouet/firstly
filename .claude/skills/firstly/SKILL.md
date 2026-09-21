@@ -111,7 +111,25 @@ export const api = remultApi({ modules: [sqlAdmin({ path: '/sql/admin' })] })
 
 The component ships prefilled queries (DB size, table sizes, indexes, default `SELECT`) and logs results as `for AI: <rows>` in the browser console - so chrome-devtools / AI agents can grab them with `list_console_messages`.
 
-`exec(sql, capabilities = ['read'])`: `read` = READ ONLY transaction over the extended protocol (one statement, no `commit; insert` escape), `write` = as is. Opt-in `tokens: { capabilities: ['read'], userFromId? }` adds bearer tokens (`<SqlTokens />`, same `POST /api/ff/sqlAdmin/exec` endpoint, `mintToken`; revoke = entity update of `revokedAt`) so a script or an AI on a dev machine can query prod.; the token acts as its minter, answers one path only, needs a live session to mint/revoke, every call logged. `sqlAdmin: false` registers no controller (and throws if `tokens` is set - they share the `exec` endpoint). The pg pool is taken from the data provider, nothing to pass.
+`exec(sql, capabilities = ['read'])`: `read` = READ ONLY transaction over the extended protocol (one statement, no `commit; insert` escape), `write` = as is. Opt-in `tokens: { capabilities: ['read'], userFromId? }` adds bearer tokens (`<SqlTokens />`, same `POST /api/ff/sqlAdmin/exec` endpoint, `mintToken(name?, …)` - empty name = `swift-otter-3f9`) so a script or an AI on a dev machine can query prod; the token acts as its minter, answers one path only, needs a live session to mint/revoke, every call logged. Revoke (`update(id, { revokedAt })`) keeps the row and its calls; delete drops both and is refused on a live token, and `purgeTokens()` deletes every dead token at once. `sqlAdmin: false` registers no controller (and throws if `tokens` is set - they share the `exec` endpoint). The pg pool is taken from the data provider, nothing to pass.
+
+#### Writing SQL against a remult schema
+
+The caller is a script or an AI that cannot see the database, and nearly every failed query is a misremembered identifier. Before writing SQL:
+
+- **Read the entity files, they are the schema.** Table = the `@Entity`/`@FF_Entity` key, column = the field name. Don't dump `information_schema` to find out; when one specific table is unclear, `select column_name, data_type from information_schema.columns where table_name = 'activities'`.
+- **Identifiers are camelCase and must be double-quoted.** `"createdAt"`, not `created_at` - unquoted, Postgres folds to lowercase and `createdat` does not exist. Table names too if they are not all-lowercase. firstly's own tables are `_ff_*`.
+- **`@Fields.json` is `json`, not `jsonb`.** `?`, `@>`, `-` don't exist on it: cast first (`raw::jsonb ? 'calories'`).
+- **One statement per call.** No `;`-chaining, no `explain analyze` on a write, no temp tables - a read token runs inside `BEGIN READ ONLY` over the extended protocol.
+- **Read the error, it names the fix.** Failures come back as `column a.analysisversion does not exist · Did you mean "activities"."analysisVersion"? · [42703 at 8]` - Postgres' own `HINT` when there is one, else the closest catalog names.
+
+From a terminal, use the `ff-sql` bin (`FF_SQL_TOKEN`, `--origin=`/`FF_SQL_ORIGIN`, `--api-path=`, `--json`, stdin) rather than hand-rolling curl - the mint screen copies the full line, nothing to configure. Prefer a heredoc over nested shell quotes:
+
+```bash
+FF_SQL_TOKEN=ffsql_… npx ff-sql --origin=https://my.app << 'SQL'
+  select handle from "users" where "createdAt" > now() - interval '7 days'
+SQL
+```
 
 ## `FF_Allow` / `FF_Filter` - row-level helpers
 

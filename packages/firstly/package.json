@@ -3,6 +3,9 @@
   "version": "0.10.0",
   "type": "module",
   "description": "Firstly, an opinionated Remult setup!",
+  "bin": {
+    "ff-sql": "./bin/ff-sql.js"
+  },
   "funding": "https://github.com/sponsors/jycouet",
   "homepage": "https://firstly.fun/",
   "repository": {

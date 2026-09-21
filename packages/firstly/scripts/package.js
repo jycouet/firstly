@@ -42,6 +42,13 @@ execSync(`rm -rf ${path.join(packageDirPath, tmpFolder)}`)
 fs.mkdirSync(path.join(packageDirPath, tmpFolder))
 fs.writeFileSync(path.join(packageDirPath, tmpFolder, 'package.json'), JSON.stringify(pkg, null, 2))
 copy(path.join(packageDirPath, 'dist'), path.join(packageDirPath, tmpFolder, 'esm'), {}, [])
+// bin/ is plain js on purpose (a shebang must survive), so it ships verbatim.
+if (pkg.bin) {
+	copy(path.join(packageDirPath, 'bin'), path.join(packageDirPath, tmpFolder, 'bin'), {}, [])
+	for (const rel of Object.values(pkg.bin)) {
+		fs.chmodSync(path.join(packageDirPath, tmpFolder, rel), 0o755)
+	}
+}
 // write it to your output directory
 for (const item of toCopy) {
 	let from = path.join(packageDirPath, item)

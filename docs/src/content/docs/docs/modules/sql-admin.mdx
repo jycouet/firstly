@@ -93,25 +93,65 @@ sqlAdmin({
 	import { SqlTokens } from 'firstly/sqlAdmin'
 </script>
 
-<!-- `command` is what the admin copies once the token is shown. -->
-<SqlTokens capabilities={['read']} command={(t) => `MY_TOKEN=${t} pnpm sql:prod "select 1"`} />
+<!-- Defaults to a ready-to-run `ff-sql` line; override `command` for your own. -->
+<SqlTokens capabilities={['read']} />
 ```
 
 The rules the module enforces:
 
 - A token is a bag of capabilities that acts as its minter, for a fixed lifetime (`1h`, `24h`,
-  `7d`). Only the sha256 is stored; the raw value is shown once.
+  `7d`). Only the sha256 is stored; the raw value is shown once. Leave the name empty to get an
+  `adjective-animal-3f9` one.
 - Minting and revoking need a live session - a token can never mint, extend or revoke a token.
 - A token answers exactly one path: the console's own `/api/ff/sqlAdmin/exec`. Anywhere else it authenticates nobody. Revoking is a plain `repo(SqlToken).update(id, { revokedAt })` - the only writable field, and final.
+- Revoke and delete are different gestures: revoking is the kill switch and keeps the row and its
+  calls (the audit trail); deleting is cleanup and takes the calls with it. A live token can only be
+  revoked - deleting one throws. `SqlAdminController.purgeTokens()` deletes every expired or revoked
+  token at once (the "Delete N dead" button).
 - Every call is logged in `_ff_sql_token_calls` (SQL text, row count, ms, error - never the rows) and
   pruned after `callLogRetentionDays`.
 - `remult.context.sqlTokenBearer` is set whenever a bearer with the prefix is seen, valid or not - your
   own `initRequest` can `return` on it so a token request never falls back to a cookie.
 
-Calling it:
+### Calling it
+
+firstly ships an `ff-sql` bin, and the mint screen hands over the whole command - token, origin and
+api path inlined - so there is nothing to configure, no env file to point at:
+
+```bash
+FF_SQL_TOKEN=ffsql_… npx ff-sql --origin=https://my.app "select count(*) from users"
+FF_SQL_TOKEN=ffsql_… npx ff-sql --origin=https://my.app --json "select * from users limit 3"
+FF_SQL_TOKEN=ffsql_… npx ff-sql --origin=https://my.app << 'SQL'
+  select handle from "users" where "createdAt" > now() - interval '7 days'
+SQL
+```
+
+The token sits in the command line, so paste it with a leading space (or keep it in an env file) to
+keep it out of your shell history. Multi-line SQL goes through stdin (the heredoc above); as an
+argument, anything that is not flag-shaped is SQL, and `--` ends the flags - so a leading `--
+comment` is fine.
+
+`--origin` also reads `FF_SQL_ORIGIN`, so an app that queries the same place all day can wrap it:
+`"sql:prod": "FF_SQL_ORIGIN=https://my.app ff-sql"` (package scripts have `ff-sql` on their PATH).
+
+Rows go to stdout (a table, or `--json`), the `N row(s) · X ms` summary to stderr. `ff-sql --help`
+lists the flags. Or skip the bin entirely:
 
 ```bash
 curl -X POST https://my.app/api/ff/sqlAdmin/exec \
 	-H "authorization: Bearer ffsql_..." -H "content-type: application/json" \
 	-d '{"args":["select count(*) from users"]}'
 ```
+
+### Errors point at the right identifier
+
+Callers writing SQL against a schema they cannot see mostly fail on names - entity columns are
+quoted camelCase, so `created_at` and `key_value` do not exist. Any failed query comes back with
+Postgres' own `HINT` when there is one, or the closest names from the catalog, plus the SQLSTATE:
+
+```
+column a.analysisversion does not exist · Did you mean "activities"."analysisVersion"? · [42703 at 8]
+relation "key_value" does not exist · Did you mean "keyValues"? · [42P01 at 15]
+```
+
+That enriched message is also what lands in the call log.
