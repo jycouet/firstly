@@ -1,5 +1,15 @@
 # firstly
 
+## 0.10.1
+
+### Patch Changes
+
+- [#365](https://github.com/jycouet/firstly/pull/365) [`cf68997`](https://github.com/jycouet/firstly/commit/cf68997ca89672c2026ea502d197a670b942f4c0) Thanks [@jycouet](https://github.com/jycouet)! - Expose `firstly/cron` (`Roles_Cron`, `Cron`) so client code can import them, like `firstly/changeLog` already does.
+
+- [#364](https://github.com/jycouet/firstly/pull/364) [`fcd660e`](https://github.com/jycouet/firstly/commit/fcd660ef5a8677f2dad6d4c8bc1017ae2fe46574) Thanks [@jycouet](https://github.com/jycouet)! - Accept SvelteKit 3 as a peer, prereleases included (`3.0.0-next.x`).
+
+- [#362](https://github.com/jycouet/firstly/pull/362) [`993486d`](https://github.com/jycouet/firstly/commit/993486dd25b5c06def4874a3b3f95440bc79a845) Thanks [@jycouet](https://github.com/jycouet)! - sqlAdmin: failed queries now carry Postgres' HINT (or the closest catalog names) and the SQLSTATE, so `column a.analysisversion does not exist` comes back with `Did you mean "activities"."analysisVersion"?`. New `ff-sql` bin to run token SQL from a terminal (`--origin=`, `--api-path=`, `--json`, stdin, `FF_SQL_TOKEN`/`FF_SQL_ORIGIN`); the mint screen now copies the full command, so there is nothing to set up. Tokens can be named automatically (`swift-otter-3f9`); a dead token can be deleted - one by one, or every one of them via `purgeTokens()` - which takes its call log with it, while a revoke keeps it.
+
 ## 0.10.0
 
 ### Minor Changes
