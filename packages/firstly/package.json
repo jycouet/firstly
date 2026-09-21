@@ -118,6 +118,10 @@
       "types": "./esm/changeLog/server/index.d.ts",
       "default": "./esm/changeLog/server/index.js"
     },
+    "./cron": {
+      "types": "./esm/cron/index.d.ts",
+      "default": "./esm/cron/index.js"
+    },
     "./cron/server": {
       "types": "./esm/cron/server/index.d.ts",
       "default": "./esm/cron/server/index.js"
