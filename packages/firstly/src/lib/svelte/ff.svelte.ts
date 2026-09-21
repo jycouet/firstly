@@ -17,6 +17,7 @@ import {
 } from 'remult'
 
 import type { LocalizedMessage } from '../core/FF_Validators.js'
+import { errorMessage } from '../core/helper.js'
 import { dialog, type DialogClose, type DialogOptions, type DialogResult } from './dialog.svelte.js'
 
 /**
@@ -222,7 +223,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 							this.#fireItems()
 						},
 						error: (e) => {
-							this.error = e instanceof Error ? e.message : String(e)
+							this.error = errorMessage(e)
 							this.loading.init = false
 							this.#fireIssue(toIssue(e))
 						},
@@ -291,7 +292,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 			}
 		} catch (e) {
 			if (seq === this.#seq) {
-				this.error = e instanceof Error ? e.message : String(e)
+				this.error = errorMessage(e)
 				this.#fireIssue(toIssue(e))
 			}
 		} finally {
@@ -427,7 +428,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 			await after()
 			return res
 		} catch (e) {
-			this.error = e instanceof Error ? e.message : String(e)
+			this.error = errorMessage(e)
 			throw e
 		} finally {
 			this.loading[flag] = false
