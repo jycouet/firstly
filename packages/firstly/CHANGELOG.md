@@ -1,5 +1,12 @@
 # firstly
 
+## 0.10.2
+
+### Patch Changes
+
+- [#366](https://github.com/jycouet/firstly/pull/366) [`2c661f6`](https://github.com/jycouet/firstly/commit/2c661f6474b8614733e5494e7deda3cd069aed9c) Thanks [@jycouet](https://github.com/jycouet)! - `ff` handles: read failed writes through `errorMessage()`. Remult rejects with a plain object, not
+  an `Error`, so `handle.error` used to end up as the string `[object Object]` on a 403.
+
 ## 0.10.1
 
 ### Patch Changes
