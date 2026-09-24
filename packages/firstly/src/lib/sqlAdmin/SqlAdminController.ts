@@ -53,6 +53,8 @@ export type SqlTokensOptions = {
 	pool?: SqlTokenPool
 }
 
+// Thrown when a server-only body runs on the client (its `import.meta.env.SSR` block is gone there).
+export const SERVER_ONLY = 'sqlAdmin: server-only'
 export const SQL_ADMINS = [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin]
 const CALL_LOG_CMD_MAX = 4000
 /** Retention is a housekeeping sweep, not something to pay for on every query. */
@@ -104,20 +106,23 @@ export class SqlAdminController {
 	}
 
 	private static async run(cmd: string, capabilities: SqlCapability[]): Promise<SqlResult> {
-		const db = getDb()
-		try {
-			// Anything that is not an explicit list (null, a stray boolean) is a read.
-			if (Array.isArray(capabilities) && capabilities.includes('write')) {
-				const start = performance.now()
-				const rows = (await db.execute(cmd)).rows
-				return { rows, rowCount: rows.length, took: performance.now() - start }
+		if (import.meta.env.SSR) {
+			const db = getDb()
+			try {
+				// Anything that is not an explicit list (null, a stray boolean) is a read.
+				if (Array.isArray(capabilities) && capabilities.includes('write')) {
+					const start = performance.now()
+					const rows = (await db.execute(cmd)).rows
+					return { rows, rowCount: rows.length, took: performance.now() - start }
+				}
+				const { readOnlySql } = await import('./server/readOnlySql')
+				return await readOnlySql(db, SqlAdminController.options.tokens?.pool ?? poolFrom(db), cmd)
+			} catch (err) {
+				const { enrichSqlError } = await import('./server/sqlError')
+				throw await enrichSqlError(db, err, cmd)
 			}
-			const { readOnlySql } = await import('./server/readOnlySql')
-			return await readOnlySql(db, SqlAdminController.options.tokens?.pool ?? poolFrom(db), cmd)
-		} catch (err) {
-			const { enrichSqlError } = await import('./server/sqlError')
-			throw await enrichSqlError(db, err, cmd)
 		}
+		throw new Error(SERVER_ONLY)
 	}
 
 	private static async execAsToken(
@@ -183,18 +188,21 @@ export class SqlAdminController {
 			if (!o.capabilities.includes(c)) throw new Error(`${c} is not enabled`)
 		}
 
-		const { newRawToken, hashToken, tokenHint, randomTokenName } = await import('./server/token')
-		const prefix = o.prefix ?? 'ffsql_'
-		const raw = newRawToken(prefix)
-		await repo(SqlToken).insert({
-			name: name.trim() || randomTokenName(),
-			hint: tokenHint(raw, prefix),
-			tokenHash: hashToken(raw),
-			userId,
-			capabilities: unique,
-			expiresAt: new Date(Date.now() + ttlMs),
-		})
-		return raw
+		if (import.meta.env.SSR) {
+			const { newRawToken, hashToken, tokenHint, randomTokenName } = await import('./server/token')
+			const prefix = o.prefix ?? 'ffsql_'
+			const raw = newRawToken(prefix)
+			await repo(SqlToken).insert({
+				name: name.trim() || randomTokenName(),
+				hint: tokenHint(raw, prefix),
+				tokenHash: hashToken(raw),
+				userId,
+				capabilities: unique,
+				expiresAt: new Date(Date.now() + ttlMs),
+			})
+			return raw
+		}
+		throw new Error(SERVER_ONLY)
 	}
 
 	/**

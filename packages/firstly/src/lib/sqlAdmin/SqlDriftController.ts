@@ -1,6 +1,6 @@
 import { BackendMethod, remult, SqlDatabase, type ClassType } from 'remult'
 
-import { SQL_ADMINS } from './SqlAdminController'
+import { SERVER_ONLY, SQL_ADMINS } from './SqlAdminController'
 
 export type SqlDriftFlag = 'relationIndexes' | 'primaryKeys' | 'nullable' | 'orphanColumns'
 
@@ -44,29 +44,41 @@ export class SqlDriftController {
 	// Each apply shares the BackendMethod transaction: any failure rolls every statement back.
 	@BackendMethod({ allowed: () => remult.isAllowed(SQL_ADMINS), apiPrefix: 'ff/sqlAdmin' })
 	static async relationIndexes(opts?: { apply?: boolean }) {
-		const { db, entities } = SqlDriftController.ctx('relationIndexes')
-		const { createRelationIndexes } = await import('./server/drift/relationIndexes')
-		return createRelationIndexes(db, entities, opts)
+		if (import.meta.env.SSR) {
+			const { db, entities } = SqlDriftController.ctx('relationIndexes')
+			const { createRelationIndexes } = await import('./server/drift/relationIndexes')
+			return createRelationIndexes(db, entities, opts)
+		}
+		throw new Error(SERVER_ONLY)
 	}
 
 	@BackendMethod({ allowed: () => remult.isAllowed(SQL_ADMINS), apiPrefix: 'ff/sqlAdmin' })
 	static async primaryKeys(opts?: { apply?: boolean }) {
-		const { db, entities } = SqlDriftController.ctx('primaryKeys')
-		const { reindexPrimaryKeys } = await import('./server/drift/primaryKeys')
-		return reindexPrimaryKeys(db, entities, opts)
+		if (import.meta.env.SSR) {
+			const { db, entities } = SqlDriftController.ctx('primaryKeys')
+			const { reindexPrimaryKeys } = await import('./server/drift/primaryKeys')
+			return reindexPrimaryKeys(db, entities, opts)
+		}
+		throw new Error(SERVER_ONLY)
 	}
 
 	@BackendMethod({ allowed: () => remult.isAllowed(SQL_ADMINS), apiPrefix: 'ff/sqlAdmin' })
 	static async nullable(opts?: { apply?: boolean; columns?: Column[] }) {
-		const { db, entities } = SqlDriftController.ctx('nullable')
-		const { syncNullable } = await import('./server/drift/nullable')
-		return syncNullable(db, entities, opts)
+		if (import.meta.env.SSR) {
+			const { db, entities } = SqlDriftController.ctx('nullable')
+			const { syncNullable } = await import('./server/drift/nullable')
+			return syncNullable(db, entities, opts)
+		}
+		throw new Error(SERVER_ONLY)
 	}
 
 	@BackendMethod({ allowed: () => remult.isAllowed(SQL_ADMINS), apiPrefix: 'ff/sqlAdmin' })
 	static async orphanColumns(opts?: { apply?: boolean; columns?: Column[] }) {
-		const { db, entities } = SqlDriftController.ctx('orphanColumns')
-		const { dropColumns } = await import('./server/drift/orphanColumns')
-		return dropColumns(db, entities, opts)
+		if (import.meta.env.SSR) {
+			const { db, entities } = SqlDriftController.ctx('orphanColumns')
+			const { dropColumns } = await import('./server/drift/orphanColumns')
+			return dropColumns(db, entities, opts)
+		}
+		throw new Error(SERVER_ONLY)
 	}
 }
