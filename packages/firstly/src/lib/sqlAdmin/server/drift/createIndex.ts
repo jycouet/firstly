@@ -18,6 +18,8 @@ export type IndexOptions = {
 export function formatCreateIndex(o: {
 	name: string
 	table: string
+	/** Omit for the search path (usually `public`). */
+	schema?: string
 	columns: string[]
 	unique?: boolean
 	concurrently?: boolean
@@ -30,7 +32,8 @@ export function formatCreateIndex(o: {
 	parts.push('INDEX')
 	if (o.concurrently) parts.push('CONCURRENTLY')
 	if (o.ifNotExists) parts.push('IF NOT EXISTS')
-	parts.push(wrap(o.name), 'ON', wrap(o.table), `(${o.columns.map(wrap).join(', ')})`)
+	const table = o.schema ? `${wrap(o.schema)}.${wrap(o.table)}` : wrap(o.table)
+	parts.push(wrap(o.name), 'ON', table, `(${o.columns.map(wrap).join(', ')})`)
 	return parts.join(' ') + ';'
 }
 

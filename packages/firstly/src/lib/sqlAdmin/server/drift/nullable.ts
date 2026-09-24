@@ -1,7 +1,8 @@
 import { repo, type ClassType, type SqlDatabase } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
-import { stripIdent } from './ident'
+import { execStmt } from './catalog'
+import { quoteTable, stripIdent, tableKey, tableKeySql, USER_SCHEMA_SQL } from './ident'
 import {
 	planNullableDrift,
 	type DeclaredColumn,
@@ -45,7 +46,7 @@ export async function syncNullable(
 	for (const ent of entities) {
 		const meta = repo(ent).metadata
 		if (meta.options.sqlExpression) continue // views: no real table
-		const table = stripIdent(meta.dbName)
+		const table = tableKey(meta.dbName)
 		for (const field of meta.fields.toArray()) {
 			if (getRelationFieldInfo(field)) continue // FK scalars are declared by their own field
 			if (field.options.sqlExpression) continue // computed, no stored column
@@ -54,13 +55,13 @@ export async function syncNullable(
 	}
 
 	const res = await db.createCommand().execute(`
-		SELECT table_name, column_name, is_nullable, column_default, data_type
+		SELECT ${tableKeySql('table_schema', 'table_name')} AS table_key, column_name, is_nullable, column_default, data_type
 		FROM information_schema.columns
-		WHERE table_schema = 'public'
-		ORDER BY table_name, ordinal_position;
+		WHERE ${USER_SCHEMA_SQL('table_schema')}
+		ORDER BY table_key, ordinal_position;
 	`)
 	const current: LiveColumn[] = res.rows.map((row) => ({
-		table: row.table_name,
+		table: row.table_key,
 		column: row.column_name,
 		isNullable: row.is_nullable === 'YES',
 		hasDefault: row.column_default != null,
@@ -79,13 +80,14 @@ export async function syncNullable(
 			.filter((p): p is NullablePlan => !!p)
 
 		for (const p of fixed) {
-			const col = `ALTER TABLE "${p.table}" ALTER COLUMN "${p.column}"`
-			if (p.dropDefault) await db.createCommand().execute(`${col} DROP DEFAULT;`)
-			if (p.dropNotNull) await db.createCommand().execute(`${col} DROP NOT NULL;`)
+			const col = `ALTER TABLE ${quoteTable(p.table)} ALTER COLUMN "${p.column}"`
+			if (p.dropDefault) await execStmt(db, `${col} DROP DEFAULT;`)
+			if (p.dropNotNull) await execStmt(db, `${col} DROP NOT NULL;`)
 			if (p.blankToNull) {
-				await db
-					.createCommand()
-					.execute(`UPDATE "${p.table}" SET "${p.column}" = NULL WHERE "${p.column}" = '';`)
+				await execStmt(
+					db,
+					`UPDATE ${quoteTable(p.table)} SET "${p.column}" = NULL WHERE "${p.column}" = '';`,
+				)
 			}
 		}
 	}

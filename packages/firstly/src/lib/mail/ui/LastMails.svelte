@@ -3,6 +3,7 @@
 
 	import { remult, repo } from 'remult'
 
+	import { errorMessage } from '../../core/helper.js'
 	import { Mail } from '../Mail'
 	import { Roles_Mail } from '../Roles_Mail'
 
@@ -28,7 +29,7 @@
 		try {
 			mails = await repo(Mail).find({ limit })
 		} catch (e) {
-			error = e instanceof Error ? e.message : String(e)
+			error = errorMessage(e)
 		} finally {
 			isLoading = false
 		}

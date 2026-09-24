@@ -1,7 +1,8 @@
 import { repo, type ClassType, type SqlDatabase } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
-import { stripIdent } from './ident'
+import { execStmt } from './catalog'
+import { quoteTable, stripIdent, tableKey, tableKeySql, USER_SCHEMA_SQL } from './ident'
 import { planDropColumns, type DropPlan, type TableColumns } from './planDropColumns'
 
 /**
@@ -52,21 +53,21 @@ export async function dropColumns(
 			if (field.options.sqlExpression) continue // computed, no stored column
 			columns.push(stripIdent(field.dbName))
 		}
-		known.push({ table: stripIdent(meta.dbName), columns })
+		known.push({ table: tableKey(meta.dbName), columns })
 	}
 
 	// Live columns per table from the catalog, in ordinal order.
 	const res = await db.createCommand().execute(`
-		SELECT table_name, column_name
+		SELECT ${tableKeySql('table_schema', 'table_name')} AS table_key, column_name
 		FROM information_schema.columns
-		WHERE table_schema = 'public'
-		ORDER BY table_name, ordinal_position;
+		WHERE ${USER_SCHEMA_SQL('table_schema')}
+		ORDER BY table_key, ordinal_position;
 	`)
 	const liveByTable = new Map<string, string[]>()
 	for (const row of res.rows) {
-		const list = liveByTable.get(row.table_name) ?? []
+		const list = liveByTable.get(row.table_key) ?? []
 		list.push(row.column_name)
-		liveByTable.set(row.table_name, list)
+		liveByTable.set(row.table_key, list)
 	}
 	const current: TableColumns[] = Array.from(liveByTable, ([table, columns]) => ({ table, columns }))
 
@@ -79,7 +80,7 @@ export async function dropColumns(
 		// raw client input, so the interpolated identifiers are trusted.
 		dropped = opts.columns.filter((c) => orphan.has(`${c.table}.${c.column}`))
 		for (const { table, column } of dropped) {
-			await db.createCommand().execute(`ALTER TABLE "${table}" DROP COLUMN "${column}";`)
+			await execStmt(db, `ALTER TABLE ${quoteTable(table)} DROP COLUMN "${column}";`)
 		}
 	}
 

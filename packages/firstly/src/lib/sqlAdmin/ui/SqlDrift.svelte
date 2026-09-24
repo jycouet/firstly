@@ -8,6 +8,7 @@
 	import { onMount } from 'svelte'
 	import { SvelteSet } from 'svelte/reactivity'
 
+	import { errorMessage } from '../../core/helper.js'
 	import { SqlDriftController, type SqlDriftFlag } from '../SqlDriftController'
 
 	// Inferred from the BackendMethods, so this never imports from `server/`.
@@ -22,7 +23,7 @@
 		try {
 			flags = await SqlDriftController.driftFlags()
 		} catch (e) {
-			flagsError = e instanceof Error ? e.message : String(e)
+			flagsError = errorMessage(e)
 		}
 	})
 
@@ -31,14 +32,15 @@
 	let pkError = $state('')
 	let pkResult = $state<PkResult | null>(null)
 
+	const PK_ORDER = { migrate: 0, create: 0, missing: 1, ok: 2 } as const
 	const pkPlans = $derived(
-		(pkResult?.plans ?? []).toSorted((a, b) => {
-			if (a.action === 'ok' && b.action !== 'ok') return 1
-			if (a.action !== 'ok' && b.action === 'ok') return -1
-			return a.table.localeCompare(b.table)
-		}),
+		(pkResult?.plans ?? []).toSorted(
+			(a, b) => PK_ORDER[a.action] - PK_ORDER[b.action] || a.table.localeCompare(b.table),
+		),
 	)
-	const pkDrift = $derived(pkPlans.filter((p) => p.action !== 'ok').length)
+	const pkDrift = $derived(
+		pkPlans.filter((p) => p.action === 'migrate' || p.action === 'create').length,
+	)
 
 	async function runPk(apply: boolean) {
 		if (
@@ -52,7 +54,7 @@
 			pkResult = await SqlDriftController.primaryKeys({ apply })
 			console.info('for AI:', JSON.stringify(pkResult))
 		} catch (e) {
-			pkError = e instanceof Error ? e.message : String(e)
+			pkError = errorMessage(e)
 		} finally {
 			pkLoading = false
 		}
@@ -63,12 +65,11 @@
 	let relError = $state('')
 	let relResult = $state<RelResult | null>(null)
 
+	const REL_ORDER = { create: 0, missing: 1, ok: 2 } as const
 	const relPlans = $derived(
-		(relResult?.plans ?? []).toSorted((a, b) => {
-			if (a.action === 'ok' && b.action !== 'ok') return 1
-			if (a.action !== 'ok' && b.action === 'ok') return -1
-			return a.name.localeCompare(b.name)
-		}),
+		(relResult?.plans ?? []).toSorted(
+			(a, b) => REL_ORDER[a.action] - REL_ORDER[b.action] || a.name.localeCompare(b.name),
+		),
 	)
 	const relMissing = $derived(relPlans.filter((p) => p.action === 'create').length)
 
@@ -80,7 +81,7 @@
 			relResult = await SqlDriftController.relationIndexes({ apply })
 			console.info('for AI:', JSON.stringify(relResult))
 		} catch (e) {
-			relError = e instanceof Error ? e.message : String(e)
+			relError = errorMessage(e)
 		} finally {
 			relLoading = false
 		}
@@ -127,7 +128,7 @@
 			selected.clear()
 			console.info('for AI:', JSON.stringify(dropResult))
 		} catch (e) {
-			dropError = e instanceof Error ? e.message : String(e)
+			dropError = errorMessage(e)
 		} finally {
 			dropLoading = false
 		}
@@ -175,7 +176,7 @@
 			nullSelected.clear()
 			console.info('for AI:', JSON.stringify(nullResult))
 		} catch (e) {
-			nullError = e instanceof Error ? e.message : String(e)
+			nullError = errorMessage(e)
 		} finally {
 			nullLoading = false
 		}
@@ -282,9 +283,10 @@
 							</td>
 							<td
 								class="border-border border-b px-3 py-2 font-mono"
-								class:text-primary={p.action !== 'ok'}
+								class:text-primary={p.action === 'migrate' || p.action === 'create'}
+								class:text-muted-foreground={p.action === 'missing'}
 							>
-								{p.action}
+								{p.action === 'missing' ? 'table missing · run migrations first' : p.action}
 							</td>
 						</tr>
 					{/each}
@@ -339,7 +341,11 @@
 								class="border-border border-b px-3 py-2 font-mono"
 								class:text-primary={p.action === 'create'}
 							>
-								{p.action === 'create' ? 'create' : `covered · ${p.coveredBy}`}
+								{p.action === 'ok'
+									? `covered · ${p.coveredBy}`
+									: p.action === 'missing'
+										? 'table missing · run migrations first'
+										: 'create'}
 							</td>
 						</tr>
 					{/each}

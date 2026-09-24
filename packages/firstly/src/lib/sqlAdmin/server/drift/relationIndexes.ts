@@ -1,8 +1,9 @@
 import { dbNamesOf, repo, type ClassType, type SqlDatabase } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
+import { execStmt, liveTables } from './catalog'
 import { formatCreateIndex } from './createIndex'
-import { stripIdent } from './ident'
+import { splitKey, stripIdent, tableKey, tableKeySql, USER_SCHEMA_SQL } from './ident'
 
 /** A toOne relation's local FK columns that ideally have a covering index. */
 export type RelIndexDesired = { table: string; columns: string[] }
@@ -14,7 +15,7 @@ export type RelIndexPlan = {
 	table: string
 	columns: string[]
 	name: string
-	action: 'ok' | 'create'
+	action: 'ok' | 'create' | 'missing'
 	/** name of the index already covering these columns (when action is 'ok'). */
 	coveredBy: string | null
 	sql: string | null
@@ -28,11 +29,12 @@ const isPrefix = (want: string[], have: string[]) =>
  * Pure: for each (deduped) relation FK, decide whether an index is missing.
  * A relation is already covered if any existing index - including the PRIMARY KEY -
  * has those columns as its leftmost prefix, so we never propose redundant indexes
- * (e.g. an `a` index on an `(a, b)` PK table).
+ * (e.g. an `a` index on an `(a, b)` PK table). A table never created is `missing`.
  */
 export function planRelationIndexes(
 	desired: RelIndexDesired[],
 	existing: Map<string, ExistingIndex[]>,
+	tables: ReadonlySet<string>,
 ): RelIndexPlan[] {
 	const seen = new Set<string>()
 	const plans: RelIndexPlan[] = []
@@ -43,6 +45,10 @@ export function planRelationIndexes(
 		seen.add(key)
 
 		const name = `FF_IX_${d.table}_${d.columns.join('_')}`
+		if (!tables.has(d.table)) {
+			plans.push({ ...d, name, action: 'missing', coveredBy: null, sql: null })
+			continue
+		}
 		const cover = (existing.get(d.table) ?? []).find((e) => isPrefix(d.columns, e.cols))
 
 		plans.push(
@@ -54,7 +60,12 @@ export function planRelationIndexes(
 						name,
 						action: 'create',
 						coveredBy: null,
-						sql: formatCreateIndex({ name, table: d.table, columns: d.columns, ifNotExists: true }),
+						sql: formatCreateIndex({
+							name,
+							...splitKey(d.table),
+							columns: d.columns,
+							ifNotExists: true,
+						}),
 					},
 		)
 	}
@@ -71,7 +82,7 @@ export async function relationIndexTargets(
 		const meta = repo(ent).metadata
 		if (meta.options.sqlExpression) continue // views: no real table
 		const names = await dbNamesOf(ent)
-		const table = stripIdent(names.$entityName)
+		const table = tableKey(names.$entityName)
 		for (const field of meta.fields.toArray()) {
 			const fi = getRelationFieldInfo(field)
 			if (!fi || fi.type !== 'toOne') continue // toMany is indexed from the toOne side
@@ -108,28 +119,30 @@ export async function createRelationIndexes(
 
 	// Every existing index (incl. PK), columns in order, per table.
 	const res = await db.createCommand().execute(`
-		SELECT c.relname AS table_name, i.relname AS index_name,
+		SELECT ${tableKeySql('ns.nspname', 'c.relname')} AS table_key, i.relname AS index_name,
 			array_agg(a.attname::text ORDER BY k.ord) AS cols
 		FROM pg_class c
-		JOIN pg_namespace ns ON ns.oid = c.relnamespace AND ns.nspname = 'public'
+		JOIN pg_namespace ns ON ns.oid = c.relnamespace AND ${USER_SCHEMA_SQL('ns.nspname')}
 		JOIN pg_index ix ON ix.indrelid = c.oid
 		JOIN pg_class i ON i.oid = ix.indexrelid
 		JOIN unnest(ix.indkey) WITH ORDINALITY AS k(attnum, ord) ON true
 		JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum = k.attnum
 		WHERE c.relkind = 'r' AND k.attnum > 0
-		GROUP BY c.relname, i.relname;
+		GROUP BY ns.nspname, c.relname, i.relname;
 	`)
 	const existing = new Map<string, ExistingIndex[]>()
 	for (const row of res.rows) {
-		const list = existing.get(row.table_name) ?? []
+		const list = existing.get(row.table_key) ?? []
 		list.push({ name: row.index_name, cols: row.cols })
-		existing.set(row.table_name, list)
+		existing.set(row.table_key, list)
 	}
 
-	const plans = planRelationIndexes(desired, existing)
+	const tables = await liveTables(db)
+
+	const plans = planRelationIndexes(desired, existing, tables)
 
 	if (opts?.apply) {
-		for (const plan of plans) if (plan.sql) await db.createCommand().execute(plan.sql)
+		for (const plan of plans) if (plan.sql) await execStmt(db, plan.sql)
 	}
 
 	return { applied: opts?.apply ?? false, plans }
