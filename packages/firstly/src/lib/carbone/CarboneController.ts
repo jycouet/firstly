@@ -18,38 +18,42 @@ export class CarboneController {
 		nameForCarbone?: string
 		deleteOlderTemplatesWithSameName?: boolean
 	}) {
-		const { name, base64, nameForCarbone, deleteOlderTemplatesWithSameName } = config
+		if (import.meta.env.SSR) {
+			const { name, base64, nameForCarbone, deleteOlderTemplatesWithSameName } = config
 
-		// 30 max                                                         1    13
-		const nameToUse =
-			strTrimMid(nameForCarbone ?? name, { len: 16, midStr: '-' }) + '_' + dateCompact()
+			// 30 max                                                         1    13
+			const nameToUse =
+				strTrimMid(nameForCarbone ?? name, { len: 16, midStr: '-' }) + '_' + dateCompact()
 
-		const res = await CarboneController.server.fetch({
-			api: `/template`,
-			body: JSON.stringify({ name, template: base64 }),
-			headers: {
-				'carbone-template-name': nameToUse,
-			},
-		})
-		const j = await res.json()
-		const templateId = j.data.templateId
-		const newTemplate = await repo(CarboneTemplate).upsert({
-			where: { id: templateId, name, extension: j.data.templateExtension },
-		})
-		await repo(CarboneLog).insert({
-			templateId,
-			action: CarbonLogAction.template_upload,
-		})
-
-		// Delete all other templates with the same name
-		if (deleteOlderTemplatesWithSameName) {
-			const older = await repo(CarboneTemplate).find({
-				where: { name: newTemplate.name, id: { $ne: newTemplate.id } },
+			const res = await CarboneController.server.fetch({
+				api: `/template`,
+				body: JSON.stringify({ name, template: base64 }),
+				headers: {
+					'carbone-template-name': nameToUse,
+				},
 			})
-			for (const t of older) {
-				await CarboneController.deleteTemplate({ templateId: t.id })
+			const j = await res.json()
+			const templateId = j.data.templateId
+			const newTemplate = await repo(CarboneTemplate).upsert({
+				where: { id: templateId, name, extension: j.data.templateExtension },
+			})
+			await repo(CarboneLog).insert({
+				templateId,
+				action: CarbonLogAction.template_upload,
+			})
+
+			// Delete all other templates with the same name
+			if (deleteOlderTemplatesWithSameName) {
+				const older = await repo(CarboneTemplate).find({
+					where: { name: newTemplate.name, id: { $ne: newTemplate.id } },
+				})
+				for (const t of older) {
+					await CarboneController.deleteTemplate({ templateId: t.id })
+				}
 			}
+			return
 		}
+		throw new Error('carbone.uploadTemplate: server-only')
 	}
 
 	@BackendMethod({
@@ -62,37 +66,40 @@ export class CarboneController {
 		templateExtension?: string
 		filename?: string
 	}) {
-		const { templateName, filename } = config
-		let { templateId, templateExtension } = config
+		if (import.meta.env.SSR) {
+			const { templateName, filename } = config
+			let { templateId, templateExtension } = config
 
-		if (templateName) {
-			const t = await repo(CarboneTemplate).findFirst({ name: templateName })
-			if (!t) {
-				throw new Error('Template not found')
+			if (templateName) {
+				const t = await repo(CarboneTemplate).findFirst({ name: templateName })
+				if (!t) {
+					throw new Error('Template not found')
+				}
+				templateId = t.id
+				templateExtension = t.extension
 			}
-			templateId = t.id
-			templateExtension = t.extension
+
+			const response = await CarboneController.server.fetch({
+				api: `/template/${templateId}`,
+				method: 'GET',
+			})
+
+			await repo(CarboneLog).insert({
+				templateId,
+				action: CarbonLogAction.template_download,
+			})
+
+			const contentType = response.headers.get('content-type')
+			const arrayBuffer = await response.arrayBuffer()
+			const base64 = Buffer.from(arrayBuffer).toString('base64')
+			const filenameToUse = filename ?? templateName ?? `template_${templateId}`
+			return {
+				data: base64,
+				contentType: contentType || 'application/octet-stream',
+				filename: `${filenameToUse}.${templateExtension}`,
+			}
 		}
-
-		const response = await CarboneController.server.fetch({
-			api: `/template/${templateId}`,
-			method: 'GET',
-		})
-
-		await repo(CarboneLog).insert({
-			templateId,
-			action: CarbonLogAction.template_download,
-		})
-
-		const contentType = response.headers.get('content-type')
-		const arrayBuffer = await response.arrayBuffer()
-		const base64 = Buffer.from(arrayBuffer).toString('base64')
-		const filenameToUse = filename ?? templateName ?? `template_${templateId}`
-		return {
-			data: base64,
-			contentType: contentType || 'application/octet-stream',
-			filename: `${filenameToUse}.${templateExtension}`,
-		}
+		throw new Error('carbone.downloadTemplate: server-only')
 	}
 
 	@BackendMethod({
@@ -100,19 +107,23 @@ export class CarboneController {
 		apiPrefix: 'ff/carbone',
 	})
 	static async deleteTemplate(config: { templateId: string }) {
-		const { templateId } = config
+		if (import.meta.env.SSR) {
+			const { templateId } = config
 
-		await CarboneController.server.fetch({
-			api: `/template/${templateId}`,
-			method: 'DELETE',
-		})
+			await CarboneController.server.fetch({
+				api: `/template/${templateId}`,
+				method: 'DELETE',
+			})
 
-		await repo(CarboneLog).insert({
-			templateId,
-			action: CarbonLogAction.template_delete,
-		})
+			await repo(CarboneLog).insert({
+				templateId,
+				action: CarbonLogAction.template_delete,
+			})
 
-		await repo(CarboneTemplate).delete({ id: templateId })
+			await repo(CarboneTemplate).delete({ id: templateId })
+			return
+		}
+		throw new Error('carbone.deleteTemplate: server-only')
 	}
 
 	@BackendMethod({
@@ -131,54 +142,57 @@ export class CarboneController {
 		//
 		filename?: string
 	}) {
-		const { templateName, templateBase64, data, filename } = config
-		let { templateId, convertTo } = config
+		if (import.meta.env.SSR) {
+			const { templateName, templateBase64, data, filename } = config
+			let { templateId, convertTo } = config
 
-		// eslint-disable-next-line
-		let mode = ''
-		if (templateBase64) {
-			mode = 'templateBase64'
-		} else if (templateName) {
-			mode = 'templateName'
-			const t = await repo(CarboneTemplate).findFirst({ name: templateName })
-			if (!t) {
-				throw new Error('Template not found')
+			// eslint-disable-next-line
+			let mode = ''
+			if (templateBase64) {
+				mode = 'templateBase64'
+			} else if (templateName) {
+				mode = 'templateName'
+				const t = await repo(CarboneTemplate).findFirst({ name: templateName })
+				if (!t) {
+					throw new Error('Template not found')
+				}
+				templateId = t.id
+				if (!convertTo) {
+					convertTo = t.extension
+				}
+			} else {
+				mode = 'templateId'
 			}
-			templateId = t.id
-			if (!convertTo) {
-				convertTo = t.extension
+
+			if (CarboneController.server.test) {
+				convertTo = 'pdf'
 			}
-		} else {
-			mode = 'templateId'
+
+			const response = templateBase64
+				? await CarboneController.server.fetch({
+						api: `/render/template?download=true`,
+						body: JSON.stringify({ data, template: templateBase64, convertTo: convertTo ?? 'pdf' }),
+					})
+				: await CarboneController.server.fetch({
+						api: `/render/${templateId}?download=true`,
+						body: JSON.stringify({ data, convertTo: convertTo ?? 'pdf' }),
+					})
+
+			await repo(CarboneLog).insert({
+				templateId: mode === 'templateBase64' ? 'templateBase64' : templateId,
+				action: CarbonLogAction.render,
+			})
+
+			const contentType = response.headers.get('content-type')
+			const arrayBuffer = await response.arrayBuffer()
+			const base64 = Buffer.from(arrayBuffer).toString('base64')
+			const filenameToUse = filename ?? `template_${templateId}`
+			return {
+				data: base64,
+				contentType: contentType || 'application/octet-stream',
+				filename: `${filenameToUse}.${convertTo}`,
+			}
 		}
-
-		if (CarboneController.server.test) {
-			convertTo = 'pdf'
-		}
-
-		const response = templateBase64
-			? await CarboneController.server.fetch({
-					api: `/render/template?download=true`,
-					body: JSON.stringify({ data, template: templateBase64, convertTo: convertTo ?? 'pdf' }),
-				})
-			: await CarboneController.server.fetch({
-					api: `/render/${templateId}?download=true`,
-					body: JSON.stringify({ data, convertTo: convertTo ?? 'pdf' }),
-				})
-
-		await repo(CarboneLog).insert({
-			templateId: mode === 'templateBase64' ? 'templateBase64' : templateId,
-			action: CarbonLogAction.render,
-		})
-
-		const contentType = response.headers.get('content-type')
-		const arrayBuffer = await response.arrayBuffer()
-		const base64 = Buffer.from(arrayBuffer).toString('base64')
-		const filenameToUse = filename ?? `template_${templateId}`
-		return {
-			data: base64,
-			contentType: contentType || 'application/octet-stream',
-			filename: `${filenameToUse}.${convertTo}`,
-		}
+		throw new Error('carbone.render: server-only')
 	}
 }
