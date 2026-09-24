@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
-import { planRelationIndexes, type ExistingIndex } from './relationIndexes'
+import { Entity, Fields, InMemoryDataProvider, Relations, remult } from 'remult'
+
+import { planRelationIndexes, relationIndexTargets, type ExistingIndex } from './relationIndexes'
 
 const existing = (entries: Record<string, ExistingIndex[]>) => new Map(Object.entries(entries))
 
@@ -66,5 +68,32 @@ describe('planRelationIndexes', () => {
 		)
 		expect(plans[0].action).toBe('ok')
 		expect(plans[0].coveredBy).toBe('FF_IX_coachings_athleteDid')
+	})
+})
+
+@Entity('rt_parents')
+class RtParent {
+	@Fields.string() id = ''
+}
+
+@Entity('rt_children')
+class RtChild {
+	@Fields.string() id = ''
+	@Fields.string() parentId = ''
+	@Relations.toOne(() => RtParent, { field: 'parentId' }) parent?: RtParent
+	@Fields.string({ sqlExpression: () => '(SELECT "id" FROM "rt_parents" LIMIT 1)' })
+	computedParentId = ''
+	@Relations.toOne(() => RtParent, { field: 'computedParentId' }) computedParent?: RtParent
+}
+
+describe('relationIndexTargets', () => {
+	beforeEach(() => {
+		remult.dataProvider = new InMemoryDataProvider()
+	})
+
+	it('skips relations keyed on a computed field (no column to index)', async () => {
+		expect(await relationIndexTargets([RtChild])).toEqual([
+			{ table: 'rt_children', columns: ['parentId'] },
+		])
 	})
 })

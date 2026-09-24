@@ -62,6 +62,33 @@ export function planRelationIndexes(
 	return plans
 }
 
+/** FK columns of each entity's `toOne` relations - the indexes we'd like to exist. */
+export async function relationIndexTargets(
+	entities: ClassType<unknown>[],
+): Promise<RelIndexDesired[]> {
+	const desired: RelIndexDesired[] = []
+	for (const ent of entities) {
+		const meta = repo(ent).metadata
+		if (meta.options.sqlExpression) continue // views: no real table
+		const names = await dbNamesOf(ent)
+		const table = stripIdent(names.$entityName)
+		for (const field of meta.fields.toArray()) {
+			const fi = getRelationFieldInfo(field)
+			if (!fi || fi.type !== 'toOne') continue // toMany is indexed from the toOne side
+			const localKeys = Object.values(fi.getFields().fields) // FK columns on THIS entity
+			if (localKeys.length === 0) continue
+			// A computed key (sqlExpression / serverExpression) has no column to index.
+			const computed = localKeys.some((k) => {
+				const o = meta.fields.find(k)?.options
+				return !!(o?.sqlExpression || o?.serverExpression)
+			})
+			if (computed) continue
+			desired.push({ table, columns: localKeys.map((k) => stripIdent(names.$dbNameOf(k))) })
+		}
+	}
+	return desired
+}
+
 /**
  * Find - and optionally create - indexes for `toOne` relation FK columns that
  * aren't already covered by an existing index. Default is a dry run: returns the
@@ -77,21 +104,7 @@ export async function createRelationIndexes(
 	entities: ClassType<unknown>[],
 	opts?: { apply?: boolean },
 ): Promise<{ applied: boolean; plans: RelIndexPlan[] }> {
-	// Desired FK indexes from each entity's toOne relations.
-	const desired: RelIndexDesired[] = []
-	for (const ent of entities) {
-		const meta = repo(ent).metadata
-		if (meta.options.sqlExpression) continue // views: no real table
-		const names = await dbNamesOf(ent)
-		const table = stripIdent(names.$entityName)
-		for (const field of meta.fields.toArray()) {
-			const fi = getRelationFieldInfo(field)
-			if (!fi || fi.type !== 'toOne') continue // toMany is indexed from the toOne side
-			const localKeys = Object.values(fi.getFields().fields) // FK columns on THIS entity
-			if (localKeys.length === 0) continue
-			desired.push({ table, columns: localKeys.map((k) => stripIdent(names.$dbNameOf(k))) })
-		}
-	}
+	const desired = await relationIndexTargets(entities)
 
 	// Every existing index (incl. PK), columns in order, per table.
 	const res = await db.createCommand().execute(`
