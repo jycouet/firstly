@@ -1,5 +1,11 @@
 # firstly
 
+## 0.10.3
+
+### Patch Changes
+
+- [#372](https://github.com/jycouet/firstly/pull/372) [`09cf999`](https://github.com/jycouet/firstly/commit/09cf999c92fde427c013e4bfc24136f512abd3f3) Thanks [@jycouet](https://github.com/jycouet)! - sqlAdmin: opt-in schema drift checks (`drift: { relationIndexes, primaryKeys, nullable, orphanColumns }`) with a `<SqlDrift />` UI to dry-run and apply, plus `sqlCreateIndex` / `collectEntities` helpers.
+
 ## 0.10.2
 
 ### Patch Changes
