@@ -49,8 +49,8 @@ catalogs:
   vitest: 3.2.3
 
  lib-author-helper:
-  '@changesets/changelog-github': 0.7.0
-  '@changesets/cli': 2.31.0
+  '@changesets/changelog-github': 1.0.1
+  '@changesets/cli': 3.0.3
 
  svelte:
   'svelte': 5.40.0
