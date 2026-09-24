@@ -1,5 +1,11 @@
 # firstly
 
+## 0.10.6
+
+### Patch Changes
+
+- [#383](https://github.com/jycouet/firstly/pull/383) [`3d0353b`](https://github.com/jycouet/firstly/commit/3d0353b176afd765883c50f6bc10c352b752df28) Thanks [@jycouet](https://github.com/jycouet)! - sqlAdmin drift: entities in a non-`public` schema (e.g. `ff_auth.ba-accounts`) are checked in their own schema, a table not created yet is reported as `missing` instead of failing the whole apply, and errors show the real message and failing statement (no more `[object Object]`).
+
 ## 0.10.5
 
 ### Patch Changes
