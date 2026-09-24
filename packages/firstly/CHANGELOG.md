@@ -1,5 +1,11 @@
 # firstly
 
+## 0.10.4
+
+### Patch Changes
+
+- [#375](https://github.com/jycouet/firstly/pull/375) [`b0aea3e`](https://github.com/jycouet/firstly/commit/b0aea3eef9d31339a7446e855f0dbc0c8690177f) Thanks [@jycouet](https://github.com/jycouet)! - sqlAdmin drift: `relationIndexes` skips relations keyed on a computed field (`sqlExpression` / `serverExpression`), which have no column to index and produced invalid SQL.
+
 ## 0.10.3
 
 ### Patch Changes
