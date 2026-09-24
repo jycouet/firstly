@@ -113,6 +113,8 @@ The component ships prefilled queries (DB size, table sizes, indexes, default `S
 
 `exec(sql, capabilities = ['read'])`: `read` = READ ONLY transaction over the extended protocol (one statement, no `commit; insert` escape), `write` = as is. Opt-in `tokens: { capabilities: ['read'], userFromId? }` adds bearer tokens (`<SqlTokens />`, same `POST /api/ff/sqlAdmin/exec` endpoint, `mintToken(name?, …)` - empty name = `swift-otter-3f9`) so a script or an AI on a dev machine can query prod; the token acts as its minter, answers one path only, needs a live session to mint/revoke, every call logged. Revoke (`update(id, { revokedAt })`) keeps the row and its calls; delete drops both and is refused on a live token, and `purgeTokens()` deletes every dead token at once. `sqlAdmin: false` registers no controller (and throws if `tokens` is set - they share the `exec` endpoint). The pg pool is taken from the data provider, nothing to pass.
 
+Schema drift (FK indexes, PKs, nullability, orphan columns): opt in per check with `sqlAdmin({ drift: { entities: () => collectEntities(modules), relationIndexes: true, primaryKeys: true, nullable: true, orphanColumns: true } })`, then mount `<SqlDrift />` to dry-run / apply - prefer it over hand-written index migrations or `initApi` DDL. For a custom index in code: `sqlCreateIndex(Entity, ['a', 'b'], { ifNotExists: true })` from `firstly/sqlAdmin/server`.
+
 #### Writing SQL against a remult schema
 
 The caller is a script or an AI that cannot see the database, and nearly every failed query is a misremembered identifier. Before writing SQL:

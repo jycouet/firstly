@@ -155,3 +155,52 @@ relation "key_value" does not exist · Did you mean "keyValues"? · [42P01 at 15
 ```
 
 That enriched message is also what lands in the call log.
+
+## Schema drift - `<SqlDrift />`
+
+Remult creates tables and adds columns, but never revisits them: no FK index, a PK that ignores a
+later `id` change, `not null default ''` kept after a field turns `allowNull`, columns left behind
+by a removed field. Each check is opt-in, one flag at a time - nothing is registered without one.
+
+```ts
+// src/server/api.ts
+import { collectEntities, sqlAdmin } from 'firstly/sqlAdmin/server'
+
+const modules = [
+	sqlAdmin({
+		drift: {
+			// A getter: the module list holds sqlAdmin() itself.
+			entities: () => collectEntities(modules),
+			relationIndexes: true, // index toOne FK columns not covered by an index (the PK counts)
+			primaryKeys: true, // re-align live PRIMARY KEYs with each entity `id`
+			nullable: true, // relax drifted `allowNull` columns, text '' -> NULL (you pick which)
+			orphanColumns: true, // DROP columns no field declares (you pick which)
+		},
+	}),
+]
+
+export const api = remultApi({ modules })
+```
+
+```svelte
+<script lang="ts">
+	import { SqlDrift } from 'firstly/sqlAdmin'
+</script>
+
+<SqlDrift />
+```
+
+Every check is a dry run first; applying runs in the BackendMethod transaction, so one failure rolls
+everything back. The destructive ones (`nullable`, `orphanColumns`) tick nothing by default and
+re-check the selection server-side. Results are logged as `for AI: <json>`.
+
+To create an index from code instead (e.g. a composite one Remult can't infer), build the SQL from
+typed fields - real db names, `FF_IX_<table>_<cols>` by default:
+
+```ts
+import { SqlDatabase } from 'remult'
+import { sqlCreateIndex } from 'firstly/sqlAdmin/server'
+
+const sql = await sqlCreateIndex(Task, ['userId', 'createdAt'], { ifNotExists: true })
+await SqlDatabase.getDb().execute(sql)
+```
