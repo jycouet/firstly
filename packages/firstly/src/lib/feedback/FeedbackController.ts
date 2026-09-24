@@ -71,230 +71,241 @@ async function addMetaData(issueId: string, obj: Record<string, any>) {
 export class FeedbackController {
 	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'ff/feedback' })
 	static async getMilestones() {
-		const data = await getGitHub(
-			`query Milestones(
-      $repository: String!
-      $owner: String!
-      $filter: String
-      $take: Int = 25
-      $cursor: String
-    ) {
-      repository(name: $repository, owner: $owner) {
-        milestones(query: $filter, last: $take, after: $cursor, states: OPEN) {
-          pageInfo {
-            endCursor
-          }
-          nodes {
-            id
-            number
-            title
-          }
-        }
-      }
-    }
-    `,
-			{
-				repository: remult.context.feedbackOptions.repo.name,
-				owner: remult.context.feedbackOptions.repo.owner,
-				filter: remult.context.feedbackOptions.milestones?.title_filter ?? '',
-			},
-		)
-		return (data.repository.milestones.nodes as { id: string; number: number; title: string }[]).map(
-			(c) => {
-				return {
-					...c,
-					title: c.title
-						.replaceAll(remult.context.feedbackOptions.milestones?.title_filter ?? '', '')
-						.trim(),
-				}
-			},
-		)
+		if (import.meta.env.SSR) {
+			const data = await getGitHub(
+				`query Milestones(
+	      $repository: String!
+	      $owner: String!
+	      $filter: String
+	      $take: Int = 25
+	      $cursor: String
+	    ) {
+	      repository(name: $repository, owner: $owner) {
+	        milestones(query: $filter, last: $take, after: $cursor, states: OPEN) {
+	          pageInfo {
+	            endCursor
+	          }
+	          nodes {
+	            id
+	            number
+	            title
+	          }
+	        }
+	      }
+	    }
+	    `,
+				{
+					repository: remult.context.feedbackOptions.repo.name,
+					owner: remult.context.feedbackOptions.repo.owner,
+					filter: remult.context.feedbackOptions.milestones?.title_filter ?? '',
+				},
+			)
+			return (data.repository.milestones.nodes as { id: string; number: number; title: string }[]).map(
+				(c) => {
+					return {
+						...c,
+						title: c.title
+							.replaceAll(remult.context.feedbackOptions.milestones?.title_filter ?? '', '')
+							.trim(),
+					}
+				},
+			)
+		}
+		throw new Error('feedback.getMilestones: server-only')
 	}
 
 	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'ff/feedback' })
 	static async getIssues(milestoneNumber: number, issueState: 'OPEN' | 'CLOSED') {
-		const issueOrder =
-			issueState === 'CLOSED'
-				? { field: 'UPDATED_AT', direction: 'DESC' } // When close, the last issue updated.
-				: null // When open take milestone order
-		const data = await getGitHub(
-			`query Issues(
-        $repository: String!
-        $owner: String!
-        $filters: IssueFilters
-        $milestoneNumber: Int!
-        $take: Int = 25
-        $cursor: String
-        $issueOrder: IssueOrder
-      ) {
-        repository(name: $repository, owner: $owner) {
-          milestone(number: $milestoneNumber) {
-            issues(first: $take, after: $cursor, filterBy: $filters, orderBy: $issueOrder) {
-              nodes {
-                id
-                number
-                titleHTML
-                state
-                createdAt
-                updatedAt
-                labels(first:10){
-                  nodes {
-                    name
-                  }
-                }
-              }
-            }
-          }
-        }
-      }			
-    `,
-			{
-				repository: remult.context.feedbackOptions.repo.name,
-				owner: remult.context.feedbackOptions.repo.owner,
-				milestoneNumber,
-				filters: {
-					// GitHub treats `labels: []` as "match nothing", so omit the key when unset.
-					labels: remult.context.feedbackOptions.milestones?.labels_filters?.length
-						? remult.context.feedbackOptions.milestones.labels_filters
-						: undefined,
-					states: [issueState],
+		if (import.meta.env.SSR) {
+			const issueOrder =
+				issueState === 'CLOSED'
+					? { field: 'UPDATED_AT', direction: 'DESC' } // When close, the last issue updated.
+					: null // When open take milestone order
+			const data = await getGitHub(
+				`query Issues(
+	        $repository: String!
+	        $owner: String!
+	        $filters: IssueFilters
+	        $milestoneNumber: Int!
+	        $take: Int = 25
+	        $cursor: String
+	        $issueOrder: IssueOrder
+	      ) {
+	        repository(name: $repository, owner: $owner) {
+	          milestone(number: $milestoneNumber) {
+	            issues(first: $take, after: $cursor, filterBy: $filters, orderBy: $issueOrder) {
+	              nodes {
+	                id
+	                number
+	                titleHTML
+	                state
+	                createdAt
+	                updatedAt
+	                labels(first:10){
+	                  nodes {
+	                    name
+	                  }
+	                }
+	              }
+	            }
+	          }
+	        }
+	      }			
+	    `,
+				{
+					repository: remult.context.feedbackOptions.repo.name,
+					owner: remult.context.feedbackOptions.repo.owner,
+					milestoneNumber,
+					filters: {
+						// GitHub treats `labels: []` as "match nothing", so omit the key when unset.
+						labels: remult.context.feedbackOptions.milestones?.labels_filters?.length
+							? remult.context.feedbackOptions.milestones.labels_filters
+							: undefined,
+						states: [issueState],
+					},
+					issueOrder,
 				},
-				issueOrder,
-			},
-		)
+			)
 
-		return data.repository.milestone.issues.nodes.map((issue: any) => {
-			const labels: string[] = issue.labels.nodes.map((label: any) => label.name)
-			const hasWaitingForAnswerLabel = remult.context.feedbackOptions.highlight_label
-				? labels.some((name) => name.includes(remult.context.feedbackOptions.highlight_label!))
-				: false
-			return {
-				id: issue.id,
-				number: issue.number,
-				titleHTML: issue.titleHTML,
-				state: issue.state,
-				createdAt: issue.createdAt,
-				updatedAt: issue.updatedAt,
-				labels,
-				highlight: hasWaitingForAnswerLabel,
-			}
-		}) as {
-			id: string
-			number: number
-			titleHTML: string
-			state: string
-			createdAt: string
-			updatedAt: string
-			/** GitHub label names. */
-			labels: string[]
-			highlight: boolean
-		}[]
+			return data.repository.milestone.issues.nodes.map((issue: any) => {
+				const labels: string[] = issue.labels.nodes.map((label: any) => label.name)
+				const hasWaitingForAnswerLabel = remult.context.feedbackOptions.highlight_label
+					? labels.some((name) => name.includes(remult.context.feedbackOptions.highlight_label!))
+					: false
+				return {
+					id: issue.id,
+					number: issue.number,
+					titleHTML: issue.titleHTML,
+					state: issue.state,
+					createdAt: issue.createdAt,
+					updatedAt: issue.updatedAt,
+					labels,
+					highlight: hasWaitingForAnswerLabel,
+				}
+			}) as {
+				id: string
+				number: number
+				titleHTML: string
+				state: string
+				createdAt: string
+				updatedAt: string
+				/** GitHub label names. */
+				labels: string[]
+				highlight: boolean
+			}[]
+		}
+		throw new Error('feedback.getIssues: server-only')
 	}
 
 	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'ff/feedback' })
 	static async getIssue(issueNumber: number) {
-		const data = await getGitHub(
-			`query Issue($repository: String!, $owner: String!, $issueNumber: Int!) {
-repository(name: $repository, owner: $owner) {
-  issue(number: $issueNumber) {
-    id
-    createdAt
-    bodyHTML
-    state
-    title
-    labels(first: 25){
-      nodes{
-        id
-        name
-      }
-    }
-    comments(first: 100) {
-      nodes {
-        id
-        isMinimized
-        createdAt
-        body
-        bodyHTML
-        reactionGroups {
-          content
-          reactors(first: 1) {
-            totalCount
-          }
-        }
-      }
-    }
-  }
-}
-}
-    `,
-			{
-				repository: remult.context.feedbackOptions.repo.name,
-				owner: remult.context.feedbackOptions.repo.owner,
-				issueNumber,
-			},
-		)
+		if (import.meta.env.SSR) {
+			const data = await getGitHub(
+				`query Issue($repository: String!, $owner: String!, $issueNumber: Int!) {
+	repository(name: $repository, owner: $owner) {
+	  issue(number: $issueNumber) {
+	    id
+	    createdAt
+	    bodyHTML
+	    state
+	    title
+	    labels(first: 25){
+	      nodes{
+	        id
+	        name
+	      }
+	    }
+	    comments(first: 100) {
+	      nodes {
+	        id
+	        isMinimized
+	        createdAt
+	        body
+	        bodyHTML
+	        reactionGroups {
+	          content
+	          reactors(first: 1) {
+	            totalCount
+	          }
+	        }
+	      }
+	    }
+	  }
+	}
+	}
+	    `,
+				{
+					repository: remult.context.feedbackOptions.repo.name,
+					owner: remult.context.feedbackOptions.repo.owner,
+					issueNumber,
+				},
+			)
 
-		type Item = { bodyHTML: string; who?: string; createdAt: Date; public: boolean; title: string }
-		const items: Item[] = []
-		const firstItem: Item = {
-			bodyHTML: data.repository.issue.bodyHTML,
-			createdAt: data.repository.issue.createdAt,
-			public: true,
-			title: data.repository.issue.title,
-		}
-		items.push(firstItem)
-
-		const comments = data.repository.issue.comments.nodes as {
-			id: string
-			isMinimized: boolean
-			createdAt: string
-			body: string
-			bodyHTML: string
-			reactionGroups: [
-				{ content: 'THUMBS_UP'; reactors: { totalCount: number } },
-				{ content: 'THUMBS_DOWN'; reactors: { totalCount: number } },
-				{ content: 'LAUGH'; reactors: { totalCount: number } },
-				{ content: 'HOORAY'; reactors: { totalCount: number } },
-				{ content: 'CONFUSED'; reactors: { totalCount: number } },
-				{ content: 'HEART'; reactors: { totalCount: number } },
-				{ content: 'ROCKET'; reactors: { totalCount: number } },
-				{ content: 'EYES'; reactors: { totalCount: number } },
-			]
-		}[]
-
-		for (let i = 0; i < comments.length; i++) {
-			if (comments[i].isMinimized) {
-				const parsed = JSON.parse(comments[i].body.replaceAll('<pre>\n', '').replaceAll('\n</pre>', ''))
-				const last = items.at(-1)!
-				last.who = parsed?.author ?? '???'
-				last.public = true
-			} else {
-				const nbEye = comments[i].reactionGroups.find((c) => c.content === 'EYES')?.reactors.totalCount
-
-				items.push({
-					bodyHTML: comments[i].bodyHTML,
-					createdAt: new Date(comments[i].createdAt),
-					public: nbEye && nbEye > 0 ? true : false,
-					title: data.repository.issue.title,
-				})
+			type Item = { bodyHTML: string; who?: string; createdAt: Date; public: boolean; title: string }
+			const items: Item[] = []
+			const firstItem: Item = {
+				bodyHTML: data.repository.issue.bodyHTML,
+				createdAt: data.repository.issue.createdAt,
+				public: true,
+				title: data.repository.issue.title,
 			}
-		}
+			items.push(firstItem)
 
-		const hasWaitingForAnswerLabel = remult.context.feedbackOptions.highlight_label
-			? data.repository.issue.labels.nodes.some((label: any) =>
-					label.name.includes(remult.context.feedbackOptions.highlight_label),
-				)
-			: false
+			const comments = data.repository.issue.comments.nodes as {
+				id: string
+				isMinimized: boolean
+				createdAt: string
+				body: string
+				bodyHTML: string
+				reactionGroups: [
+					{ content: 'THUMBS_UP'; reactors: { totalCount: number } },
+					{ content: 'THUMBS_DOWN'; reactors: { totalCount: number } },
+					{ content: 'LAUGH'; reactors: { totalCount: number } },
+					{ content: 'HOORAY'; reactors: { totalCount: number } },
+					{ content: 'CONFUSED'; reactors: { totalCount: number } },
+					{ content: 'HEART'; reactors: { totalCount: number } },
+					{ content: 'ROCKET'; reactors: { totalCount: number } },
+					{ content: 'EYES'; reactors: { totalCount: number } },
+				]
+			}[]
 
-		const toRet = {
-			id: data.repository.issue.id,
-			state: data.repository.issue.state,
-			items: items.filter((c) => c.public),
-			labels: data.repository.issue.labels.nodes,
-			highlight: hasWaitingForAnswerLabel,
-			title: data.repository.issue.title,
+			for (let i = 0; i < comments.length; i++) {
+				if (comments[i].isMinimized) {
+					const parsed = JSON.parse(
+						comments[i].body.replaceAll('<pre>\n', '').replaceAll('\n</pre>', ''),
+					)
+					const last = items.at(-1)!
+					last.who = parsed?.author ?? '???'
+					last.public = true
+				} else {
+					const nbEye = comments[i].reactionGroups.find((c) => c.content === 'EYES')?.reactors.totalCount
+
+					items.push({
+						bodyHTML: comments[i].bodyHTML,
+						createdAt: new Date(comments[i].createdAt),
+						public: nbEye && nbEye > 0 ? true : false,
+						title: data.repository.issue.title,
+					})
+				}
+			}
+
+			const hasWaitingForAnswerLabel = remult.context.feedbackOptions.highlight_label
+				? data.repository.issue.labels.nodes.some((label: any) =>
+						label.name.includes(remult.context.feedbackOptions.highlight_label),
+					)
+				: false
+
+			const toRet = {
+				id: data.repository.issue.id,
+				state: data.repository.issue.state,
+				items: items.filter((c) => c.public),
+				labels: data.repository.issue.labels.nodes,
+				highlight: hasWaitingForAnswerLabel,
+				title: data.repository.issue.title,
+			}
+			return toRet
 		}
-		return toRet
+		throw new Error('feedback.getIssue: server-only')
 	}
 
 	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'ff/feedback' })
@@ -306,73 +317,76 @@ repository(name: $repository, owner: $owner) {
 		/** Extra label names applied on top of `create_label` (unknown names are ignored). */
 		labels: string[] = [],
 	) {
-		const repoInfo = await getGitHub(
-			`query RepoInfo(
-        $repository: String!
-        $owner: String!
-      ) {
-        repository(name: $repository, owner: $owner) {
-          id
-          labels(first: 25){
-            nodes{
-              id
-              name
-            }
-          }
-        }
-      }`,
-			{
-				repository: remult.context.feedbackOptions.repo.name,
-				owner: remult.context.feedbackOptions.repo.owner,
-			},
-		)
-
-		const repoInfoData = repoInfo.repository as {
-			id: string
-			labels: { nodes: { id: string; name: string }[] }
-		}
-
-		const wanted = new Set([remult.context.feedbackOptions.create_label, ...labels])
-		const labelIds = repoInfoData.labels.nodes.filter((c) => wanted.has(c.name)).map((c) => c.id)
-
-		const newIssue = await getGitHub(
-			`mutation CreateIssue($input: CreateIssueInput!) {
-      createIssue(input: $input) {
-        issue {
-          id
-          number
-        }
-      }
-    }
-    `,
-			{
-				input: {
-					repositoryId: repoInfoData.id,
-					milestoneId: milestoneId,
-					labelIds,
-					title: title ?? 'New Feedback (wo title...)',
-					body: body,
+		if (import.meta.env.SSR) {
+			const repoInfo = await getGitHub(
+				`query RepoInfo(
+	        $repository: String!
+	        $owner: String!
+	      ) {
+	        repository(name: $repository, owner: $owner) {
+	          id
+	          labels(first: 25){
+	            nodes{
+	              id
+	              name
+	            }
+	          }
+	        }
+	      }`,
+				{
+					repository: remult.context.feedbackOptions.repo.name,
+					owner: remult.context.feedbackOptions.repo.owner,
 				},
-			},
-		)
+			)
 
-		const toRet = newIssue.createIssue.issue as { id: string; number: number }
+			const repoInfoData = repoInfo.repository as {
+				id: string
+				labels: { nodes: { id: string; name: string }[] }
+			}
 
-		const feedbackMetadata =
-			remult.context.feedbackOptions.transformMetadata?.({
-				user: remult.user,
-				metadata,
-			}) ?? metadata
-		await addMetaData(toRet.id, feedbackMetadata)
+			const wanted = new Set([remult.context.feedbackOptions.create_label, ...labels])
+			const labelIds = repoInfoData.labels.nodes.filter((c) => wanted.has(c.name)).map((c) => c.id)
 
-		remult.context.feedbackOptions.saved?.({
-			number: toRet.number,
-			title: title,
-			body,
-			metadata: feedbackMetadata,
-		})
+			const newIssue = await getGitHub(
+				`mutation CreateIssue($input: CreateIssueInput!) {
+	      createIssue(input: $input) {
+	        issue {
+	          id
+	          number
+	        }
+	      }
+	    }
+	    `,
+				{
+					input: {
+						repositoryId: repoInfoData.id,
+						milestoneId: milestoneId,
+						labelIds,
+						title: title ?? 'New Feedback (wo title...)',
+						body: body,
+					},
+				},
+			)
 
-		return toRet
+			const toRet = newIssue.createIssue.issue as { id: string; number: number }
+
+			const feedbackMetadata =
+				remult.context.feedbackOptions.transformMetadata?.({
+					user: remult.user,
+					metadata,
+				}) ?? metadata
+			await addMetaData(toRet.id, feedbackMetadata)
+
+			remult.context.feedbackOptions.saved?.({
+				number: toRet.number,
+				title: title,
+				body,
+				metadata: feedbackMetadata,
+			})
+
+			return toRet
+		}
+		throw new Error('feedback.createIssue: server-only')
 	}
 
 	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'ff/feedback' })
@@ -384,115 +398,124 @@ repository(name: $repository, owner: $owner) {
 		metadata: { page: string },
 		labels: { id: string; name: string }[],
 	) {
-		const inputComment: { subjectId: string; body: string } = {
-			subjectId: issueId,
-			body,
+		if (import.meta.env.SSR) {
+			const inputComment: { subjectId: string; body: string } = {
+				subjectId: issueId,
+				body,
+			}
+
+			const inputIssue: { id: string; labelIds: string[] } = {
+				id: issueId,
+				labelIds: (remult.context.feedbackOptions.highlight_label
+					? labels.filter((c) => c.name !== remult.context.feedbackOptions.highlight_label)
+					: labels
+				).map((c) => c.id),
+			}
+
+			await getGitHub(
+				`mutation AddComment($inputComment: AddCommentInput!, $inputIssue: UpdateIssueInput!) {
+	        addComment(input: $inputComment) {
+	          commentEdge {
+	            node {
+	              id
+	            }
+	          }
+	        }
+	        updateIssue(input: $inputIssue) {
+	          issue {
+	            id
+	          }
+	        }
+	      }
+	      `,
+				{
+					inputComment,
+					inputIssue,
+				},
+			)
+
+			const feedbackMetadata =
+				remult.context.feedbackOptions.transformMetadata?.({
+					user: remult.user,
+					metadata,
+				}) ?? metadata
+			await addMetaData(issueId, feedbackMetadata)
+
+			remult.context.feedbackOptions.saved?.({
+				number: issueNumber,
+				title,
+				body,
+				metadata: feedbackMetadata,
+			})
+
+			return 'done'
 		}
-
-		const inputIssue: { id: string; labelIds: string[] } = {
-			id: issueId,
-			labelIds: (remult.context.feedbackOptions.highlight_label
-				? labels.filter((c) => c.name !== remult.context.feedbackOptions.highlight_label)
-				: labels
-			).map((c) => c.id),
-		}
-
-		await getGitHub(
-			`mutation AddComment($inputComment: AddCommentInput!, $inputIssue: UpdateIssueInput!) {
-        addComment(input: $inputComment) {
-          commentEdge {
-            node {
-              id
-            }
-          }
-        }
-        updateIssue(input: $inputIssue) {
-          issue {
-            id
-          }
-        }
-      }
-      `,
-			{
-				inputComment,
-				inputIssue,
-			},
-		)
-
-		const feedbackMetadata =
-			remult.context.feedbackOptions.transformMetadata?.({
-				user: remult.user,
-				metadata,
-			}) ?? metadata
-		await addMetaData(issueId, feedbackMetadata)
-
-		remult.context.feedbackOptions.saved?.({
-			number: issueNumber,
-			title,
-			body,
-			metadata: feedbackMetadata,
-		})
-
-		return 'done'
+		throw new Error('feedback.addCommentOnIssue: server-only')
 	}
 
 	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'ff/feedback' })
 	static async close(issueId: string, labels: { id: string; name: string }[]) {
-		const inputClose: { issueId: string } = {
-			issueId,
+		if (import.meta.env.SSR) {
+			const inputClose: { issueId: string } = {
+				issueId,
+			}
+
+			const inputIssue: { id: string; labelIds: string[] } = {
+				id: issueId,
+				labelIds: (remult.context.feedbackOptions.highlight_label
+					? labels.filter((c) => c.name !== remult.context.feedbackOptions.highlight_label)
+					: labels
+				).map((c) => c.id),
+			}
+
+			await getGitHub(
+				`mutation CloseIssue($inputIssue: UpdateIssueInput!, $inputClose: CloseIssueInput!) {
+	        updateIssue(input: $inputIssue) {
+	          issue {
+	            id
+	          }
+	        }
+	        closeIssue(input: $inputClose) {
+	          issue {
+	            id
+	          }
+	        }
+	      }
+	      `,
+				{
+					inputIssue,
+					inputClose,
+				},
+			)
+
+			return 'done'
 		}
-
-		const inputIssue: { id: string; labelIds: string[] } = {
-			id: issueId,
-			labelIds: (remult.context.feedbackOptions.highlight_label
-				? labels.filter((c) => c.name !== remult.context.feedbackOptions.highlight_label)
-				: labels
-			).map((c) => c.id),
-		}
-
-		await getGitHub(
-			`mutation CloseIssue($inputIssue: UpdateIssueInput!, $inputClose: CloseIssueInput!) {
-        updateIssue(input: $inputIssue) {
-          issue {
-            id
-          }
-        }
-        closeIssue(input: $inputClose) {
-          issue {
-            id
-          }
-        }
-      }
-      `,
-			{
-				inputIssue,
-				inputClose,
-			},
-		)
-
-		return 'done'
+		throw new Error('feedback.close: server-only')
 	}
 
 	@BackendMethod({ allowed: Allow.authenticated, apiPrefix: 'ff/feedback' })
 	static async reOpen(issueId: string) {
-		const input: { issueId: string } = {
-			issueId,
+		if (import.meta.env.SSR) {
+			const input: { issueId: string } = {
+				issueId,
+			}
+
+			await getGitHub(
+				`mutation ReOpenIssue($input: ReopenIssueInput!) {
+	        reopenIssue(input: $input) {
+	          issue {
+	            id
+	          }
+	        }
+	      }
+	      `,
+				{
+					input,
+				},
+			)
+
+			return 'done'
 		}
-
-		await getGitHub(
-			`mutation ReOpenIssue($input: ReopenIssueInput!) {
-        reopenIssue(input: $input) {
-          issue {
-            id
-          }
-        }
-      }
-      `,
-			{
-				input,
-			},
-		)
-
-		return 'done'
+		throw new Error('feedback.reOpen: server-only')
 	}
 }
