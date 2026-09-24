@@ -1,3 +1,5 @@
+import { quoteTable } from './ident'
+
 /**
  * Pure planner: diff the live PRIMARY KEYs against what the entity `id` config
  * wants, and emit the minimal ALTER plan. No DB access here - the controller
@@ -55,7 +57,7 @@ export function planPkSync(
 
 function planTable(cur: PkCurrent | undefined, table: string, after: string[]): PkPlan {
 	const before = cur?.cols ?? []
-	const addPk = `ALTER TABLE ${ident(table)} ADD PRIMARY KEY (${cols(after)});`
+	const addPk = `ALTER TABLE ${quoteTable(table)} ADD PRIMARY KEY (${cols(after)});`
 
 	if (!cur) return { table, before, after, action: 'create', sql: [addPk] }
 	if (sameOrder(cur.cols, after)) return { table, before, after, action: 'ok', sql: [] }
@@ -65,6 +67,6 @@ function planTable(cur: PkCurrent | undefined, table: string, after: string[]): 
 		before,
 		after,
 		action: 'migrate',
-		sql: [`ALTER TABLE ${ident(table)} DROP CONSTRAINT ${ident(cur.constraintName)};`, addPk],
+		sql: [`ALTER TABLE ${quoteTable(table)} DROP CONSTRAINT ${ident(cur.constraintName)};`, addPk],
 	}
 }

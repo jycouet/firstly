@@ -3,7 +3,7 @@ import { getRelationFieldInfo } from 'remult/internals'
 
 import { execStmt, liveTables } from './catalog'
 import { formatCreateIndex } from './createIndex'
-import { stripIdent } from './ident'
+import { splitKey, stripIdent, tableKey, tableKeySql, USER_SCHEMA_SQL } from './ident'
 
 /** A toOne relation's local FK columns that ideally have a covering index. */
 export type RelIndexDesired = { table: string; columns: string[] }
@@ -60,7 +60,12 @@ export function planRelationIndexes(
 						name,
 						action: 'create',
 						coveredBy: null,
-						sql: formatCreateIndex({ name, table: d.table, columns: d.columns, ifNotExists: true }),
+						sql: formatCreateIndex({
+							name,
+							...splitKey(d.table),
+							columns: d.columns,
+							ifNotExists: true,
+						}),
 					},
 		)
 	}
@@ -77,7 +82,7 @@ export async function relationIndexTargets(
 		const meta = repo(ent).metadata
 		if (meta.options.sqlExpression) continue // views: no real table
 		const names = await dbNamesOf(ent)
-		const table = stripIdent(names.$entityName)
+		const table = tableKey(names.$entityName)
 		for (const field of meta.fields.toArray()) {
 			const fi = getRelationFieldInfo(field)
 			if (!fi || fi.type !== 'toOne') continue // toMany is indexed from the toOne side
@@ -114,22 +119,22 @@ export async function createRelationIndexes(
 
 	// Every existing index (incl. PK), columns in order, per table.
 	const res = await db.createCommand().execute(`
-		SELECT c.relname AS table_name, i.relname AS index_name,
+		SELECT ${tableKeySql('ns.nspname', 'c.relname')} AS table_key, i.relname AS index_name,
 			array_agg(a.attname::text ORDER BY k.ord) AS cols
 		FROM pg_class c
-		JOIN pg_namespace ns ON ns.oid = c.relnamespace AND ns.nspname = 'public'
+		JOIN pg_namespace ns ON ns.oid = c.relnamespace AND ${USER_SCHEMA_SQL('ns.nspname')}
 		JOIN pg_index ix ON ix.indrelid = c.oid
 		JOIN pg_class i ON i.oid = ix.indexrelid
 		JOIN unnest(ix.indkey) WITH ORDINALITY AS k(attnum, ord) ON true
 		JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum = k.attnum
 		WHERE c.relkind = 'r' AND k.attnum > 0
-		GROUP BY c.relname, i.relname;
+		GROUP BY ns.nspname, c.relname, i.relname;
 	`)
 	const existing = new Map<string, ExistingIndex[]>()
 	for (const row of res.rows) {
-		const list = existing.get(row.table_name) ?? []
+		const list = existing.get(row.table_key) ?? []
 		list.push({ name: row.index_name, cols: row.cols })
-		existing.set(row.table_name, list)
+		existing.set(row.table_key, list)
 	}
 
 	const tables = await liveTables(db)

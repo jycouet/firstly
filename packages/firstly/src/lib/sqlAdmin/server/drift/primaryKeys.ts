@@ -1,7 +1,7 @@
 import { repo, type ClassType, type SqlDatabase } from 'remult'
 
 import { execStmt, liveTables } from './catalog'
-import { stripIdent } from './ident'
+import { stripIdent, tableKey, tableKeySql, USER_SCHEMA_SQL } from './ident'
 import { planPkSync, type PkCurrent, type PkDesired, type PkPlan } from './planPkSync'
 
 /**
@@ -28,21 +28,22 @@ export async function reindexPrimaryKeys(
 ): Promise<{ applied: boolean; plans: PkPlan[] }> {
 	// Live PKs from the catalog, columns kept in constraint order.
 	const res = await db.createCommand().execute(`
-		SELECT tc.table_name, tc.constraint_name, kcu.column_name
+		SELECT ${tableKeySql('tc.table_schema', 'tc.table_name')} AS table_key,
+			tc.constraint_name, kcu.column_name
 		FROM information_schema.table_constraints tc
 		JOIN information_schema.key_column_usage kcu
 			ON tc.constraint_name = kcu.constraint_name
 			AND tc.table_schema = kcu.table_schema
 		WHERE tc.constraint_type = 'PRIMARY KEY'
-			AND tc.table_schema = 'public'
-		ORDER BY tc.table_name, kcu.ordinal_position;
+			AND ${USER_SCHEMA_SQL('tc.table_schema')}
+		ORDER BY table_key, kcu.ordinal_position;
 	`)
 	const byTable = new Map<string, PkCurrent>()
 	for (const row of res.rows) {
-		let cur = byTable.get(row.table_name)
+		let cur = byTable.get(row.table_key)
 		if (!cur) {
-			cur = { table: row.table_name, constraintName: row.constraint_name, cols: [] }
-			byTable.set(row.table_name, cur)
+			cur = { table: row.table_key, constraintName: row.constraint_name, cols: [] }
+			byTable.set(row.table_key, cur)
 		}
 		cur.cols.push(row.column_name)
 	}
@@ -54,7 +55,7 @@ export async function reindexPrimaryKeys(
 		if (meta.options.sqlExpression) continue // views: no real table
 		const cols = meta.idMetadata.fields.map((f) => stripIdent(f.dbName))
 		if (cols.length === 0) continue
-		desired.push({ table: stripIdent(meta.dbName), cols })
+		desired.push({ table: tableKey(meta.dbName), cols })
 	}
 
 	const tables = await liveTables(db)
