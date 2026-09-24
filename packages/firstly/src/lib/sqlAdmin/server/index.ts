@@ -1,13 +1,23 @@
-import { remult, repo, type SqlDatabase } from 'remult'
+import { remult, repo, type ClassType, type SqlDatabase } from 'remult'
 import { Module } from 'remult/server'
 import { yellow } from '@kitql/helpers'
 
 import { log } from '..'
 import { SqlAdminController, type SqlTokensOptions } from '../SqlAdminController'
+import { SqlDriftController, type SqlDriftOptions } from '../SqlDriftController'
 import { isSqlTokenLive, SqlToken, sqlTokenEntities } from '../sqlTokenEntities'
 import { hashToken } from './token'
 
 export type { SqlTokensOptions, SqlTokenPool } from '../SqlAdminController'
+export type { SqlDriftFlag, SqlDriftOptions } from '../SqlDriftController'
+export { formatCreateIndex, sqlCreateIndex, type IndexOptions } from './drift/createIndex'
+
+/** Minimal shape of a remult `Module`, so any module list passes without a cast. */
+type ModuleTree = { entities?: ClassType<unknown>[]; modules?: ModuleTree[] }
+
+/** Every entity of a module list, incl. nested submodules - feed it to `drift.entities`. */
+export const collectEntities = (mods: ModuleTree[]): ClassType<unknown>[] =>
+	mods.flatMap((m) => [...(m.entities ?? []), ...collectEntities(m.modules ?? [])])
 
 export type SqlAdminOptions = {
 	/**
@@ -36,6 +46,13 @@ export type SqlAdminOptions = {
 	 * no mint endpoint, no request hook. Needs `sqlAdmin: true`. See `<SqlTokens />`.
 	 */
 	tokens?: SqlTokensOptions | false
+	/**
+	 * Schema drift checks for `<SqlDrift />`: each one dry-runs first, then applies on demand.
+	 * Every flag is opt-in, nothing is registered without at least one.
+	 *
+	 * @example drift: { entities: () => collectEntities(modules), relationIndexes: true }
+	 */
+	drift?: SqlDriftOptions
 }
 
 // Framework-agnostic: remult hands initRequest the native request (SvelteKit
@@ -89,18 +106,23 @@ export const sqlAdmin: (opts?: SqlAdminOptions) => Module<unknown> = (opts) => {
 	}
 	const prefix = tokens?.prefix ?? 'ffsql_'
 	const execPath = `${tokens?.apiPath ?? '/api'}/ff/sqlAdmin/exec`
+	const drift = opts?.drift
+	const driftOn =
+		!!drift && !!(drift.relationIndexes || drift.primaryKeys || drift.nullable || drift.orphanColumns)
 
 	return new Module({
 		key: 'sqlAdmin',
 		// Before the app's own initRequest, so a bearer is resolved before cookies would be.
 		priority: -900,
 		entities: tokens ? Object.values(sqlTokenEntities) : [],
-		controllers: enabled ? [SqlAdminController] : [],
+		controllers: [...(enabled ? [SqlAdminController] : []), ...(driftOn ? [SqlDriftController] : [])],
 		initApi: async () => {
 			if (opts?.dp) {
 				SqlAdminController.dp = await opts.dp()
+				SqlDriftController.dp = SqlAdminController.dp
 			}
 			SqlAdminController.options = { tokens }
+			SqlDriftController.options = driftOn ? drift : undefined
 			if (enabled) log.info(`AI Hint: visit ${yellow(path)} to query raw SQL.`)
 		},
 		initRequest: tokens
