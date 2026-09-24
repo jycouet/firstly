@@ -1,5 +1,15 @@
 # firstly
 
+## 0.10.5
+
+### Patch Changes
+
+- [#380](https://github.com/jycouet/firstly/pull/380) [`84d2acf`](https://github.com/jycouet/firstly/commit/84d2acfb2898a83e9334442b72e7ff130b2f3991) Thanks [@renovate](https://github.com/apps/renovate)! - mail: nodemailer 10 (requires Node 20+; remote content fetched over HTTPS now validates TLS certificates).
+
+- [#377](https://github.com/jycouet/firstly/pull/377) [`d200b62`](https://github.com/jycouet/firstly/commit/d200b62a027eda358ea4ead9be73bce5974b0e8d) Thanks [@jycouet](https://github.com/jycouet)! - sqlAdmin: server-only code is wrapped in `if (import.meta.env.SSR) { ... }`, so Vite 7 (Rollup) client builds no longer fail on `node:crypto` and the server helpers stay out of the client bundle.
+
+- [#378](https://github.com/jycouet/firstly/pull/378) [`525ce42`](https://github.com/jycouet/firstly/commit/525ce424ba0affaec73e08e0c8cb906d20d21859) Thanks [@jycouet](https://github.com/jycouet)! - feedback & carbone: BackendMethod bodies are wrapped in `if (import.meta.env.SSR) { ... }`, so their server code (GitHub GraphQL queries, Carbone calls) no longer ships in the client bundle.
+
 ## 0.10.4
 
 ### Patch Changes
