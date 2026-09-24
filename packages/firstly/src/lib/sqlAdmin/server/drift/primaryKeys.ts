@@ -1,5 +1,6 @@
 import { repo, type ClassType, type SqlDatabase } from 'remult'
 
+import { execStmt, liveTables } from './catalog'
 import { stripIdent } from './ident'
 import { planPkSync, type PkCurrent, type PkDesired, type PkPlan } from './planPkSync'
 
@@ -56,12 +57,14 @@ export async function reindexPrimaryKeys(
 		desired.push({ table: stripIdent(meta.dbName), cols })
 	}
 
-	const plans = planPkSync([...byTable.values()], desired)
+	const tables = await liveTables(db)
+
+	const plans = planPkSync([...byTable.values()], desired, tables)
 
 	if (opts?.apply) {
 		for (const plan of plans) {
 			// Fail-fast: any throw aborts the shared transaction -> full rollback.
-			for (const stmt of plan.sql) await db.createCommand().execute(stmt)
+			for (const stmt of plan.sql) await execStmt(db, stmt)
 		}
 	}
 

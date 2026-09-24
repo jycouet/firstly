@@ -1,6 +1,7 @@
 import { repo, type ClassType, type SqlDatabase } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
+import { execStmt } from './catalog'
 import { stripIdent } from './ident'
 import { planDropColumns, type DropPlan, type TableColumns } from './planDropColumns'
 
@@ -79,7 +80,7 @@ export async function dropColumns(
 		// raw client input, so the interpolated identifiers are trusted.
 		dropped = opts.columns.filter((c) => orphan.has(`${c.table}.${c.column}`))
 		for (const { table, column } of dropped) {
-			await db.createCommand().execute(`ALTER TABLE "${table}" DROP COLUMN "${column}";`)
+			await execStmt(db, `ALTER TABLE "${table}" DROP COLUMN "${column}";`)
 		}
 	}
 

@@ -1,6 +1,7 @@
 import { repo, type ClassType, type SqlDatabase } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
+import { execStmt } from './catalog'
 import { stripIdent } from './ident'
 import {
 	planNullableDrift,
@@ -80,12 +81,10 @@ export async function syncNullable(
 
 		for (const p of fixed) {
 			const col = `ALTER TABLE "${p.table}" ALTER COLUMN "${p.column}"`
-			if (p.dropDefault) await db.createCommand().execute(`${col} DROP DEFAULT;`)
-			if (p.dropNotNull) await db.createCommand().execute(`${col} DROP NOT NULL;`)
+			if (p.dropDefault) await execStmt(db, `${col} DROP DEFAULT;`)
+			if (p.dropNotNull) await execStmt(db, `${col} DROP NOT NULL;`)
 			if (p.blankToNull) {
-				await db
-					.createCommand()
-					.execute(`UPDATE "${p.table}" SET "${p.column}" = NULL WHERE "${p.column}" = '';`)
+				await execStmt(db, `UPDATE "${p.table}" SET "${p.column}" = NULL WHERE "${p.column}" = '';`)
 			}
 		}
 	}

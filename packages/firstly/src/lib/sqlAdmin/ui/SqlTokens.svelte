@@ -6,6 +6,7 @@
 	 */
 	import { repo } from 'remult'
 
+	import { errorMessage } from '../../core/helper.js'
 	import { log } from '../index'
 	import { SqlAdminController } from '../SqlAdminController'
 	import {
@@ -73,7 +74,7 @@
 			name = ''
 			await refresh()
 		} catch (err) {
-			error = err instanceof Error ? err.message : String(err)
+			error = errorMessage(err)
 		} finally {
 			busy = false
 		}
@@ -86,7 +87,7 @@
 			await repo(SqlToken).update(t.id, { revokedAt: new Date() })
 			await refresh()
 		} catch (err) {
-			error = err instanceof Error ? err.message : String(err)
+			error = errorMessage(err)
 		} finally {
 			busy = false
 		}
@@ -100,7 +101,7 @@
 			await repo(SqlToken).delete(t)
 			await refresh()
 		} catch (err) {
-			error = err instanceof Error ? err.message : String(err)
+			error = errorMessage(err)
 		} finally {
 			busy = false
 		}
@@ -114,7 +115,7 @@
 			await SqlAdminController.purgeTokens()
 			await refresh()
 		} catch (err) {
-			error = err instanceof Error ? err.message : String(err)
+			error = errorMessage(err)
 		} finally {
 			busy = false
 		}
