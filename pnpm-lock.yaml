@@ -56,8 +56,8 @@ catalogs:
       specifier: 4.4.0
       version: 4.4.0
     nodemailer:
-      specifier: 8.0.5
-      version: 8.0.5
+      specifier: 10.0.10
+      version: 10.0.10
   svelte:
     svelte:
       specifier: 5.40.0
@@ -207,7 +207,7 @@ importers:
         version: 1.2.2
       nodemailer:
         specifier: catalog:prod
-        version: 8.0.5
+        version: 10.0.10
       svelte-sonner:
         specifier: catalog:ui
         version: 1.2.1(svelte@5.40.0(@typescript-eslint/types@8.59.3))
@@ -3720,9 +3720,9 @@ packages:
   node-mock-http@1.0.4:
     resolution: {integrity: sha512-8DY+kFsDkNXy1sJglUfuODx1/opAGJGyrTuFqEoN90oRc2Vk0ZbD4K2qmKXBBEhZQzdKHIVfEJpDU8Ak2NJEvQ==}
 
-  nodemailer@8.0.5:
-    resolution: {integrity: sha512-0PF8Yb1yZuQfQbq+5/pZJrtF6WQcjTd5/S4JOHs9PGFxuTqoB/icwuB44pOdURHJbRKX1PPoJZtY7R4VUoCC8w==}
-    engines: {node: '>=6.0.0'}
+  nodemailer@10.0.10:
+    resolution: {integrity: sha512-He9XskOFms62SyAKkLu8CcGcYHAo+BSHSsORI8s4PJH8qZgZY4L4lDfvyN0twvmbpyG+eGrxpyBlskj9d9rJ8A==}
+    engines: {node: '>=20.0.0'}
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -8394,7 +8394,7 @@ snapshots:
 
   node-mock-http@1.0.4: {}
 
-  nodemailer@8.0.5: {}
+  nodemailer@10.0.10: {}
 
   normalize-path@3.0.0: {}
 
