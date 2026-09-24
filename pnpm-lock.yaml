@@ -80,14 +80,14 @@ catalogs:
       version: 6.2.1
   testing:
     '@playwright/test':
-      specifier: 1.61.1
-      version: 1.61.1
+      specifier: 1.63.0
+      version: 1.63.0
     '@vitest/browser':
       specifier: 3.2.3
       version: 3.2.3
     playwright:
-      specifier: 1.61.1
-      version: 1.61.1
+      specifier: 1.63.0
+      version: 1.63.0
     vitest:
       specifier: 3.2.3
       version: 3.2.3
@@ -148,7 +148,7 @@ importers:
         version: 0.9.0(eslint@10.7.0(jiti@2.6.1))(oxlint@1.66.0)(prettier-plugin-astro@0.14.1)(prettier@3.9.6)(svelte@5.40.0(@typescript-eslint/types@8.59.3))(typescript@5.9.3)
       '@playwright/test':
         specifier: catalog:testing
-        version: 1.61.1
+        version: 1.63.0
       eslint:
         specifier: catalog:kitql
         version: 10.7.0(jiti@2.6.1)
@@ -244,13 +244,13 @@ importers:
         version: 7.0.0-dev.20260112.1
       '@vitest/browser':
         specifier: catalog:testing
-        version: 3.2.3(playwright@1.61.1)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.33.0)(yaml@2.8.3))(vitest@3.2.3)
+        version: 3.2.3(playwright@1.63.0)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.33.0)(yaml@2.8.3))(vitest@3.2.3)
       eslint:
         specifier: catalog:kitql
         version: 10.7.0(jiti@2.6.1)
       playwright:
         specifier: catalog:testing
-        version: 1.61.1
+        version: 1.63.0
       remult:
         specifier: catalog:best
         version: 3.3.18
@@ -1772,9 +1772,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@playwright/test@1.61.1':
-    resolution: {integrity: sha512-8nKv6+0RJSL9FE4jYOEGXnPeM/Hg12qZpmqzZjRh3qM0Y7c3z1mrOTfFLids72RDQYVh9WpLEfR5WdpNX4fkig==}
-    engines: {node: '>=18'}
+  '@playwright/test@1.63.0':
+    resolution: {integrity: sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==}
+    engines: {node: '>=20'}
     hasBin: true
 
   '@polka/url@1.0.0-next.29':
@@ -3082,11 +3082,6 @@ packages:
     resolution: {integrity: sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==}
     engines: {node: '>=6 <7 || >=8'}
 
-  fsevents@2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
-    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
-    os: [darwin]
-
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -3970,14 +3965,14 @@ packages:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
 
-  playwright-core@1.61.1:
-    resolution: {integrity: sha512-h7Qlt6m4REp25qvIdvbDtVmD4LqVXfpRxhORv9L0jzETM05p4fuPJ3dKyuSXQxDSbXnmS79HAgi9589lGSpLkg==}
-    engines: {node: '>=18'}
+  playwright-core@1.63.0:
+    resolution: {integrity: sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg==}
+    engines: {node: '>=20'}
     hasBin: true
 
-  playwright@1.61.1:
-    resolution: {integrity: sha512-DWnY5o3YbLWK4GovuAVwpqL+1VwGNdUGrRr++8j8PtQQzvAVZUIMjKQ90fY689sEJZJBbZVw1rXaOKSTitkzPQ==}
-    engines: {node: '>=18'}
+  playwright@1.63.0:
+    resolution: {integrity: sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==}
+    engines: {node: '>=20'}
     hasBin: true
 
   pnpm-workspace-yaml@1.6.0:
@@ -6327,9 +6322,9 @@ snapshots:
   '@pagefind/windows-x64@1.5.2':
     optional: true
 
-  '@playwright/test@1.61.1':
+  '@playwright/test@1.63.0':
     dependencies:
-      playwright: 1.61.1
+      playwright: 1.63.0
 
   '@polka/url@1.0.0-next.29': {}
 
@@ -6893,7 +6888,7 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vitest/browser@3.2.3(playwright@1.61.1)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.33.0)(yaml@2.8.3))(vitest@3.2.3)':
+  '@vitest/browser@3.2.3(playwright@1.63.0)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.33.0)(yaml@2.8.3))(vitest@3.2.3)':
     dependencies:
       '@testing-library/dom': 10.4.1
       '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.1)
@@ -6905,7 +6900,7 @@ snapshots:
       vitest: 3.2.3(@types/debug@4.1.13)(@types/node@25.5.2)(@vitest/browser@3.2.3)(jiti@2.6.1)(lightningcss@1.33.0)(yaml@2.8.3)
       ws: 8.20.1
     optionalDependencies:
-      playwright: 1.61.1
+      playwright: 1.63.0
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -7673,9 +7668,6 @@ snapshots:
       graceful-fs: 4.2.11
       jsonfile: 4.0.0
       universalify: 0.1.2
-
-  fsevents@2.3.2:
-    optional: true
 
   fsevents@2.3.3:
     optional: true
@@ -8889,13 +8881,11 @@ snapshots:
 
   pify@4.0.1: {}
 
-  playwright-core@1.61.1: {}
+  playwright-core@1.63.0: {}
 
-  playwright@1.61.1:
+  playwright@1.63.0:
     dependencies:
-      playwright-core: 1.61.1
-    optionalDependencies:
-      fsevents: 2.3.2
+      playwright-core: 1.63.0
 
   pnpm-workspace-yaml@1.6.0:
     dependencies:
@@ -9853,7 +9843,7 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.13
       '@types/node': 25.5.2
-      '@vitest/browser': 3.2.3(playwright@1.61.1)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.33.0)(yaml@2.8.3))(vitest@3.2.3)
+      '@vitest/browser': 3.2.3(playwright@1.63.0)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.33.0)(yaml@2.8.3))(vitest@3.2.3)
     transitivePeerDependencies:
       - jiti
       - less
