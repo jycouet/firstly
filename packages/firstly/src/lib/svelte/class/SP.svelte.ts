@@ -2,11 +2,20 @@
 // Why packages/ui pnpm check fails with goto and page?
 //   - OK it's not a sveltekit project... But this is never used! So why is it checking it ?!
 // @ts-ignore
+import { VERSION } from '@sveltejs/kit'
+
 import { goto } from '$app/navigation'
 // @ts-ignore
 import { page } from '$app/state'
 
 import { debounce } from '../helpers/debounce.js'
+
+// Kit 3 throws in dev on `keepFocus`/`noScroll` (merged into `reset`), kit 2 ignores `reset`.
+const KEEP_POSITION_GOTO_OPTS = (
+	parseInt(VERSION) >= 3
+		? { replace: true, reset: false }
+		: { replaceState: true, keepFocus: true, noScroll: true }
+) as Parameters<typeof goto>[1]
 
 const CONFIG_DELIMITER = ';'
 const NULL_URL_VALUE = '__null__'
@@ -467,9 +476,7 @@ export class SP<T extends Record<string, any>> {
 		if (strSearch === window.location.search) return
 
 		goto(`${window.location.pathname}${strSearch}`, {
-			keepFocus: true,
-			replaceState: true,
-			noScroll: true,
+			...KEEP_POSITION_GOTO_OPTS,
 			...this.options.gotoOpts,
 		})
 

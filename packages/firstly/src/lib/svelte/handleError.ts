@@ -1,6 +1,15 @@
-import type { HandleClientError } from '@sveltejs/kit'
-
-type HandleClientErrorInput = Parameters<HandleClientError>[0]
+// Structural on purpose: the hook's input/output types differ between kit 2 and kit 3.
+type HandleClientErrorInput = {
+	error: unknown
+	event: { url: URL }
+	/** kit 2 only */
+	message?: string
+	status?: number
+}
+type HandleClientErrorOutput = void | { message: string; [key: string]: unknown }
+export type HandleClientError = (
+	input: HandleClientErrorInput,
+) => HandleClientErrorOutput | Promise<HandleClientErrorOutput>
 
 export type HandleClientErrorMiddleware = (next: HandleClientError) => HandleClientError
 
@@ -50,11 +59,15 @@ const RETRY_WINDOW_MS = 10_000
  */
 export function withStaleDeployReload(): HandleClientErrorMiddleware {
 	return (next) => (input: HandleClientErrorInput) => {
-		if (CHUNK_LOAD_RE.test(String(input.message)) && reloadOnce(input.event.url.href)) {
+		if (CHUNK_LOAD_RE.test(errorText(input)) && reloadOnce(input.event.url.href)) {
 			return // page is unloading; no error surfaces
 		}
 		return next(input)
 	}
+}
+
+function errorText({ error, message }: HandleClientErrorInput): string {
+	return `${error instanceof Error ? error.message : String(error)} ${message ?? ''}`
 }
 
 /** Hard-reload `href` unless it already failed within the guard window. Returns true if reloading. */

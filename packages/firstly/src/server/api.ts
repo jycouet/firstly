@@ -1,11 +1,11 @@
 import { repo } from 'remult'
 import { remultApi } from 'remult/remult-sveltekit'
 import { carbone } from 'firstly/carbone/server'
+import { mail } from 'firstly/mail/server'
 
 import { ApiItem } from '$modules/demo/ApiItem'
 import { Task } from '$modules/demo/Task'
 import { MailController } from '$modules/mail/MailController'
-import { mail } from '$lib/mail/server'
 
 export const api = remultApi({
 	entities: [Task, ApiItem],

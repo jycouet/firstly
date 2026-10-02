@@ -65,7 +65,11 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 				},
 			],
 			debug: options?.stripper?.debug ?? false,
-			nullify: options?.stripper?.nullify ?? ['$env/static/private', '$env/dynamic/private'],
+			nullify: options?.stripper?.nullify ?? [
+				'$env/static/private',
+				'$env/dynamic/private',
+				'$app/env/private',
+			],
 		}),
 	)
 

@@ -1,5 +1,6 @@
+import { loadRepo } from 'firstly/svelte'
+
 import { ApiItem } from '$modules/demo/ApiItem'
-import { loadRepo } from '$lib/svelte'
 
 import type { PageServerLoad } from './$types'
 
