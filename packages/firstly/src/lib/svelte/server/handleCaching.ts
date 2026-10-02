@@ -1,5 +1,3 @@
-import type { Handle } from '@sveltejs/kit'
-
 // Cacheable static assets by extension (used to skip the no-cache header).
 const STATIC_ASSET_RE = /\.(js|css|ico|png|jpg|jpeg|gif|svg|webp|avif|woff2?|ttf|eot)$/
 
@@ -25,7 +23,14 @@ const STATIC_ASSET_RE = /\.(js|css|ico|png|jpg|jpeg|gif|svg|webp|avif|woff2?|ttf
  * export const handle = sequence(handleCaching, ...rest)
  * ```
  */
-export const handleCaching: Handle = async ({ event, resolve }) => {
+// Generic instead of kit's `Handle`, which moved from `@sveltejs/kit` to `@sveltejs/kit/hooks` in kit 3.
+export const handleCaching = async <E extends { url: URL }>({
+	event,
+	resolve,
+}: {
+	event: E
+	resolve: (event: E) => Response | Promise<Response>
+}): Promise<Response> => {
 	const response = await resolve(event)
 	const { pathname } = event.url
 

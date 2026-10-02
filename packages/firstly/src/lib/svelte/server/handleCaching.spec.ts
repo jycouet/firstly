@@ -5,7 +5,6 @@ import { handleCaching } from './handleCaching'
 async function run(pathname: string, status = 200) {
 	const response = new Response('x', { status })
 	const event = { url: new URL(`https://app.test${pathname}`) }
-	// @ts-expect-error minimal event
 	const res = await handleCaching({ event, resolve: async () => response })
 	return res.headers.get('Cache-Control')
 }

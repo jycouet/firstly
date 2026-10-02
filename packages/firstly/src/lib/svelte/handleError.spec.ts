@@ -84,6 +84,16 @@ describe('withStaleDeployReload', () => {
 		vi.useRealTimers()
 	})
 
+	it('detects chunk failures from the error alone (kit 3 input has no message)', () => {
+		const res = stackHandleClientError(withStaleDeployReload(), () => () => ({ message: 'logged' }))({
+			kind: 'unknown',
+			error: new TypeError(CHUNK_MSG),
+			event: { url: new URL('https://app.test/page') },
+		} as unknown as Parameters<ReturnType<typeof stackHandleClientError>>[0])
+		expect(assign).toHaveBeenCalledWith('https://app.test/page')
+		expect(res).toBeUndefined()
+	})
+
 	it('passes non-chunk errors through to next', () => {
 		const res = handle({ message: 'random' })
 		expect(assign).not.toHaveBeenCalled()
