@@ -73,7 +73,7 @@
 		{#each cols as cell, i (cell.col ?? `${cell.kind}-${i}`)}
 			{#if cell.col}
 				{@const col = cell.col}
-				{#if mode === 'readonly'}
+				{#if mode === 'readonly' || cell.field?.apiUpdateAllowed(draft) === false}
 					<FF_Cell key={col} ui={cell.ui} label={{ html: cell.caption }}>
 						<span data-ff-readonly data-input-type={cell.inputType}
 							><FF_CellValue {cell} row={draft} /></span

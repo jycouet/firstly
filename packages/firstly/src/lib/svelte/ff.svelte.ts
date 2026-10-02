@@ -17,6 +17,7 @@ import {
 } from 'remult'
 
 import type { LocalizedMessage } from '../core/FF_Validators.js'
+import { errorMessage } from '../core/helper.js'
 import { dialog, type DialogClose, type DialogOptions, type DialogResult } from './dialog.svelte.js'
 
 /**
@@ -82,8 +83,11 @@ export type FF_RepoOptions<Entity> = {
 	include?: MembersToInclude<Entity>
 	/** When false, the query is skipped (last result kept) until it flips true. */
 	enabled?: boolean
-	/** Aggregations to compute alongside the page (paginate mode only). `$count` is always returned. */
-	aggregate?: AggregateOptions<Entity>
+	/**
+	 * Aggregations to compute alongside the page (paginate mode only). `$count` is always returned.
+	 * `false` skips the count entirely (for stores where counting is a full scan); `aggregates` stays undefined.
+	 */
+	aggregate?: AggregateOptions<Entity> | false
 }
 
 /**
@@ -146,6 +150,12 @@ export type FF_Issue = {
 }
 
 /** Classify a thrown read error into an {@link FF_Issue} (best-effort status sniffing). */
+// Remult REST errors are plain `{ message }` objects, not `Error` instances.
+const errorText = (e: unknown) =>
+	typeof e === 'object' && e && 'message' in e && typeof e.message === 'string'
+		? e.message
+		: String(e)
+
 function toIssue(e: unknown): FF_Issue {
 	const err = e as { httpStatusCode?: number; status?: number; message?: string } | undefined
 	const status = err?.httpStatusCode ?? err?.status
@@ -222,7 +232,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 							this.#fireItems()
 						},
 						error: (e) => {
-							this.error = e instanceof Error ? e.message : String(e)
+							this.error = errorMessage(e)
 							this.loading.init = false
 							this.#fireIssue(toIssue(e))
 						},
@@ -254,7 +264,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 						orderBy: o.orderBy,
 						pageSize: keepCount ?? o.pageSize ?? 25,
 						include: o.include,
-						aggregate: { ...o.aggregate },
+						...(o.aggregate === false ? {} : { aggregate: { ...o.aggregate } }),
 					})
 					.paginator()
 				if (seq !== this.#seq) return
@@ -291,7 +301,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 			}
 		} catch (e) {
 			if (seq === this.#seq) {
-				this.error = e instanceof Error ? e.message : String(e)
+				this.error = errorMessage(e)
 				this.#fireIssue(toIssue(e))
 			}
 		} finally {
@@ -427,7 +437,7 @@ class FF_RepoHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 			await after()
 			return res
 		} catch (e) {
-			this.error = e instanceof Error ? e.message : String(e)
+			this.error = errorMessage(e)
 			throw e
 		} finally {
 			this.loading[flag] = false

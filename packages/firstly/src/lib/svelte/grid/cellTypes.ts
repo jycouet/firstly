@@ -9,7 +9,8 @@ import type { ClassType, EntityFilter, EntityOrderBy, FieldMetadata } from 'remu
  *   lazy  (server-safe): `() => import('./Badge.svelte')`
  * The renderer resolves it once (cached) and unwraps a `{ default }` module.
  */
-export type CellComponent = () => Component | Promise<Component> | Promise<{ default: Component }>
+export type CellComponent = () =>
+	Component<any> | Promise<Component<any>> | Promise<{ default: Component<any> }>
 
 /** Per-field UI hints. width/margins are PERCENTAGES of the parent row. */
 export interface CellUI {
@@ -122,6 +123,8 @@ declare module 'remult' {
 export interface ActionConfig<E = any> {
 	/** Fields shown in this action's form. Omit = inherit the list `cells`. */
 	cells?: CellInput<E>[]
+	/** Create only: initial values of the new row. */
+	defaults?: Partial<E> | (() => Partial<E>)
 	/** Dialog title (e.g. from the row being edited). */
 	title?: (row: E) => string
 	/** Override the action's button icon (mdi path string). */

@@ -1,6 +1,7 @@
 packages:
  - docs
  - packages/*
+ - apps/*
 
 # Supply-chain cooldown: don't install package versions published less than a day
 # ago (mitigates a compromised-release window). Trusted publishers are excluded so

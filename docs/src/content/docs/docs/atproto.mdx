@@ -1,0 +1,240 @@
+---
+title: AT Protocol (data provider)
+---
+
+Use a user's PDS as a Remult database. A lexicon collection becomes an entity, `repo()` works as
+usual, and every read / write goes through XRPC (`com.atproto.repo.*` and the spaces alpha
+`com.atproto.space.*` / `com.atproto.simplespace.*`).
+
+Nothing is stored on your server: data lives in the user's repo, your app is only a client.
+
+## Installation
+
+```bash
+npm add firstly@latest -D
+```
+
+## Define an entity
+
+Extend `AtRecord` and decorate with a plain `@Entity` whose key is the lexicon NSID. The NSID is
+the collection, the id is the AT URI (`id: 'uri'` and `dataProvider` are inherited from
+`AtRecord`). Every other field is the lexicon record body.
+
+```ts
+import { Entity, Fields } from 'remult'
+import { AtRecord } from 'firstly/atproto'
+
+@Entity<Note>('fun.myapp.note', { allowApiRead: true, allowApiCrud: 'authenticated' })
+export class Note extends AtRecord {
+	@Fields.string({ required: true }) title = ''
+	@Fields.string() body = ''
+	@Fields.boolean() done = false
+	@Fields.date() createdAt = new Date()
+}
+```
+
+`AtRecord` gives you the meta fields the provider owns:
+
+| field   | role                                                          |
+| ------- | ------------------------------------------------------------- |
+| `uri`   | id. `at://did/collection/rkey` (space-scoped uris are longer) |
+| `did`   | repo (author). Defaults to the provider's did on insert       |
+| `rkey`  | record key. Defaults to a TID on insert                       |
+| `cid`   | content hash, used as `swapRecord` on update                  |
+| `space` | `null` = public repo, else the space uri the record lives in  |
+
+Field values are JSON-encoded with the regular Remult converters, `null` is dropped (lexicons have
+no null), `$type` is set to the NSID.
+
+## Wire the provider
+
+`AtRecord` sets `dataProvider: viaAtprotoConfig`: the entity asks `atprotoConfig.dataProvider`
+for its provider at runtime (so atproto entities and Postgres entities can live in the same
+`remultApi`). Set it once on the server:
+
+```ts
+// src/server/api.ts (or any server-only file)
+import { atprotoConfig, AtprotoDataProvider } from 'firstly/atproto'
+
+// No `service`: reads resolve each did to its own PDS. Writes need a session (see OAuth below).
+const publicDp = new AtprotoDataProvider({})
+
+atprotoConfig.dataProvider = (dp) => {
+	if (dp.isProxy) return undefined // client side: keep the REST proxy
+	return publicDp
+}
+```
+
+Return `undefined` on the client so browser code still calls your API, which then hits the PDS.
+
+### Options
+
+```ts
+new AtprotoDataProvider({
+	service: 'https://pds.example', // own PDS, for writes. Optional: reads resolve each did's PDS
+	did: 'did:plc:...', // default repo for reads without a `did` filter and inserts
+	auth: () => accessJwt, // bearer token for writes on your own repo
+	xrpc: myClient, // BYO client (OAuth session, tests); `service` then optional
+	resolveService: (did) => resolvePds(did), // where other repos live (default: plc / did:web)
+	spaceAuth: (space) => fetchWithCredential, // reads of other members inside a space
+	pageSize: 100, // listRecords page size. Default = endpoint max: 100 (repo), 1000 (space)
+	maxCount: 1000, // `count()` walks at most this many records
+	validate: true, // ask the PDS to validate against known lexicons
+})
+```
+
+## Read
+
+A PDS can only list one `(did, collection)` at a time, so a `did` is required: either in the
+filter or as the provider default.
+
+```ts
+import { repo } from 'remult'
+
+// One repo
+await repo(Note).find({ where: { did: 'did:plc:abc' }, orderBy: { rkey: 'desc' }, limit: 20 })
+
+// Several repos (one listRecords each)
+await repo(Note).find({ where: { did: ['did:plc:abc', 'did:plc:def'] } })
+
+// By uri = getRecord
+await repo(Note).findId('at://did:plc:abc/fun.myapp.note/3lb4...')
+```
+
+What is pushed to the PDS: `did`, `rkey`, `uri`, `space` (and `collection` for `AtAny`), ANDed at
+the top level or as an `$or` where every branch pins a did. Anything else (`done: true`,
+`title: { $contains }`, other sort keys) is applied in memory after the listing is fetched. Sorting by `rkey` / `uri` with a plain filter maps to a raw PDS page, which
+is the cheap path for a grid.
+
+`count()` and `groupBy()` have no PDS endpoint: they walk pages up to `maxCount` and stop. Any
+paginated UI counts (`FF_Grid` / `ff(E).many` in paginate mode ask for `$count`), so on a big
+collection that is `maxCount / pageSize` extra requests per render. Opt out per query with
+`aggregate: false` (`count={false}` on `FF_Grid`) - the grid then shows no total.
+
+```svelte
+<FF_Grid entity={Note} where={{ did }} count={false} />
+```
+
+Nothing is cached: every `find` hits the PDS, what you read is what is there.
+
+## Write
+
+```ts
+const note = await repo(Note).insert({ title: 'hello' }) // rkey = TID, did = provider did
+await repo(Note).update(note.uri, { done: true }) // putRecord with swapRecord (409 on conflict)
+await repo(Note).delete(note.uri)
+```
+
+Writes always go through the session client, so the provider needs `auth` / an authenticated
+`xrpc` for the target repo. Batch with `transaction`: writes are buffered and committed as one
+`applyWrites` (one repo, one space per transaction).
+
+```ts
+await dp.transaction(async (tx) => {
+	const r = repo(Note, tx)
+	await r.insert({ title: 'a' })
+	await r.insert({ title: 'b' })
+})
+```
+
+## Any collection
+
+`AtAny` reads any collection without declaring an entity: `collection` is the NSID, `value` the
+raw record. Filter by `did` + `collection`.
+
+```ts
+import { AtAny } from 'firstly/atproto'
+
+await repo(AtAny).find({ where: { did, collection: 'app.bsky.feed.post' }, limit: 50 })
+```
+
+`dp.describeRepo(did)` lists the collections present in a repo.
+
+## Identity helpers
+
+```ts
+import { createSession, resolveHandle, resolvePds } from 'firstly/atproto'
+
+const did = await resolveHandle('jyc.dev')
+const pds = await resolvePds(did)
+const session = await createSession('jyc.dev', appPassword) // app-password login, prefer OAuth
+```
+
+### OAuth
+
+Plug an `@atproto/oauth-client-node` session in as the `xrpc` client, one provider per user:
+
+```ts
+import { remult } from 'remult'
+import { AtprotoDataProvider, xrpcClient } from 'firstly/atproto'
+
+const byDid = new Map<string, AtprotoDataProvider>()
+
+atprotoConfig.dataProvider = (dp) => {
+	if (dp.isProxy) return undefined
+	const s = remult.context.at // your OAuthSession, put there by the hook
+	if (!s) return publicDp
+	let mine = byDid.get(s.did)
+	if (!mine) {
+		mine = new AtprotoDataProvider({
+			did: s.did,
+			xrpc: xrpcClient({ service: '', fetch: (url, init) => s.fetchHandler(String(url), init) }),
+		})
+		byDid.set(s.did, mine)
+	}
+	return mine
+}
+```
+
+## Spaces (alpha)
+
+A space is a permissioned area shared by several repos. Records in a space have a longer uri
+(`at://authority/space/type/skey/did/collection/rkey`) and `space` set.
+
+```ts
+import { AtSpace, AtSpaceMember, spaceUri } from 'firstly/atproto'
+
+const space = await repo(AtSpace).insert({ type: 'fun.myapp.workspace', skey: 'main' })
+await repo(AtSpaceMember).insert({
+	space: space.uri,
+	did: 'did:plc:friend',
+	read: true,
+	write: true,
+})
+
+// Write in the space, in your own repo
+await repo(Note).insert({ title: 'draft', space: space.uri })
+
+// Read a member's records in the space
+await repo(Note).find({ where: { did: 'did:plc:friend', space: space.uri } })
+```
+
+Reading another member's repo in a space needs a space credential (DPoP-bound). Give the provider
+a `spaceAuth` that returns a `fetch` presenting one:
+
+```ts
+import { createDpopKey, obtainSpaceCredential, spaceCredentialFetch } from 'firstly/atproto'
+
+const key = await createDpopKey()
+spaceAuth: async (space) =>
+	spaceCredentialFetch(await obtainSpaceCredential({ session, space, key }))
+```
+
+`AtSpace` and `AtSpaceMember` are gated by `Roles_Atproto.Atproto_Admin` and show up in the hub
+so you can manage spaces from the admin UI. They cannot be used inside `transaction`.
+
+## Gotchas
+
+- `did` filter (or default did) is mandatory. `AtSpaceMember` needs a `space` filter, `AtAny` a
+  `collection` filter.
+- Only equalities on the axes are pushed down; `not`, ranges, `contains` run in memory on the
+  fetched listing.
+- Keep one provider instance per identity (public + one per logged-in user): foreign PDS clients
+  and space credentials are memoised on the instance.
+- Writes to a PDS you cannot resolve (`resolveService` off, BYO `xrpc`) go to the session client.
+
+## Demo
+
+The live demo (`apps/atproto` in the repo) is deployed at
+[atproto.firstly.fun](https://atproto.firstly.fun): public reads of any repo, OAuth login, CRUD
+on a custom lexicon, spaces.

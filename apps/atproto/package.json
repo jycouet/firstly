@@ -1,0 +1,37 @@
+{
+  "name": "firstly-atproto",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "svelte-kit sync",
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node build",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "lint": "kitql-lint -d",
+    "format": "kitql-lint -f -d"
+  },
+  "dependencies": {
+    "@atproto/oauth-client-node": "0.5.7",
+    "@kitql/helpers": "catalog:kitql",
+    "@mdi/js": "catalog:ui",
+    "clsx": "catalog:ui",
+    "esm-env": "catalog:tooling",
+    "remult": "catalog:best",
+    "svelte-sonner": "catalog:ui",
+    "tailwind-merge": "catalog:ui"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-node": "catalog:sveltekit",
+    "@sveltejs/kit": "catalog:sveltekit",
+    "@sveltejs/vite-plugin-svelte": "catalog:sveltekit",
+    "@tailwindcss/vite": "catalog:ui",
+    "svelte": "catalog:svelte",
+    "svelte-check": "catalog:svelte",
+    "tailwindcss": "catalog:ui",
+    "tslib": "catalog:tooling",
+    "vite": "catalog:tooling"
+  }
+}

@@ -80,6 +80,15 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'Data Providers',
+					items: [
+						{
+							label: 'AT Protocol',
+							link: '/docs/atproto',
+						},
+					],
+				},
+				{
 					label: 'Svelte',
 					items: [
 						{

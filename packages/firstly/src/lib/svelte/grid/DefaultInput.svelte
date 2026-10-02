@@ -15,6 +15,14 @@
 	<input {id} {placeholder} type="number" bind:value />
 {:else if type === 'checkbox'}
 	<input {id} type="checkbox" {checked} onchange={(e) => (value = e.currentTarget.checked)} />
+{:else if type === 'textarea'}
+	<textarea
+		{id}
+		{placeholder}
+		rows="4"
+		value={String(value ?? '')}
+		oninput={(e) => (value = e.currentTarget.value)}
+	></textarea>
 {:else}
 	<input
 		{id}
@@ -26,7 +34,8 @@
 {/if}
 
 <style>
-	input {
+	input,
+	textarea {
 		width: 100%;
 		box-sizing: border-box;
 		padding: 5px 7px;
@@ -38,5 +47,8 @@
 	}
 	input[type='checkbox'] {
 		width: auto;
+	}
+	textarea {
+		resize: vertical;
 	}
 </style>

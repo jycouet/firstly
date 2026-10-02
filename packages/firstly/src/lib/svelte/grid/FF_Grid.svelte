@@ -29,6 +29,8 @@
 		orderBy?: EntityOrderBy<T>
 		strategy?: ManyStrategy
 		pageSize?: number
+		/** paginate: `false` skips the total count (no `$count` request, no number in the toolbar). */
+		count?: boolean
 		enabled?: boolean
 		/** Display mode. `'readonly'` disables create/edit/delete; `'edit'` (default) enables them.
 		 *  Extensible via `CellMode` (future: `'filter'`). */
@@ -41,6 +43,12 @@
 		delete?: ActionConfig<T> | false
 		/** Placeholder rows shown during the first load (kept the same height to avoid a shift). */
 		skeletonRows?: number
+		/** After a successful create / edit / delete from the grid's dialog. */
+		onchange?: (e: { type: 'insert' | 'update' | 'delete'; item: T }) => void
+		/** Rows become clickable (the actions column excluded). */
+		onrowclick?: (row: T) => void
+		/** Marks rows with `data-ff-grid-selected` (highlighted by the default skin). */
+		selected?: (row: T) => boolean
 	}
 	let {
 		entity,
@@ -49,12 +57,16 @@
 		orderBy,
 		strategy: strategyProp,
 		pageSize: pageSizeProp,
+		count: countProp = true,
 		enabled = true,
 		mode = 'edit',
 		insert,
 		update,
 		delete: deleteProp,
 		skeletonRows = 2,
+		onchange,
+		onrowclick,
+		selected,
 	}: Props = $props()
 
 	const hub = untrack(() => (repo(entity).metadata.options.hub ?? {}) as HubConfig<T>)
@@ -65,7 +77,15 @@
 
 	const m = untrack(() =>
 		ff(entity).many(
-			() => ({ where: where ?? hub.where, orderBy: sort, pageSize, enabled }),
+			// load / listen have no paging: an explicit pageSize becomes the fetch limit.
+			() => ({
+				where: where ?? hub.where,
+				orderBy: sort,
+				pageSize,
+				limit: strategy !== 'paginate' && pageSizeProp ? pageSizeProp : undefined,
+				aggregate: countProp ? undefined : false,
+				enabled,
+			}),
 			strategy,
 		),
 	) as unknown as FF_Many<T, 'paginate'>
@@ -81,13 +101,17 @@
 			text: DefaultInput,
 			number: DefaultInput,
 			checkbox: DefaultInput,
+			textarea: DefaultInput,
 			...cfg.cell?.inputs,
 		},
 	})
 
 	const listCells = $derived(cells ?? hub.cells)
 	const cols = $derived(buildCells(m.meta, listCells, { defaultSortable }))
-	const count = $derived(m.aggregates?.$count ?? m.items.length)
+	// paginate without a count: no total to show (items.length is only the loaded part).
+	const count = $derived(
+		m.aggregates?.$count ?? (strategy === 'paginate' ? undefined : m.items.length),
+	)
 
 	const isReadonly = $derived(mode === 'readonly')
 	const insertCfg = $derived(isReadonly ? false : (insert ?? hub.insert ?? {}))
@@ -123,7 +147,8 @@
 		creating = true
 		errors = {}
 		saveError = ''
-		m.createInDialog(dialogBody)
+		const d = insertCfg !== false ? insertCfg.defaults : undefined
+		m.createInDialog(dialogBody, { defaults: typeof d === 'function' ? d() : d })
 	}
 </script>
 
@@ -145,10 +170,12 @@
 				canSave={creating ? m.meta.apiInsertAllowed() : m.meta.apiUpdateAllowed(draft)}
 				onsave={async () => {
 					try {
+						const wasCreating = creating
 						await m.save()
 						errors = {}
 						saveError = ''
 						close({ ok: true })
+						onchange?.({ type: wasCreating ? 'insert' : 'update', item: draft })
 					} catch (err) {
 						const ms = (err as { modelState?: Record<string, string> })?.modelState
 						errors = ms ?? {}
@@ -158,7 +185,10 @@
 				ondelete={!creating && canDelete
 					? async () => {
 							const res = await m.confirmRemove(draft)
-							if (res.ok) close({ ok: true })
+							if (res.ok) {
+								close({ ok: true })
+								onchange?.({ type: 'delete', item: draft })
+							}
 						}
 					: undefined}
 			/>
@@ -173,7 +203,7 @@
 				<Icon size="1.05rem" data={newIcon} />
 			</button>
 		{/if}
-		<span data-ff-grid-count>{count}</span>
+		{#if count !== undefined}<span data-ff-grid-count>{count}</span>{/if}
 	</div>
 	{#if m.error && !m.draft}<p data-ff-grid-error>{m.error}</p>{/if}
 	<table>
@@ -206,9 +236,17 @@
 				{/each}
 			{:else}
 				{#each m.items as row (idOf(row))}
-					<tr>
+					<tr
+						data-ff-grid-selected={selected?.(row) || undefined}
+						data-ff-grid-clickable={onrowclick ? '' : undefined}
+					>
 						{#each cols as cell, i (cell.col ?? `${cell.kind}-${i}`)}
-							<td data-col={cell.col} style:text-align={cell.align} class={cell.class}>
+							<td
+								data-col={cell.col}
+								style:text-align={cell.align}
+								class={cell.class}
+								onclick={onrowclick ? () => onrowclick(row) : undefined}
+							>
 								<FF_CellValue {cell} {row} />
 							</td>
 						{/each}
@@ -262,6 +300,12 @@
 	}
 	:global([data-ff-grid] tbody tr:hover) {
 		background: color-mix(in srgb, currentColor 6%, transparent);
+	}
+	:global([data-ff-grid] tr[data-ff-grid-clickable] td) {
+		cursor: pointer;
+	}
+	:global([data-ff-grid] tr[data-ff-grid-selected]) {
+		background: color-mix(in srgb, currentColor 12%, transparent);
 	}
 	:global([data-ff-grid-toolbar]) {
 		display: flex;

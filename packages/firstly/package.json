@@ -115,6 +115,10 @@
       "types": "./esm/changeLog/server/index.d.ts",
       "default": "./esm/changeLog/server/index.js"
     },
+    "./atproto": {
+      "types": "./esm/atproto/index.d.ts",
+      "default": "./esm/atproto/index.js"
+    },
     "./cron/server": {
       "types": "./esm/cron/server/index.d.ts",
       "default": "./esm/cron/server/index.js"
