@@ -34,14 +34,14 @@ catalogs:
     '@tsconfig/svelte': 5.0.2
     tslib: 2.8.0
     vite-plugin-watch-and-run: 1.8.2
-    vite-plugin-kit-routes: 1.0.6
-    vite-plugin-stripper: 0.10.4
+    vite-plugin-kit-routes: 1.1.0
+    vite-plugin-stripper: 0.10.5
     esm-env: 1.2.2
     prettier: 3.9.6
 
   kitql:
     '@kitql/helpers': 0.8.15
-    '@kitql/eslint-config': 0.9.0
+    '@kitql/eslint-config': 0.9.1
     eslint: 10.11.0
 
   testing:
