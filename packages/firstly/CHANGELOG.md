@@ -1,5 +1,11 @@
 # firstly
 
+## 0.10.7
+
+### Patch Changes
+
+- [#388](https://github.com/jycouet/firstly/pull/388) [`7eca18a`](https://github.com/jycouet/firstly/commit/7eca18af4a55e2481dc81d38ba9e4f7f0d0f01a0) Thanks [@jycouet](https://github.com/jycouet)! - sqlAdmin: reads now run as a read-only Postgres role upserted at boot (`readPool`, default `'auto'`, `false` to opt out, or your own pool); `tokens.pool` is removed. SQL and results now travel encoded (`ffsql1:`) from `<SqlAdmin />` and `ff-sql`, so WAF rules stop blocking them; plain SQL still works.
+
 ## 0.10.6
 
 ### Patch Changes
