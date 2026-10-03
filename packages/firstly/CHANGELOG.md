@@ -1,5 +1,11 @@
 # firstly
 
+## 0.10.8
+
+### Patch Changes
+
+- [#393](https://github.com/jycouet/firstly/pull/393) [`37feeb8`](https://github.com/jycouet/firstly/commit/37feeb820a2a7867a449d14181e3be9f72df3ec5) Thanks [@jycouet](https://github.com/jycouet)! - Dependencies are `^` ranges instead of exact pins, so apps share one copy of each with their own deps. `tailwindcss` is no longer a dependency (firstly never imports it). `vite-plugin-kit-routes` 1.1.1 and `vite-plugin-stripper` 0.10.6 publish ranges too, so `@kitql/*` and `esrap` dedupe as well.
+
 ## 0.10.7
 
 ### Patch Changes
