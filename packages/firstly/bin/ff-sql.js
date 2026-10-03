@@ -15,6 +15,7 @@ const HELP = `ff-sql - run SQL through a firstly sql token
   SQL
 
   --json          raw JSON instead of a table
+  --raw           send plain SQL, not ffsql1: (servers older than the encoding)
   --              end of flags, everything after is SQL
   --origin=URL    the app to query (or FF_SQL_ORIGIN)
   --api-path=P    remult api root (default /api)
@@ -72,7 +73,7 @@ try {
 	res = await fetch(`${origin.replace(TRAILING_SLASH, '')}${apiPath}/ff/sqlAdmin/exec`, {
 		method: 'POST',
 		headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-		body: JSON.stringify({ args: [encode(cmd)] }),
+		body: JSON.stringify({ args: [cli.raw ? cmd : encode(cmd)] }),
 	})
 } catch (err) {
 	console.error(`${origin} unreachable: ${err.message}`)

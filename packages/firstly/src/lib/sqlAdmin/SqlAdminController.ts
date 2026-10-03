@@ -1,4 +1,5 @@
 import { BackendMethod, remult, repo, SqlDatabase, type UserInfo } from 'remult'
+import { Log } from '@kitql/helpers'
 
 import { FF_Role } from '../core/common'
 import { Roles_SqlAdmin } from './Roles_SqlAdmin'
@@ -56,6 +57,8 @@ export type SqlTokensOptions = {
 export const SERVER_ONLY = 'sqlAdmin: server-only'
 export const SQL_ADMINS = [Roles_SqlAdmin.SqlAdmin_Admin, FF_Role.FF_Role_Admin]
 const CALL_LOG_CMD_MAX = 4000
+// Not `log` from '../index': that barrel pulls the svelte components into the server.
+const log = new Log('sqlAdmin')
 /** Retention is a housekeeping sweep, not something to pay for on every query. */
 const CALL_LOG_SWEEP_EVERY_MS = 3_600_000
 let lastCallLogSweep = 0
@@ -115,9 +118,16 @@ export class SqlAdminController {
 			return wire ? encodeSqlWire(JSON.stringify(res)) : res
 		} catch (err) {
 			if (!wire) throw err
-			// No stack: it repeats the message in clear.
 			const msg = err instanceof Error ? err.message : String(err)
-			throw Object.assign(new Error(encodeSqlWire(msg)), { stack: undefined })
+			// remult logs the message it sends, so the clear one goes to the server log here.
+			log.error(msg)
+			// No stack: it repeats the message in clear. Status flags kept, or a 403 turns into a 400.
+			const { httpStatusCode, isForbiddenError } = (err ?? {}) as any
+			throw Object.assign(new Error(encodeSqlWire(msg)), {
+				stack: undefined,
+				httpStatusCode,
+				isForbiddenError,
+			})
 		}
 	}
 

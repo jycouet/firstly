@@ -2,7 +2,7 @@
 // the cli. Plain JS like its caller: bin/ ships unbuilt.
 
 /** Flags that take no value. */
-const BOOLEAN = ['json', 'help']
+const BOOLEAN = ['json', 'help', 'raw']
 /** Flags that need one, as `--x=y` or `--x y`. */
 const VALUED = ['origin', 'api-path']
 
@@ -13,11 +13,11 @@ const FLAG = /^--[a-z][\w-]*(=|$)/
 
 /**
  * @param {string[]} argv
- * @returns {{ help: boolean, json: boolean, origin?: string, apiPath?: string, sql: string, error?: string }}
+ * @returns {{ help: boolean, json: boolean, raw: boolean, origin?: string, apiPath?: string, sql: string, error?: string }}
  */
 export function parseArgs(argv) {
 	/** @type {any} */
-	const out = { help: false, json: false, sql: '' }
+	const out = { help: false, json: false, raw: false, sql: '' }
 	const positional = []
 	const seen = new Set()
 

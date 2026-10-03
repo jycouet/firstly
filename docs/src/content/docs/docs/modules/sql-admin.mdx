@@ -91,7 +91,8 @@ Some firewalls (Cloudflare, ModSecurity rule sets) block requests containing `SE
 responses containing Postgres errors. `<SqlAdmin />` and `ff-sql` send the SQL as
 `ffsql1:<base64>`, and a request sent that way gets its result (or error message) back encoded
 the same way, as a string. It is a disguise, not security. Plain SQL still works and gets plain
-JSON. `encodeSqlWire` / `decodeSqlWire` are exported from `firstly/sqlAdmin`.
+JSON (`ff-sql --raw` sends it that way, for a server older than the encoding). `encodeSqlWire` /
+`decodeSqlWire` are exported from `firstly/sqlAdmin`.
 
 ## SQL tokens - run SQL from outside the browser
 

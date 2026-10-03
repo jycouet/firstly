@@ -10,6 +10,7 @@ const STATEMENT_TIMEOUT = '30s'
 type PgPool = SqlTokenPool & {
 	options: Record<string, any>
 	query(sql: string, values?: unknown[]): Promise<{ rows: any[] }>
+	end?(): Promise<void>
 }
 
 /** Schemas the app can grant on: it owns them, or is a member of their owner. */
@@ -44,8 +45,9 @@ export const readOnlyRoleName = (db: string) =>
 /** The app's own password: every instance derives the same role password, nothing to store. */
 function appSecret(options: Record<string, any>): string | undefined {
 	if (options.connectionString) {
-		const pw = new URL(options.connectionString).password
-		if (pw) return decodeURIComponent(pw)
+		const url = new URL(options.connectionString)
+		const pw = url.searchParams.get('password') || decodeURIComponent(url.password)
+		if (pw) return pw
 	}
 	if (typeof options.password === 'string' && options.password) return options.password
 	return process.env.PGPASSWORD || undefined
@@ -54,10 +56,13 @@ function appSecret(options: Record<string, any>): string | undefined {
 function withCredentials(options: Record<string, any>, user: string, password: string) {
 	const { connectionString, ...rest } = options
 	// pg lets the connection string win over `user`/`password`, so rewrite the URL itself.
+	// Query params, not userinfo: a hostless URL (unix socket) silently drops userinfo, and pg reads params first.
 	if (connectionString) {
 		const url = new URL(connectionString)
-		url.username = user
-		url.password = password
+		url.username = ''
+		url.password = ''
+		url.searchParams.set('user', user)
+		url.searchParams.set('password', password)
 		return { ...rest, connectionString: url.toString(), max: 2 }
 	}
 	return { ...rest, user, password, max: 2 }
@@ -93,6 +98,11 @@ export async function ensureReadOnlyPool(
 	if (state?.ready) return { pool: ro, role, updated: false }
 
 	await setup(pool, db, role, password)
+	// Handing back a pool that cannot log in would break every read instead of falling back.
+	if (!(await connectsAs(ro, role))) {
+		await ro.end?.().catch(() => {})
+		throw new Error(`role ${role} was set up but cannot log in (pg_hba, pooler user naming?)`)
+	}
 	return { pool: ro, role, updated: true }
 }
 
@@ -100,14 +110,16 @@ async function readState(app: PgPool, ro: PgPool, role: string) {
 	const row = (await app.query(STATE_SQL, [role])).rows[0]
 	if (!row) return undefined
 	// Logging in proves the derived password still matches (the app's may have rotated).
-	const loggedIn =
-		!row.extra &&
-		(await ro.query('select 1').then(
-			() => true,
-			() => false,
-		))
+	const loggedIn = !row.extra && (await connectsAs(ro, role))
 	return { extra: row.extra as boolean, ready: loggedIn && row.ready === true }
 }
+
+/** As `role`, not merely connected: a dropped credential would log in as the app. */
+const connectsAs = (ro: PgPool, role: string) =>
+	ro.query('select current_user as u').then(
+		(r) => r.rows[0]?.u === role,
+		() => false,
+	)
 
 async function setup(pool: PgPool, db: string, role: string, password: string) {
 	const r = quote(role)
