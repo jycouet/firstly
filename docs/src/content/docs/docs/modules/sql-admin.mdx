@@ -72,7 +72,7 @@ That's it! 🎉
 `READ ONLY` is a transaction mode, not a permission: your app role can still write. So by default
 (`readPool: 'auto'`), with nothing to configure, reads run as a dedicated role instead.
 
-At boot it upserts `ff_readonly_<db>` through the app's own connection: `LOGIN`, `SELECT` on every
+At boot it checks the role in one query and only (re)creates it when something is off. It upserts `ff_readonly_<db>` through the app's own connection: `LOGIN`, `SELECT` on every
 schema of this database (and on tables created later), `default_transaction_read_only = on`,
 `statement_timeout = '30s'`. Its password is derived from the app's, so every instance agrees and
 nothing is stored. The app role needs `CREATEROLE` (a Coolify `POSTGRES_USER` is a superuser);

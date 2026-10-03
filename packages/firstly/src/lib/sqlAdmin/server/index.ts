@@ -96,7 +96,9 @@ async function resolveReadPool(opt: SqlAdminOptions['readPool'] = 'auto') {
 	if (!app) return undefined
 	try {
 		const { ensureReadOnlyPool } = await import('./readOnlyRole')
-		return await ensureReadOnlyPool(app)
+		const ro = await ensureReadOnlyPool(app)
+		if (ro.updated) log.info(`reads run as ${yellow(ro.role)} (role created or updated).`)
+		return ro.pool
 	} catch (err) {
 		// Boot must survive: the READ ONLY transaction still guards reads.
 		const msg = err instanceof Error ? err.message : String(err)
