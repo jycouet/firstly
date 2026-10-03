@@ -31,3 +31,11 @@ describe('sqlAdmin options', () => {
 		expect(collectEntities([{ entities: [A], modules: [{ entities: [B] }] }])).toEqual([A, B])
 	})
 })
+
+describe('readOnlyRoleName', () => {
+	it('is a safe identifier within 63 chars', async () => {
+		const { readOnlyRoleName } = await import('./readOnlyRole')
+		expect(readOnlyRoleName('My-App.db')).toBe('ff_readonly_my_app_db')
+		expect(readOnlyRoleName('x'.repeat(100)).length).toBe(63)
+	})
+})

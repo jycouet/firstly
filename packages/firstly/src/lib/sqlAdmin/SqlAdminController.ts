@@ -50,8 +50,6 @@ export type SqlTokensOptions = {
 	apiPath?: string
 	/** @default 30 */
 	callLogRetentionDays?: number
-	/** @deprecated use `sqlAdmin({ readPool })`, which also covers the console. */
-	pool?: SqlTokenPool
 }
 
 // Thrown when a server-only body runs on the client (its `import.meta.env.SSR` block is gone there).
@@ -62,12 +60,12 @@ const CALL_LOG_CMD_MAX = 4000
 const CALL_LOG_SWEEP_EVERY_MS = 3_600_000
 let lastCallLogSweep = 0
 
-function getDb() {
+export function getDb() {
 	return SqlAdminController.dp ?? SqlDatabase.getDb()
 }
 
 /** The pg pool remult wraps, if any. `_getSourceSql` is internal but has been stable since remult 1. */
-function poolFrom(db: SqlDatabase): SqlTokenPool | undefined {
+export function poolFrom(db: SqlDatabase): SqlTokenPool | undefined {
 	const pool = (db as any)._getSourceSql?.()?.pool
 	return typeof pool?.connect === 'function' ? pool : undefined
 }
@@ -135,7 +133,7 @@ export class SqlAdminController {
 				}
 				const { readOnlySql } = await import('./server/readOnlySql')
 				const o = SqlAdminController.options
-				return await readOnlySql(db, o.readPool ?? o.tokens?.pool ?? poolFrom(db), cmd)
+				return await readOnlySql(db, o.readPool ?? poolFrom(db), cmd)
 			} catch (err) {
 				const { enrichSqlError } = await import('./server/sqlError')
 				throw await enrichSqlError(db, err, cmd)

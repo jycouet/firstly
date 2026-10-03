@@ -36,7 +36,7 @@ export const api = remultApi({
 			// Defaults to `SqlDatabase.getDb()` (the active Remult data provider).
 			// dp: async () => myCustomSqlDatabase,
 			// OPTIONAL (recommended in prod) - run reads as a read-only role, see below.
-			// readPool: new pg.Pool({ connectionString: env.DATABASE_URL_READONLY, max: 2 }),
+			// readPool: 'auto',
 		}),
 	],
 })
@@ -69,22 +69,22 @@ That's it! 🎉
 
 ## Read-only role
 
-`READ ONLY` is a transaction mode, not a permission: reads still run as your app role, which can
-write. For a real guarantee, create a read-only role once (as the database owner - Coolify's
-`POSTGRES_USER`, for example) and hand its URL to `readPool`:
-
-```sql
-CREATE ROLE app_ro LOGIN PASSWORD '...';
-GRANT pg_read_all_data TO app_ro; -- PG14+
-ALTER ROLE app_ro SET default_transaction_read_only = on;
-ALTER ROLE app_ro SET statement_timeout = '30s';
-```
+`READ ONLY` is a transaction mode, not a permission: by default reads run as your app role, which
+can write. `readPool: 'auto'` fixes that with no env to set:
 
 ```ts
-import pg from 'pg'
-
-sqlAdmin({ readPool: new pg.Pool({ connectionString: env.DATABASE_URL_READONLY, max: 2 }) })
+sqlAdmin({ readPool: 'auto' })
 ```
+
+At boot it upserts `ff_readonly_<db>` through the app's own connection: `LOGIN`, `SELECT` on every
+schema of this database (and on tables created later), `default_transaction_read_only = on`,
+`statement_timeout = '30s'`. Its password is derived from the app's, so every instance agrees and
+nothing is stored. The app role needs `CREATEROLE` (a Coolify `POSTGRES_USER` is a superuser);
+without it boot logs an error and reads stay on the app role. A pre-existing role of that name with
+more than read rights is refused.
+
+Prefer to manage the role yourself? Pass a pool: `readPool: new pg.Pool({ connectionString:
+env.DATABASE_URL_READONLY, max: 2 })`.
 
 The `READ ONLY` transaction and one-statement rule stay on top. `write` always uses the app role.
 
