@@ -32,14 +32,10 @@ catalogs:
     '@tsconfig/svelte': 5.0.2
     tslib: 2.8.0
     vite-plugin-watch-and-run: 1.8.2
-    vite-plugin-kit-routes: 1.0.6
-    vite-plugin-stripper: 0.10.4
-    esm-env: 1.2.2
     prettier: 3.9.6
 
   kitql:
-    '@kitql/helpers': 0.8.15
-    '@kitql/eslint-config': 0.9.1
+    '@kitql/eslint-config': 0.9.2
     eslint: 10.11.0
 
   testing:
@@ -64,18 +60,23 @@ catalogs:
     '@sveltejs/package': 2.5.4
 
   ui:
-    '@mdi/js': 7.4.47
     tailwindcss: 4.3.0
     '@tailwindcss/vite': 4.3.0
-    tailwind-merge: 3.7.0
-    clsx: 2.1.1
-    svelte-sonner: 1.2.1
 
-  prod:
-    '@types/nodemailer': 8.0.0
-    nodemailer: 10.0.10
-    cron: 4.4.0
-    '@layerstack/utils': 1.0.0
+  # firstly's dependencies: ranges, not pins (published as-is), so apps can share one copy.
+  lib-dep-publish:
+    '@kitql/helpers': ^0.8.15
+    '@layerstack/utils': ^1.0.0
+    '@mdi/js': ^7.4.47
+    '@types/nodemailer': ^8.0.0
+    clsx: ^2.1.1
+    cron: ^4.4.0
+    esm-env: ^1.2.2
+    nodemailer: ^10.0.10
+    svelte-sonner: ^1.2.1
+    tailwind-merge: ^3.7.0
+    vite-plugin-kit-routes: ^1.1.1
+    vite-plugin-stripper: ^0.10.6
 
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: true
