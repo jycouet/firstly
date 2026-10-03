@@ -49,13 +49,13 @@ export type SqlAdminOptions = {
 	/**
 	 * Run `read` queries (console and tokens) as a read-only role instead of the
 	 * app role. `'auto'` upserts `ff_readonly_<db>` at boot through the app's own
-	 * pool (needs CREATEROLE); or pass a pool you connected yourself. Without it,
-	 * reads rely on the READ ONLY transaction alone.
+	 * pool (needs CREATEROLE), or pass a pool you connected yourself. `false`, or a
+	 * database other than Postgres, leaves reads to the READ ONLY transaction alone.
 	 *
-	 * @example readPool: 'auto'
+	 * @default 'auto'
 	 * @example readPool: new pg.Pool({ connectionString: env.DATABASE_URL_READONLY, max: 2 })
 	 */
-	readPool?: 'auto' | SqlTokenPool
+	readPool?: 'auto' | false | SqlTokenPool
 	/**
 	 * Bearer tokens that can run SQL from outside a browser session (a script,
 	 * an AI on a dev machine). Nothing is registered unless set - no entities,
@@ -89,19 +89,20 @@ function readPathname(req: any): string {
 	}
 }
 
-async function resolveReadPool(opt: SqlAdminOptions['readPool']) {
-	if (opt !== 'auto') return opt
+async function resolveReadPool(opt: SqlAdminOptions['readPool'] = 'auto') {
+	if (opt !== 'auto') return opt || undefined
 	const app = poolFrom(getDb())
-	if (!app) {
-		log.error(`readPool: 'auto' needs a Postgres data provider - reads use the app role.`)
-		return undefined
-	}
+	// Not Postgres (or a custom `dp`): nothing to create, the transaction guard applies.
+	if (!app) return undefined
 	try {
 		const { ensureReadOnlyPool } = await import('./readOnlyRole')
 		return await ensureReadOnlyPool(app)
 	} catch (err) {
 		// Boot must survive: the READ ONLY transaction still guards reads.
-		log.error(`readPool: 'auto' failed - reads use the app role.`, err)
+		const msg = err instanceof Error ? err.message : String(err)
+		log.error(
+			`readPool: 'auto' failed (${msg}) - reads use the app role. ${yellow('readPool: false')} silences this.`,
+		)
 		return undefined
 	}
 }
@@ -154,7 +155,10 @@ export const sqlAdmin: (opts?: SqlAdminOptions) => Module<unknown> = (opts) => {
 				SqlAdminController.dp = await opts.dp()
 				SqlDriftController.dp = SqlAdminController.dp
 			}
-			SqlAdminController.options = { tokens, readPool: await resolveReadPool(opts?.readPool) }
+			SqlAdminController.options = {
+				tokens,
+				readPool: enabled ? await resolveReadPool(opts?.readPool) : undefined,
+			}
 			SqlDriftController.options = driftOn ? drift : undefined
 			if (enabled) log.info(`AI Hint: visit ${yellow(path)} to query raw SQL.`)
 		},
