@@ -11,6 +11,7 @@ export {
 	type SqlCapability,
 	type SqlTokenTtl,
 } from './sqlTokenEntities'
+export { decodeSqlWire, encodeSqlWire, isSqlWire, SQL_WIRE_PREFIX } from './sqlWire'
 export { default as SqlAdmin } from './ui/SqlAdmin.svelte'
 export { default as SqlDrift } from './ui/SqlDrift.svelte'
 export { default as SqlTokens } from './ui/SqlTokens.svelte'

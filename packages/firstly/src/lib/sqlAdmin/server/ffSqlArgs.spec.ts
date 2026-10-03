@@ -28,6 +28,7 @@ describe('ff-sql parseArgs', () => {
 	it('refuses a value on a boolean flag', () => {
 		expect(parseArgs(['--json=false']).error).toBe('--json takes no value')
 		expect(parseArgs(['--json', 'select 1'])).toMatchObject({ json: true, sql: 'select 1' })
+		expect(parseArgs(['--raw', 'select 1'])).toMatchObject({ raw: true, sql: 'select 1' })
 	})
 
 	it('refuses a typo instead of running the query without it', () => {

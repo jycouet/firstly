@@ -15,6 +15,7 @@ const HELP = `ff-sql - run SQL through a firstly sql token
   SQL
 
   --json          raw JSON instead of a table
+  --raw           send plain SQL, not ffsql1: (servers older than the encoding)
   --              end of flags, everything after is SQL
   --origin=URL    the app to query (or FF_SQL_ORIGIN)
   --api-path=P    remult api root (default /api)
@@ -27,6 +28,13 @@ camelCase and need double quotes: "createdAt", not created_at. A heredoc avoids
 fighting the shell over single quotes, and keeps the token out of the line.`
 
 const TRAILING_SLASH = /\/$/
+// Same scheme as `sqlWire.ts`: keeps WAF rules from matching SQL in transit.
+const WIRE = 'ffsql1:'
+const encode = (s) => WIRE + Buffer.from(s, 'utf8').toString('base64')
+const decode = (s) =>
+	typeof s === 'string' && s.startsWith(WIRE)
+		? Buffer.from(s.slice(WIRE.length), 'base64').toString('utf8')
+		: s
 
 const cli = parseArgs(process.argv.slice(2))
 
@@ -65,7 +73,7 @@ try {
 	res = await fetch(`${origin.replace(TRAILING_SLASH, '')}${apiPath}/ff/sqlAdmin/exec`, {
 		method: 'POST',
 		headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-		body: JSON.stringify({ args: [cmd] }),
+		body: JSON.stringify({ args: [cli.raw ? cmd : encode(cmd)] }),
 	})
 } catch (err) {
 	console.error(`${origin} unreachable: ${err.message}`)
@@ -75,11 +83,13 @@ try {
 const body = await res.json().catch(() => null)
 if (!res.ok) {
 	// 403 here is almost always a dead token: expired, revoked, or minted elsewhere.
-	console.error(`${res.status} ${body?.message ?? res.statusText}`)
+	console.error(`${res.status} ${decode(body?.message) ?? res.statusText}`)
 	process.exit(1)
 }
 
-const { rows, rowCount, took } = body.data ?? body
+let data = body.data ?? body
+if (typeof data === 'string') data = JSON.parse(decode(data))
+const { rows, rowCount, took } = data
 // Table and rows on stdout, the summary on stderr, so `| jq` and `> file` stay clean.
 const out = new Console(process.stdout)
 if (cli.json) out.log(JSON.stringify(rows, null, 2))

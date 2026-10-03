@@ -35,6 +35,8 @@ export const api = remultApi({
 			// OPTIONAL - override the SqlDatabase used to execute queries.
 			// Defaults to `SqlDatabase.getDb()` (the active Remult data provider).
 			// dp: async () => myCustomSqlDatabase,
+			// OPTIONAL - reads run as an auto-created read-only role, see below.
+			// readPool: 'auto', // or false, or your own pg.Pool
 		}),
 	],
 })
@@ -65,6 +67,33 @@ user.roles = [Roles_SqlAdmin.SqlAdmin_Admin]
 
 That's it! 🎉
 
+## Read-only role
+
+`READ ONLY` is a transaction mode, not a permission: your app role can still write. So by default
+(`readPool: 'auto'`), with nothing to configure, reads run as a dedicated role instead.
+
+At boot it checks the role in one query and only (re)creates it when something is off. It upserts `ff_readonly_<db>` through the app's own connection: `LOGIN`, `SELECT` on every
+schema of this database (and on tables created later), `default_transaction_read_only = on`,
+`statement_timeout = '30s'`. Its password is derived from the app's, so every instance agrees and
+nothing is stored. The app role needs `CREATEROLE` (a Coolify `POSTGRES_USER` is a superuser);
+without it boot logs an error and reads stay on the app role. `readPool: false` turns it off; on a
+database other than Postgres it does nothing. A pre-existing role of that name with
+more than read rights is refused.
+
+Prefer to manage the role yourself? Pass a pool: `readPool: new pg.Pool({ connectionString:
+env.DATABASE_URL_READONLY, max: 2 })`.
+
+The `READ ONLY` transaction and one-statement rule stay on top. `write` always uses the app role.
+
+## Behind a WAF
+
+Some firewalls (Cloudflare, ModSecurity rule sets) block requests containing `SELECT ... FROM`, or
+responses containing Postgres errors. `<SqlAdmin />` and `ff-sql` send the SQL as
+`ffsql1:<base64>`, and a request sent that way gets its result (or error message) back encoded
+the same way, as a string. It is a disguise, not security. Plain SQL still works and gets plain
+JSON (`ff-sql --raw` sends it that way, for a server older than the encoding). `encodeSqlWire` /
+`decodeSqlWire` are exported from `firstly/sqlAdmin`.
+
 ## SQL tokens - run SQL from outside the browser
 
 Bearer tokens for a script or an AI on a dev machine that needs a fact only the production database
@@ -82,8 +111,7 @@ sqlAdmin({
 		// OPTIONAL - the token then acts as its minter with their LIVE roles
 		// (lose admin, tokens die). Without it the token is its own authority.
 		userFromId: (id) => loadUser(id),
-		// OPTIONAL - prefix: 'ffsql_', apiPath: '/api', callLogRetentionDays: 30,
-		// pool (defaults to the Postgres pool behind your data provider)
+		// OPTIONAL - prefix: 'ffsql_', apiPath: '/api', callLogRetentionDays: 30
 	},
 })
 ```

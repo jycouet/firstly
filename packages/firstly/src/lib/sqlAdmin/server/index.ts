@@ -3,7 +3,13 @@ import { Module } from 'remult/server'
 import { yellow } from '@kitql/helpers'
 
 import { log } from '..'
-import { SqlAdminController, type SqlTokensOptions } from '../SqlAdminController'
+import {
+	getDb,
+	poolFrom,
+	SqlAdminController,
+	type SqlTokenPool,
+	type SqlTokensOptions,
+} from '../SqlAdminController'
 import { SqlDriftController, type SqlDriftOptions } from '../SqlDriftController'
 import { isSqlTokenLive, SqlToken, sqlTokenEntities } from '../sqlTokenEntities'
 import { hashToken } from './token'
@@ -41,6 +47,16 @@ export type SqlAdminOptions = {
 	 */
 	sqlAdmin?: boolean
 	/**
+	 * Run `read` queries (console and tokens) as a read-only role instead of the
+	 * app role. `'auto'` upserts `ff_readonly_<db>` at boot through the app's own
+	 * pool (needs CREATEROLE), or pass a pool you connected yourself. `false`, or a
+	 * database other than Postgres, leaves reads to the READ ONLY transaction alone.
+	 *
+	 * @default 'auto'
+	 * @example readPool: new pg.Pool({ connectionString: env.DATABASE_URL_READONLY, max: 2 })
+	 */
+	readPool?: 'auto' | false | SqlTokenPool
+	/**
 	 * Bearer tokens that can run SQL from outside a browser session (a script,
 	 * an AI on a dev machine). Nothing is registered unless set - no entities,
 	 * no mint endpoint, no request hook. Needs `sqlAdmin: true`. See `<SqlTokens />`.
@@ -70,6 +86,26 @@ function readPathname(req: any): string {
 		return new URL(u, 'http://localhost').pathname
 	} catch {
 		return ''
+	}
+}
+
+async function resolveReadPool(opt: SqlAdminOptions['readPool'] = 'auto') {
+	if (opt !== 'auto') return opt || undefined
+	const app = poolFrom(getDb())
+	// Not Postgres (or a custom `dp`): nothing to create, the transaction guard applies.
+	if (!app) return undefined
+	try {
+		const { ensureReadOnlyPool } = await import('./readOnlyRole')
+		const ro = await ensureReadOnlyPool(app)
+		if (ro.updated) log.info(`reads run as ${yellow(ro.role)} (role created or updated).`)
+		return ro.pool
+	} catch (err) {
+		// Boot must survive: the READ ONLY transaction still guards reads.
+		const msg = err instanceof Error ? err.message : String(err)
+		log.error(
+			`readPool: 'auto' failed (${msg}) - reads use the app role. ${yellow('readPool: false')} silences this.`,
+		)
+		return undefined
 	}
 }
 
@@ -121,7 +157,10 @@ export const sqlAdmin: (opts?: SqlAdminOptions) => Module<unknown> = (opts) => {
 				SqlAdminController.dp = await opts.dp()
 				SqlDriftController.dp = SqlAdminController.dp
 			}
-			SqlAdminController.options = { tokens }
+			SqlAdminController.options = {
+				tokens,
+				readPool: enabled ? await resolveReadPool(opts?.readPool) : undefined,
+			}
 			SqlDriftController.options = driftOn ? drift : undefined
 			if (enabled) log.info(`AI Hint: visit ${yellow(path)} to query raw SQL.`)
 		},
