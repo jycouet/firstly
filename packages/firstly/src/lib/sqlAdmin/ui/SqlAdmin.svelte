@@ -76,6 +76,8 @@ ORDER BY tablename, indexname`,
 			log.info('for humans:', r)
 		} catch (e: any) {
 			if (typeof e?.message === 'string') e.message = decodeSqlWire(e.message)
+			// A stale table under a new error reads as this query's result.
+			result = undefined
 			error = JSON.stringify(e, null, 2)
 		} finally {
 			isLoading = false
@@ -179,13 +181,6 @@ ORDER BY tablename, indexname`,
 					Allow writes
 				</label>
 
-				{#if error}
-					<pre
-						class="flex-1 overflow-auto border border-destructive bg-destructive/10 p-3 text-sm text-destructive">{error.replaceAll(
-							'\\n',
-							'\n',
-						)}</pre>
-				{/if}
 				{#if result}
 					<div
 						class="flex flex-1 items-center justify-between gap-3 border border-border bg-muted p-3 text-sm text-muted-foreground"
@@ -195,6 +190,13 @@ ORDER BY tablename, indexname`,
 					</div>
 				{/if}
 			</div>
+			{#if error}
+				<pre
+					class="overflow-auto border border-destructive bg-destructive/10 p-3 text-sm text-destructive">{error.replaceAll(
+						'\\n',
+						'\n',
+					)}</pre>
+			{/if}
 		</form>
 		{#if result}
 			{#if result.rows && result.rows.length > 0}
