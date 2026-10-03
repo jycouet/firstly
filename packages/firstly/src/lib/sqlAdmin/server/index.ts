@@ -3,7 +3,7 @@ import { Module } from 'remult/server'
 import { yellow } from '@kitql/helpers'
 
 import { log } from '..'
-import { SqlAdminController, type SqlTokensOptions } from '../SqlAdminController'
+import { SqlAdminController, type SqlTokenPool, type SqlTokensOptions } from '../SqlAdminController'
 import { SqlDriftController, type SqlDriftOptions } from '../SqlDriftController'
 import { isSqlTokenLive, SqlToken, sqlTokenEntities } from '../sqlTokenEntities'
 import { hashToken } from './token'
@@ -40,6 +40,14 @@ export type SqlAdminOptions = {
 	 * @default true
 	 */
 	sqlAdmin?: boolean
+	/**
+	 * Pool for `read` queries (console and tokens), connected as a read-only
+	 * role. Without it reads run as the app role, guarded by the READ ONLY
+	 * transaction alone. See the docs for the role's SQL.
+	 *
+	 * @example readPool: new pg.Pool({ connectionString: env.DATABASE_URL_READONLY, max: 2 })
+	 */
+	readPool?: SqlTokenPool
 	/**
 	 * Bearer tokens that can run SQL from outside a browser session (a script,
 	 * an AI on a dev machine). Nothing is registered unless set - no entities,
@@ -121,9 +129,14 @@ export const sqlAdmin: (opts?: SqlAdminOptions) => Module<unknown> = (opts) => {
 				SqlAdminController.dp = await opts.dp()
 				SqlDriftController.dp = SqlAdminController.dp
 			}
-			SqlAdminController.options = { tokens }
+			SqlAdminController.options = { tokens, readPool: opts?.readPool }
 			SqlDriftController.options = driftOn ? drift : undefined
-			if (enabled) log.info(`AI Hint: visit ${yellow(path)} to query raw SQL.`)
+			if (enabled) {
+				log.info(`AI Hint: visit ${yellow(path)} to query raw SQL.`)
+				if (!opts?.readPool && !tokens?.pool) {
+					log.info(`sqlAdmin: reads use the app role. Set ${yellow('readPool')} for a read-only role.`)
+				}
+			}
 		},
 		initRequest: tokens
 			? async (req) => {

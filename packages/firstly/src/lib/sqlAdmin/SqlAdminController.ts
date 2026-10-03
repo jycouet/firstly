@@ -10,6 +10,7 @@ import {
 	type SqlCapability,
 	type SqlTokenTtl,
 } from './sqlTokenEntities'
+import { decodeSqlWire, encodeSqlWire, isSqlWire } from './sqlWire'
 
 declare module 'remult' {
 	export interface RemultContext {
@@ -49,7 +50,7 @@ export type SqlTokensOptions = {
 	apiPath?: string
 	/** @default 30 */
 	callLogRetentionDays?: number
-	/** Override the pool used by `read` tokens. Defaults to the Postgres pool behind the data provider. */
+	/** @deprecated use `sqlAdmin({ readPool })`, which also covers the console. */
 	pool?: SqlTokenPool
 }
 
@@ -75,7 +76,7 @@ export class SqlAdminController {
 	/** Optional override set by the `sqlAdmin()` module's `initApi`. Falls back to `SqlDatabase.getDb()`. */
 	static dp?: SqlDatabase
 	/** Set by the `sqlAdmin()` module's `initApi`. */
-	static options: { tokens?: SqlTokensOptions } = {}
+	static options: { tokens?: SqlTokensOptions; readPool?: SqlTokenPool } = {}
 
 	/**
 	 * @param cmd SQL to run.
@@ -85,6 +86,9 @@ export class SqlAdminController {
 	 *   want to mutate - the UI gates this behind an explicit checkbox.
 	 *
 	 * With a sql token the token decides, not the caller.
+	 *
+	 * A `cmd` sent through `encodeSqlWire` gets its result (or error message)
+	 * back encoded the same way, as a string; plain SQL gets plain JSON.
 	 */
 	@BackendMethod({
 		// Console: an admin session. Token: the bearer, and with `userFromId` the
@@ -99,10 +103,24 @@ export class SqlAdminController {
 		// nested ("nested transactions not allowed"). We own the transaction here.
 		transactional: false,
 	})
-	static async exec(cmd: string, capabilities: SqlCapability[] = ['read']): Promise<SqlResult> {
-		const token = remult.context.sqlToken
-		if (token) return SqlAdminController.execAsToken(token, cmd)
-		return SqlAdminController.run(cmd, capabilities)
+	static async exec(
+		cmd: string,
+		capabilities: SqlCapability[] = ['read'],
+	): Promise<SqlResult | string> {
+		const wire = isSqlWire(cmd)
+		if (wire) cmd = decodeSqlWire(cmd)
+		try {
+			const token = remult.context.sqlToken
+			const res = token
+				? await SqlAdminController.execAsToken(token, cmd)
+				: await SqlAdminController.run(cmd, capabilities)
+			return wire ? encodeSqlWire(JSON.stringify(res)) : res
+		} catch (err) {
+			if (!wire) throw err
+			// No stack: it repeats the message in clear.
+			const msg = err instanceof Error ? err.message : String(err)
+			throw Object.assign(new Error(encodeSqlWire(msg)), { stack: undefined })
+		}
 	}
 
 	private static async run(cmd: string, capabilities: SqlCapability[]): Promise<SqlResult> {
@@ -116,7 +134,8 @@ export class SqlAdminController {
 					return { rows, rowCount: rows.length, took: performance.now() - start }
 				}
 				const { readOnlySql } = await import('./server/readOnlySql')
-				return await readOnlySql(db, SqlAdminController.options.tokens?.pool ?? poolFrom(db), cmd)
+				const o = SqlAdminController.options
+				return await readOnlySql(db, o.readPool ?? o.tokens?.pool ?? poolFrom(db), cmd)
 			} catch (err) {
 				const { enrichSqlError } = await import('./server/sqlError')
 				throw await enrichSqlError(db, err, cmd)

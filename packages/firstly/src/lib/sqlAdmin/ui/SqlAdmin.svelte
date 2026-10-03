@@ -11,14 +11,15 @@
 	 * can read them with `list_console_messages`.
 	 */
 	import { log } from '../index'
-	import { SqlAdminController } from '../SqlAdminController'
+	import { SqlAdminController, type SqlResult } from '../SqlAdminController'
+	import { decodeSqlWire, encodeSqlWire } from '../sqlWire'
 
 	const defaultQuery = `SELECT *
 FROM "public"."users"
 LIMIT 10`
 
 	let sqlInput = $state(defaultQuery)
-	let result: { rows: any[]; rowCount: number; took: number } | undefined = $state()
+	let result: SqlResult | undefined = $state()
 	let error = $state('')
 	let isLoading = $state(false)
 	let allowWrites = $state(false)
@@ -64,10 +65,17 @@ ORDER BY tablename, indexname`,
 		try {
 			error = ''
 			isLoading = true
-			result = await SqlAdminController.exec(sqlInput, allowWrites ? ['read', 'write'] : ['read'])
-			log.info('for AI:', JSON.stringify(result.rows))
-			log.info('for humans:', result)
-		} catch (e) {
+			// Encoded both ways: WAF rules block SQL text in requests and Postgres errors in responses.
+			const res = await SqlAdminController.exec(
+				encodeSqlWire(sqlInput),
+				allowWrites ? ['read', 'write'] : ['read'],
+			)
+			const r: SqlResult = typeof res === 'string' ? JSON.parse(decodeSqlWire(res)) : res
+			result = r
+			log.info('for AI:', JSON.stringify(r.rows))
+			log.info('for humans:', r)
+		} catch (e: any) {
+			if (typeof e?.message === 'string') e.message = decodeSqlWire(e.message)
 			error = JSON.stringify(e, null, 2)
 		} finally {
 			isLoading = false
