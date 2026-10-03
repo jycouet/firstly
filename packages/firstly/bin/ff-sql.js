@@ -29,10 +29,10 @@ fighting the shell over single quotes, and keeps the token out of the line.`
 const TRAILING_SLASH = /\/$/
 // Same scheme as `sqlWire.ts`: keeps WAF rules from matching SQL in transit.
 const WIRE = 'ffsql1:'
-const encode = (s) => WIRE + Buffer.from(s, 'utf8').toString('base64url')
+const encode = (s) => WIRE + Buffer.from(s, 'utf8').toString('base64')
 const decode = (s) =>
 	typeof s === 'string' && s.startsWith(WIRE)
-		? Buffer.from(s.slice(WIRE.length), 'base64url').toString('utf8')
+		? Buffer.from(s.slice(WIRE.length), 'base64').toString('utf8')
 		: s
 
 const cli = parseArgs(process.argv.slice(2))
