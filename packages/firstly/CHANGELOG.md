@@ -1,5 +1,11 @@
 # firstly
 
+## 0.11.0
+
+### Minor Changes
+
+- [#402](https://github.com/jycouet/firstly/pull/402) [`c19f427`](https://github.com/jycouet/firstly/commit/c19f427e24e5b9618bc1e8943ee0bc3f6b20aae1) Thanks [@jycouet](https://github.com/jycouet)! - sqlAdmin: `<SqlAdmin queries={{ ... }} />` merges app preset queries over the built-ins by title: same title overrides, new title adds a button, `false` removes one.
+
 ## 0.10.8
 
 ### Patch Changes
