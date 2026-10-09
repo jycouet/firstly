@@ -120,8 +120,7 @@ const initMail: (o?: MailOptions) => void = async (o) => {
 
 export type SendMail = typeof sendMail
 export type SendMailResult =
-	| { data: SMTPTransport.SentMessageInfo; error?: undefined }
-	| { error: any; data?: undefined }
+	{ data: SMTPTransport.SentMessageInfo; error?: undefined } | { error: any; data?: undefined }
 export const sendMail: (
 	/** usefull for logs, it has NO impact on the mail itself */
 	topic: string,
