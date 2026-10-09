@@ -11,54 +11,26 @@
 	 * can read them with `list_console_messages`.
 	 */
 	import { log } from '../index'
+	import { mergePresetQueries, type SqlPresetQueries } from '../presetQueries'
 	import { SqlAdminController, type SqlResult } from '../SqlAdminController'
 	import { decodeSqlWire, encodeSqlWire } from '../sqlWire'
 
-	const defaultQuery = `SELECT *
-FROM "public"."users"
-LIMIT 10`
+	let { queries = {} }: { queries?: SqlPresetQueries } = $props()
 
-	let sqlInput = $state(defaultQuery)
+	const presets = $derived(mergePresetQueries(queries))
+
+	// Seeded once: later prop changes must not clobber what the user typed.
+	const initialPresets = mergePresetQueries(queries)
+	let sqlInput = $state(
+		(initialPresets.find((q) => q.title === 'Default') ?? initialPresets[0])?.sql ?? '',
+	)
 	let result: SqlResult | undefined = $state()
 	let error = $state('')
 	let isLoading = $state(false)
 	let allowWrites = $state(false)
 	let copied = $state(false)
 
-	const queries = {
-		default: { label: 'Default', sql: defaultQuery },
-		tables: {
-			label: 'Tables & Sizes',
-			sql: `SELECT
-  table_schema,
-  table_name,
-  pg_size_pretty(pg_total_relation_size(quote_ident(table_schema) || '.' || quote_ident(table_name))) as total_size,
-  pg_size_pretty(pg_table_size(quote_ident(table_schema) || '.' || quote_ident(table_name))) as data_size,
-  pg_size_pretty(pg_indexes_size(quote_ident(table_schema) || '.' || quote_ident(table_name))) as index_size
-FROM information_schema.tables
-WHERE table_schema IN ('public', 'ff_auth')
-ORDER BY pg_total_relation_size(quote_ident(table_schema) || '.' || quote_ident(table_name)) DESC;`,
-		},
-		indexes: {
-			label: 'Indexes',
-			sql: `SELECT *
-FROM pg_indexes
-WHERE schemaname = 'public'
-ORDER BY tablename, indexname`,
-		},
-		dbSize: {
-			label: 'Database Size',
-			sql: `SELECT
-  current_database() as database_name,
-  pg_size_pretty(pg_database_size(current_database())) as database_size`,
-		},
-	} as const
-
 	log.info('AI Hint: results are also logged as "for AI:" JSON after each query.')
-
-	function setPresetQuery(queryId: keyof typeof queries) {
-		sqlInput = queries[queryId].sql
-	}
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault()
@@ -131,11 +103,11 @@ ORDER BY tablename, indexname`,
 
 	<div class="flex flex-col gap-4 p-5">
 		<div class="flex flex-wrap gap-2">
-			{#each Object.entries(queries) as [id, query] (id)}
+			{#each presets as preset (preset.title)}
 				<button
 					type="button"
 					class="border border-border bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
-					onclick={() => setPresetQuery(id as keyof typeof queries)}>{query.label}</button
+					onclick={() => (sqlInput = preset.sql)}>{preset.title}</button
 				>
 			{/each}
 		</div>

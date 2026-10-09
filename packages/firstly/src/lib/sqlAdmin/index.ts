@@ -1,6 +1,7 @@
 import { Log } from '@kitql/helpers'
 
 export { Roles_SqlAdmin } from './Roles_SqlAdmin'
+export { builtInPresetQueries, type SqlPresetQueries } from './presetQueries'
 export { SqlAdminController, type SqlResult, type SqlTokensOptions } from './SqlAdminController'
 export { SqlDriftController, type SqlDriftFlag } from './SqlDriftController'
 export {

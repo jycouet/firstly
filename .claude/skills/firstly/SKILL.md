@@ -109,7 +109,7 @@ export const api = remultApi({ modules: [sqlAdmin({ path: '/sql/admin' })] })
 <SqlAdmin />
 ```
 
-The component ships prefilled queries (DB size, table sizes, indexes, default `SELECT`) and logs results as `for AI: <rows>` in the browser console - so chrome-devtools / AI agents can grab them with `list_console_messages`.
+The component ships prefilled queries (`Default`, `Tables & Sizes`, `Indexes`, `Database Size`); `queries?: Record<string, string | false>` merges over them by title (same title overrides, new title adds a button after the built-ins, `false` removes one), e.g. `<SqlAdmin queries={{ Default: 'SELECT * FROM "activities" LIMIT 10', Indexes: false }} />`. It logs results as `for AI: <rows>` in the browser console - so chrome-devtools / AI agents can grab them with `list_console_messages`.
 
 `exec(sql, capabilities = ['read'])`: `read` = READ ONLY transaction over the extended protocol (one statement, no `commit; insert` escape), `write` = as is. Opt-in `tokens: { capabilities: ['read'], userFromId? }` adds bearer tokens (`<SqlTokens />`, same `POST /api/ff/sqlAdmin/exec` endpoint, `mintToken(name?, …)` - empty name = `swift-otter-3f9`) so a script or an AI on a dev machine can query prod; the token acts as its minter, answers one path only, needs a live session to mint/revoke, every call logged. Revoke (`update(id, { revokedAt })`) keeps the row and its calls; delete drops both and is refused on a live token, and `purgeTokens()` deletes every dead token at once. `sqlAdmin: false` registers no controller (and throws if `tokens` is set - they share the `exec` endpoint). The pg pool is taken from the data provider, nothing to pass.
 
