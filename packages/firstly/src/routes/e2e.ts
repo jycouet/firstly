@@ -20,11 +20,13 @@ test('loadRepo gates the server read', async ({ page }) => {
 	await expect(page.locator('[data-item]')).toHaveText('public item')
 })
 
+const API_PREFIX = /^.*\/api\//
+
 const trackApi = (page: Page) => {
 	const reqs: string[] = []
 	page.on('request', (r) => {
 		if (r.url().includes('/api/') && !r.url().includes('/api/stream'))
-			reqs.push(`${r.method()} ${r.url().replace(/^.*\/api\//, '')}`)
+			reqs.push(`${r.method()} ${r.url().replace(API_PREFIX, '')}`)
 	})
 	return reqs
 }
@@ -110,4 +112,18 @@ test('repoClient: a row cannot break out of the replay tag', async ({ page }) =>
 	expect(await page.evaluate(() => (window as any).__pwned)).toBeUndefined()
 	expect(errors).toEqual([])
 	await page.request.delete(`/api/demo_tasks/${id}`)
+})
+
+test('repoClient: a read the API refuses leaks nothing', async ({ page }) => {
+	const res = await page.request.get('/repo-client/forbidden')
+	expect(res.status()).toBe(500)
+	expect(await res.text()).not.toContain('top secret')
+})
+
+test('repoClient: a POSTed read replays too', async ({ page }) => {
+	const reqs = trackApi(page)
+	await page.goto('/repo-client/long-filter', { waitUntil: 'networkidle' })
+	await settled(page)
+	await expect(page.locator('[data-count]')).toHaveText('0')
+	expect(reqs).toEqual([])
 })

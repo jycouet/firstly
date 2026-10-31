@@ -87,6 +87,10 @@ export default defineConfig({
 							link: '/docs/svelte/ff',
 						},
 						{
+							label: 'repoClient',
+							link: '/docs/svelte/repo-client',
+						},
+						{
 							label: 'cell layer (grid & form)',
 							link: '/docs/svelte/cell',
 						},

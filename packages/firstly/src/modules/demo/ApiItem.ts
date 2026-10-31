@@ -12,3 +12,10 @@ export class ApiItem {
 	@Fields.string() title = ''
 	@Fields.boolean() pub = false
 }
+
+// Never readable through the API: a component using `repoClient` must not get it on SSR.
+@Entity<ApiSecret>('demo_api_secrets', { allowApiRead: false })
+export class ApiSecret {
+	@Fields.id() id = ''
+	@Fields.string() title = ''
+}

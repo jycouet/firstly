@@ -1,0 +1,92 @@
+---
+title: repoClient
+description: Await remult in a component, with SSR, API rules and one query
+---
+
+`repoClient` is a `repo` you can `await` in a component. No `+page.ts`, no `$effect`:
+
+```svelte
+<script lang="ts">
+	import { repoClient } from 'firstly/svelte'
+
+	let { params } = $props()
+	let task = $derived(await repoClient(Task).findId(params.id))
+</script>
+
+<h1>{task?.title}</h1>
+```
+
+- **API rules on SSR**: the read goes through your API as the current user. A bare `repo()` in a component reads the database directly on the server and skips them.
+- **One query**: the browser reuses the SSR response, nothing is refetched on hydration.
+- **Reactive**: change `params.id` or a filter and it fetches again. An older response can't overwrite a newer one.
+
+## Setup
+
+Add the handle and turn on Svelte's async mode:
+
+```ts
+// src/hooks.server.ts
+import { sequence } from '@sveltejs/kit/hooks'
+
+import { handleRepoClient } from 'firstly/svelte/server'
+
+import { api } from './server/api'
+
+export const handle = sequence(api, handleRepoClient)
+```
+
+```js
+// svelte.config.js
+export default {
+	compilerOptions: { experimental: { async: true } },
+}
+```
+
+Needs SvelteKit 2.20+ and a Svelte version with async SSR (tested on 5.57).
+
+## Filter, loading, writes
+
+`$effect.pending()` replaces a loading flag. After a write, change something the read depends on:
+
+```svelte
+<script lang="ts">
+	let search = $state('')
+	let version = $state(0)
+
+	const findTasks = (_version: number) =>
+		repoClient(Task).find({ where: { title: { $contains: search } } })
+
+	let tasks = $derived(await findTasks(version))
+
+	const remove = async (task: Task) => {
+		await repoClient(Task).delete(task)
+		version++
+	}
+</script>
+
+<input bind:value={search} />
+{#if $effect.pending()}...{/if}
+```
+
+## How it works
+
+`handleRepoClient` gives each request an API-backed data provider using `event.fetch`, keeps every read, and adds them to the page as a JSON tag. In the browser, each saved read answers the same request once. The server `repo` isn't touched, so `+page.server.ts` and backend code stay privileged.
+
+## Limits
+
+- **`experimental.async`** is still an experimental Svelte flag.
+- **Errors**: a read the API rejects throws, so SSR answers with your error page and a 500, even for a 403. There is no `onIssue`.
+- **Navigation**: the old page stays on screen until the new read lands. Use `$effect.pending()` to show progress.
+- **Replay window**: saved reads expire after 5 seconds. A write through `repoClient` drops them, a write from elsewhere in that window isn't seen.
+- **Page size**: rows are in the page once as HTML and once as JSON.
+- **Caching**: the page holds that user's rows, so don't serve per-user pages from a public cache.
+- **Live queries**: `liveQuery` through `repoClient` still does its own first load.
+- **Streaming and CSP**: untested. The tag is a data block, so it shouldn't need a nonce.
+
+## repoClient, `ff` or `loadRepo`
+
+| Need                                      | Use                                    |
+| ----------------------------------------- | -------------------------------------- |
+| Read in a page, with SSR                  | `repoClient`                           |
+| Live list, edit draft, dialogs, `onIssue` | [`ff`](/docs/svelte/ff) (browser only) |
+| No `experimental.async`                   | `repoFetch` / `loadRepo` in a `load`   |

@@ -259,6 +259,24 @@ refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → g
 
 Types: `FF_Many<T, Strategy>`, `FF_One<T>`, `FF_Builder<T>`, `FF_RepoOptions`, `ManyStrategy`.
 
+## `repoClient` - await in a component, with SSR
+
+`repoClient` (from `firstly/svelte`) is a `repo` to `await` in a component: API rules on SSR, no second query on hydration, no `+page.ts`. Docs: [firstly.fun /docs/svelte/repo-client](https://firstly.fun/docs/svelte/repo-client).
+
+```svelte
+<script lang="ts">
+	import { repoClient } from 'firstly/svelte'
+
+	let { params } = $props()
+	let task = $derived(await repoClient(Task).findId(params.id))
+</script>
+```
+
+- Setup: `handle = sequence(api, handleRepoClient)` (from `firstly/svelte/server`) and `compilerOptions.experimental.async`.
+- Without `handleRepoClient` it throws on the server. It never falls back to the server `repo`, that would skip API rules.
+- Read pages only: `ff` stays for live lists, drafts, dialogs and `onIssue`. `$effect.pending()` replaces loading flags; after a write, bump a `$state` the read depends on.
+- Without `experimental.async`, use `repoFetch` / `loadRepo` below.
+
 ## `repoFetch` / `loadRepo` - reading in loads with API rules
 
 `ff` is component-level (browser-only). In a SvelteKit **`load`**, a bare `repo()` reads the DB

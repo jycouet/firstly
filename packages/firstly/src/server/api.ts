@@ -2,15 +2,16 @@ import { repo } from 'remult'
 import { remultApi } from 'remult/remult-sveltekit'
 import { carbone } from 'firstly/carbone/server'
 
-import { ApiItem } from '$modules/demo/ApiItem'
+import { ApiItem, ApiSecret } from '$modules/demo/ApiItem'
 import { Task } from '$modules/demo/Task'
 import { MailController } from '$modules/mail/MailController'
 import { mail } from '$lib/mail/server'
 
 export const api = remultApi({
-	entities: [Task, ApiItem],
+	entities: [Task, ApiItem, ApiSecret],
 	controllers: [MailController],
 	initApi: async () => {
+		if ((await repo(ApiSecret).count()) === 0) await repo(ApiSecret).insert({ title: 'top secret' })
 		if ((await repo(ApiItem).count()) === 0) {
 			await repo(ApiItem).insert([
 				{ title: 'public item', pub: true },
