@@ -1,4 +1,5 @@
 import type { Handle } from '@sveltejs/kit'
+
 import { remult, RestDataProvider, type DataProvider } from 'remult'
 
 import { getRequestEvent } from '$app/server'

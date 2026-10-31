@@ -1,5 +1,6 @@
-import { InMemoryDataProvider } from 'remult'
 import { afterEach, describe, expect, it } from 'vitest'
+
+import { InMemoryDataProvider } from 'remult'
 
 import { Task } from '../../modules/demo/Task.js'
 import { repoClient, setRepoClientRequest } from './repoClient.js'
