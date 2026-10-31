@@ -41,6 +41,7 @@ export { SP } from './class/SP.svelte'
 export type { ParamDefinition } from './class/SP.svelte'
 export { initRemultSvelteReactivity } from './initRemultSvelteReactivity'
 export { loadRepo, repoFetch, type Repo } from './remultApiLoad.js'
+export { repoClient } from './repoClient.js'
 
 // Headless cell primitives (FF_Grid / FF_Group are boutique-only — copy from src/boutique/grid).
 export {

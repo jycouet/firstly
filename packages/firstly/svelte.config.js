@@ -16,7 +16,7 @@ const config = {
 			$lib2: './src/lib2',
 		},
 	},
-	compilerOptions: {},
+	compilerOptions: { experimental: { async: true } },
 	onwarn(warning, defaultHandler) {
 		// Do not show 3rd party warnings
 		if (warning.filename.includes('node_modules')) return
