@@ -19,7 +19,7 @@
 	<div class="mx-auto flex max-w-xl flex-col gap-6 p-8">
 		<div>
 			<h1 class="text-xl font-semibold">Toast demo</h1>
-			<p class="text-muted-foreground text-sm">
+			<p class="text-sm text-muted-foreground">
 				First arg is the <b>description</b> (HTML allowed). The bold <b>title</b> defaults per kind and
 				is overridable via <code>opts.title</code>. Default titles here are localized to
 				<b>French</b> through <code>&lt;FF_Config messages.toast&gt;</code>.

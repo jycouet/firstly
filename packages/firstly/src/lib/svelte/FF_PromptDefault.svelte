@@ -38,7 +38,7 @@
 		tabindex="-1"
 		aria-labelledby={item.title ? `ff-prompt-title-${item.id}` : undefined}
 		aria-label={item.title ? undefined : item.label ? resolveMessage(item.label) : undefined}
-		class="bg-background text-foreground border-border relative z-[1] w-full max-w-sm rounded-lg border p-5 shadow-xl"
+		class="relative z-[1] w-full max-w-sm rounded-lg border border-border bg-background p-5 text-foreground shadow-xl"
 	>
 		<form
 			onsubmit={(e) => {
@@ -52,7 +52,7 @@
 				</h2>
 			{/if}
 			{#if item.label}
-				<label class="text-muted-foreground mb-1 block text-sm" for="ff-prompt-{item.id}">
+				<label class="mb-1 block text-sm text-muted-foreground" for="ff-prompt-{item.id}">
 					{resolveMessage(item.label)}
 				</label>
 			{/if}
@@ -60,22 +60,22 @@
 				id="ff-prompt-{item.id}"
 				bind:value
 				placeholder={item.placeholder}
-				class="border-border bg-card focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+				class="w-full rounded-md border border-border bg-card px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
 			/>
 			{#if item.hint}
-				<p class="text-muted-foreground mt-1 text-xs">{item.hint(value)}</p>
+				<p class="mt-1 text-xs text-muted-foreground">{item.hint(value)}</p>
 			{/if}
 			<div class="mt-5 flex justify-end gap-2">
 				<button
 					type="button"
-					class="border-border hover:bg-muted rounded-md border px-3 py-1.5 text-sm"
+					class="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
 					onclick={oncancel}
 				>
 					{resolveMessage(item.cancelLabel ?? cfg.messages.cancel)}
 				</button>
 				<button
 					type="submit"
-					class="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-3 py-1.5 text-sm font-medium"
+					class="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
 				>
 					{resolveMessage(item.confirmLabel ?? cfg.messages.ok)}
 				</button>

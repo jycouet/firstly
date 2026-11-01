@@ -16,14 +16,14 @@
 </script>
 
 <h1 class="text-xl font-semibold">SP</h1>
-<p class="text-muted-foreground text-sm">Typing updates the URL, scroll and focus stay put.</p>
+<p class="text-sm text-muted-foreground">Typing updates the URL, scroll and focus stay put.</p>
 
 <div class="h-[150vh]"></div>
 <input
 	bind:value={sp.obj.q}
 	data-filter={ready}
 	aria-label="Filter"
-	class="border-input rounded-md border bg-transparent px-3 py-1"
+	class="rounded-md border border-input bg-transparent px-3 py-1"
 />
 <p class="text-sm">search = <code data-search>{search}</code></p>
 <div class="h-[150vh]"></div>

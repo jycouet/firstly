@@ -196,7 +196,7 @@
 			role="dialog"
 			aria-modal="true"
 			tabindex="-1"
-			class="bg-background text-foreground border-border relative z-[1] max-h-[90vh] w-full {widthClass[
+			class="relative z-[1] max-h-[90vh] w-full border-border bg-background text-foreground {widthClass[
 				width
 			]} overflow-auto rounded-lg border p-5 shadow-xl"
 		>
@@ -207,7 +207,7 @@
 				<button
 					type="button"
 					aria-label="Close"
-					class="text-muted-foreground hover:text-foreground absolute top-3 right-3 inline-flex size-7 items-center justify-center rounded-md"
+					class="absolute top-3 right-3 inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
 					onclick={dismiss}
 				>
 					✕
@@ -242,7 +242,7 @@
 			aria-labelledby={title ? `ff-dlg-title-${id}` : undefined}
 			aria-label={title ? undefined : message}
 			aria-describedby="ff-dlg-desc-{id}"
-			class="bg-background text-foreground border-border relative z-[1] w-full max-w-sm rounded-lg border p-5 shadow-xl"
+			class="relative z-[1] w-full max-w-sm rounded-lg border border-border bg-background p-5 text-foreground shadow-xl"
 		>
 			{#if title}
 				<h2 id="ff-dlg-title-{id}" class="mb-2 text-lg font-semibold">{title}</h2>
@@ -251,7 +251,7 @@
 			<div class="mt-5 flex justify-end gap-2">
 				<button
 					type="button"
-					class="border-border hover:bg-muted rounded-md border px-3 py-1.5 text-sm"
+					class="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
 					onclick={cancel}
 				>
 					{cancelLabel}
