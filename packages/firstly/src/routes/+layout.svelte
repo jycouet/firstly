@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { remult } from 'remult'
 
-	import { page } from '$app/stores'
+	import { page } from '$app/state'
 
 	import { route } from '$modules/ROUTES'
 
@@ -36,7 +36,7 @@
 		{ path: route('github'), text: '⭐️ firstly', target: '_blank' },
 	]
 
-	const currentLink = $derived(links.find((c) => c.path === $page.url.pathname))
+	const currentLink = $derived(links.find((c) => c.path === page.url.pathname))
 
 	initRemultSvelteReactivity()
 </script>
@@ -80,7 +80,7 @@
 					target={link?.target}
 					onclick={() => (sidebarOpen = false)}
 					class="hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-2 text-sm transition-colors {link.path ===
-					$page.url.pathname
+					page.url.pathname
 						? 'bg-accent text-accent-foreground font-medium'
 						: ''}"
 				>
@@ -124,7 +124,7 @@
 				</svg>
 			</button>
 			<h1 class="grow truncate text-lg font-semibold lg:text-2xl lg:font-light">
-				{currentLink?.text ?? $page.url.pathname.replace('/', '')}
+				{currentLink?.text ?? page.url.pathname.replace('/', '')}
 			</h1>
 			<input
 				type="text"

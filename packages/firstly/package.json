@@ -15,7 +15,11 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": ">=22.17"
+  },
+  "imports": {
+    "#lib": "./src/lib/index.ts",
+    "#lib/*": "./src/lib/*"
   },
   "scripts": {
     "prepare": "svelte-kit sync",
@@ -35,7 +39,7 @@
     "//// ---- THE END ---- ////": ""
   },
   "peerDependencies": {
-    "@sveltejs/kit": ">=1.0.0 <4.0.0 || ^3.0.0-next.0",
+    "@sveltejs/kit": "^3.0.0",
     "remult": ">=3.3.7",
     "svelte": ">=5"
   },
@@ -57,7 +61,7 @@
     "@sveltejs/vite-plugin-svelte": "catalog:sveltekit",
     "@tailwindcss/vite": "catalog:ui",
     "@typescript/native-preview": "catalog:tooling",
-    "@vitest/browser": "catalog:testing",
+    "@vitest/browser-playwright": "catalog:testing",
     "eslint": "catalog:kitql",
     "playwright": "catalog:testing",
     "remult": "catalog:best",
@@ -65,6 +69,7 @@
     "svelte-check": "catalog:svelte",
     "tailwindcss": "catalog:ui",
     "tslib": "catalog:tooling",
+    "typescript": "catalog:tooling",
     "vite": "catalog:tooling",
     "vitest": "catalog:testing"
   },

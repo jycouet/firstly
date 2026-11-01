@@ -1,5 +1,5 @@
 import { ApiItem } from '$modules/demo/ApiItem'
-import { loadRepo } from '$lib/svelte'
+import { loadRepo } from '#lib/svelte/index.js'
 
 // Universal load: repoClient reads through the API on SSR and CSR.
 // Only `pub` rows come back (the private one is filtered by apiPrefilter).

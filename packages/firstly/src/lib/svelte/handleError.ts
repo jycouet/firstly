@@ -1,4 +1,4 @@
-import type { HandleClientError } from '@sveltejs/kit'
+import type { HandleClientError } from '@sveltejs/kit/hooks'
 
 type HandleClientErrorInput = Parameters<HandleClientError>[0]
 
@@ -50,7 +50,11 @@ const RETRY_WINDOW_MS = 10_000
  */
 export function withStaleDeployReload(): HandleClientErrorMiddleware {
 	return (next) => (input: HandleClientErrorInput) => {
-		if (CHUNK_LOAD_RE.test(String(input.message)) && reloadOnce(input.event.url.href)) {
+		if (
+			input.kind === 'unknown' &&
+			CHUNK_LOAD_RE.test(String(input.error)) &&
+			reloadOnce(input.event.url.href)
+		) {
 			return // page is unloading; no error surfaces
 		}
 		return next(input)

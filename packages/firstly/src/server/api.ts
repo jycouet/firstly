@@ -5,7 +5,7 @@ import { carbone } from 'firstly/carbone/server'
 import { ApiItem } from '$modules/demo/ApiItem'
 import { Task } from '$modules/demo/Task'
 import { MailController } from '$modules/mail/MailController'
-import { mail } from '$lib/mail/server'
+import { mail } from '#lib/mail/server/index.js'
 
 export const api = remultApi({
 	entities: [Task, ApiItem],

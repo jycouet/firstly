@@ -6,9 +6,8 @@ const CHUNK_MSG = 'Failed to fetch dynamically imported module: /_app/immutable/
 
 function input(over: { message?: string; href?: string } = {}) {
 	return {
-		error: new Error(over.message ?? 'boom'),
-		message: over.message ?? 'boom',
-		status: 500,
+		kind: 'unknown',
+		error: new TypeError(over.message ?? 'boom'),
 		event: { url: new URL(over.href ?? 'https://app.test/page') },
 	} as unknown as Parameters<ReturnType<typeof stackHandleClientError>>[0]
 }
@@ -86,6 +85,13 @@ describe('withStaleDeployReload', () => {
 
 	it('passes non-chunk errors through to next', () => {
 		const res = handle({ message: 'random' })
+		expect(assign).not.toHaveBeenCalled()
+		expect(res).toEqual({ message: 'logged' })
+	})
+
+	it('ignores app and framework errors, whatever their message', () => {
+		const middleware = withStaleDeployReload()(() => ({ message: 'logged' }))
+		const res = middleware({ ...input(), kind: 'framework', error: { message: CHUNK_MSG } } as any)
 		expect(assign).not.toHaveBeenCalled()
 		expect(res).toEqual({ message: 'logged' })
 	})
