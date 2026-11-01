@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
 
-	import { afterNavigate } from '$app/navigation'
-
 	import { SP } from 'firstly/svelte'
+
+	import { afterNavigate } from '$app/navigation'
 
 	const sp = new SP({ q: '' })
 
