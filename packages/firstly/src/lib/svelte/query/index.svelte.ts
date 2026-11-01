@@ -10,16 +10,12 @@ import {
 	type FindOptions,
 } from 'remult'
 
+import type { RemoteQuery, RemoteResource } from '$app/server'
+
 import { read, type RepoRead } from './read.remote.js'
 
-/** Kit's `RemoteQuery`, spelled out: it moved between Kit 2 and 3. */
-export type RepoQuery<T> = Promise<T> & {
-	readonly current: T | undefined
-	readonly error: any
-	readonly loading: boolean
-	readonly ready: boolean
-	refresh(): Promise<void>
-}
+/** No `set` or `withOverride`: they would hold rows, not entities. */
+export type RepoQuery<T> = RemoteResource<T> & Pick<RemoteQuery<T>, 'refresh'>
 
 const WRITES = new Set<PropertyKey>([
 	'insert',
@@ -118,7 +114,7 @@ const mapped = <R, T>(inner: any, arg: RepoRead, map: (raw: R) => T) =>
  * A failed refresh reaches the error page, like any `.refresh()` in Kit.
  * Long filters can exceed the URL limit: arguments travel in a GET.
  *
- * @experimental Needs Kit 3 with `experimental.remoteFunctions` and
+ * @experimental Needs `experimental.remoteFunctions` and
  * `compilerOptions.experimental.async`.
  */
 export const queryRepo = <T>(entity: ClassType<T>) => {

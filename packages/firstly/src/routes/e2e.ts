@@ -22,6 +22,24 @@ test('loadRepo gates the server read', async ({ page }) => {
 	await expect(page.locator('[data-item]')).toHaveText('public item')
 })
 
+test('queryRepo gates SSR, hydrates without a query and follows repo writes', async ({ page }) => {
+	const queries: string[] = []
+	page.on('request', (r) => {
+		if (r.url().includes('/_app/remote/') || r.url().includes('/api/')) queries.push(r.url())
+	})
+
+	await page.goto('/query-repo', { waitUntil: 'networkidle' })
+	await expect(page.locator('[data-item]')).toHaveText('public item')
+	expect(queries).toEqual([])
+
+	const count = page.locator('[data-count]')
+	const before = Number(await count.textContent())
+	await page.locator('[data-add]').click()
+	await expect(count).toHaveText(String(before + 1))
+	await page.locator('[data-delete]').click()
+	await expect(count).toHaveText(String(before))
+})
+
 test('SP filter change keeps scroll, focus and history', async ({ page }) => {
 	const errors: string[] = []
 	page.on('pageerror', (e) => errors.push(e.message))
