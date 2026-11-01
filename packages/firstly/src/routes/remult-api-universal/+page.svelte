@@ -3,7 +3,7 @@
 </script>
 
 <h1 class="text-xl font-semibold">loadRepo</h1>
-<p class="text-muted-foreground text-sm">
+<p class="text-sm text-muted-foreground">
 	A universal <code>+page.ts</code> reading <code>repoClient(ApiItem)</code> through the API gate.
 </p>
 
