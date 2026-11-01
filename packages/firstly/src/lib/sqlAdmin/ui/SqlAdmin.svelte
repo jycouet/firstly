@@ -116,8 +116,7 @@
 				bind:value={sqlInput}
 				class="h-52 w-full border border-input bg-background p-3 font-mono text-sm text-foreground placeholder-muted-foreground focus:border-ring focus:outline-none disabled:opacity-50"
 				placeholder="Enter SQL command..."
-				disabled={isLoading}
-			></textarea>
+				disabled={isLoading}></textarea>
 			<div class="flex flex-wrap items-center gap-4">
 				<button
 					type="submit"

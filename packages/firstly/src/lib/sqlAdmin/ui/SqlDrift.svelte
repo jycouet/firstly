@@ -188,7 +188,7 @@
 		type="button"
 		{onclick}
 		disabled={loading}
-		class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+		class="bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 disabled:opacity-50"
 	>
 		{loading ? 'Running…' : label}
 	</button>
@@ -199,19 +199,19 @@
 		type="button"
 		{onclick}
 		{disabled}
-		class="bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+		class="bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
 	>
 		{label}
 	</button>
 {/snippet}
 
 {#snippet resultTable(headers: string[], children: import('svelte').Snippet)}
-	<div class="border-border overflow-auto border">
+	<div class="overflow-auto border border-border">
 		<table class="w-full border-collapse text-sm">
 			<thead class="bg-muted">
 				<tr>
 					{#each headers as h (h)}
-						<th class="border-border border-b px-3 py-2 text-left font-semibold">{h}</th>
+						<th class="border-b border-border px-3 py-2 text-left font-semibold">{h}</th>
 					{/each}
 				</tr>
 			</thead>
@@ -222,18 +222,18 @@
 	</div>
 {/snippet}
 
-<div class="border-border bg-card text-card-foreground border">
+<div class="border border-border bg-card text-card-foreground">
 	<header class="px-5 py-4">
 		<h2 class="text-lg font-semibold">Schema drift</h2>
-		<p class="text-muted-foreground mt-1 text-sm">
+		<p class="mt-1 text-sm text-muted-foreground">
 			Remult creates tables and adds columns, but never revisits them. Each check below is a dry run
 			first; applying runs in one transaction.
 		</p>
 		{#if flagsError}
 			<pre
-				class="border-destructive/40 bg-destructive/10 text-destructive mt-3 overflow-auto border p-3 text-sm">{flagsError}</pre>
+				class="mt-3 overflow-auto border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{flagsError}</pre>
 		{:else if flags && !Object.values(flags).some(Boolean)}
-			<p class="text-muted-foreground mt-3 text-sm">
+			<p class="mt-3 text-sm text-muted-foreground">
 				No check enabled. Opt in with <code class="font-mono"
 					>sqlAdmin(&#123; drift: &#123; entities, relationIndexes: true, ... &#125; &#125;)</code
 				>.
@@ -243,9 +243,9 @@
 
 	<!-- Flow 1: primary keys -->
 	{#if flags?.primaryKeys}
-		<section class="border-border border-t p-5">
+		<section class="border-t border-border p-5">
 			<h3 class="text-sm font-semibold">Primary key drift</h3>
-			<p class="text-muted-foreground mt-1 mb-4 max-w-[80ch] text-sm">
+			<p class="mt-1 mb-4 max-w-[80ch] text-sm text-muted-foreground">
 				Postgres only sets a PK on first table creation and never ALTERs it, so a later
 				<code class="font-mono">id</code> change is silently ignored. Applying runs every migration atomically.
 			</p>
@@ -261,12 +261,12 @@
 
 			{#if pkError}
 				<pre
-					class="border-destructive/40 bg-destructive/10 text-destructive mb-4 overflow-auto border p-3 text-sm">{pkError}</pre>
+					class="mb-4 overflow-auto border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{pkError}</pre>
 			{/if}
 
 			{#if pkResult}
 				{#if pkResult.applied}
-					<p class="border-primary/30 bg-primary/10 text-primary mb-3 border p-2 text-sm">
+					<p class="mb-3 border border-primary/30 bg-primary/10 p-2 text-sm text-primary">
 						Applied · {pkDrift} table{pkDrift === 1 ? '' : 's'} migrated
 					</p>
 				{/if}
@@ -274,15 +274,15 @@
 				{#snippet pkRows()}
 					{#each pkPlans as p (p.table)}
 						<tr class="even:bg-muted/40" class:opacity-50={p.action === 'ok'}>
-							<td class="border-border border-b px-3 py-2 font-mono">{p.table}</td>
-							<td class="border-border text-muted-foreground border-b px-3 py-2 font-mono">
+							<td class="border-b border-border px-3 py-2 font-mono">{p.table}</td>
+							<td class="border-b border-border px-3 py-2 font-mono text-muted-foreground">
 								{p.before.join(', ') || '-'}
 							</td>
-							<td class="border-border text-muted-foreground border-b px-3 py-2 font-mono">
+							<td class="border-b border-border px-3 py-2 font-mono text-muted-foreground">
 								{p.after.join(', ')}
 							</td>
 							<td
-								class="border-border border-b px-3 py-2 font-mono"
+								class="border-b border-border px-3 py-2 font-mono"
 								class:text-primary={p.action === 'migrate' || p.action === 'create'}
 								class:text-muted-foreground={p.action === 'missing'}
 							>
@@ -298,9 +298,9 @@
 
 	<!-- Flow 2: relation indexes -->
 	{#if flags?.relationIndexes}
-		<section class="border-border border-t p-5">
+		<section class="border-t border-border p-5">
 			<h3 class="text-sm font-semibold">Relation indexes</h3>
-			<p class="text-muted-foreground mt-1 mb-4 max-w-[80ch] text-sm">
+			<p class="mt-1 mb-4 max-w-[80ch] text-sm text-muted-foreground">
 				Postgres doesn't auto-index foreign keys. This indexes the FK columns of
 				<code class="font-mono">toOne</code> relations - unless they're already a leftmost prefix of an
 				existing index (the PK counts), so <code class="font-mono">a</code> on a
@@ -320,12 +320,12 @@
 
 			{#if relError}
 				<pre
-					class="border-destructive/40 bg-destructive/10 text-destructive mb-4 overflow-auto border p-3 text-sm">{relError}</pre>
+					class="mb-4 overflow-auto border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{relError}</pre>
 			{/if}
 
 			{#if relResult}
 				{#if relResult.applied}
-					<p class="border-primary/30 bg-primary/10 text-primary mb-3 border p-2 text-sm">
+					<p class="mb-3 border border-primary/30 bg-primary/10 p-2 text-sm text-primary">
 						Created · {relMissing} index{relMissing === 1 ? '' : 'es'}
 					</p>
 				{/if}
@@ -333,12 +333,12 @@
 				{#snippet relRows()}
 					{#each relPlans as p (p.name)}
 						<tr class="even:bg-muted/40" class:opacity-50={p.action === 'ok'}>
-							<td class="border-border border-b px-3 py-2 font-mono">{p.name}</td>
-							<td class="border-border text-muted-foreground border-b px-3 py-2 font-mono">
+							<td class="border-b border-border px-3 py-2 font-mono">{p.name}</td>
+							<td class="border-b border-border px-3 py-2 font-mono text-muted-foreground">
 								{p.table} ({p.columns.join(', ')})
 							</td>
 							<td
-								class="border-border border-b px-3 py-2 font-mono"
+								class="border-b border-border px-3 py-2 font-mono"
 								class:text-primary={p.action === 'create'}
 							>
 								{p.action === 'ok'
@@ -357,9 +357,9 @@
 
 	<!-- Flow 3: drop orphan columns -->
 	{#if flags?.orphanColumns}
-		<section class="border-border border-t p-5">
+		<section class="border-t border-border p-5">
 			<h3 class="text-sm font-semibold">Orphan columns</h3>
-			<p class="text-muted-foreground mt-1 mb-4 max-w-[80ch] text-sm">
+			<p class="mt-1 mb-4 max-w-[80ch] text-sm text-muted-foreground">
 				Remult only ever ADDs columns, never drops them, so a field removed from an entity leaves its
 				column behind. This lists live columns no entity field declares - e.g. a
 				<code class="font-mono">createdAt</code> now covered by the changelog. Destructive, so nothing
@@ -377,23 +377,23 @@
 
 			{#if dropError}
 				<pre
-					class="border-destructive/40 bg-destructive/10 text-destructive mb-4 overflow-auto border p-3 text-sm">{dropError}</pre>
+					class="mb-4 overflow-auto border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{dropError}</pre>
 			{/if}
 
 			{#if dropResult}
 				{#if dropResult.applied}
-					<p class="border-primary/30 bg-primary/10 text-primary mb-3 border p-2 text-sm">
+					<p class="mb-3 border border-primary/30 bg-primary/10 p-2 text-sm text-primary">
 						Dropped · {dropResult.dropped.length} column{dropResult.dropped.length === 1 ? '' : 's'}
 					</p>
 				{/if}
 
 				{#if dropPlans.length === 0}
-					<p class="text-muted-foreground text-sm">No orphan columns - every column maps to a field.</p>
+					<p class="text-sm text-muted-foreground">No orphan columns - every column maps to a field.</p>
 				{:else}
 					{#snippet dropRows()}
 						{#each dropPlans as p (keyOf(p))}
 							<tr class="even:bg-muted/40">
-								<td class="border-border border-b px-3 py-2">
+								<td class="border-b border-border px-3 py-2">
 									<input
 										type="checkbox"
 										checked={selected.has(keyOf(p))}
@@ -401,8 +401,8 @@
 										aria-label={`Drop ${keyOf(p)}`}
 									/>
 								</td>
-								<td class="border-border border-b px-3 py-2 font-mono">{p.table}</td>
-								<td class="border-border text-primary border-b px-3 py-2 font-mono">{p.column}</td>
+								<td class="border-b border-border px-3 py-2 font-mono">{p.table}</td>
+								<td class="border-b border-border px-3 py-2 font-mono text-primary">{p.column}</td>
 							</tr>
 						{/each}
 					{/snippet}
@@ -414,9 +414,9 @@
 
 	<!-- Flow 4: nullability drift -->
 	{#if flags?.nullable}
-		<section class="border-border border-t p-5">
+		<section class="border-t border-border p-5">
 			<h3 class="text-sm font-semibold">Nullability drift</h3>
-			<p class="text-muted-foreground mt-1 mb-4 max-w-[80ch] text-sm">
+			<p class="mt-1 mb-4 max-w-[80ch] text-sm text-muted-foreground">
 				A field that is not <code class="font-mono">allowNull</code> makes Remult create the column
 				<code class="font-mono">default '' not null</code>, and it never relaxes that afterwards. So a
 				column added before its field learned <code class="font-mono">allowNull</code> still hands every
@@ -439,25 +439,25 @@
 
 			{#if nullError}
 				<pre
-					class="border-destructive/40 bg-destructive/10 text-destructive mb-4 overflow-auto border p-3 text-sm">{nullError}</pre>
+					class="mb-4 overflow-auto border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{nullError}</pre>
 			{/if}
 
 			{#if nullResult}
 				{#if nullResult.applied}
-					<p class="border-primary/30 bg-primary/10 text-primary mb-3 border p-2 text-sm">
+					<p class="mb-3 border border-primary/30 bg-primary/10 p-2 text-sm text-primary">
 						Fixed · {nullResult.fixed.length} column{nullResult.fixed.length === 1 ? '' : 's'}
 					</p>
 				{/if}
 
 				{#if nullPlans.length === 0}
-					<p class="text-muted-foreground text-sm">
+					<p class="text-sm text-muted-foreground">
 						No drift - every nullable field has a plain nullable column.
 					</p>
 				{:else}
 					{#snippet nullRows()}
 						{#each nullPlans as p (keyOf(p))}
 							<tr class="even:bg-muted/40">
-								<td class="border-border border-b px-3 py-2">
+								<td class="border-b border-border px-3 py-2">
 									<input
 										type="checkbox"
 										checked={nullSelected.has(keyOf(p))}
@@ -465,14 +465,14 @@
 										aria-label={`Fix ${keyOf(p)}`}
 									/>
 								</td>
-								<td class="border-border border-b px-3 py-2 font-mono">{p.table}</td>
-								<td class="border-border text-primary border-b px-3 py-2 font-mono">{p.column}</td>
-								<td class="border-border border-b px-3 py-2 text-sm">
+								<td class="border-b border-border px-3 py-2 font-mono">{p.table}</td>
+								<td class="border-b border-border px-3 py-2 font-mono text-primary">{p.column}</td>
+								<td class="border-b border-border px-3 py-2 text-sm">
 									{[p.dropDefault && 'drop default', p.dropNotNull && 'drop not null']
 										.filter(Boolean)
 										.join(' · ')}
 								</td>
-								<td class="border-border border-b px-3 py-2 text-sm">
+								<td class="border-b border-border px-3 py-2 text-sm">
 									{p.blankToNull ? "'' → NULL" : 'rows kept'}
 								</td>
 							</tr>

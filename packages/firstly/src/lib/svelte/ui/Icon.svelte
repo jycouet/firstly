@@ -2,7 +2,6 @@
 	import { BROWSER } from 'esm-env'
 
 	import './LibIcon'
-
 	import { LibIcon_Empty } from './LibIcon'
 
 	/**
