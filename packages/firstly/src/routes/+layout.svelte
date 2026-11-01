@@ -3,7 +3,7 @@
 
 	import { page } from '$app/state'
 
-	import { route } from '$modules/ROUTES'
+	import { route } from '#modules/ROUTES.js'
 
 	import '../app.css'
 

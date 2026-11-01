@@ -1,10 +1,11 @@
+import { fileURLToPath } from 'node:url'
 import adapter from '@sveltejs/adapter-node'
 import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { playwright } from '@vitest/browser-playwright'
 import { defineConfig, loadEnv } from 'vite'
 
-import type { KIT_ROUTES } from '$modules/ROUTES'
+import type { KIT_ROUTES } from '#modules/ROUTES.js'
 
 import { firstly } from './src/lib/vite/index.js'
 
@@ -14,6 +15,8 @@ const config = defineConfig(({ mode }) => {
 	return {
 		// Found late otherwise, and Vite reloads the page in the middle of an e2e
 		optimizeDeps: { include: ['remult', 'remult/internals', '@mdi/js', 'svelte-sonner'] },
+		// Not a # import: boutique is copied into apps as is, so it keeps the public name
+		resolve: { alias: { firstly: fileURLToPath(new URL('./src/lib', import.meta.url)) } },
 		server: {
 			fs: {
 				// FIXME: Allow serving files from one level up to the project root (I don't know why this is necessary... I probably did something wrong in the monorepo...)
@@ -41,10 +44,6 @@ const config = defineConfig(({ mode }) => {
 			}),
 			sveltekit({
 				adapter: adapter(),
-				alias: {
-					$modules: './src/modules',
-					firstly: './src/lib',
-				},
 				onwarn(warning, defaultHandler) {
 					// Do not show 3rd party warnings
 					if (warning.filename?.includes('node_modules')) return

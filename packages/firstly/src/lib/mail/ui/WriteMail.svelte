@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { remult } from 'remult'
-	import { errorMessage } from 'firstly'
 
+	import { errorMessage } from '../../index.js'
 	import { MailController } from '../MailController'
 	import { Roles_Mail } from '../Roles_Mail'
 

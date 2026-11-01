@@ -19,7 +19,8 @@
   },
   "imports": {
     "#lib": "./src/lib/index.ts",
-    "#lib/*": "./src/lib/*"
+    "#lib/*": "./src/lib/*",
+    "#modules/*": "./src/modules/*"
   },
   "scripts": {
     "prepare": "svelte-kit sync",

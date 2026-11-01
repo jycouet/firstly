@@ -2,7 +2,7 @@
 	import type { CellInput, ManyStrategy } from 'firstly/svelte'
 	import { FF_Config, FF_Grid } from 'firstly/svelte'
 
-	import { Task } from '$modules/demo/Task'
+	import { Task } from '#modules/demo/Task.js'
 
 	// FF_Grid is the PUBLISHED batteries-included grid (default skin + input — zero setup).
 	// App_Group is a BOUTIQUE copy-own shell (this repo's copy lives in src/boutique/grid).

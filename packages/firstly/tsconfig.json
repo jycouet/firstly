@@ -3,6 +3,10 @@
 	"include": ["src", "*"],
 	"exclude": ["src/service-worker"],
 	"compilerOptions": {
+		"paths": {
+			"firstly": ["./src/lib"],
+			"firstly/*": ["./src/lib/*"]
+		},
 		"experimentalDecorators": true,
 		"allowJs": true,
 		"checkJs": false,
