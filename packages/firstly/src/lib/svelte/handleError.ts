@@ -1,6 +1,6 @@
 import type { HandleClientError } from '@sveltejs/kit/hooks'
 
-import { navigating } from '$app/state'
+import { navigating, updated } from '$app/state'
 
 type HandleClientErrorInput = Parameters<HandleClientError>[0]
 
@@ -37,6 +37,9 @@ export function stackHandleClientError(
 // Errors SvelteKit/Vite throw when a lazy chunk 404s after a deploy.
 const CHUNK_LOAD_RE =
 	/Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed/
+
+// Kit recovers route chunks itself, and one failing on hover must not reload the page.
+const ROUTE_CHUNK_RE = /\/immutable\/nodes\//
 
 const STORAGE_KEY = 'ff-reload'
 // A URL that failed again within this window is a genuine break, not a stale deploy.
@@ -86,4 +89,16 @@ function reloadOnce(href: string): boolean {
 	} catch {
 		return false // no sessionStorage (private mode) -> don't risk a loop
 	}
+}
+
+/**
+ * Recovers what Kit leaves out after a deploy: a lazy `import()` inside a component. Reloads
+ * only when `updated.check()` confirms a new version, so a flaky network can't loop. Call it
+ * at the top of `hooks.client.js`.
+ */
+export function reloadOnStaleChunk(): void {
+	addEventListener('vite:preloadError', (event) => {
+		if (ROUTE_CHUNK_RE.test(String((event as Event & { payload?: unknown }).payload))) return
+		void updated.check().then((stale) => stale && location.reload())
+	})
 }

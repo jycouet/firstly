@@ -349,10 +349,10 @@ is always safe to show; titles are always plain text.
 `stackHttpClient`. Middlewares run outermost-first; each either short-circuits (return without
 calling `next`) or calls `next(input)`. The base returns `{ message: 'Something went wrong' }`.
 
-`withStaleDeployReload()` is the built-in middleware: after a deploy an open client (esp. SPA builds)
-404s on a lazy chunk; SvelteKit's `updated.check()` recovery lies behind a CDN caching `version.json`.
-It trusts the failure signal instead - on a chunk-load error it hard-reloads once (time-boxed
-one-shot guard, no reload loop), passing every other error to `next`.
+Kit recovers a stale route chunk on its own through `updated.check()`. `withStaleDeployReload()` is
+the built-in middleware for apps behind a CDN caching `version.json`, where that check lies. It trusts
+the failure signal instead - on a chunk-load error it hard-reloads once (time-boxed one-shot guard, no
+reload loop), passing every other error to `next`.
 
 ```js
 // src/hooks.client.js
@@ -365,6 +365,10 @@ export const handleError = stackHandleClientError(withStaleDeployReload(), (next
 ```
 
 Only chunk-load errors reload (a blind 404 reload would break client-side not-found routes).
+
+`reloadOnStaleChunk()` covers what Kit leaves out: a lazy `import()` inside a component failing after
+a deploy. It reloads only when `updated.check()` confirms a new version. Call it at the top of
+`hooks.client.js`, in every app.
 
 ## `handleCaching` - deploy-safe `Cache-Control` headers
 

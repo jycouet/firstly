@@ -1,8 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { stackHandleClientError, withStaleDeployReload } from './handleError'
+import { reloadOnStaleChunk, stackHandleClientError, withStaleDeployReload } from './handleError'
 
-const nav = vi.hoisted(() => ({ navigating: { to: null as { url: URL } | null } }))
+const nav = vi.hoisted(() => ({
+	navigating: { to: null as { url: URL } | null },
+	updated: { check: vi.fn<() => Promise<boolean>>() },
+}))
 vi.mock('$app/state', () => nav)
 
 const CHUNK_MSG = 'Failed to fetch dynamically imported module: /_app/immutable/x.js'
@@ -18,20 +21,25 @@ function input(over: { message?: string; href?: string } = {}) {
 
 let store: Record<string, string>
 let assign: ReturnType<typeof vi.fn>
+let reload: ReturnType<typeof vi.fn>
 
 beforeEach(() => {
 	store = {}
 	assign = vi.fn()
+	reload = vi.fn()
 	vi.stubGlobal('sessionStorage', {
 		getItem: (k: string) => store[k] ?? null,
 		setItem: (k: string, v: string) => void (store[k] = v),
 		removeItem: (k: string) => void delete store[k],
 	})
-	vi.stubGlobal('location', { assign, href: 'https://app.test/page' })
+	vi.stubGlobal('location', { assign, reload, href: 'https://app.test/page' })
 	nav.navigating.to = null
 })
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+	vi.unstubAllGlobals()
+	vi.clearAllMocks()
+})
 
 describe('stackHandleClientError', () => {
 	it('runs middlewares outermost-first and returns the base message', () => {
@@ -111,5 +119,37 @@ describe('withStaleDeployReload', () => {
 		const res = middleware({ ...input(), kind: 'framework', error: { message: CHUNK_MSG } } as any)
 		expect(assign).not.toHaveBeenCalled()
 		expect(res).toEqual({ message: 'logged' })
+	})
+})
+
+describe('reloadOnStaleChunk', () => {
+	const COMPONENT = `${CHUNK_MSG.replace('x.js', 'chunks/map.js')}`
+	const ROUTE = `${CHUNK_MSG.replace('x.js', 'nodes/9.js')}`
+
+	async function fail(message: string, stale: boolean) {
+		nav.updated.check.mockResolvedValue(stale)
+		let listener: (event: Event & { payload: unknown }) => void = () => {}
+		vi.stubGlobal('addEventListener', (type: string, fn: typeof listener) => {
+			if (type === 'vite:preloadError') listener = fn
+		})
+		reloadOnStaleChunk()
+		listener(Object.assign(new Event('vite:preloadError'), { payload: new TypeError(message) }))
+		await vi.waitFor(() => Promise.resolve())
+	}
+
+	it('reloads when a lazy component chunk fails on a new version', async () => {
+		await fail(COMPONENT, true)
+		expect(reload).toHaveBeenCalledOnce()
+	})
+
+	it('stays put without a new version', async () => {
+		await fail(COMPONENT, false)
+		expect(nav.updated.check).toHaveBeenCalled()
+		expect(reload).not.toHaveBeenCalled()
+	})
+
+	it('leaves route chunks to Kit', async () => {
+		await fail(ROUTE, true)
+		expect(reload).not.toHaveBeenCalled()
 	})
 })
