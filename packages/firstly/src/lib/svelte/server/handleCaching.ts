@@ -1,4 +1,4 @@
-import type { Handle } from '@sveltejs/kit'
+import type { Handle } from '@sveltejs/kit/hooks'
 
 // Cacheable static assets by extension (used to skip the no-cache header).
 const STATIC_ASSET_RE = /\.(js|css|ico|png|jpg|jpeg|gif|svg|webp|avif|woff2?|ttf|eot)$/

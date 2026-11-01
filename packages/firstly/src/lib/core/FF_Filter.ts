@@ -48,7 +48,7 @@ export const FF_Filter = {
 	 * Admin sees all, others only their own (typed):
 	 * ```ts
 	 * import { FF_Entity, FF_Filter } from 'firstly'
-	 * import { Roles } from '$lib/roles'
+	 * import { Roles } from '#lib/roles.js'
 	 *
 	 * \@FF_Entity<Task>('tasks', {
 	 *   apiPrefilter: () => FF_Filter.ownerOr<Task>({ roles: [Roles.Admin] }),

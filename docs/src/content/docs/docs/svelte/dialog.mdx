@@ -265,7 +265,7 @@ Every label (`title`, `confirmLabel`, `cancelLabel`, `message`, ...) takes a `Lo
 plain string, or a zero-arg function (a paraglide / i18next message) resolved at render time.
 
 ```ts
-import * as m from '$lib/paraglide/messages'
+import * as m from '#lib/paraglide/messages.js'
 
 await dialog.confirm(m.delete_item(), { confirmLabel: m.delete() })
 ```
