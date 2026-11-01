@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit'
+
 import { Filter, repo, type ClassType, type FindOptions } from 'remult'
 
 import { getRequestEvent, query } from '$app/server'
