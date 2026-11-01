@@ -13,8 +13,16 @@ export type Repo = typeof globalRepo
  *
  * Name the result so the intent shows at every query:
  * ```ts
- * const repoClient = repoFetch(event.fetch)
- * await repoClient(Task).find()
+ * // +page.ts
+ * import { repoFetch } from 'firstly/svelte'
+ *
+ * import type { PageLoad } from './$types'
+ *
+ * export const load: PageLoad = async (event) => {
+ * 	const repoClient = repoFetch(event.fetch)
+ * 	const tasks = await repoClient(Task).find()
+ * 	return { tasks }
+ * }
  * ```
  *
  * TODO(remult): framework-agnostic (only needs a fetch) - candidate to live in
@@ -31,16 +39,20 @@ export function repoFetch(fetch: typeof globalThis.fetch, options?: { url?: stri
 
 /**
  * Wrap a load: the callback receives a repo bound to `event.fetch`, then the event.
- * Works for universal (`+page.ts`) AND server (`+page.server.ts`) loads.
+ * Works for universal (`+page.ts`) AND server (`+page.server.ts`) loads:
+ * `satisfies` types the event, including `cookies` and `locals` in a server load.
  *
  * ```ts
- * export const load = loadRepo(async (repoClient, { params }) => ({
- * 	task: await repoClient(Task).findFirst({ id: params.id }),
- * })) satisfies PageLoad // or PageServerLoad
- * ```
+ * // +page.ts
+ * import { loadRepo } from 'firstly/svelte'
  *
- * For server-only event members (`cookies`, `locals`, ...) annotate the event:
- * `loadRepo(async (repoClient, event: ServerLoadEvent) => ...)`.
+ * import type { PageLoad } from './$types'
+ *
+ * export const load = loadRepo(async (repoClient, { params }) => {
+ * 	const task = await repoClient(Task).findFirst({ id: params.id })
+ * 	return { task }
+ * }) satisfies PageLoad // or PageServerLoad
+ * ```
  *
  * TODO(remult): candidate to live in remult - only the event default is
  * SvelteKit-specific, the constraint itself is structural (`{ fetch }`).

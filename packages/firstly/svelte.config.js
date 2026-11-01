@@ -1,5 +1,8 @@
 import adapter from '@sveltejs/adapter-node'
 
+// svelte-package resolves aliases in comments too: JSDoc samples must keep `firstly/...`
+const packaging = process.argv[1]?.includes('svelte-package')
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	preprocess: [{ prebundleSvelteLibraries: true }],
@@ -12,7 +15,7 @@ const config = {
 			$modules: './src/modules',
 			$server: './src/server',
 
-			firstly: './src/lib',
+			...(packaging ? {} : { firstly: './src/lib' }),
 			$lib2: './src/lib2',
 		},
 	},

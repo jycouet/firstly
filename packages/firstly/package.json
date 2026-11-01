@@ -98,6 +98,11 @@
       "svelte": "./esm/svelte/index.js",
       "default": "./esm/svelte/index.js"
     },
+    "./svelte/query": {
+      "types": "./esm/svelte/query/index.svelte.d.ts",
+      "svelte": "./esm/svelte/query/index.svelte.js",
+      "default": "./esm/svelte/query/index.svelte.js"
+    },
     "./svelte/server": {
       "types": "./esm/svelte/server/index.d.ts",
       "default": "./esm/svelte/server/index.js"
