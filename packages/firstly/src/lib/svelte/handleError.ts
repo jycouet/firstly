@@ -1,5 +1,7 @@
 import type { HandleClientError } from '@sveltejs/kit/hooks'
 
+import { navigating } from '$app/state'
+
 type HandleClientErrorInput = Parameters<HandleClientError>[0]
 
 export type HandleClientErrorMiddleware = (next: HandleClientError) => HandleClientError
@@ -53,12 +55,18 @@ export function withStaleDeployReload(): HandleClientErrorMiddleware {
 		if (
 			input.kind === 'unknown' &&
 			CHUNK_LOAD_RE.test(String(input.error)) &&
+			isVisited(input.event.url) &&
 			reloadOnce(input.event.url.href)
 		) {
 			return // page is unloading; no error surfaces
 		}
 		return next(input)
 	}
+}
+
+// A hovered link preloads through handleError too, and must not navigate on its own.
+function isVisited(url: URL): boolean {
+	return url.href === location.href || url.href === navigating.to?.url.href
 }
 
 /** Hard-reload `href` unless it already failed within the guard window. Returns true if reloading. */

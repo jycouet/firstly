@@ -2,7 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { stackHandleClientError, withStaleDeployReload } from './handleError'
 
+const nav = vi.hoisted(() => ({ navigating: { to: null as { url: URL } | null } }))
+vi.mock('$app/state', () => nav)
+
 const CHUNK_MSG = 'Failed to fetch dynamically imported module: /_app/immutable/x.js'
+const OTHER = 'https://app.test/other'
 
 function input(over: { message?: string; href?: string } = {}) {
 	return {
@@ -23,7 +27,8 @@ beforeEach(() => {
 		setItem: (k: string, v: string) => void (store[k] = v),
 		removeItem: (k: string) => void delete store[k],
 	})
-	vi.stubGlobal('location', { assign })
+	vi.stubGlobal('location', { assign, href: 'https://app.test/page' })
+	nav.navigating.to = null
 })
 
 afterEach(() => vi.unstubAllGlobals())
@@ -65,6 +70,18 @@ describe('withStaleDeployReload', () => {
 		const res = handle({ message: CHUNK_MSG })
 		expect(assign).toHaveBeenCalledWith('https://app.test/page')
 		expect(res).toBeUndefined()
+	})
+
+	it('reloads on the target of a navigation', () => {
+		nav.navigating.to = { url: new URL(OTHER) }
+		handle({ message: CHUNK_MSG, href: OTHER })
+		expect(assign).toHaveBeenCalledWith(OTHER)
+	})
+
+	it('leaves a failed preload alone', () => {
+		const res = handle({ message: CHUNK_MSG, href: OTHER })
+		expect(assign).not.toHaveBeenCalled()
+		expect(res).toEqual({ message: 'logged' })
 	})
 
 	it('does not reload twice for the same url (loop guard)', () => {
