@@ -65,6 +65,8 @@ npm add firstly@latest -D
 
 No CLI, no scaffolder. Works in any Remult project.
 
+firstly 0.12+ supports SvelteKit 3 only (Node 22.17+); Kit 2 stays on `0.11.x`. Vite 8 does not lower decorators by itself: add `oxc: { decorator: { legacy: true } }` to the Vite config.
+
 ## 📦 Modules (import)
 
 Register like any Remult module.
@@ -143,7 +145,7 @@ Tiny helpers for the common "owner-only" / "admin or owner" patterns. `FF_Allow`
 import { Fields } from 'remult'
 import { FF_Allow, FF_Entity, FF_Filter } from 'firstly'
 
-import { Roles } from '$lib/roles'
+import { Roles } from '#lib/roles.js'
 
 @FF_Entity<Task>('tasks', {
 	// Owner-only writes:
@@ -424,7 +426,7 @@ with `resolveMessage(m)` (`typeof m === 'function' ? m() : m`). Pass the message
 pre-resolved string) so locale switches stay reactive:
 
 ```ts
-import * as m from '$lib/paraglide/messages'
+import * as m from '#lib/paraglide/messages.js'
 
 dialog.confirm(m.delete_confirm, { confirmLabel: m.delete, danger: true })
 ```
@@ -437,10 +439,10 @@ Grab a boutique recipe with [`degit`](https://github.com/Rich-Harris/degit):
 npx degit jycouet/firstly/packages/firstly/src/boutique/auth src/modules/auth
 ```
 
-Once copied, **it's your code**. Rewire imports (use your framework's env convention, e.g. `$env/static/private` in SvelteKit), adjust UI, plug in providers. Register its module the same way as an imported one:
+Once copied, **it's your code**. Rewire imports (use your framework's env convention, e.g. `$app/env/private` in SvelteKit), adjust UI, plug in providers. Register its module the same way as an imported one:
 
 ```ts
-import { auth } from '$lib/modules/auth/server/module'
+import { auth } from '#lib/modules/auth/server/module.js'
 
 export const api = remultApi({ modules: [auth({ SUPER_ADMIN_EMAILS })] })
 ```
@@ -457,7 +459,7 @@ import { Roles_Cron } from 'firstly/cron'
 import { Roles_Mail } from 'firstly/mail'
 import { Roles_SqlAdmin } from 'firstly/sqlAdmin'
 
-import { Roles_Auth } from '$lib/modules/auth/entities'
+import { Roles_Auth } from '#lib/modules/auth/entities.js'
 
 export const Roles = {
 	Admin: 'admin',

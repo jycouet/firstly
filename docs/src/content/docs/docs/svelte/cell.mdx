@@ -43,7 +43,7 @@ export class Task {
 <script lang="ts">
 	import { FF_Grid } from 'firstly/svelte'
 
-	import { Task } from '$lib/Task'
+	import { Task } from '#lib/Task.js'
 </script>
 
 <FF_Grid entity={Task} />
@@ -115,7 +115,7 @@ renders each `inputType`. Register it once at the app root via `<FF_Config cell=
 <script lang="ts">
 	import { FF_Config } from 'firstly/svelte'
 
-	import Input from '$lib/ff-grid/Input.svelte'
+	import Input from '#lib/ff-grid/Input.svelte'
 </script>
 
 <FF_Config cell={{ inputs: { text: Input, number: Input, checkbox: Input } }}>

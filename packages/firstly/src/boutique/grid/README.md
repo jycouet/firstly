@@ -19,7 +19,7 @@ Register the input registry + dialog manager once at your app root:
 <script lang="ts">
 	import { FF_Config, FF_DialogManager } from 'firstly/svelte'
 
-	import Input from '$lib/app-grid/Input.svelte'
+	import Input from '#lib/app-grid/Input.svelte'
 </script>
 
 <FF_Config cell={{ inputs: { text: Input, number: Input, checkbox: Input } }}>
