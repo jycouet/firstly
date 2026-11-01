@@ -65,7 +65,7 @@ npm add firstly@latest -D
 
 No CLI, no scaffolder. Works in any Remult project.
 
-firstly 0.12+ supports SvelteKit 3 only (Node 22.17+); Kit 2 stays on `0.11.x`. Vite 8 does not lower decorators by itself: add `oxc: { decorator: { legacy: true } }` to the Vite config.
+firstly 0.12+ supports SvelteKit 3 only (Node 22.17+); Kit 2 stays on `0.11.x`. The `firstly()` Vite plugin sets `oxc: { decorator: { legacy: true } }` for remult's decorators. Without the plugin, add it to the Vite config.
 
 ## 📦 Modules (import)
 

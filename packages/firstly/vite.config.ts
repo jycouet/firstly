@@ -12,8 +12,6 @@ import { firstly } from './src/lib/vite/index.js'
 const config = defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '')
 	return {
-		// Vite 8 does not lower remult's decorators by itself
-		oxc: { decorator: { legacy: true } },
 		// Found late otherwise, and Vite reloads the page in the middle of an e2e
 		optimizeDeps: { include: ['remult', 'remult/internals', '@mdi/js', 'svelte-sonner'] },
 		server: {

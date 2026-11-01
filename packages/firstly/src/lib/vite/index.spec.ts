@@ -9,6 +9,12 @@ async function clientTransform(code: string) {
 }
 
 describe('firstly', () => {
+	it('enables legacy decorators', () => {
+		const plugins = (firstly() as any[]).flat(Infinity)
+		const plugin = plugins.find((p) => p?.name === 'vite-plugin-firstly')
+		expect(plugin.config().oxc.decorator.legacy).toBe(true)
+	})
+
 	it.each(['$app/env/private', '$env/static/private', '$env/dynamic/private'])(
 		'nullifies %s on the client by default',
 		async (mod) => {
