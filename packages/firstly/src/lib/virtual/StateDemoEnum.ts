@@ -2,9 +2,7 @@ import { ValueListFieldType } from 'remult'
 
 import { BaseEnum } from '../core/BaseEnum'
 import type { BaseEnumOptions } from '../core/BaseEnum'
-
 import '../svelte/ui/LibIcon'
-
 import { LibIcon_Add, LibIcon_Delete, LibIcon_Edit } from '../svelte/ui/LibIcon'
 
 @ValueListFieldType()

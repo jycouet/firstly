@@ -65,7 +65,7 @@ export const resolveMessage = (m: LocalizedMessage): string => (typeof m === 'fu
  *
  * ```ts
  * import { createValidators } from 'firstly'
- * import * as m from '$lib/paraglide/messages'
+ * import * as m from '#lib/paraglide/messages.js'
  *
  * export const App_Validators = createValidators({
  *   email: {

@@ -1,6 +1,6 @@
 // See https://kit.svelte.dev/docs/types#app
 
-import type { _AppUser } from '$modules/user/AppUser'
+import type { _AppUser } from '#modules/user/AppUser.js'
 
 // for information about these interfaces
 declare global {

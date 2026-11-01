@@ -50,17 +50,17 @@
 
 {#snippet formBody(close: (r?: { ok: true; data: unknown } | { ok: false }) => void)}
 	<h2 class="mb-3 text-lg font-semibold">Custom dialog (show)</h2>
-	<p class="text-muted-foreground mb-3 text-sm">
+	<p class="mb-3 text-sm text-muted-foreground">
 		<code>show(body)</code> renders any snippet and resolves <code>{`{ ok, data }`}</code>.
 	</p>
 	<input
 		bind:value={name}
 		placeholder="Type something"
-		class="border-border bg-card mb-4 w-full rounded-md border px-3 py-2 text-sm"
+		class="mb-4 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
 	/>
 	<div class="flex justify-end">
 		<button
-			class="bg-primary text-primary-foreground rounded-md px-3 py-1.5 text-sm"
+			class="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
 			onclick={() => close({ ok: true, data: { name } })}
 		>
 			OK
@@ -69,48 +69,48 @@
 {/snippet}
 
 <div class="max-w-2xl">
-	<p class="text-muted-foreground mb-4 text-sm">
+	<p class="mb-4 text-sm text-muted-foreground">
 		Every dialog renders through one <code>&lt;FF_DialogManager /&gt;</code> with built-in, theme-adaptive
 		defaults. Open any:
 	</p>
 	<div class="flex flex-wrap gap-2">
 		<button
-			class="bg-primary text-primary-foreground rounded-md px-3 py-2 text-sm font-medium"
+			class="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
 			onclick={openShow}
 		>
 			show (custom body)
 		</button>
 		<button
-			class="bg-primary text-primary-foreground rounded-md px-3 py-2 text-sm font-medium"
+			class="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
 			onclick={openOpen}
 		>
 			open (component)
 		</button>
 		<button
-			class="bg-primary text-primary-foreground rounded-md px-3 py-2 text-sm font-medium"
+			class="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
 			onclick={openConfirm}
 		>
 			confirm
 		</button>
 		<button
-			class="bg-destructive text-destructive-foreground rounded-md px-3 py-2 text-sm font-medium"
+			class="rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground"
 			onclick={openDanger}
 		>
 			confirm (danger)
 		</button>
 		<button
-			class="bg-primary text-primary-foreground rounded-md px-3 py-2 text-sm font-medium"
+			class="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
 			onclick={openPrompt}
 		>
 			prompt
 		</button>
 		<button
-			class="bg-primary text-primary-foreground rounded-md px-3 py-2 text-sm font-medium"
+			class="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
 			onclick={openPromptHint}
 		>
 			prompt (hint)
 		</button>
 	</div>
-	<p class="text-muted-foreground mt-6 text-sm">Last result:</p>
-	<pre class="bg-muted mt-1 rounded-md p-3 text-sm">{lastResult}</pre>
+	<p class="mt-6 text-sm text-muted-foreground">Last result:</p>
+	<pre class="mt-1 rounded-md bg-muted p-3 text-sm">{lastResult}</pre>
 </div>

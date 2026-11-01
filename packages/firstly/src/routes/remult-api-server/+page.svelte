@@ -3,7 +3,7 @@
 </script>
 
 <h1 class="text-xl font-semibold">remultApiServerLoad</h1>
-<p class="text-muted-foreground text-sm">
+<p class="text-sm text-muted-foreground">
 	A <code>+page.server.ts</code> whose <code>repo(ApiItem)</code> read is wrapped to pass the API
 	gate (only <code>pub</code> rows), instead of the privileged in-process provider that would see all.
 </p>

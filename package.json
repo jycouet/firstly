@@ -30,7 +30,7 @@
     "@kitql/eslint-config": "catalog:kitql",
     "@playwright/test": "catalog:testing",
     "eslint": "catalog:kitql",
-    "prettier": "catalog:tooling"
+    "oxfmt": "catalog:kitql"
   },
   "sideEffects": false,
   "publishConfig": {

@@ -94,7 +94,7 @@ DMARC DNS records to paste into your registrar), grab an API key, then:
 
 ```ts
 // Load RESEND_API_KEY from your framework's env helper:
-//   SvelteKit:   import { RESEND_API_KEY } from '$env/static/private'
+//   SvelteKit:   import { RESEND_API_KEY } from '$app/env/private'
 //   Next / Node: const RESEND_API_KEY = process.env.RESEND_API_KEY!
 
 export const api = remultApi({

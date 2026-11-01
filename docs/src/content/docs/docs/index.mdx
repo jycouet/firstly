@@ -21,6 +21,13 @@ npm run dev
 
 Now that you have `firstly` in your project, you can use it's modules!
 
+:::note[SvelteKit 3 only]
+`firstly` 0.12+ needs SvelteKit 3 and Node 22.17+. On SvelteKit 2, stay on `0.11.x`.
+
+The `firstly()` Vite plugin sets `oxc: { decorator: { legacy: true } }` for remult's decorators.
+Without the plugin, add it to your Vite config.
+:::
+
 ## AI Agent Skill
 
 Coding with an AI agent? Install the `firstly` skill so it knows our conventions

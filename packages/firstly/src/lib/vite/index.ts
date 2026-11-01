@@ -36,6 +36,12 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 	// 	},
 	// })
 
+	p.push({
+		name: 'vite-plugin-firstly',
+		// Oxc leaves remult's decorators raw unless it finds experimentalDecorators in a tsconfig
+		config: () => ({ oxc: { decorator: { legacy: true } } }),
+	})
+
 	p.push(
 		kitRoutes<KIT_ROUTES>({
 			...(options?.kitRoutes ?? {}),
@@ -65,7 +71,12 @@ export function firstly<KIT_ROUTES extends RouteMappings>(options?: {
 				},
 			],
 			debug: options?.stripper?.debug ?? false,
-			nullify: options?.stripper?.nullify ?? ['$env/static/private', '$env/dynamic/private'],
+			nullify: options?.stripper?.nullify ?? [
+				'$app/env/private',
+				// deprecated by Kit 3, but still resolvable
+				'$env/static/private',
+				'$env/dynamic/private',
+			],
 		}),
 	)
 

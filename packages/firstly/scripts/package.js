@@ -28,6 +28,7 @@ for (let i = 0; i < packages.length; i++) {
 
 // adjust pkg json however you like ...
 delete pkg.publishConfig
+delete pkg.imports
 delete pkg.scripts
 delete pkg.devDependencies
 delete pkg.files

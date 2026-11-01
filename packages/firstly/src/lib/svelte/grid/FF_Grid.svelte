@@ -9,10 +9,10 @@
 
 	import { errorMessage } from '../../core/helper.js'
 	import type { DialogClose } from '../dialog.svelte.js'
-	import FF_Config from '../FF_Config.svelte'
-	import { ffConfig } from '../FF_Config.svelte.js'
 	import { ff } from '../ff.svelte.js'
 	import type { FF_Many, ManyStrategy } from '../ff.svelte.js'
+	import FF_Config from '../FF_Config.svelte'
+	import { ffConfig } from '../FF_Config.svelte.js'
 	import Icon from '../ui/Icon.svelte'
 	import { LibIcon_Add, LibIcon_Edit } from '../ui/LibIcon.js'
 	import { buildCells } from './buildCells.js'

@@ -65,6 +65,8 @@ npm add firstly@latest -D
 
 No CLI, no scaffolder. Works in any Remult project.
 
+firstly 0.12+ supports SvelteKit 3 only (Node 22.17+); Kit 2 stays on `0.11.x`. The `firstly()` Vite plugin sets `oxc: { decorator: { legacy: true } }` for remult's decorators. Without the plugin, add it to the Vite config.
+
 ## 📦 Modules (import)
 
 Register like any Remult module.
@@ -143,7 +145,7 @@ Tiny helpers for the common "owner-only" / "admin or owner" patterns. `FF_Allow`
 import { Fields } from 'remult'
 import { FF_Allow, FF_Entity, FF_Filter } from 'firstly'
 
-import { Roles } from '$lib/roles'
+import { Roles } from '#lib/roles.js'
 
 @FF_Entity<Task>('tasks', {
 	// Owner-only writes:
@@ -347,10 +349,10 @@ is always safe to show; titles are always plain text.
 `stackHttpClient`. Middlewares run outermost-first; each either short-circuits (return without
 calling `next`) or calls `next(input)`. The base returns `{ message: 'Something went wrong' }`.
 
-`withStaleDeployReload()` is the built-in middleware: after a deploy an open client (esp. SPA builds)
-404s on a lazy chunk; SvelteKit's `updated.check()` recovery lies behind a CDN caching `version.json`.
-It trusts the failure signal instead - on a chunk-load error it hard-reloads once (time-boxed
-one-shot guard, no reload loop), passing every other error to `next`.
+Kit recovers a stale route chunk on its own through `updated.check()`. `withStaleDeployReload()` is
+the built-in middleware for apps behind a CDN caching `version.json`, where that check lies. It trusts
+the failure signal instead - on a chunk-load error it hard-reloads once (time-boxed one-shot guard, no
+reload loop), passing every other error to `next`.
 
 ```js
 // src/hooks.client.js
@@ -363,6 +365,10 @@ export const handleError = stackHandleClientError(withStaleDeployReload(), (next
 ```
 
 Only chunk-load errors reload (a blind 404 reload would break client-side not-found routes).
+
+`reloadOnStaleChunk()` covers what Kit leaves out: a lazy `import()` inside a component failing after
+a deploy. It reloads only when `updated.check()` confirms a new version. Call it at the top of
+`hooks.client.js`, in every app.
 
 ## `handleCaching` - deploy-safe `Cache-Control` headers
 
@@ -424,7 +430,7 @@ with `resolveMessage(m)` (`typeof m === 'function' ? m() : m`). Pass the message
 pre-resolved string) so locale switches stay reactive:
 
 ```ts
-import * as m from '$lib/paraglide/messages'
+import * as m from '#lib/paraglide/messages.js'
 
 dialog.confirm(m.delete_confirm, { confirmLabel: m.delete, danger: true })
 ```
@@ -437,10 +443,10 @@ Grab a boutique recipe with [`degit`](https://github.com/Rich-Harris/degit):
 npx degit jycouet/firstly/packages/firstly/src/boutique/auth src/modules/auth
 ```
 
-Once copied, **it's your code**. Rewire imports (use your framework's env convention, e.g. `$env/static/private` in SvelteKit), adjust UI, plug in providers. Register its module the same way as an imported one:
+Once copied, **it's your code**. Rewire imports (use your framework's env convention, e.g. `$app/env/private` in SvelteKit), adjust UI, plug in providers. Register its module the same way as an imported one:
 
 ```ts
-import { auth } from '$lib/modules/auth/server/module'
+import { auth } from '#lib/modules/auth/server/module.js'
 
 export const api = remultApi({ modules: [auth({ SUPER_ADMIN_EMAILS })] })
 ```
@@ -457,7 +463,7 @@ import { Roles_Cron } from 'firstly/cron'
 import { Roles_Mail } from 'firstly/mail'
 import { Roles_SqlAdmin } from 'firstly/sqlAdmin'
 
-import { Roles_Auth } from '$lib/modules/auth/entities'
+import { Roles_Auth } from '#lib/modules/auth/entities.js'
 
 export const Roles = {
 	Admin: 'admin',

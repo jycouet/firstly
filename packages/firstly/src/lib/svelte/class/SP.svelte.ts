@@ -1,9 +1,4 @@
-// FIXME
-// Why packages/ui pnpm check fails with goto and page?
-//   - OK it's not a sveltekit project... But this is never used! So why is it checking it ?!
-// @ts-ignore
 import { goto } from '$app/navigation'
-// @ts-ignore
 import { page } from '$app/state'
 
 import { debounce } from '../helpers/debounce.js'
@@ -467,9 +462,8 @@ export class SP<T extends Record<string, any>> {
 		if (strSearch === window.location.search) return
 
 		goto(`${window.location.pathname}${strSearch}`, {
-			keepFocus: true,
-			replaceState: true,
-			noScroll: true,
+			replace: true,
+			reset: false,
 			...this.options.gotoOpts,
 		})
 

@@ -14,7 +14,7 @@ Both take a **reactive options getter** and expose reactive state (`items`, `dra
 <script lang="ts">
 	import { ff } from 'firstly/svelte'
 
-	import { Task } from '$lib/Task'
+	import { Task } from '#lib/Task.js'
 
 	const tasks = ff(Task).many(() => ({ where: { done: false } }), 'listen')
 </script>

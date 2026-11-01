@@ -45,7 +45,7 @@ export const FF_Allow = {
 	 * Admin OR owner (typed):
 	 * ```ts
 	 * import { FF_Entity, FF_Allow } from 'firstly'
-	 * import { Roles } from '$lib/roles'
+	 * import { Roles } from '#lib/roles.js'
 	 *
 	 * \@FF_Entity<Task>('tasks', {
 	 *   allowApiUpdate: FF_Allow.ownerOr<Task>({ roles: [Roles.Admin] }),
