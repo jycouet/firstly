@@ -83,6 +83,10 @@ export default defineConfig({
 					label: 'Svelte',
 					items: [
 						{
+							label: 'reading data',
+							link: '/docs/svelte/data',
+						},
+						{
 							label: 'ff (reactive layer)',
 							link: '/docs/svelte/ff',
 						},
