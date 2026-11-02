@@ -44,6 +44,8 @@ const config = defineConfig(({ mode }) => {
 			}),
 			sveltekit({
 				adapter: adapter(),
+				compilerOptions: { experimental: { async: true } },
+				experimental: { remoteFunctions: true },
 				onwarn(warning, defaultHandler) {
 					// Do not show 3rd party warnings
 					if (warning.filename?.includes('node_modules')) return

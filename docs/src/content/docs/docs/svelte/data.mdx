@@ -1,0 +1,162 @@
+---
+title: Reading data
+---
+
+A SvelteKit page runs twice: on the server (SSR), then in the browser. remult's `repo(E)` is not the
+same in both:
+
+- **in the browser**, it calls your API: API rules apply (`allowApiRead`, `apiPrefilter`,
+  `includeInApi`).
+- **on the server**, it reads the database directly: no API rules.
+
+:::caution[Don't read with `repo(E)` during SSR]
+At the top of a component `<script>`, or in a load that returns data to the page, `repo(E)` runs on
+the server too. The page would render rows and fields this user is not allowed to see.
+:::
+
+Four ways to read safely. All four apply your API rules:
+
+|                            | Data in the SSR HTML   | Files          | After a `repo(E)` write |
+| -------------------------- | ---------------------- | -------------- | ----------------------- |
+| `ssr = false`              | no SSR at all          | 2 (`+page.ts`) | re-fetch yourself       |
+| `$effect`                  | no, page renders empty | 1              | re-fetch yourself       |
+| `loadRepo`                 | yes                    | 2 (`+page.ts`) | `invalidateAll()`       |
+| `queryRepo` (experimental) | yes                    | 1              | automatic               |
+
+## 1. `ssr = false`: browser only
+
+```ts
+// +page.ts
+export const ssr = false
+```
+
+```svelte
+<!-- +page.svelte -->
+<script lang="ts">
+	import { repo } from 'remult'
+
+	import { Task } from '#lib/Task.js'
+</script>
+
+{#await repo(Task).find() then tasks}
+	{#each tasks as task (task.id)}
+		<li>{task.title}</li>
+	{/each}
+{/await}
+```
+
+The page never runs on the server, so `repo(E)` always goes through the API. The cost: no HTML until
+the JS loads, nothing for crawlers or link previews. Put it in a `+layout.ts` for a whole section.
+
+## 2. `$effect`: one file, data in the browser
+
+```svelte
+<script lang="ts">
+	import { repo } from 'remult'
+
+	import { Task } from '#lib/Task.js'
+
+	let { params } = $props()
+	let tasks = $state<Task[]>([])
+
+	$effect(() => {
+		repo(Task)
+			.find({ where: { slug: params.slug } })
+			.then((rows) => (tasks = rows))
+	})
+</script>
+
+{#each tasks as task (task.id)}
+	<li>{task.title}</li>
+{/each}
+```
+
+`$effect` never runs on the server: SSR sends the page without the data, the browser fills it in.
+[`ff`](/docs/svelte/ff) is built the same way, with loading state, paging and writes wired for you.
+
+## 3. `loadRepo`: SSR in a load
+
+```ts
+// +page.ts
+import { loadRepo } from 'firstly/svelte'
+
+import { Task } from '#lib/Task.js'
+
+import type { PageLoad } from './$types'
+
+export const load = loadRepo(async (repoClient, { params }) => {
+	const tasks = await repoClient(Task).find({ where: { slug: params.slug } })
+	return { tasks }
+}) satisfies PageLoad
+```
+
+```svelte
+<!-- +page.svelte -->
+<script lang="ts">
+	let { data } = $props()
+</script>
+
+{#each data.tasks as task (task.id)}
+	<li>{task.title}</li>
+{/each}
+```
+
+`repoClient` is a `repo` that goes through your API with `event.fetch`, on the server too, as the
+current user. Hydration reuses the SSR response: the browser sends no second query. After a write,
+call `invalidateAll()` to run the load again.
+
+`loadRepo` also works in `+page.server.ts` (`satisfies PageServerLoad` types `cookies` and
+`locals`). There, return plain objects: Kit serializes server data. Under the hood it's
+`repoFetch(event.fetch)`, use it directly when you need more control.
+
+## 4. `queryRepo` (experimental)
+
+All the plumbing is done for you: SSR, API rules and writes that refresh, in one file.
+
+```svelte
+<script lang="ts">
+	import { repo } from 'remult'
+
+	import { queryRepo } from 'firstly/svelte/query'
+
+	import { Task } from '#lib/Task.js'
+
+	let { params } = $props()
+
+	let tasks = $derived(await queryRepo(Task).find({ where: { slug: params.slug } }))
+</script>
+
+{#each tasks as task (task.id)}
+	<button onclick={() => repo(Task).update(task.id, { done: true })}>{task.title}</button>
+{/each}
+```
+
+- SSR reads through your API as the current user, hydration sends no query.
+- When `params.slug` changes, it reads again.
+- Plain `repo(E)` writes in the browser refresh the `queryRepo` reads of `E` on screen. Call
+  `.refresh()` for what it can't see: BackendMethods, `include`d entities, other users' writes.
+- Also `findFirst(where)` and `count(where)`.
+
+It needs Kit's remote functions and Svelte's `await`:
+
+```ts
+// vite.config.ts
+sveltekit({
+	compilerOptions: { experimental: { async: true } },
+	experimental: { remoteFunctions: true },
+})
+```
+
+How it works: a class can't be sent to the server, so `queryRepo` sends the entity key to a remote
+`query`. The server finds the class again, reads through your API with `event.fetch` and sends JSON
+back, which `queryRepo` turns into `Task` instances.
+
+:::note[Experimental]
+
+- Arguments travel in the URL: very long filters can exceed its limit.
+- A failed refresh shows the error page, like any Kit `.refresh()`.
+- In dev only, each read runs once more on hydration.
+- Two `$derived(await ...)` in a row run one after the other on first render
+  ([`await_waterfall`](https://svelte.dev/docs/svelte/runtime-warnings#Client-warnings-await_waterfall)).
+
+:::
