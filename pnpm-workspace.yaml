@@ -35,7 +35,7 @@ catalogs:
 
   kitql:
     '@kitql/eslint-config': 0.10.2
-    eslint: 10.13.0
+    eslint: 10.14.0
     oxfmt: 0.74.0
 
   testing:
