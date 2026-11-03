@@ -61,7 +61,10 @@
 	const strategy = untrack(() => strategyProp ?? hub.strategy ?? 'paginate')
 	const pageSize = untrack(() => pageSizeProp ?? hub.pageSize ?? 25)
 
-	let sort = $state<EntityOrderBy<T> | undefined>(untrack(() => orderBy ?? hub.orderBy))
+	// fall back to the entity default so the header arrow shows what remult applies on landing
+	let sort = $state<EntityOrderBy<T> | undefined>(
+		untrack(() => orderBy ?? hub.orderBy ?? repo(entity).metadata.options.defaultOrderBy),
+	)
 
 	const m = untrack(() =>
 		ff(entity).many(

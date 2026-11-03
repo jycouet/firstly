@@ -11,6 +11,12 @@ class Row {
 	@Fields.string({ caption: 'Name' }) name = ''
 }
 
+@Entity('pub_grid_sorted', { allowApiCrud: true, defaultOrderBy: { name: 'desc' } })
+class SortedRow {
+	@Fields.id() id = ''
+	@Fields.string({ caption: 'Name' }) name = ''
+}
+
 let target: HTMLElement
 beforeEach(() => {
 	remult.dataProvider = new InMemoryDataProvider()
@@ -26,6 +32,16 @@ describe('FF_Grid (published, batteries-included)', () => {
 		const comp = mount(FF_Grid, { target, props: { entity: Row, cells: ['name'] } as never })
 		await vi.waitFor(() => expect(target.querySelector('tbody tr td[data-col]')).not.toBeNull())
 		expect(target.querySelectorAll('tbody tr').length).toBe(2)
+		unmount(comp)
+	})
+
+	it('shows the entity defaultOrderBy arrow on first landing', async () => {
+		target = document.createElement('div')
+		document.body.appendChild(target)
+		const comp = mount(FF_Grid, { target, props: { entity: SortedRow, cells: ['name'] } as never })
+		await vi.waitFor(() =>
+			expect(target.querySelector('th[data-col="name"] [data-sort]')?.textContent).toBe(' ▼'),
+		)
 		unmount(comp)
 	})
 })
