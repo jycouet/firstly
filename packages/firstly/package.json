@@ -34,6 +34,7 @@
     "test:e2e": "CI=true PORT=4142 playwright test",
     "test:unit": "TZ=Europe/Paris vitest",
     "test:unit:ci": "TZ=Europe/Paris vitest run",
+    "sql-opt": "tsx src/lib/sqlOptimizer/cli.ts",
     "//// ---- PROD ---- ////": "",
     "compile": "vite build && npm run package && node ./scripts/package.js",
     "package": "svelte-package",
@@ -57,6 +58,10 @@
   },
   "devDependencies": {
     "@mdi/js": "catalog:testing",
+    "@kitql/postgres": "catalog:db",
+    "@types/pg": "catalog:db",
+    "pg": "catalog:db",
+    "tsx": "catalog:db",
     "@sveltejs/adapter-node": "catalog:sveltekit",
     "@sveltejs/kit": "catalog:sveltekit",
     "@sveltejs/package": "catalog:sveltekit",
