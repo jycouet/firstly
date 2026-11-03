@@ -44,4 +44,17 @@ describe('FF_Grid (published, batteries-included)', () => {
 		)
 		unmount(comp)
 	})
+
+	it('hides the sort arrow on a non-sortable column', async () => {
+		await repo(SortedRow).insert([{ name: 'a' }])
+		target = document.createElement('div')
+		document.body.appendChild(target)
+		const comp = mount(FF_Grid, {
+			target,
+			props: { entity: SortedRow, cells: [{ col: 'name', sortable: false }] } as never,
+		})
+		await vi.waitFor(() => expect(target.querySelector('tbody tr td[data-col]')).not.toBeNull())
+		expect(target.querySelector('th[data-col="name"] [data-sort]')).toBeNull()
+		unmount(comp)
+	})
 })

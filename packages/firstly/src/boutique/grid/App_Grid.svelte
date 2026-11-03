@@ -194,7 +194,7 @@
 						class={cell.class}
 						onclick={() => cell.sortable && cell.col && toggleSort(cell.col, cell.firstSort)}
 					>
-						{cell.caption}{#if cell.col && sortDir(cell.col)}<span data-sort
+						{cell.caption}{#if cell.sortable && cell.col && sortDir(cell.col)}<span data-sort
 								>{sortDir(cell.col) === 'asc' ? ' ▲' : ' ▼'}</span
 							>{/if}
 					</th>
