@@ -49,6 +49,8 @@ export interface Cell<E = any> {
 	align: 'left' | 'center' | 'right'
 	/** Whether this column is sortable by header click (resolved; opt in via `sortable: true`). */
 	sortable: boolean
+	/** Direction of the first header click on an unsorted column. */
+	firstSort: 'asc' | 'desc'
 	/** Tailwind/CSS passthrough (e.g. 'col-span-2'). */
 	class?: string
 	// ----- escape hatches (metadata SSoT, escape when needed) -----
@@ -71,6 +73,8 @@ export type CellInput<E> =
 			class?: string
 			/** Set true to make this column sortable by header click (default: not sortable). */
 			sortable?: boolean
+			/** First header click direction. Default: `desc` for Date/Number fields, else `asc`. */
+			firstSort?: 'asc' | 'desc'
 			cellSnippet?: Snippet<[{ row: E; cell: Cell<E> }]>
 			/** Render a component for this cell (thunk). `props` + `rowToProps()` are merged into it. */
 			component?: CellComponent
