@@ -57,6 +57,7 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		@Fields.string() id = ''
 		@Fields.string() provider = ''
 		@Fields.string() providerUserId = ''
+		@Fields.string({ allowNull: true }) archivedBy: string | null = null
 	}
 
 	it('resolves table + columns from the entity and derives a default name', async () => {
@@ -73,9 +74,16 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		expect(sql).toContain('FF_UX_idx_things_provider')
 	})
 
-	it('suffixes the derived name with _NF for a NULLS FIRST index', async () => {
+	it('nullsFirst: NULLS FIRST + _NF only for allowNull fields', async () => {
+		const sql = await sqlCreateIndex(Thing, ['provider', 'archivedBy'], { nullsFirst: true })
+		expect(sql).toContain('FF_IX_idx_things_provider_archivedBy_NF')
+		expect(sql).toContain('archivedBy NULLS FIRST')
+		expect(sql).not.toContain('provider NULLS FIRST')
+	})
+
+	it('nullsFirst on NOT NULL fields only: plain index, no _NF', async () => {
 		const sql = await sqlCreateIndex(Thing, ['provider'], { nullsFirst: true })
-		expect(sql).toContain('FF_IX_idx_things_provider_NF')
-		expect(sql).toContain('NULLS FIRST')
+		expect(sql).not.toContain('NULLS FIRST')
+		expect(sql).not.toContain('_NF')
 	})
 })
