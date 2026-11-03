@@ -23,7 +23,7 @@ catalogs:
     sharp: 0.35.3
 
   best:
-    remult: 3.3.18
+    remult: 3.4.2
 
   tooling:
     '@typescript/native-preview': 7.0.0-dev.20260112.1
