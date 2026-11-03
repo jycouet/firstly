@@ -101,9 +101,9 @@
 	const newIcon = $derived(insertCfg !== false ? (insertCfg.icon ?? LibIcon_Add) : LibIcon_Add)
 	const editIcon = $derived(updateCfg !== false ? (updateCfg.icon ?? LibIcon_Edit) : LibIcon_Edit)
 
-	function toggleSort(key: string) {
+	function toggleSort(key: string, first: 'asc' | 'desc') {
 		const cur = (sort as Record<string, 'asc' | 'desc'> | undefined)?.[key]
-		sort = { [key]: cur === 'asc' ? 'desc' : 'asc' } as EntityOrderBy<T>
+		sort = { [key]: cur ? (cur === 'asc' ? 'desc' : 'asc') : first } as EntityOrderBy<T>
 	}
 	const sortDir = (key: string) => (sort as Record<string, string> | undefined)?.[key]
 
@@ -185,7 +185,7 @@
 						data-sortable={cell.sortable || undefined}
 						style:text-align={cell.align}
 						class={cell.class}
-						onclick={() => cell.sortable && cell.col && toggleSort(cell.col)}
+						onclick={() => cell.sortable && cell.col && toggleSort(cell.col, cell.firstSort)}
 					>
 						{cell.caption}{#if cell.col && sortDir(cell.col)}<span data-sort
 								>{sortDir(cell.col) === 'asc' ? ' ▲' : ' ▼'}</span

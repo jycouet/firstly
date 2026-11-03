@@ -20,6 +20,12 @@ function alignFor(field: FieldMetadata | undefined, ui: CellUI): 'left' | 'cente
 	return 'left'
 }
 
+// newest / biggest first is the useful first view for dates + numbers
+function firstSortFor(field: FieldMetadata | undefined): 'asc' | 'desc' {
+	const t = field?.valueType
+	return t === Date || t === Number ? 'desc' : 'asc'
+}
+
 /** Resolve the render kind: explicit > href(field_link) > metaKind(relation/enum) > field. */
 function resolveKind(field: FieldMetadata | undefined, explicit?: MetaKind): MetaKind {
 	if (explicit) return explicit
@@ -64,6 +70,7 @@ export function buildCells<E>(
 			inputType: field ? getInputType(field, ui) : 'text',
 			align: alignFor(field, ui),
 			sortable,
+			firstSort: (isObj && item.firstSort) || firstSortFor(field),
 			class: isObj ? item.class : undefined,
 			cellSnippet: isObj ? item.cellSnippet : undefined,
 			component: isObj ? item.component : undefined,

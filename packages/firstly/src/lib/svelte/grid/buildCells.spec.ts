@@ -76,6 +76,16 @@ describe('buildCells', () => {
 		).toBe(true) // per-cell beats config
 	})
 
+	it('firstSort: desc for dates + numbers, asc otherwise, per-cell wins', () => {
+		const cells = buildCells(meta, ['title', 'done', 'amount', 'createdAt'])
+		const byCol = Object.fromEntries(cells.map((c) => [c.col, c]))
+		expect(byCol['title'].firstSort).toBe('asc')
+		expect(byCol['done'].firstSort).toBe('asc')
+		expect(byCol['amount'].firstSort).toBe('desc')
+		expect(byCol['createdAt'].firstSort).toBe('desc')
+		expect(buildCells(meta, [{ col: 'amount', firstSort: 'asc' }])[0].firstSort).toBe('asc')
+	})
+
 	it('threads component (thunk) + props + rowToProps onto the cell', () => {
 		const comp = (() => null) as unknown as CellComponent
 		const rtp = (r: Item) => ({ x: r.id })
