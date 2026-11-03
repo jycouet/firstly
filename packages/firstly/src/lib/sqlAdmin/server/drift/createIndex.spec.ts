@@ -39,6 +39,12 @@ describe('formatCreateIndex (pure)', () => {
 			formatCreateIndex({ name: 'i', table: 't', columns: ['a'], wrap: (s) => `\`${s}\`` }),
 		).toBe('CREATE INDEX `i` ON `t` (`a`);')
 	})
+
+	it('writes NULLS FIRST on every column', () => {
+		expect(formatCreateIndex({ name: 'i', table: 't', columns: ['a', 'b'], nullsFirst: true })).toBe(
+			'CREATE INDEX "i" ON "t" ("a" NULLS FIRST, "b" NULLS FIRST);',
+		)
+	})
 })
 
 describe('sqlCreateIndex (entity + fields)', () => {
@@ -65,5 +71,11 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		const sql = await sqlCreateIndex(Thing, ['provider'], { unique: true })
 		expect(sql).toContain('CREATE UNIQUE INDEX')
 		expect(sql).toContain('FF_UX_idx_things_provider')
+	})
+
+	it('suffixes the derived name with _NF for a NULLS FIRST index', async () => {
+		const sql = await sqlCreateIndex(Thing, ['provider'], { nullsFirst: true })
+		expect(sql).toContain('FF_IX_idx_things_provider_NF')
+		expect(sql).toContain('NULLS FIRST')
 	})
 })

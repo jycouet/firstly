@@ -7,6 +7,8 @@ export type IndexOptions = {
 	/** Cannot be combined with a transaction (BackendMethod default). */
 	concurrently?: boolean
 	ifNotExists?: boolean
+	/** Match `orderByNullsFirst` sorts, else Postgres skips the index. Derived name gets `_NF`. */
+	nullsFirst?: boolean
 	/** Override the derived `FF_IX_<table>_<cols>` / `FF_UX_...` name. */
 	name?: string
 }
@@ -24,6 +26,7 @@ export function formatCreateIndex(o: {
 	unique?: boolean
 	concurrently?: boolean
 	ifNotExists?: boolean
+	nullsFirst?: boolean
 	wrap?: (name: string) => string
 }): string {
 	const wrap = o.wrap ?? ((s) => `"${s}"`)
@@ -33,7 +36,8 @@ export function formatCreateIndex(o: {
 	if (o.concurrently) parts.push('CONCURRENTLY')
 	if (o.ifNotExists) parts.push('IF NOT EXISTS')
 	const table = o.schema ? `${wrap(o.schema)}.${wrap(o.table)}` : wrap(o.table)
-	parts.push(wrap(o.name), 'ON', table, `(${o.columns.map(wrap).join(', ')})`)
+	const col = (c: string) => (o.nullsFirst ? `${wrap(c)} NULLS FIRST` : wrap(c))
+	parts.push(wrap(o.name), 'ON', table, `(${o.columns.map(col).join(', ')})`)
 	return parts.join(' ') + ';'
 }
 
@@ -51,6 +55,8 @@ export async function sqlCreateIndex<T>(
 	const db = await dbNamesOf(entity)
 	const table = stripIdent(db.$entityName)
 	const columns = fields.map((f) => stripIdent(db.$dbNameOf(f)))
-	const name = opts.name ?? `${opts.unique ? 'FF_UX' : 'FF_IX'}_${table}_${columns.join('_')}`
+	const name =
+		opts.name ??
+		`${opts.unique ? 'FF_UX' : 'FF_IX'}_${table}_${columns.join('_')}${opts.nullsFirst ? '_NF' : ''}`
 	return formatCreateIndex({ name, table, columns, ...opts, wrap: db.wrapIdentifier })
 }
