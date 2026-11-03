@@ -11,7 +11,9 @@ describe('planRelationIndexes', () => {
 	it('skips a relation already covered by an index leftmost prefix (e.g. PK)', () => {
 		const plans = planRelationIndexes(
 			[{ table: 'activities', columns: ['did'] }],
-			existing({ activities: [{ name: 'activities_pkey', cols: ['did', 'rkey'] }] }),
+			existing({
+				activities: [{ name: 'activities_pkey', cols: ['did', 'rkey'], nullsFirst: [false, false] }],
+			}),
 			live('activities'),
 		)
 		expect(plans).toEqual([
@@ -29,7 +31,9 @@ describe('planRelationIndexes', () => {
 	it('plans an index when no existing index covers the FK columns', () => {
 		const plans = planRelationIndexes(
 			[{ table: 'follows', columns: ['subject'] }],
-			existing({ follows: [{ name: 'follows_pkey', cols: ['did', 'rkey'] }] }),
+			existing({
+				follows: [{ name: 'follows_pkey', cols: ['did', 'rkey'], nullsFirst: [false, false] }],
+			}),
 			live('follows'),
 		)
 		expect(plans).toEqual([
@@ -47,7 +51,9 @@ describe('planRelationIndexes', () => {
 	it('treats a composite FK as uncovered when the PK prefix diverges', () => {
 		const plans = planRelationIndexes(
 			[{ table: 'activities', columns: ['did', 'gearRkey'] }],
-			existing({ activities: [{ name: 'activities_pkey', cols: ['did', 'rkey'] }] }),
+			existing({
+				activities: [{ name: 'activities_pkey', cols: ['did', 'rkey'], nullsFirst: [false, false] }],
+			}),
 			live('activities'),
 		)
 		expect(plans[0].action).toBe('create')
@@ -74,11 +80,48 @@ describe('planRelationIndexes', () => {
 	it('counts an exact-match existing index as covering', () => {
 		const plans = planRelationIndexes(
 			[{ table: 'coachings', columns: ['athleteDid'] }],
-			existing({ coachings: [{ name: 'FF_IX_coachings_athleteDid', cols: ['athleteDid'] }] }),
+			existing({
+				coachings: [{ name: 'FF_IX_coachings_athleteDid', cols: ['athleteDid'], nullsFirst: [false] }],
+			}),
 			live('coachings'),
 		)
 		expect(plans[0].action).toBe('ok')
 		expect(plans[0].coveredBy).toBe('FF_IX_coachings_athleteDid')
+	})
+
+	it('with nullsFirst, a default-order index does not cover: plans a NULLS FIRST one', () => {
+		const plans = planRelationIndexes(
+			[{ table: 'activities', columns: ['did'] }],
+			existing({
+				activities: [{ name: 'activities_pkey', cols: ['did', 'rkey'], nullsFirst: [false, false] }],
+			}),
+			live('activities'),
+			{ nullsFirst: true },
+		)
+		expect(plans[0]).toMatchObject({
+			action: 'create',
+			name: 'FF_IX_activities_did_NF',
+			sql: 'CREATE INDEX IF NOT EXISTS "FF_IX_activities_did_NF" ON "activities" ("did" NULLS FIRST);',
+		})
+	})
+
+	it('with nullsFirst, a NULLS FIRST index covers', () => {
+		const plans = planRelationIndexes(
+			[{ table: 'activities', columns: ['did'] }],
+			existing({ activities: [{ name: 'ix', cols: ['did'], nullsFirst: [true] }] }),
+			live('activities'),
+			{ nullsFirst: true },
+		)
+		expect(plans[0]).toMatchObject({ action: 'ok', coveredBy: 'ix' })
+	})
+
+	it('without nullsFirst, a NULLS FIRST index does not cover', () => {
+		const plans = planRelationIndexes(
+			[{ table: 'activities', columns: ['did'] }],
+			existing({ activities: [{ name: 'ix', cols: ['did'], nullsFirst: [true] }] }),
+			live('activities'),
+		)
+		expect(plans[0].action).toBe('create')
 	})
 })
 
