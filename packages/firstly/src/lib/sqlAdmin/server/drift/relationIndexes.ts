@@ -6,7 +6,7 @@ import { formatCreateIndex } from './createIndex'
 import { splitKey, stripIdent, tableKey, tableKeySql, USER_SCHEMA_SQL } from './ident'
 
 /** A toOne relation's local FK columns that ideally have a covering index. */
-export type RelIndexDesired = { table: string; columns: string[] }
+export type RelIndexDesired = { table: string; columns: string[]; nullable: boolean[] }
 
 /**
  * An existing index from the catalog, columns in order. `nullsFirst[i]`: NULLs come first
@@ -26,11 +26,14 @@ export type RelIndexPlan = {
 
 /**
  * `want` is covered if it's a leftmost prefix of `have` (so the PK covers its own prefix),
- * with the NULL order sorts use: Postgres won't follow an index whose NULL order differs.
+ * with the NULL order sorts use on nullable columns: Postgres won't follow an index whose
+ * NULL order differs.
  */
-const covers = (want: string[], have: ExistingIndex, nullsFirst: boolean) =>
-	have.cols.length >= want.length &&
-	want.every((c, i) => have.cols[i] === c && have.nullsFirst[i] === nullsFirst)
+const covers = (want: RelIndexDesired, have: ExistingIndex, nullsFirst: boolean) =>
+	have.cols.length >= want.columns.length &&
+	want.columns.every(
+		(c, i) => have.cols[i] === c && (!want.nullable[i] || have.nullsFirst[i] === nullsFirst),
+	)
 
 /**
  * Pure: for each (deduped) relation FK, decide whether an index is missing.
@@ -53,12 +56,20 @@ export function planRelationIndexes(
 		if (seen.has(key)) continue
 		seen.add(key)
 
-		const name = `FF_IX_${d.table}_${d.columns.join('_')}${nullsFirst ? '_NF' : ''}`
+		const colNullsFirst = d.nullable.map((n) => nullsFirst && n)
+		const name = `FF_IX_${d.table}_${d.columns.join('_')}${colNullsFirst.some(Boolean) ? '_NF' : ''}`
 		if (!tables.has(d.table)) {
-			plans.push({ ...d, name, action: 'missing', coveredBy: null, sql: null })
+			plans.push({
+				table: d.table,
+				columns: d.columns,
+				name,
+				action: 'missing',
+				coveredBy: null,
+				sql: null,
+			})
 			continue
 		}
-		const cover = (existing.get(d.table) ?? []).find((e) => covers(d.columns, e, nullsFirst))
+		const cover = (existing.get(d.table) ?? []).find((e) => covers(d, e, nullsFirst))
 
 		plans.push(
 			cover
@@ -74,7 +85,7 @@ export function planRelationIndexes(
 							...splitKey(d.table),
 							columns: d.columns,
 							ifNotExists: true,
-							nullsFirst,
+							nullsFirst: colNullsFirst,
 						}),
 					},
 		)
@@ -104,7 +115,11 @@ export async function relationIndexTargets(
 				return !!(o?.sqlExpression || o?.serverExpression)
 			})
 			if (computed) continue
-			desired.push({ table, columns: localKeys.map((k) => stripIdent(names.$dbNameOf(k))) })
+			desired.push({
+				table,
+				columns: localKeys.map((k) => stripIdent(names.$dbNameOf(k))),
+				nullable: localKeys.map((k) => !!meta.fields.find(k)?.options.allowNull),
+			})
 		}
 	}
 	return desired
