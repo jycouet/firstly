@@ -2,7 +2,7 @@ import { dbNamesOf, repo, type ClassType, type SqlDatabase } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { execStmt, liveTables } from './catalog'
-import { formatCreateIndex } from './createIndex'
+import { formatCreateIndex, nullsFirstDefault } from './createIndex'
 import { splitKey, stripIdent, tableKey, tableKeySql, USER_SCHEMA_SQL } from './ident'
 
 /** A toOne relation's local FK columns that ideally have a covering index. */
@@ -118,7 +118,7 @@ export async function relationIndexTargets(
 			desired.push({
 				table,
 				columns: localKeys.map((k) => stripIdent(names.$dbNameOf(k))),
-				nullable: localKeys.map((k) => !!meta.fields.find(k)?.options.allowNull),
+				nullable: localKeys.map((k) => !!meta.fields.find(k)?.allowNull),
 			})
 		}
 	}
@@ -167,11 +167,7 @@ export async function createRelationIndexes(
 
 	const tables = await liveTables(db)
 
-	// remult keeps the provider's `orderByNullsFirst` off SqlDatabase's public type.
-	const nullsFirst = !!(
-		db as unknown as { _getSourceSql?: () => { orderByNullsFirst?: boolean } }
-	)._getSourceSql?.().orderByNullsFirst
-	const plans = planRelationIndexes(desired, existing, tables, { nullsFirst })
+	const plans = planRelationIndexes(desired, existing, tables, { nullsFirst: nullsFirstDefault() })
 
 	if (opts?.apply) {
 		for (const plan of plans) if (plan.sql) await execStmt(db, plan.sql)
