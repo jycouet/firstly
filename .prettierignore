@@ -25,7 +25,6 @@ packages/firstly/db
 packages/firstly/src/app.html
 packages/firstly/static/favicon.svg
 .astro
-.devbox
 
 packages/firstly/src/lib/ui/Tooltip.svelte
 packages/firstly/src/lib/ui/Button.svelte
