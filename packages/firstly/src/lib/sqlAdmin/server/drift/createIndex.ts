@@ -1,6 +1,17 @@
 import { dbNamesOf, repo, type ClassType, type MembersOnly } from 'remult'
+import * as internals from 'remult/internals'
 
 import { stripIdent } from './ident'
+
+/**
+ * Whether sorts put NULL first on asc, from remult's app-wide `NullSort`. Before remult
+ * has it, defaults to `true`.
+ */
+export function nullsFirstDefault() {
+	// TODO: import `NullSort` directly once remult >= 3.5 is the minimum
+	const nullSort = (internals as { NullSort?: { asc: string } }).NullSort
+	return nullSort ? nullSort.asc === 'NULL FIRST' : true
+}
 
 export type IndexOptions = {
 	unique?: boolean
@@ -8,8 +19,8 @@ export type IndexOptions = {
 	concurrently?: boolean
 	ifNotExists?: boolean
 	/**
-	 * Match `orderByNullsFirst` sorts, else Postgres skips the index. Applies to `allowNull`
-	 * fields only; derived name gets `_NF` when any does.
+	 * Match NULLS FIRST sorts, else Postgres skips the index. Applies to `allowNull` fields
+	 * only; derived name gets `_NF` when any does. Defaults to `nullsFirstDefault()`.
 	 */
 	nullsFirst?: boolean
 	/** Override the derived `FF_IX_<table>_<cols>` / `FF_UX_...` name. */
@@ -62,7 +73,8 @@ export async function sqlCreateIndex<T>(
 	const columns = fields.map((f) => stripIdent(db.$dbNameOf(f)))
 	const fieldsMeta = repo(entity).metadata.fields
 	// A NOT NULL column has no NULLs to place.
-	const nullsFirst = fields.map((f) => !!opts.nullsFirst && !!fieldsMeta.find(f)?.options.allowNull)
+	const wanted = opts.nullsFirst ?? nullsFirstDefault()
+	const nullsFirst = fields.map((f) => wanted && !!fieldsMeta.find(f)?.allowNull)
 	const name =
 		opts.name ??
 		`${opts.unique ? 'FF_UX' : 'FF_IX'}_${table}_${columns.join('_')}${nullsFirst.some(Boolean) ? '_NF' : ''}`

@@ -2,4 +2,4 @@
 'firstly': patch
 ---
 
-sqlAdmin drift: `nullsFirst` option on `formatCreateIndex` / `sqlCreateIndex`; relation index coverage checks NULL order of `allowNull` columns, following `orderByNullsFirst`.
+sqlAdmin drift: index builders and relation index coverage put `NULLS FIRST` on `allowNull` columns, following remult `NullSort` (defaults to NULLS FIRST until remult has it). `nullsFirst: false` opts out.

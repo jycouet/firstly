@@ -81,6 +81,13 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		expect(sql).not.toContain('provider NULLS FIRST')
 	})
 
+	it('defaults to NULLS FIRST (before remult NullSort); `nullsFirst: false` opts out', async () => {
+		expect(await sqlCreateIndex(Thing, ['archivedBy'])).toContain('archivedBy NULLS FIRST')
+		expect(await sqlCreateIndex(Thing, ['archivedBy'], { nullsFirst: false })).not.toContain(
+			'NULLS FIRST',
+		)
+	})
+
 	it('nullsFirst on NOT NULL fields only: plain index, no _NF', async () => {
 		const sql = await sqlCreateIndex(Thing, ['provider'], { nullsFirst: true })
 		expect(sql).not.toContain('NULLS FIRST')
