@@ -40,9 +40,9 @@ catalogs:
 
   testing:
     '@playwright/test': 1.63.0
-    '@vitest/browser-playwright': 5.0.5
+    '@vitest/browser-playwright': 5.1.0
     playwright: 1.63.0
-    vitest: 5.0.5
+    vitest: 5.1.0
 
   lib-author-helper:
     '@changesets/changelog-github': 1.0.1
