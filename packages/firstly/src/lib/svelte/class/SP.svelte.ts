@@ -39,6 +39,8 @@ export class SP<T extends Record<string, any>> {
 	// Store debounced toURL functions for each parameter
 	private debouncedToURL: Record<string, (...args: any[]) => void> = {}
 
+	private lastNavigation: Promise<void> | undefined
+
 	// Shared debounce mechanism for all parameters
 	private sharedDebouncePending = $state(false)
 	private activeDebounces = $state<Record<string, boolean>>({})
@@ -56,9 +58,8 @@ export class SP<T extends Record<string, any>> {
 			this.debouncedValues[key] = this.paramValues[key]
 		}
 
-		// Update URL and reset flags
+		// `computing` stays on until toURL's navigation lands
 		this.sharedDebouncePending = false
-		this.computing = false
 		this.longestDebounceTime = 0
 		this.toURL()
 	}
@@ -459,16 +460,21 @@ export class SP<T extends Record<string, any>> {
 		const strSearch = params.toString() ? '?' + params.toString() : ''
 
 		// Don't do the goto if the search params haven't changed!
-		if (strSearch === window.location.search) return
+		if (strSearch === window.location.search) {
+			this.computing = false
+			return
+		}
 
-		goto(`${window.location.pathname}${strSearch}`, {
+		const navigation = goto(`${window.location.pathname}${strSearch}`, {
 			replace: true,
 			reset: false,
 			...this.options.gotoOpts,
 		})
-
-		// Reset computing flag after URL update is complete
-		this.computing = false
+		this.lastNavigation = navigation
+		// A newer navigation or a pending debounce keeps `computing` on
+		void navigation.finally(() => {
+			if (this.lastNavigation === navigation && !this.sharedDebouncePending) this.computing = false
+		})
 	}
 
 	/**
@@ -487,7 +493,6 @@ export class SP<T extends Record<string, any>> {
 		this.longestDebounceTime = 0
 
 		// Update URL immediately without debounce
-		this.computing = false
 		this.toURL()
 	}
 }
