@@ -39,9 +39,9 @@ catalogs:
     oxfmt: 0.74.0
 
   testing:
-    '@playwright/test': 1.63.0
+    '@playwright/test': 1.65.0
     '@vitest/browser-playwright': 5.1.0
-    playwright: 1.63.0
+    playwright: 1.65.0
     vitest: 5.1.0
 
   lib-author-helper:
