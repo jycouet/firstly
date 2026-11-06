@@ -39,6 +39,12 @@ describe('formatCreateIndex (pure)', () => {
 			formatCreateIndex({ name: 'i', table: 't', columns: ['a'], wrap: (s) => `\`${s}\`` }),
 		).toBe('CREATE INDEX `i` ON `t` (`a`);')
 	})
+
+	it('writes NULLS FIRST on every column', () => {
+		expect(formatCreateIndex({ name: 'i', table: 't', columns: ['a', 'b'], nullsFirst: true })).toBe(
+			'CREATE INDEX "i" ON "t" ("a" NULLS FIRST, "b" NULLS FIRST);',
+		)
+	})
 })
 
 describe('sqlCreateIndex (entity + fields)', () => {
@@ -51,6 +57,7 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		@Fields.string() id = ''
 		@Fields.string() provider = ''
 		@Fields.string() providerUserId = ''
+		@Fields.string({ allowNull: true }) archivedBy: string | null = null
 	}
 
 	it('resolves table + columns from the entity and derives a default name', async () => {
@@ -65,5 +72,25 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		const sql = await sqlCreateIndex(Thing, ['provider'], { unique: true })
 		expect(sql).toContain('CREATE UNIQUE INDEX')
 		expect(sql).toContain('FF_UX_idx_things_provider')
+	})
+
+	it('nullsFirst: NULLS FIRST + _NF only for allowNull fields', async () => {
+		const sql = await sqlCreateIndex(Thing, ['provider', 'archivedBy'], { nullsFirst: true })
+		expect(sql).toContain('FF_IX_idx_things_provider_archivedBy_NF')
+		expect(sql).toContain('archivedBy NULLS FIRST')
+		expect(sql).not.toContain('provider NULLS FIRST')
+	})
+
+	it('defaults to NULLS FIRST (before remult NullSort); `nullsFirst: false` opts out', async () => {
+		expect(await sqlCreateIndex(Thing, ['archivedBy'])).toContain('archivedBy NULLS FIRST')
+		expect(await sqlCreateIndex(Thing, ['archivedBy'], { nullsFirst: false })).not.toContain(
+			'NULLS FIRST',
+		)
+	})
+
+	it('nullsFirst on NOT NULL fields only: plain index, no _NF', async () => {
+		const sql = await sqlCreateIndex(Thing, ['provider'], { nullsFirst: true })
+		expect(sql).not.toContain('NULLS FIRST')
+		expect(sql).not.toContain('_NF')
 	})
 })
