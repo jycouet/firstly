@@ -1,5 +1,21 @@
 # firstly
 
+## 0.12.0
+
+### Minor Changes
+
+- [#419](https://github.com/jycouet/firstly/pull/419) [`16cfc80`](https://github.com/jycouet/firstly/commit/16cfc808e55e7cdb275020052c6207a16b12ab66) Thanks [@jycouet](https://github.com/jycouet)! - `FF_Grid`: first sort click is `desc` for Date/Number columns (`asc` otherwise), override per cell with `firstSort`. On landing, the header arrow also reflects the entity `defaultOrderBy`.
+
+- [#405](https://github.com/jycouet/firstly/pull/405) [`5324a64`](https://github.com/jycouet/firstly/commit/5324a6471fb20fdca6a6fb16970d2235192e0431) Thanks [@jycouet](https://github.com/jycouet)! - Add experimental `queryRepo` (`firstly/svelte/query`): `$derived(await queryRepo(E).find())` with API rules on SSR, no query on hydration, and plain `repo(E)` writes refreshing it.
+
+- [#406](https://github.com/jycouet/firstly/pull/406) [`b2f1664`](https://github.com/jycouet/firstly/commit/b2f1664429490ebb989e4dbd8c0002b0cf6e2b37) Thanks [@jycouet](https://github.com/jycouet)! - New `reloadOnStaleChunk()` for `hooks.client`: a failed lazy import in a component reloads when a new version is deployed.
+
+- [#406](https://github.com/jycouet/firstly/pull/406) [`dac5a18`](https://github.com/jycouet/firstly/commit/dac5a18c2164bb5bedd7bd729ba74cabee57fa26) Thanks [@jycouet](https://github.com/jycouet)! - SvelteKit 3 only (Node 22.17+), stay on `0.11.x` for Kit 2. `SP` navigates with `replace: true, reset: false`: `keepFocus` and `noScroll` in `gotoOpts` now throw, use `reset`. `firstly()` sets legacy decorators and nullifies `$app/env/private` on the client. `withStaleDeployReload` reads Kit 3's `handleError` input and skips preloads.
+
+### Patch Changes
+
+- [#425](https://github.com/jycouet/firstly/pull/425) [`59d01d6`](https://github.com/jycouet/firstly/commit/59d01d6f6e862b24b50853820bdac782b2dad64d) Thanks [@jycouet](https://github.com/jycouet)! - `SP.computing` stays `true` until the navigation lands, not just until `goto` is called.
+
 ## 0.11.0
 
 ### Minor Changes
