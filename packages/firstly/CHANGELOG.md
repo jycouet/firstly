@@ -1,5 +1,11 @@
 # firstly
 
+## 0.12.1
+
+### Patch Changes
+
+- [#426](https://github.com/jycouet/firstly/pull/426) [`db738bc`](https://github.com/jycouet/firstly/commit/db738bc528347794a9d0b516b6c892cc0a850970) Thanks [@jycouet](https://github.com/jycouet)! - `firstly({ kitRoutes })` options now win over firstly's defaults: `format_page_route_id: false` keeps route keys without their groups.
+
 ## 0.12.0
 
 ### Minor Changes
