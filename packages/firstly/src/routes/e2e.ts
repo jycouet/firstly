@@ -59,3 +59,39 @@ test('SP filter change keeps scroll, focus and history', async ({ page }) => {
 	expect(await page.evaluate(() => ({ y: window.scrollY, entries: history.length }))).toEqual(before)
 	expect(errors).toEqual([])
 })
+
+const REGEX_SYMBOL = /<symbol /g
+const REGEX_USE = /<use /g
+
+for (const [ssr, symbols, uses] of [
+	['false', 0, 0],
+	['sprite', 7, 64],
+	['true', 0, 0],
+] as const) {
+	test(`Icon ssr=${ssr}: server markup, then drawn inline once hydrated`, async ({
+		page,
+		request,
+	}) => {
+		const html = await (await request.get(`/icon?ssr=${ssr}`)).text()
+		expect(html.match(REGEX_SYMBOL)?.length ?? 0).toBe(symbols)
+		expect(html.match(REGEX_USE)?.length ?? 0).toBe(uses)
+
+		const logs: string[] = []
+		page.on('console', (m) => {
+			if (m.type() === 'error' || m.type() === 'warning') logs.push(m.text())
+		})
+		await page.goto(`/icon?ssr=${ssr}`)
+		const svgs = page.locator('[data-row] svg')
+		await expect(svgs).toHaveCount(60)
+		await expect
+			.poll(() => svgs.evaluateAll((els) => els.filter((e) => !e.querySelector('path')).length))
+			.toBe(0)
+		expect(await page.locator('use').count()).toBe(0)
+		await expect(page.locator('[data-misc] [aria-label="Skull"]')).toHaveAttribute(
+			'stroke-width',
+			'2',
+		)
+		await expect(page.locator('[data-misc] span b')).toHaveText('!')
+		expect(logs).toEqual([])
+	})
+}

@@ -14,7 +14,7 @@ const config = defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '')
 	return {
 		// Found late otherwise, and Vite reloads the page in the middle of an e2e
-		optimizeDeps: { include: ['remult', 'remult/internals', '@mdi/js', 'svelte-sonner'] },
+		optimizeDeps: { include: ['remult', 'remult/internals', '@mdi/js', 'lucide', 'svelte-sonner'] },
 		// Not a # import: boutique is copied into apps as is, so it keeps the public name
 		resolve: { alias: { firstly: fileURLToPath(new URL('./src/lib', import.meta.url)) } },
 		server: {

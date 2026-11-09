@@ -2,6 +2,8 @@ import type { Component, Snippet } from 'svelte'
 
 import type { ClassType, EntityFilter, EntityOrderBy, FieldMetadata } from 'remult'
 
+import type { IconData } from '../../core/BaseEnum.js'
+
 /**
  * A component to render in a cell or as a form input. Always a THUNK, so an isomorphic entity `hub`
  * never statically pulls UI into the server graph:
@@ -128,8 +130,8 @@ export interface ActionConfig<E = any> {
 	cells?: CellInput<E>[]
 	/** Dialog title (e.g. from the row being edited). */
 	title?: (row: E) => string
-	/** Override the action's button icon (mdi path string). */
-	icon?: string
+	/** Override the action's button icon (`<Icon data>`). */
+	icon?: IconData
 	/** Escape: render a custom dialog component instead of the generated form. */
 	component?: CellComponent
 	props?: Record<string, unknown>
@@ -144,8 +146,8 @@ export interface ActionConfig<E = any> {
  * file never statically pulls Svelte into the server graph.
  */
 export interface HubConfig<E = any> {
-	/** Entity icon (mdi path string). */
-	icon?: string
+	/** Entity icon (`<Icon data>`). */
+	icon?: IconData
 	/** Grid columns + the default fields for the create/edit forms. */
 	cells?: CellInput<E>[]
 	/** Default for column sorting on this entity (a per-cell `sortable` overrides). Default true. */

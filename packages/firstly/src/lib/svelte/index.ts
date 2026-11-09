@@ -74,6 +74,8 @@ export type {
 	ActionConfig,
 } from './grid/index.js'
 export { default as Icon } from './ui/Icon.svelte'
+export { setIconOptions } from './ui/icon.js'
+export type { IconData, IconNode, IconOptions, IconSsr } from './ui/icon.js'
 export {
 	LibIcon_Empty,
 	LibIcon_Forbidden,

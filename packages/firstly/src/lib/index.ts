@@ -11,7 +11,14 @@ export const ff_Log = new h.Log('firstly')
 // Core (pure TS, frontend-safe) - re-exported from lib/core/
 // ******************************
 export { BaseEnum } from './core/BaseEnum.js'
-export type { BaseEnumOptions, BaseItem, BaseItemLight, FF_Icon } from './core/BaseEnum.js'
+export type {
+	BaseEnumOptions,
+	BaseItem,
+	BaseItemLight,
+	FF_Icon,
+	IconData,
+	IconNode,
+} from './core/BaseEnum.js'
 export { FF_Entity } from './core/FF_Entity.js'
 export { FF_Role } from './core/common.js'
 export { FF_Allow } from './core/FF_Allow.js'
