@@ -127,7 +127,7 @@ describe('Icon ssr', () => {
 			}
 		}
 		// NODE_ENV=production ICON_MEASURE=1 vitest run --project node icon.spec --silent=false
-		if (process.env.ICON_MEASURE) console.log(JSON.stringify({ base, table }, null, 1))
+		if (process.env.ICON_MEASURE) console.info(JSON.stringify({ base, table }, null, 1))
 		const perIcon = (k: string) => table[k]!.raw / (rows * 3)
 		for (const set of ['lucide', 'mdi']) {
 			expect(perIcon(`${set} ssr=sprite`) - perIcon(`${set} ssr=false`)).toBeLessThan(60)
