@@ -1,5 +1,13 @@
 # firstly
 
+## 0.13.0
+
+### Minor Changes
+
+- [#428](https://github.com/jycouet/firstly/pull/428) [`6733f6c`](https://github.com/jycouet/firstly/commit/6733f6caebf91f04f5f7554c4ca487950e19bd16) Thanks [@jycouet](https://github.com/jycouet)! - `<Icon>` (Svelte 5) also draws Lucide icon nodes (`data={Skull}` from `lucide`, stroke-drawn, `strokeWidth`), so it can replace `@lucide/svelte`. Server rendering defaults to `'sprite'`: each distinct icon once as a `<symbol>` + a `<use>` per occurrence. App defaults go in `<FF_Config icon={{ ssr, strokeWidth }}>` (`ssr: false` for the old empty box).
+  
+  BREAKING: `LibIcon_*` are redrawn in Lucide style and are now `IconNode`s instead of path strings (except `LibIcon_Man`, `LibIcon_Woman`, `LibIcon_Empty`). `@mdi/js` is no longer a dependency. An `<Icon>` without `caption` is `aria-hidden`. Server-rendered icons are drawn (sprite) instead of an empty box.
+
 ## 0.12.1
 
 ### Patch Changes
