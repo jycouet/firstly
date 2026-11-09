@@ -2,8 +2,14 @@ import type { FindOptionsBase, Repository } from 'remult'
 
 export type BaseItemLight = Partial<BaseItem>
 
+/** Lucide's icon shape (`import { Skull } from 'lucide'`): `[tag, attrs][]`, stroke-drawn, viewBox 24. */
+export type IconNode = [tag: string, attrs: Record<string, string | number | undefined>][]
+
+/** `d` path(s) (mdi style, fill), an `<svg>` string, or a Lucide {@link IconNode} (stroke). */
+export type IconData = string | string[] | IconNode
+
 export type FF_Icon = {
-	data?: string | string[]
+	data?: IconData
 	size?: string | number
 	class?: string | string[]
 	style?: string | string[]

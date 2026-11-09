@@ -1,6 +1,6 @@
 ---
 name: firstly
-description: 'firstly - a thin opinionated layer on top of Remult (framework-agnostic, SvelteKit reference). Use when the user mentions firstly, FF_Entity, BaseEnum, the reactive ff layer (ff/FF_Many/FF_One), the cell layer (buildCells/FF_Cell/FF_Grid/GroupFields), firstly modules (mail, cron, changeLog, sqlAdmin), the client stack (stackHttpClient/withShortTermCache/withTabSharing), or the boutique copy-paste recipes (auth, grid) - or when building with firstly alongside Remult.'
+description: 'firstly - a thin opinionated layer on top of Remult (framework-agnostic, SvelteKit reference). Use when the user mentions firstly, FF_Entity, BaseEnum, the reactive ff layer (ff/FF_Many/FF_One), the cell layer (buildCells/FF_Cell/FF_Grid/GroupFields), firstly modules (mail, cron, changeLog, sqlAdmin), the client stack (stackHttpClient/withShortTermCache/withTabSharing), icons (Icon/LibIcon, replacing @lucide/svelte), or the boutique copy-paste recipes (auth, grid) - or when building with firstly alongside Remult.'
 ---
 
 # Firstly Patterns
@@ -73,7 +73,6 @@ Register like any Remult module.
 
 ```ts
 import { remultApi } from 'remult/remult-sveltekit' // or remult-next, remult-express...
-
 import { cron } from 'firstly/cron/server'
 import { mail } from 'firstly/mail/server'
 
@@ -233,7 +232,7 @@ Key rules:
 - **`edit` has two modes (why):** default `edit(row)` edits an isolated **clone** - instant (no fetch,
   no flicker), saving updates (the clone keeps remult's existing-row state), and `cancel()` leaves the
   list untouched. That's the "edit the row in front of me" case, so it's the default. `edit(row, {
-refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → guard `{#if draft}`) for
+  refetch: true })` re-reads fresh first (async, `draft` briefly `undefined` → guard `{#if draft}`) for
   when the list may be stale and you want the latest server values before editing.
 - **Action+confirm orchestration (`many`)** - the confirm/show/cancel dance, on the handle:
   `confirmRemove(row, { message?, danger?, toast?, ... })` (confirm → `remove(row)` → auto
@@ -342,6 +341,19 @@ functions for i18n). `many.confirmRemove` uses `toast.fromError` on a failed del
 **Security:** the description renders as **HTML** - pass only trusted/sanitized content, never raw
 user or network/error text (XSS). `toast.fromError` HTML-escapes its extracted message, so error text
 is always safe to show; titles are always plain text.
+
+## `Icon` - one icon component (Svelte 5)
+
+`<Icon data>` from `firstly/svelte` takes a Lucide node (`import { Skull } from 'lucide'`, the vanilla
+package, stroke-drawn, `strokeWidth` tunable), mdi-style `d` path(s) (fill, e.g. DB-stored picker
+icons), or an `<svg>` string. It replaces `@lucide/svelte`: `<Skull class="size-4" />` becomes
+`<Icon data={Skull} size="1rem" />`. firstly's own `LibIcon_*` are Lucide nodes.
+
+Server rendering defaults to `'sprite'`: each distinct icon once as a `<symbol>` + a `<use>` per
+occurrence (icons visible before hydration, ~40 B more per icon than the box), no setup needed.
+Override per app with `<FF_Config icon={{ ssr, strokeWidth }}>`: `false` sends an
+empty sized box, drawn in the browser; `true` inlines everything (heaviest). The browser always draws
+inline after hydration.
 
 ## `stackHandleClientError` - stack `hooks.client.js` error handlers
 

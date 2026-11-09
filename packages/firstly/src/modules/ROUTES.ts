@@ -12,6 +12,7 @@ const PAGES = {
   "/": `/`,
   "/dialog": `/dialog`,
   "/ff-repo": `/ff-repo`,
+  "/icon": `/icon`,
   "/query-repo": `/query-repo`,
   "/remult-api-server": `/remult-api-server`,
   "/remult-api-universal": `/remult-api-universal`,
@@ -151,7 +152,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 * ```
 */
 export type KIT_ROUTES = {
-  PAGES: { '/': never, '/dialog': never, '/ff-repo': never, '/query-repo': never, '/remult-api-server': never, '/remult-api-universal': never, '/sp': never, '/toast': never }
+  PAGES: { '/': never, '/dialog': never, '/ff-repo': never, '/icon': never, '/query-repo': never, '/remult-api-server': never, '/remult-api-universal': never, '/sp': never, '/toast': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
   LINKS: { 'remult_admin': never, 'github': 'owner' | 'repo' }

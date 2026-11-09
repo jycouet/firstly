@@ -39,8 +39,10 @@ catalogs:
     oxfmt: 0.74.0
 
   testing:
+    '@mdi/js': 7.4.47
     '@playwright/test': 1.63.0
     '@vitest/browser-playwright': 5.1.0
+    lucide: 1.70.0
     playwright: 1.63.0
     vitest: 5.1.0
 
@@ -67,7 +69,6 @@ catalogs:
   lib-dep-publish:
     '@kitql/helpers': ^0.8.15
     '@layerstack/utils': ^1.0.0
-    '@mdi/js': ^7.4.47
     '@types/nodemailer': ^8.0.0
     clsx: ^2.1.1
     cron: ^4.4.0

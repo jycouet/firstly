@@ -5,6 +5,7 @@ import type { ToasterProps } from 'svelte-sonner'
 import type { LocalizedMessage } from '../core/FF_Validators.js'
 import type { DialogConfirmArgs, DialogPromptArgs, DialogShellArgs } from './dialog.svelte.js'
 import type { CellConfig, MetaKind } from './grid/cellTypes.js'
+import type { IconOptions } from './ui/icon.js'
 
 /**
  * App-wide config for firstly's Svelte components, provided once via `<FF_Config>` and read by
@@ -55,6 +56,8 @@ export type FF_ConfigValue = {
 		/** App-wide default for column sorting (a hub or per-cell `sortable` overrides). Default true. */
 		defaultSortable?: boolean
 	}
+	/** `<Icon>` defaults (server rendering, Lucide stroke width). */
+	icon?: IconOptions
 }
 
 const KEY = Symbol('ff-config')
@@ -98,5 +101,10 @@ export function ffConfig() {
 		get cell() {
 			return get?.().cell ?? {}
 		},
+		get icon() {
+			return get?.().icon ?? {}
+		},
+		/** Identity of the nearest `<FF_Config>` (one per render). */
+		scope: get,
 	}
 }
