@@ -14,6 +14,7 @@
 		iconInner,
 		isIconNode,
 		pick,
+		requestSprites,
 		spriteInner,
 		strokeAttrs,
 		type IconData,
@@ -28,7 +29,7 @@
 		size?: string | number
 		/** Accessible name. Without it, the icon is `aria-hidden`. */
 		caption?: string
-		/** Server rendering, see {@link IconSsr}. Defaults to `setIconOptions` then `false`. */
+		/** Server rendering, see {@link IconSsr}. Defaults to `setIconOptions` then `'sprite'`. */
 		ssr?: IconSsr
 		/** Lucide icons only. Defaults to `setIconOptions` then `2`. */
 		strokeWidth?: number | string
@@ -54,7 +55,7 @@
 
 	const ctx = getIconContext()
 
-	const mode = $derived(ssr ?? ctx?.ssr ?? false)
+	const mode = $derived(ssr ?? ctx?.ssr ?? 'sprite')
 	const svg = $derived(typeof data === 'string' && REGEX_SVG.test(data) ? data : '')
 	const node = $derived(isIconNode(data))
 	const inner = $derived(svg ? '' : iconInner(data, className, style))
@@ -64,7 +65,10 @@
 
 	// Server branches differ from the browser one on purpose: hydration repairs the mismatch, the browser always draws inline.
 	// Server only, evaluated once: the shared request registry decides who carries the <symbol>
-	const sprite = () => (ctx ? spriteInner(ctx.sprites, inner, viewBox, stroke) : inner)
+	const sprite = () => {
+		const sprites = ctx?.sprites ?? requestSprites()
+		return sprites ? spriteInner(sprites, inner, viewBox, stroke) : inner
+	}
 </script>
 
 {#if (svg || children) && (BROWSER || mode)}

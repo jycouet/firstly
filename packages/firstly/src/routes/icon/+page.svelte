@@ -13,16 +13,17 @@
 
 	import { page } from '$app/state'
 
+	// no param: no setIconOptions, the defaults
 	const param = page.url.searchParams.get('ssr')
-	const ssr: IconSsr = param === 'sprite' ? 'sprite' : param === 'true'
-	setIconOptions({ ssr })
+	const ssr: IconSsr = param === 'false' ? false : param === 'true' || 'sprite'
+	if (param) setIconOptions({ ssr })
 
 	const svg = `<svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="currentColor"/></svg>`
 </script>
 
 <div class="flex flex-col gap-4 p-8">
 	<p>
-		ssr: <code data-ssr>{ssr}</code> (<a href="?ssr=false">false</a>,
+		ssr: <code data-ssr>{ssr}</code> (<a href="?">default</a>, <a href="?ssr=false">false</a>,
 		<a href="?ssr=sprite">sprite</a>, <a href="?ssr=true">true</a>)
 	</p>
 

@@ -78,10 +78,16 @@ describe('spriteInner', () => {
 describe('Icon ssr', () => {
 	const icons = [Pencil, Trash2, Eye]
 
-	it('false (default): sized empty box, no drawing', () => {
-		const html = ssr({ icons, rows: 2 })
+	it('false: sized empty box, no drawing', () => {
+		const html = ssr({ icons, rows: 2, options: { ssr: false } })
 		expect(html).toContain('width="1rem"')
 		expect(html.match(REGEX_PATH)).toBeNull()
+	})
+
+	it('sprite (default) outside SvelteKit, no registry: inline', () => {
+		const html = ssr({ icons, rows: 2 })
+		expect(html.match(REGEX_SYMBOL)).toBeNull()
+		expect(html.match(REGEX_PATH)).not.toBeNull()
 	})
 
 	it('true: inline, lucide stroke defaults', () => {

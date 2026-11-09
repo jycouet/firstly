@@ -64,6 +64,7 @@ const REGEX_SYMBOL = /<symbol /g
 const REGEX_USE = /<use /g
 
 for (const [ssr, symbols, uses] of [
+	['', 7, 64],
 	['false', 0, 0],
 	['sprite', 7, 64],
 	['true', 0, 0],

@@ -349,10 +349,11 @@ package, stroke-drawn, `strokeWidth` tunable), mdi-style `d` path(s) (fill, e.g.
 icons), or an `<svg>` string. It replaces `@lucide/svelte`: `<Skull class="size-4" />` becomes
 `<Icon data={Skull} size="1rem" />`. firstly's own `LibIcon_*` are Lucide nodes.
 
-Server rendering is per app, set once in the root layout with `setIconOptions({ ssr, strokeWidth })`:
-`false` (default) sends an empty sized box, drawn in the browser; `'sprite'` sends each distinct icon
-once as a `<symbol>` + a `<use>` per occurrence (icons visible before hydration, ~40 B more per icon
-than the box); `true` inlines everything (heaviest). The browser always draws inline after hydration.
+Server rendering defaults to `'sprite'`: each distinct icon once as a `<symbol>` + a `<use>` per
+occurrence (icons visible before hydration, ~40 B more per icon than the box), no setup needed.
+Override per app in the root layout with `setIconOptions({ ssr, strokeWidth })`: `false` sends an
+empty sized box, drawn in the browser; `true` inlines everything (heaviest). The browser always draws
+inline after hydration.
 
 ## `stackHandleClientError` - stack `hooks.client.js` error handlers
 

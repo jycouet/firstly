@@ -1,19 +1,21 @@
 import { getContext, setContext } from 'svelte'
 
+import { page } from '$app/state'
+
 import type { IconData, IconNode } from '../../core/BaseEnum.js'
 
 export type { IconData, IconNode }
 
 /**
  * Server rendering of `<Icon>`.
- * - `false`: an empty box of the right size, icon drawn in the browser (no layout jump, no HTML weight)
- * - `true`: full markup inlined on every occurrence
  * - `'sprite'`: each distinct icon is inlined once as a `<symbol>`, every occurrence is a `<use>`
+ * - `false`: an empty box of the right size, icon drawn in the browser (no layout jump, lightest HTML)
+ * - `true`: full markup inlined on every occurrence
  */
 export type IconSsr = boolean | 'sprite'
 
 export type IconOptions = {
-	/** @default false */
+	/** @default 'sprite' */
 	ssr?: IconSsr
 	/** Lucide icons only. @default 2 */
 	strokeWidth?: number | string
@@ -23,12 +25,27 @@ type IconContext = IconOptions & { sprites: Set<string> }
 
 const KEY = Symbol('ff-icon')
 
-/** Defaults for every `<Icon>` below. Call once in the root layout (also needed for `ssr: 'sprite'`). */
+/** Defaults for every `<Icon>` below. Optional, call once in the root layout. */
 export const setIconOptions = (options: IconOptions = {}) => {
 	setContext<IconContext>(KEY, { ...options, sprites: new Set() })
 }
 
 export const getIconContext = () => getContext<IconContext | undefined>(KEY)
+
+const requests = new WeakMap<object, Set<string>>()
+
+/** Server only. Without `setIconOptions`, the sprite registry is per request (as `page.url` is). */
+export const requestSprites = () => {
+	try {
+		const url = page.url
+		let sprites = requests.get(url)
+		if (!sprites) requests.set(url, (sprites = new Set()))
+		return sprites
+	} catch {
+		// rendered outside SvelteKit
+		return undefined
+	}
+}
 
 const REGEX_ESCAPE = /[&"<>]/g
 const REGEX_NAME = /^[a-z][\w:-]*$/i
