@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { setIconOptions, type IconData, type IconOptions } from '../icon.js'
+	import { setFFConfig } from '../../FF_Config.svelte.js'
+	import type { IconData, IconOptions } from '../icon.js'
 	import Icon from '../Icon.svelte'
 
 	let { options, rows, icons }: { options?: IconOptions; rows: string[][]; icons: IconData[] } =
 		$props()
 
-	// svelte-ignore state_referenced_locally
-	if (options) setIconOptions(options)
+	setFFConfig(() => ({ icon: options }))
 </script>
 
 <table>

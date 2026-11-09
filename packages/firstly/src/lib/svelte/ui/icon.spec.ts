@@ -84,10 +84,10 @@ describe('Icon ssr', () => {
 		expect(html.match(REGEX_PATH)).toBeNull()
 	})
 
-	it('sprite (default) outside SvelteKit, no registry: inline', () => {
+	it('sprite is the default (registry per FF_Config outside SvelteKit)', () => {
 		const html = ssr({ icons, rows: 2 })
-		expect(html.match(REGEX_SYMBOL)).toBeNull()
-		expect(html.match(REGEX_PATH)).not.toBeNull()
+		expect(html.match(REGEX_SYMBOL)).toHaveLength(3)
+		expect(html.match(REGEX_USE)).toHaveLength(6)
 	})
 
 	it('true: inline, lucide stroke defaults', () => {

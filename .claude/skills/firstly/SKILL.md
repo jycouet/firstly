@@ -351,7 +351,7 @@ icons), or an `<svg>` string. It replaces `@lucide/svelte`: `<Skull class="size-
 
 Server rendering defaults to `'sprite'`: each distinct icon once as a `<symbol>` + a `<use>` per
 occurrence (icons visible before hydration, ~40 B more per icon than the box), no setup needed.
-Override per app in the root layout with `setIconOptions({ ssr, strokeWidth })`: `false` sends an
+Override per app with `<FF_Config icon={{ ssr, strokeWidth }}>`: `false` sends an
 empty sized box, drawn in the browser; `true` inlines everything (heaviest). The browser always draws
 inline after hydration.
 

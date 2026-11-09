@@ -9,8 +9,8 @@
 	import type { Snippet } from 'svelte'
 	import type { SVGAttributes } from 'svelte/elements'
 
+	import { ffConfig } from '../FF_Config.svelte.js'
 	import {
-		getIconContext,
 		iconInner,
 		isIconNode,
 		pick,
@@ -29,9 +29,9 @@
 		size?: string | number
 		/** Accessible name. Without it, the icon is `aria-hidden`. */
 		caption?: string
-		/** Server rendering, see {@link IconSsr}. Defaults to `setIconOptions` then `'sprite'`. */
+		/** Server rendering, see {@link IconSsr}. Defaults to `<FF_Config icon>` then `'sprite'`. */
 		ssr?: IconSsr
-		/** Lucide icons only. Defaults to `setIconOptions` then `2`. */
+		/** Lucide icons only. Defaults to `<FF_Config icon>` then `2`. */
 		strokeWidth?: number | string
 		viewBox?: string
 		/** An array styles each path of a `string[]` data (index 0 also styles the `<svg>`). */
@@ -53,20 +53,20 @@
 		...rest
 	}: Props = $props()
 
-	const ctx = getIconContext()
+	const config = ffConfig()
 
-	const mode = $derived(ssr ?? ctx?.ssr ?? 'sprite')
+	const mode = $derived(ssr ?? config.icon.ssr ?? 'sprite')
 	const svg = $derived(typeof data === 'string' && REGEX_SVG.test(data) ? data : '')
 	const node = $derived(isIconNode(data))
 	const inner = $derived(svg ? '' : iconInner(data, className, style))
-	const stroke = $derived(node ? strokeAttrs(strokeWidth ?? ctx?.strokeWidth) : {})
+	const stroke = $derived(node ? strokeAttrs(strokeWidth ?? config.icon.strokeWidth) : {})
 	// Server box and sprite skip them on the <svg>: spread attributes are set again on hydration
 	const svgStroke = $derived(BROWSER || mode === true ? stroke : {})
 
 	// Server branches differ from the browser one on purpose: hydration repairs the mismatch, the browser always draws inline.
 	// Server only, evaluated once: the shared request registry decides who carries the <symbol>
 	const sprite = () => {
-		const sprites = ctx?.sprites ?? requestSprites()
+		const sprites = requestSprites(config.scope)
 		return sprites ? spriteInner(sprites, inner, viewBox, stroke) : inner
 	}
 </script>
