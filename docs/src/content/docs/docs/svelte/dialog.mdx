@@ -211,45 +211,49 @@ once and every dialog looks right, no per-call work:
 ### Option 2 - pass your own snippets
 
 For a different system (e.g. daisyUI), hand `<FF_DialogManager>` `shell`, `confirm`, and `prompt`
-snippets. Each receives typed args and the actions to call.
+snippets. Each receives typed args and the actions to call. Snippets render inside the manager's
+[ui-sdk](https://ui-sdk.dev) root, so build the backdrop and panel from the `FF_Dialog*` /
+`FF_AlertDialog*` parts: focus, Escape stacking, scroll lock, inert background and focus return
+come with them.
 
 ```svelte
 <script lang="ts">
-	import { FF_DialogManager, ffAutofocus } from 'firstly/svelte'
+	import {
+		FF_AlertDialogClose,
+		FF_AlertDialogContent,
+		FF_DialogBackdrop,
+		FF_DialogClose,
+		FF_DialogContent,
+		FF_DialogManager,
+	} from 'firstly/svelte'
 	import type { DialogConfirmArgs, DialogShellArgs } from 'firstly/svelte'
 </script>
 
-{#snippet shell({ body, close, dismiss, dismissible, width }: DialogShellArgs)}
-	<div class="modal modal-open">
-		<div class="modal-box" use:ffAutofocus>
-			{@render body(close)}
-			{#if dismissible}<button onclick={dismiss}>✕</button>{/if}
-		</div>
-		<button class="modal-backdrop" onclick={dismiss} aria-label="Close"></button>
-	</div>
+{#snippet shell({ body, close, dismissible }: DialogShellArgs)}
+	<FF_DialogBackdrop class="fixed inset-0 bg-black/40" />
+	<FF_DialogContent class="modal-box fixed inset-0 m-auto h-fit">
+		{@render body(close)}
+		{#if dismissible}<FF_DialogClose aria-label="Close">✕</FF_DialogClose>{/if}
+	</FF_DialogContent>
 {/snippet}
 
-{#snippet confirm({
-	message,
-	title,
-	confirmLabel,
-	cancelLabel,
-	danger,
-	confirm,
-	cancel,
-}: DialogConfirmArgs)}
-	<div class="modal modal-open">
-		<div class="modal-box">
-			{#if title}<h3>{title}</h3>{/if}
-			<p>{message}</p>
-			<button onclick={cancel}>{cancelLabel}</button>
-			<button class={danger ? 'btn-error' : 'btn-primary'} onclick={confirm}>{confirmLabel}</button>
-		</div>
-	</div>
+{#snippet confirm({ message, title, confirmLabel, cancelLabel, danger }: DialogConfirmArgs)}
+	<FF_AlertDialogContent class="modal-box fixed inset-0 m-auto h-fit">
+		{#if title}<h3>{title}</h3>{/if}
+		<p>{message}</p>
+		<FF_AlertDialogClose>{cancelLabel}</FF_AlertDialogClose>
+		<!-- value="confirm" resolves { ok: true }; any other close resolves { ok: false } -->
+		<FF_AlertDialogClose value="confirm" class={danger ? 'btn-error' : 'btn-primary'}>
+			{confirmLabel}
+		</FF_AlertDialogClose>
+	</FF_AlertDialogContent>
 {/snippet}
 
 <FF_DialogManager {shell} {confirm} />
 ```
+
+Plain buttons calling `close` / `dismiss` / `confirm` / `cancel` still resolve the result; only the
+backdrop and panel have to be ui-sdk parts.
 
 You can override any subset - omit `prompt` to keep the built-in prompt, etc.
 

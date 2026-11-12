@@ -1,5 +1,5 @@
 import { mount, tick, unmount } from 'svelte'
-import { afterEach, describe, expect, expectTypeOf, it } from 'vitest'
+import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 
 import { dialog, type DialogClose, type DialogResult } from './dialog.svelte'
 import DialogOpenTest from './DialogOpenTest.svelte'
@@ -56,6 +56,40 @@ describe('dialog.open (component)', () => {
 		expectTypeOf(dialog.open(DialogOpenTest, { props: { label: 'x' } })).resolves.toEqualTypeOf<
 			DialogResult<number>
 		>()
+	})
+
+	it('Esc closes only the topmost layer and focus walks back', async () => {
+		const host = document.createElement('div')
+		document.body.appendChild(host)
+		const trigger = document.createElement('button')
+		document.body.appendChild(trigger)
+		trigger.focus()
+		const app = mount(FF_DialogManager, { target: host })
+		const esc = () =>
+			document.activeElement?.dispatchEvent(
+				new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+			)
+		try {
+			const outer = dialog.open(DialogOpenTest, { props: { label: 'Outer' } })
+			await vi.waitFor(() => expect(document.activeElement?.closest('[role="dialog"]')).toBeTruthy())
+			const inner = dialog.confirm('Sure?')
+			await vi.waitFor(() =>
+				expect(document.activeElement?.closest('[role="alertdialog"]')).toBeTruthy(),
+			)
+
+			esc()
+			await expect(inner).resolves.toEqual({ ok: false })
+			expect(dialog.list.length).toBe(1)
+			await vi.waitFor(() => expect(document.activeElement?.closest('[role="dialog"]')).toBeTruthy())
+
+			esc()
+			await expect(outer).resolves.toEqual({ ok: false })
+			await vi.waitFor(() => expect(document.activeElement).toBe(trigger))
+		} finally {
+			unmount(app)
+			host.remove()
+			trigger.remove()
+		}
 	})
 
 	it('renders the component through the manager and resolves on its button', async () => {

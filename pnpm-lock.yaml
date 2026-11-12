@@ -52,6 +52,12 @@ catalogs:
     '@types/nodemailer':
       specifier: ^8.0.0
       version: 8.0.0
+    '@ui-sdk/core':
+      specifier: 0.1.0-beta.1
+      version: 0.1.0-beta.1
+    '@ui-sdk/svelte':
+      specifier: 0.1.0-beta.1
+      version: 0.1.0-beta.1
     clsx:
       specifier: ^2.1.1
       version: 2.1.1
@@ -193,6 +199,12 @@ importers:
       '@types/nodemailer':
         specifier: catalog:lib-dep-publish
         version: 8.0.0
+      '@ui-sdk/core':
+        specifier: catalog:lib-dep-publish
+        version: 0.1.0-beta.1
+      '@ui-sdk/svelte':
+        specifier: catalog:lib-dep-publish
+        version: 0.1.0-beta.1(@ui-sdk/core@0.1.0-beta.1)(svelte@5.57.3(@typescript-eslint/types@8.72.1))
       clsx:
         specifier: catalog:lib-dep-publish
         version: 2.1.1
@@ -2121,6 +2133,15 @@ packages:
   '@typescript/native-preview@7.0.0-dev.20260112.1':
     resolution: {integrity: sha512-DvUmkkJ5BePLmZbQ9OecQr6wRVUlWbNz/bNEYmTcl7+0qwF8KtgPGriWiyuIzs+TiIhjf3HM1tt5OC/uBHNJsw==}
     hasBin: true
+
+  '@ui-sdk/core@0.1.0-beta.1':
+    resolution: {integrity: sha512-sWsZW8RN6Gviir7REQYuDIafm9hierHQE31OJ+2g+1Pp3lDVKp/dk0+0dxFvqOQRmBveRvlE9FiARgNlQ9dMFw==}
+
+  '@ui-sdk/svelte@0.1.0-beta.1':
+    resolution: {integrity: sha512-nQQaFKn7e/M87yj/ax7JgZc3uYjiacmKs05ljCIrdOiPbkiROGcbKHgngVZUF7x0GJWhGTDg67Yc28kirKUoLA==}
+    peerDependencies:
+      '@ui-sdk/core': ^0.1.0-beta.1
+      svelte: '>=5.33'
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
@@ -5502,6 +5523,13 @@ snapshots:
       '@typescript/native-preview-linux-x64': 7.0.0-dev.20260112.1
       '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260112.1
       '@typescript/native-preview-win32-x64': 7.0.0-dev.20260112.1
+
+  '@ui-sdk/core@0.1.0-beta.1': {}
+
+  '@ui-sdk/svelte@0.1.0-beta.1(@ui-sdk/core@0.1.0-beta.1)(svelte@5.57.3(@typescript-eslint/types@8.72.1))':
+    dependencies:
+      '@ui-sdk/core': 0.1.0-beta.1
+      svelte: 5.57.3(@typescript-eslint/types@8.72.1)
 
   '@ungap/structured-clone@1.3.0': {}
 
