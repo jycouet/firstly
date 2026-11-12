@@ -2,7 +2,12 @@ import { dbNamesOf, repo, type ClassType, type SqlDatabase } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { execStmt, liveTables } from './catalog'
-import { formatCreateIndex, nullsFirstDefault } from './createIndex'
+import {
+	formatCreateIndex,
+	formatDropIndex,
+	nullsFirstDefault,
+	otherNullsVariant,
+} from './createIndex'
 import { splitKey, stripIdent, tableKey, tableKeySql, USER_SCHEMA_SQL } from './ident'
 
 /** A toOne relation's local FK columns that ideally have a covering index. */
@@ -34,6 +39,20 @@ const covers = (want: RelIndexDesired, have: ExistingIndex, nullsFirst: boolean)
 	want.columns.every(
 		(c, i) => have.cols[i] === c && (!want.nullable[i] || have.nullsFirst[i] === nullsFirst),
 	)
+
+/** With a nullable column, also drops the other NULL-order variant, so a `NullSort` change swaps it. */
+function createSql(d: RelIndexDesired, name: string, nullsFirst: boolean[]) {
+	const where = splitKey(d.table)
+	const sql = formatCreateIndex({
+		name,
+		...where,
+		columns: d.columns,
+		ifNotExists: true,
+		nullsFirst,
+	})
+	if (!d.nullable.some(Boolean)) return sql
+	return `${sql} ${formatDropIndex({ name: otherNullsVariant(name), schema: where.schema })}`
+}
 
 /**
  * Pure: for each (deduped) relation FK, decide whether an index is missing.
@@ -80,13 +99,7 @@ export function planRelationIndexes(
 						name,
 						action: 'create',
 						coveredBy: null,
-						sql: formatCreateIndex({
-							name,
-							...splitKey(d.table),
-							columns: d.columns,
-							ifNotExists: true,
-							nullsFirst: colNullsFirst,
-						}),
+						sql: createSql(d, name, colNullsFirst),
 					},
 		)
 	}

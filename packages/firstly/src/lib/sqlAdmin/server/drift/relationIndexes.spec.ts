@@ -43,7 +43,7 @@ describe('planRelationIndexes', () => {
 				name: 'FF_IX_follows_subject',
 				action: 'create',
 				coveredBy: null,
-				sql: 'CREATE INDEX IF NOT EXISTS "FF_IX_follows_subject" ON "follows" ("subject");',
+				sql: 'CREATE INDEX IF NOT EXISTS "FF_IX_follows_subject" ON "follows" ("subject"); DROP INDEX IF EXISTS "FF_IX_follows_subject_NF";',
 			},
 		])
 	})
@@ -105,7 +105,7 @@ describe('planRelationIndexes', () => {
 		expect(plans[0]).toMatchObject({
 			action: 'create',
 			name: 'FF_IX_activities_did_NF',
-			sql: 'CREATE INDEX IF NOT EXISTS "FF_IX_activities_did_NF" ON "activities" ("did" NULLS FIRST);',
+			sql: 'CREATE INDEX IF NOT EXISTS "FF_IX_activities_did_NF" ON "activities" ("did" NULLS FIRST); DROP INDEX IF EXISTS "FF_IX_activities_did";',
 		})
 	})
 
@@ -155,7 +155,7 @@ describe('planRelationIndexes', () => {
 			{ nullsFirst: true },
 		)
 		expect(plans[0].sql).toBe(
-			'CREATE INDEX IF NOT EXISTS "FF_IX_t_a_b_NF" ON "t" ("a", "b" NULLS FIRST);',
+			'CREATE INDEX IF NOT EXISTS "FF_IX_t_a_b_NF" ON "t" ("a", "b" NULLS FIRST); DROP INDEX IF EXISTS "FF_IX_t_a_b";',
 		)
 	})
 })

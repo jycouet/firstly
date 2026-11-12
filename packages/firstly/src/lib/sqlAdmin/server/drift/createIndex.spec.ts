@@ -3,7 +3,27 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Entity, Fields, InMemoryDataProvider, remult } from 'remult'
 import { NullSort } from 'remult/internals'
 
-import { formatCreateIndex, nullsFirstDefault, sqlCreateIndex } from './createIndex'
+import {
+	formatCreateIndex,
+	formatDropIndex,
+	nullsFirstDefault,
+	otherNullsVariant,
+	sqlCreateIndex,
+} from './createIndex'
+
+const REGEX_DROP_PLAIN = /DROP INDEX IF EXISTS \W?FF_IX_idx_things_archivedBy\W?;$/
+const REGEX_DROP_NF = /DROP INDEX IF EXISTS \W?FF_IX_idx_things_archivedBy_NF\W?;$/
+
+describe('otherNullsVariant / formatDropIndex', () => {
+	it('flips the _NF suffix', () => {
+		expect(otherNullsVariant('FF_IX_t_a')).toBe('FF_IX_t_a_NF')
+		expect(otherNullsVariant('FF_IX_t_a_NF')).toBe('FF_IX_t_a')
+	})
+
+	it('builds a schema-qualified DROP INDEX IF EXISTS', () => {
+		expect(formatDropIndex({ name: 'i', schema: 's' })).toBe('DROP INDEX IF EXISTS "s"."i";')
+	})
+})
 
 describe('nullsFirstDefault (remult NullSort)', () => {
 	afterEach(() => {
@@ -115,9 +135,27 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		}
 	})
 
-	it('nullsFirst on NOT NULL fields only: plain index, no _NF', async () => {
+	it('nullsFirst on NOT NULL fields only: plain index, no _NF, nothing to drop', async () => {
 		const sql = await sqlCreateIndex(Thing, ['provider'], { nullsFirst: true })
 		expect(sql).not.toContain('NULLS FIRST')
 		expect(sql).not.toContain('_NF')
+		expect(sql).not.toContain('DROP')
+	})
+
+	it('swaps the other NULL-order variant of a derived name, both ways', async () => {
+		const nf = await sqlCreateIndex(Thing, ['archivedBy'], { nullsFirst: true })
+		expect(nf).toMatch(REGEX_DROP_PLAIN)
+		const plain = await sqlCreateIndex(Thing, ['archivedBy'], { nullsFirst: false })
+		expect(plain).toMatch(REGEX_DROP_NF)
+	})
+
+	it('drops nothing with an explicit name or concurrently', async () => {
+		const opts = { nullsFirst: true }
+		expect(await sqlCreateIndex(Thing, ['archivedBy'], { ...opts, name: 'mine' })).not.toContain(
+			'DROP',
+		)
+		expect(
+			await sqlCreateIndex(Thing, ['archivedBy'], { ...opts, concurrently: true }),
+		).not.toContain('DROP')
 	})
 })
