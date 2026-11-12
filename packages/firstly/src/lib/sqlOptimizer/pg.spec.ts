@@ -5,6 +5,7 @@ import pg from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { Entity, Fields, Remult, SqlDatabase } from 'remult'
+import { NullSort } from 'remult/internals'
 import { createPostgresDataProvider } from 'remult/postgres'
 import { startTestServer, type TestServer } from '@kitql/postgres/test'
 
@@ -44,6 +45,7 @@ describe('sqlOptimizer on Postgres', { timeout: 120_000 }, () => {
 
 	afterAll(async () => {
 		SqlDatabase.LogToConsole = prevLog
+		NullSort.order = 'native'
 		await db?.end()
 		server?.stop()
 		if (dir) rmSync(dir, { recursive: true, force: true })
@@ -52,10 +54,8 @@ describe('sqlOptimizer on Postgres', { timeout: 120_000 }, () => {
 	it('capture -> suggest -> explain: NULLS FIRST index removes the sort', async () => {
 		const file = join(dir, 'capture.jsonl')
 		SqlDatabase.LogToConsole = withSqlCapture(undefined, file)
-		const dp = await createPostgresDataProvider({
-			connectionString: server.url(),
-			orderByNullsFirst: true,
-		})
+		NullSort.order = { asc: 'NULLS FIRST', desc: 'NULLS LAST' }
+		const dp = await createPostgresDataProvider({ connectionString: server.url() })
 		const remult = new Remult(dp)
 		await remult.repo(Task).find({ where: { status: 'open' }, orderBy: { doneAt: 'asc' }, limit: 20 })
 		await (dp as SqlDatabase & { end?: () => Promise<void> }).end?.()
@@ -68,8 +68,8 @@ describe('sqlOptimizer on Postgres', { timeout: 120_000 }, () => {
 
 		const schema = await tableSchema(db, 'tasks')
 		const cands = suggestIndexes(parsed, { existing: schema.indexes })
-		// Remult writes NULLS FIRST on every sort column, the NOT NULL id too.
-		expect(cands[0]!.cols).toBe('status, doneAt nulls first, id nulls first')
+		// NULL order only on allowNull columns: the NOT NULL id keeps the default.
+		expect(cands[0]!.cols).toBe('status, doneAt nulls first, id')
 
 		const query = { sql: q!.sql, params: positionalArgs(q!.args) }
 		const base = await explainWith(db, query, { runs: 1 })
@@ -78,19 +78,12 @@ describe('sqlOptimizer on Postgres', { timeout: 120_000 }, () => {
 			create: [parseIndexSpec('status, doneAt, id', 'tasks')],
 			runs: 1,
 		})
-		// What sqlCreateIndex({ nullsFirst }) builds today: NULLS FIRST on allowNull fields only.
-		const helper = await explainWith(db, query, {
-			create: [parseIndexSpec('status, doneAt nulls first, id', 'tasks')],
-			runs: 1,
-		})
 
 		expect(base.plan.sorts.length).toBeGreaterThan(0)
 		expect(nf.plan.indexes).toContain('ffopt_1')
 		expect(nf.plan.sorts).toEqual([])
 		// Default NULLS LAST can't feed a NULLS FIRST sort: it still sorts.
 		expect(plain.plan.sorts.length).toBeGreaterThan(0)
-		// PG doesn't relax NULL order on NOT NULL columns: still an (incremental) sort.
-		expect(helper.plan.sorts.length).toBeGreaterThan(0)
 
 		// Rolled back: only the PK is left.
 		expect((await existingIndexes(db, 'tasks')).map((i) => i.name)).toEqual(['tasks_pkey'])

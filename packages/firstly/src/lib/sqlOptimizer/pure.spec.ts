@@ -165,7 +165,7 @@ describe('indexDdl', () => {
 			'CREATE INDEX IF NOT EXISTS "FF_IX_tasks_status_doneAt_NF" ON "tasks" ("status", "doneAt" NULLS FIRST);',
 		)
 		expect(d.initApi).toBe(
-			`await SqlDatabase.getDb().execute(await sqlCreateIndex(<EntityOf_tasks>, ['status', 'doneAt'], { ifNotExists: true, nullsFirst: true }))`,
+			`await SqlDatabase.getDb().execute(await sqlCreateIndex(<EntityOf_tasks>, ['status', 'doneAt'], { ifNotExists: true }))`,
 		)
 	})
 	it('raw SQL when NULLS FIRST sits on a NOT NULL column (the helper would drop it)', () => {

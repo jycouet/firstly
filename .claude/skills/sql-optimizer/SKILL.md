@@ -1,6 +1,6 @@
 ---
 name: sql-optimizer
-description: 'Decide Postgres indexes for a Remult app from its real queries, with EXPLAIN evidence. Use when the user mentions a slow query, missing / unused indexes, a Seq Scan or Sort in a plan, orderByNullsFirst, or asks which index to add and where.'
+description: 'Decide Postgres indexes for a Remult app from its real queries, with EXPLAIN evidence. Use when the user mentions a slow query, missing / unused indexes, a Seq Scan or Sort in a plan, NULL sort order, or asks which index to add and where.'
 ---
 
 # SQL optimizer
@@ -24,7 +24,7 @@ The plan is the source of truth: every index you recommend comes with its before
 
 ## NULLS order
 
-Postgres uses an index for a sort only when each column's direction and NULL placement match (or are all flipped: a backward scan). With `orderByNullsFirst`, Remult writes `NULLS FIRST` on every ascending sort column, NOT NULL ones included, and the planner matches it even there. So a plain `id` primary key cannot serve `Order By "id" nulls first`: paging by id becomes Seq Scan + Sort. Keep the sort exactly as the query writes it; `suggest` already does.
+Postgres uses an index for a sort only when each column's direction and NULL placement match (or are all flipped: a backward scan), NOT NULL columns included. The query decides: with `NullSort.order` set, Remult writes the NULL order on allowNull columns, and `sqlCreateIndex` builds the matching `_NF` variant. Keep the sort exactly as the captured SQL writes it; `suggest` already does.
 
 ## Cost side
 
