@@ -70,9 +70,6 @@ catalogs:
     nodemailer:
       specifier: ^10.0.10
       version: 10.0.10
-    svelte-sonner:
-      specifier: ^1.2.1
-      version: 1.2.1
     tailwind-merge:
       specifier: ^3.7.0
       version: 3.7.0
@@ -217,9 +214,6 @@ importers:
       nodemailer:
         specifier: catalog:lib-dep-publish
         version: 10.0.10
-      svelte-sonner:
-        specifier: catalog:lib-dep-publish
-        version: 1.2.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))
       tailwind-merge:
         specifier: catalog:lib-dep-publish
         version: 3.7.0
@@ -3484,11 +3478,6 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
-  runed@0.28.0:
-    resolution: {integrity: sha512-k2xx7RuO9hWcdd9f+8JoBeqWtYrm5CALfgpkg2YDB80ds/QE4w0qqu34A7fqiAwiBBSBQOid7TLxwxVC27ymWQ==}
-    peerDependencies:
-      svelte: ^5.7.0
-
   sade@1.8.1:
     resolution: {integrity: sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==}
     engines: {node: '>=6'}
@@ -3599,11 +3588,6 @@ packages:
     peerDependenciesMeta:
       svelte:
         optional: true
-
-  svelte-sonner@1.2.1:
-    resolution: {integrity: sha512-N00LOWb60fjKXULbpngku+7E9Krb16KpNq4/Eax5Vu7o1Dpbca55QpaLPsB+yp82JIEdFhfJuv5cVXLoe0ZtVA==}
-    peerDependencies:
-      svelte: ^5.0.0
 
   svelte2tsx@0.7.62:
     resolution: {integrity: sha512-ZXfsmL0jzAs01ho0w5z5LSIC2WgSdpTF0QCwaXLq7oHgho4P9fTgHlLp1pKAx6/xtVYRSW5nGH5ZRpEHZCqliA==}
@@ -7112,11 +7096,6 @@ snapshots:
       '@rolldown/binding-win32-arm64-msvc': 1.2.16
       '@rolldown/binding-win32-x64-msvc': 1.2.16
 
-  runed@0.28.0(svelte@5.57.3(@typescript-eslint/types@8.72.1)):
-    dependencies:
-      esm-env: 1.2.2
-      svelte: 5.57.3(@typescript-eslint/types@8.72.1)
-
   sade@1.8.1:
     dependencies:
       mri: 1.2.0
@@ -7296,11 +7275,6 @@ snapshots:
       postcss-selector-parser: 7.1.1
       semver: 7.8.5
     optionalDependencies:
-      svelte: 5.57.3(@typescript-eslint/types@8.72.1)
-
-  svelte-sonner@1.2.1(svelte@5.57.3(@typescript-eslint/types@8.72.1)):
-    dependencies:
-      runed: 0.28.0(svelte@5.57.3(@typescript-eslint/types@8.72.1))
       svelte: 5.57.3(@typescript-eslint/types@8.72.1)
 
   svelte2tsx@0.7.62(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3):

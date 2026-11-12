@@ -1,8 +1,7 @@
-import { toast as sonner } from 'svelte-sonner'
+import { toast as uiToast } from '@ui-sdk/svelte/toast'
 
 import type { LocalizedMessage } from '../core/FF_Validators.js'
 import { resolveMessage } from '../core/FF_Validators.js'
-import FF_ToastHtml from './FF_ToastHtml.svelte'
 
 export type ToastKind = 'success' | 'error' | 'info' | 'warning'
 
@@ -12,7 +11,7 @@ export type ToastOptions = {
 	 * (e.g. `error` → "Error"). Pass to override.
 	 */
 	title?: LocalizedMessage
-	/** ms before auto-dismiss (passed through to svelte-sonner). */
+	/** ms before auto-dismiss. */
 	duration?: number
 	/** An action button. */
 	action?: { label: LocalizedMessage; onClick: () => void }
@@ -38,8 +37,7 @@ export function _setToastTitleResolver(fn: (kind: ToastKind) => string): void {
 	resolveDefaultTitle = fn
 }
 
-/** A svelte-sonner toast id. */
-type ToastId = string | number
+type ToastId = string
 
 function errorMessage(err: unknown): string {
 	if (err instanceof Error) return err.message
@@ -59,26 +57,28 @@ function escapeHtml(s: string): string {
 		.replace(/'/g, '&#39;')
 }
 
+/** `FF_ToastManager` renders `data.html` as the description. */
+export type ToastData = { html: string }
+
 /**
- * Build a toast: the bold `title` (from `opts.title`, else the per-kind default)
- * is svelte-sonner's main message; `description` is the body, rendered as HTML.
+ * Build a toast: the bold `title` (from `opts.title`, else the per-kind default) is the toast's
+ * title; the description travels as HTML in `data`, rendered by `<FF_ToastManager>`.
  */
 function build(kind: ToastKind, description: LocalizedMessage, opts?: ToastOptions): ToastId {
 	const title = opts?.title !== undefined ? resolveMessage(opts.title) : resolveDefaultTitle(kind)
-	return sonner[kind](title, {
-		// svelte-sonner renders a component description as `<Description {...componentProps} />`
-		description: FF_ToastHtml,
-		componentProps: { html: resolveMessage(description) },
+	return uiToast[kind]({
+		title,
+		data: { html: resolveMessage(description) } satisfies ToastData,
 		duration: opts?.duration,
 		action: opts?.action
-			? { label: resolveMessage(opts.action.label), onClick: opts.action.onClick }
+			? { label: resolveMessage(opts.action.label), onAction: opts.action.onClick }
 			: undefined,
 	})
 }
 
 /**
- * firstly's toast - a `LocalizedMessage`-aware wrapper over svelte-sonner. Mount
- * `<FF_ToastManager>` once (it renders sonner's `<Toaster>`).
+ * firstly's toast - a `LocalizedMessage`-aware wrapper over ui-sdk's toast. Mount
+ * `<FF_ToastManager>` once (it renders the toast region).
  *
  * The first argument is the **description** (the body) and **may contain HTML**.
  * A bold **title** sits above it; it defaults per kind (e.g. `error` → "Error") and
@@ -117,6 +117,6 @@ export const toast = {
 		build('error', escapeHtml(errorMessage(err)), opts),
 	/** Dismiss a toast by id (or all, if omitted). */
 	dismiss: (id?: ToastId): void => {
-		sonner.dismiss(id)
+		uiToast.dismiss(id)
 	},
 }

@@ -1,10 +1,10 @@
-import { toast as sonner } from 'svelte-sonner'
+import { toast as ui } from '@ui-sdk/svelte/toast'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { toast } from './toast'
 
-// Mock svelte-sonner so we assert forwarding without rendering a Toaster.
-vi.mock('svelte-sonner', () => ({
+// Mock ui-sdk's toaster so we assert forwarding without rendering a region.
+vi.mock('@ui-sdk/svelte/toast', () => ({
 	toast: {
 		success: vi.fn(() => 'id-success'),
 		error: vi.fn(() => 'id-error'),
@@ -14,27 +14,20 @@ vi.mock('svelte-sonner', () => ({
 	},
 }))
 
-// The description is rendered through this component; mock it so the test runs in node.
-vi.mock('./FF_ToastHtml.svelte', () => ({ default: 'FF_ToastHtml' }))
+const shown = (title: string, html: string) => expect.objectContaining({ title, data: { html } })
 
 beforeEach(() => vi.clearAllMocks())
 
 describe('toast wrapper', () => {
 	it('uses the per-kind default title and passes the description as html', () => {
 		const id = toast.success('Saved')
-		expect(sonner.success).toHaveBeenCalledWith(
-			'Success',
-			expect.objectContaining({ componentProps: { html: 'Saved' } }),
-		)
+		expect(ui.success).toHaveBeenCalledWith(shown('Success', 'Saved'))
 		expect(id).toBe('id-success')
 	})
 
 	it('overrides the title via opts.title', () => {
 		toast.error('Could not save', { title: 'Oops' })
-		expect(sonner.error).toHaveBeenCalledWith(
-			'Oops',
-			expect.objectContaining({ componentProps: { html: 'Could not save' } }),
-		)
+		expect(ui.error).toHaveBeenCalledWith(shown('Oops', 'Could not save'))
 	})
 
 	it('resolves LocalizedMessage functions (description + title) at call time', () => {
@@ -43,75 +36,51 @@ describe('toast wrapper', () => {
 		toast.error(desc, { title })
 		expect(desc).toHaveBeenCalledOnce()
 		expect(title).toHaveBeenCalledOnce()
-		expect(sonner.error).toHaveBeenCalledWith(
-			'Titre',
-			expect.objectContaining({ componentProps: { html: 'Localized' } }),
-		)
+		expect(ui.error).toHaveBeenCalledWith(shown('Titre', 'Localized'))
 	})
 
 	it('forwards duration + action', () => {
 		const onClick = () => {}
 		toast.info('Hi', { duration: 1000, action: { label: 'Undo', onClick } })
-		expect(sonner.info).toHaveBeenCalledWith(
-			'Info',
+		expect(ui.info).toHaveBeenCalledWith(
 			expect.objectContaining({
-				componentProps: { html: 'Hi' },
+				title: 'Info',
+				data: { html: 'Hi' },
 				duration: 1000,
-				action: { label: 'Undo', onClick },
+				action: { label: 'Undo', onAction: onClick },
 			}),
 		)
 	})
 
 	it('show() dispatches on kind (default info)', () => {
 		toast.show('a', { kind: 'warning' })
-		expect(sonner.warning).toHaveBeenCalledWith(
-			'Warning',
-			expect.objectContaining({ componentProps: { html: 'a' } }),
-		)
+		expect(ui.warning).toHaveBeenCalledWith(shown('Warning', 'a'))
 		toast.show('b')
-		expect(sonner.info).toHaveBeenCalledWith(
-			'Info',
-			expect.objectContaining({ componentProps: { html: 'b' } }),
-		)
+		expect(ui.info).toHaveBeenCalledWith(shown('Info', 'b'))
 	})
 
 	it('fromError extracts a message from Error / string / { message } / unknown', () => {
 		toast.fromError(new Error('boom'))
-		expect(sonner.error).toHaveBeenLastCalledWith(
-			'Error',
-			expect.objectContaining({ componentProps: { html: 'boom' } }),
-		)
+		expect(ui.error).toHaveBeenLastCalledWith(shown('Error', 'boom'))
 		toast.fromError('str')
-		expect(sonner.error).toHaveBeenLastCalledWith(
-			'Error',
-			expect.objectContaining({ componentProps: { html: 'str' } }),
-		)
+		expect(ui.error).toHaveBeenLastCalledWith(shown('Error', 'str'))
 		toast.fromError({ message: 'om' })
-		expect(sonner.error).toHaveBeenLastCalledWith(
-			'Error',
-			expect.objectContaining({ componentProps: { html: 'om' } }),
-		)
+		expect(ui.error).toHaveBeenLastCalledWith(shown('Error', 'om'))
 		toast.fromError(42)
-		expect(sonner.error).toHaveBeenLastCalledWith(
-			'Error',
-			expect.objectContaining({ componentProps: { html: '42' } }),
-		)
+		expect(ui.error).toHaveBeenLastCalledWith(shown('Error', '42'))
 	})
 
 	it('fromError escapes HTML so a malicious error message cannot inject markup', () => {
 		// Error messages often carry server- or user-controlled text; the description is rendered
 		// as HTML, so fromError must entity-encode it (unlike the HTML-capable toast.error).
 		toast.fromError(new Error('<img src=x onerror="alert(1)"> & done'))
-		expect(sonner.error).toHaveBeenLastCalledWith(
-			'Error',
-			expect.objectContaining({
-				componentProps: { html: '&lt;img src=x onerror=&quot;alert(1)&quot;&gt; &amp; done' },
-			}),
+		expect(ui.error).toHaveBeenLastCalledWith(
+			shown('Error', '&lt;img src=x onerror=&quot;alert(1)&quot;&gt; &amp; done'),
 		)
 	})
 
 	it('dismiss forwards the id', () => {
 		toast.dismiss('id-1')
-		expect(sonner.dismiss).toHaveBeenCalledWith('id-1')
+		expect(ui.dismiss).toHaveBeenCalledWith('id-1')
 	})
 })
