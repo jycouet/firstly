@@ -4,13 +4,16 @@ import * as internals from 'remult/internals'
 import { stripIdent } from './ident'
 
 /**
- * Whether sorts put NULL first on asc, from remult's app-wide `NullSort`. Before remult
- * has it, defaults to `true`.
+ * Whether index columns should be `NULLS FIRST`, from remult's app-wide `NullSort.order`.
+ * One btree serves asc forward and desc backward, so `asc` decides: `{ asc: 'NULLS FIRST',
+ * desc: 'NULLS LAST' }` is served by a `NULLS FIRST` index. `native` is Postgres' own
+ * (NULLS LAST on asc): default index.
  */
 export function nullsFirstDefault() {
-	// TODO: import `NullSort` directly once remult >= 3.5 is the minimum
-	const nullSort = (internals as { NullSort?: { asc: string } }).NullSort
-	return nullSort ? nullSort.asc === 'NULL FIRST' : true
+	// TODO: import `NullSort` directly once remult >= 3.5 is the minimum peer
+	const nullSort = (internals as { NullSort?: { order: 'native' | { asc: string } } }).NullSort
+	const order = nullSort?.order ?? 'native'
+	return order !== 'native' && order.asc === 'NULLS FIRST'
 }
 
 export type IndexOptions = {
@@ -19,7 +22,7 @@ export type IndexOptions = {
 	concurrently?: boolean
 	ifNotExists?: boolean
 	/**
-	 * Match NULLS FIRST sorts, else Postgres skips the index. Applies to `allowNull` fields
+	 * Match `NullSort` sorts, else Postgres skips the index. Applies to `allowNull` fields
 	 * only; derived name gets `_NF` when any does. Defaults to `nullsFirstDefault()`.
 	 */
 	nullsFirst?: boolean

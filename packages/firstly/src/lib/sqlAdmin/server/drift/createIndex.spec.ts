@@ -1,8 +1,29 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { Entity, Fields, InMemoryDataProvider, remult } from 'remult'
+import { NullSort } from 'remult/internals'
 
-import { formatCreateIndex, sqlCreateIndex } from './createIndex'
+import { formatCreateIndex, nullsFirstDefault, sqlCreateIndex } from './createIndex'
+
+describe('nullsFirstDefault (remult NullSort)', () => {
+	afterEach(() => {
+		NullSort.order = 'native'
+	})
+
+	it('native: Postgres default order, no NULLS FIRST', () => {
+		expect(nullsFirstDefault()).toBe(false)
+	})
+
+	it('asc NULLS FIRST / desc NULLS LAST: NULLS FIRST', () => {
+		NullSort.order = { asc: 'NULLS FIRST', desc: 'NULLS LAST' }
+		expect(nullsFirstDefault()).toBe(true)
+	})
+
+	it('asc NULLS LAST: no NULLS FIRST', () => {
+		NullSort.order = { asc: 'NULLS LAST', desc: 'NULLS FIRST' }
+		expect(nullsFirstDefault()).toBe(false)
+	})
+})
 
 describe('formatCreateIndex (pure)', () => {
 	it('builds a single-column index with default double-quote wrapping', () => {
@@ -81,11 +102,17 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		expect(sql).not.toContain('provider NULLS FIRST')
 	})
 
-	it('defaults to NULLS FIRST (before remult NullSort); `nullsFirst: false` opts out', async () => {
-		expect(await sqlCreateIndex(Thing, ['archivedBy'])).toContain('archivedBy NULLS FIRST')
-		expect(await sqlCreateIndex(Thing, ['archivedBy'], { nullsFirst: false })).not.toContain(
-			'NULLS FIRST',
-		)
+	it('follows NullSort by default; `nullsFirst` overrides', async () => {
+		expect(await sqlCreateIndex(Thing, ['archivedBy'])).not.toContain('NULLS FIRST')
+		NullSort.order = { asc: 'NULLS FIRST', desc: 'NULLS LAST' }
+		try {
+			expect(await sqlCreateIndex(Thing, ['archivedBy'])).toContain('archivedBy NULLS FIRST')
+			expect(await sqlCreateIndex(Thing, ['archivedBy'], { nullsFirst: false })).not.toContain(
+				'NULLS FIRST',
+			)
+		} finally {
+			NullSort.order = 'native'
+		}
 	})
 
 	it('nullsFirst on NOT NULL fields only: plain index, no _NF', async () => {
