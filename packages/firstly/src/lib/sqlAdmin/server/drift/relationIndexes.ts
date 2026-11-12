@@ -168,7 +168,8 @@ export async function createRelationIndexes(
 		JOIN pg_class i ON i.oid = ix.indexrelid
 		JOIN unnest(ix.indkey) WITH ORDINALITY AS k(attnum, ord) ON true
 		JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum = k.attnum
-		WHERE c.relkind = 'r' AND k.attnum > 0
+		-- A partial or expression index can't serve a plain `fk = $1` lookup.
+		WHERE c.relkind = 'r' AND k.attnum > 0 AND ix.indpred IS NULL AND ix.indexprs IS NULL
 		GROUP BY ns.nspname, c.relname, i.relname;
 	`)
 	const existing = new Map<string, ExistingIndex[]>()
