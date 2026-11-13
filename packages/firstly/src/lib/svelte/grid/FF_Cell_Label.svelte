@@ -25,10 +25,12 @@
 {/if}
 
 <style>
-	[data-ff-cell-label] {
-		display: block;
-		max-width: 100%;
-		min-width: 0;
-		overflow-wrap: anywhere;
+	@layer firstly {
+		[data-ff-cell-label] {
+			display: block;
+			max-width: 100%;
+			min-width: 0;
+			overflow-wrap: anywhere;
+		}
 	}
 </style>

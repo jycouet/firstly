@@ -19,8 +19,10 @@
 {/if}
 
 <style>
-	[data-ff-cell-hint] {
-		color: var(--muted-foreground, color-mix(in srgb, currentColor 60%, transparent));
-		font-size: smaller;
+	@layer firstly {
+		[data-ff-cell-hint] {
+			color: var(--muted-foreground, color-mix(in srgb, currentColor 60%, transparent));
+			font-size: smaller;
+		}
 	}
 </style>

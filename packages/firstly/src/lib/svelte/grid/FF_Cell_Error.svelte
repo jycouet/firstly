@@ -19,8 +19,10 @@
 {/if}
 
 <style>
-	[data-ff-cell-error] {
-		color: var(--color-error, red);
-		font-size: smaller;
+	@layer firstly {
+		[data-ff-cell-error] {
+			color: var(--color-error, red);
+			font-size: smaller;
+		}
 	}
 </style>

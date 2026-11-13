@@ -25,17 +25,19 @@
 {/if}
 
 <style>
-	input {
-		width: 100%;
-		box-sizing: border-box;
-		padding: 5px 7px;
-		font: inherit;
-		color: inherit;
-		background: transparent;
-		border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
-		border-radius: 6px;
-	}
-	input[type='checkbox'] {
-		width: auto;
+	@layer firstly {
+		input {
+			width: 100%;
+			box-sizing: border-box;
+			padding: 5px 7px;
+			font: inherit;
+			color: inherit;
+			background: transparent;
+			border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+			border-radius: 6px;
+		}
+		input[type='checkbox'] {
+			width: auto;
+		}
 	}
 </style>

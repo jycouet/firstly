@@ -168,6 +168,17 @@ npx degit jycouet/firstly/packages/firstly/src/boutique/grid src/lib/app-grid
 - The toolbar `+ New` and per-row `Edit` disable from `meta.apiInsertAllowed()` /
   `apiUpdateAllowed(row)` - the same permission the server enforces.
 
+### Styling: the `firstly` layer
+
+The default skin ships inside `@layer firstly`, so your utilities override it. With Tailwind v4,
+declare the order before the import (skin after preflight, before utilities):
+
+```css
+/* app.css */
+@layer theme, base, firstly, components, utilities;
+@import 'tailwindcss';
+```
+
 ### The entity hub
 
 Declare the grid/form config once, on the entity - it ships with the (isomorphic) entity and is the
