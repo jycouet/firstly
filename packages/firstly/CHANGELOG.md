@@ -1,5 +1,13 @@
 # firstly
 
+## 0.14.0
+
+### Minor Changes
+
+- [#433](https://github.com/jycouet/firstly/pull/433) [`e955c89`](https://github.com/jycouet/firstly/commit/e955c89630440451d19d2ac3f7ed6d9b0ff65c0c) Thanks [@jycouet](https://github.com/jycouet)! - feat(grid): ship the default skin in `@layer firstly` so consumer utilities win. With Tailwind v4, declare `@layer theme, base, firstly, components, utilities;` before `@import 'tailwindcss'`.
+
+- [#418](https://github.com/jycouet/firstly/pull/418) [`87284a5`](https://github.com/jycouet/firstly/commit/87284a5b460c8011ca998b6dd03682a8877af5e8) Thanks [@jycouet](https://github.com/jycouet)! - Requires remult >= 3.5. sqlAdmin drift: index builders and relation index coverage follow remult `NullSort.order`, with `NULLS FIRST` on `allowNull` columns when `asc` is `NULLS FIRST`, and drop the other `X` / `X_NF` variant so the index swaps. `nullSort` overrides.
+
 ## 0.13.0
 
 ### Minor Changes
