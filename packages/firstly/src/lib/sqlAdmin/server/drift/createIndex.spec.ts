@@ -1,8 +1,52 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { Entity, Fields, InMemoryDataProvider, remult } from 'remult'
+import { NullSort } from 'remult/internals'
 
-import { formatCreateIndex, sqlCreateIndex } from './createIndex'
+import {
+	formatCreateIndex,
+	formatDropIndex,
+	indexNullsFirst,
+	otherNullsVariant,
+	sqlCreateIndex,
+	type NullSortOrder,
+} from './createIndex'
+
+const NF: NullSortOrder = { asc: 'NULLS FIRST', desc: 'NULLS LAST' }
+const NATIVE: NullSortOrder = 'native'
+const REGEX_DROP_PLAIN = /DROP INDEX IF EXISTS \W?FF_IX_idx_things_archivedBy\W?;$/
+const REGEX_DROP_NF = /DROP INDEX IF EXISTS \W?FF_IX_idx_things_archivedBy_NF\W?;$/
+
+describe('otherNullsVariant / formatDropIndex', () => {
+	it('flips the _NF suffix', () => {
+		expect(otherNullsVariant('FF_IX_t_a')).toBe('FF_IX_t_a_NF')
+		expect(otherNullsVariant('FF_IX_t_a_NF')).toBe('FF_IX_t_a')
+	})
+
+	it('builds a schema-qualified DROP INDEX IF EXISTS', () => {
+		expect(formatDropIndex({ name: 'i', schema: 's' })).toBe('DROP INDEX IF EXISTS "s"."i";')
+	})
+})
+
+describe('indexNullsFirst', () => {
+	afterEach(() => {
+		NullSort.order = 'native'
+	})
+
+	it('native: Postgres default order, no NULLS FIRST', () => {
+		expect(indexNullsFirst()).toBe(false)
+	})
+
+	it('reads remult NullSort.order by default', () => {
+		NullSort.order = NF
+		expect(indexNullsFirst()).toBe(true)
+	})
+
+	it('asc decides', () => {
+		expect(indexNullsFirst(NF)).toBe(true)
+		expect(indexNullsFirst({ asc: 'NULLS LAST', desc: 'NULLS FIRST' })).toBe(false)
+	})
+})
 
 describe('formatCreateIndex (pure)', () => {
 	it('builds a single-column index with default double-quote wrapping', () => {
@@ -39,6 +83,12 @@ describe('formatCreateIndex (pure)', () => {
 			formatCreateIndex({ name: 'i', table: 't', columns: ['a'], wrap: (s) => `\`${s}\`` }),
 		).toBe('CREATE INDEX `i` ON `t` (`a`);')
 	})
+
+	it('writes NULLS FIRST on every column', () => {
+		expect(formatCreateIndex({ name: 'i', table: 't', columns: ['a', 'b'], nullsFirst: true })).toBe(
+			'CREATE INDEX "i" ON "t" ("a" NULLS FIRST, "b" NULLS FIRST);',
+		)
+	})
 })
 
 describe('sqlCreateIndex (entity + fields)', () => {
@@ -51,6 +101,7 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		@Fields.string() id = ''
 		@Fields.string() provider = ''
 		@Fields.string() providerUserId = ''
+		@Fields.string({ allowNull: true }) archivedBy: string | null = null
 	}
 
 	it('resolves table + columns from the entity and derives a default name', async () => {
@@ -65,5 +116,49 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		const sql = await sqlCreateIndex(Thing, ['provider'], { unique: true })
 		expect(sql).toContain('CREATE UNIQUE INDEX')
 		expect(sql).toContain('FF_UX_idx_things_provider')
+	})
+
+	it('NULLS FIRST + _NF only for allowNull fields', async () => {
+		const sql = await sqlCreateIndex(Thing, ['provider', 'archivedBy'], { nullSort: NF })
+		expect(sql).toContain('FF_IX_idx_things_provider_archivedBy_NF')
+		expect(sql).toContain('archivedBy NULLS FIRST')
+		expect(sql).not.toContain('provider NULLS FIRST')
+	})
+
+	it('follows NullSort by default; `nullSort` overrides', async () => {
+		expect(await sqlCreateIndex(Thing, ['archivedBy'])).not.toContain('NULLS FIRST')
+		NullSort.order = NF
+		try {
+			expect(await sqlCreateIndex(Thing, ['archivedBy'])).toContain('archivedBy NULLS FIRST')
+			expect(await sqlCreateIndex(Thing, ['archivedBy'], { nullSort: NATIVE })).not.toContain(
+				'NULLS FIRST',
+			)
+		} finally {
+			NullSort.order = 'native'
+		}
+	})
+
+	it('NULLS FIRST on NOT NULL fields only: plain index, no _NF, nothing to drop', async () => {
+		const sql = await sqlCreateIndex(Thing, ['provider'], { nullSort: NF })
+		expect(sql).not.toContain('NULLS FIRST')
+		expect(sql).not.toContain('_NF')
+		expect(sql).not.toContain('DROP')
+	})
+
+	it('swaps the other NULL-order variant of a derived name, both ways', async () => {
+		const nf = await sqlCreateIndex(Thing, ['archivedBy'], { nullSort: NF })
+		expect(nf).toMatch(REGEX_DROP_PLAIN)
+		const plain = await sqlCreateIndex(Thing, ['archivedBy'], { nullSort: NATIVE })
+		expect(plain).toMatch(REGEX_DROP_NF)
+	})
+
+	it('drops nothing with an explicit name or concurrently', async () => {
+		const opts = { nullSort: NF }
+		expect(await sqlCreateIndex(Thing, ['archivedBy'], { ...opts, name: 'mine' })).not.toContain(
+			'DROP',
+		)
+		expect(
+			await sqlCreateIndex(Thing, ['archivedBy'], { ...opts, concurrently: true }),
+		).not.toContain('DROP')
 	})
 })

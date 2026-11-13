@@ -2,14 +2,23 @@ import { dbNamesOf, repo, type ClassType, type SqlDatabase } from 'remult'
 import { getRelationFieldInfo } from 'remult/internals'
 
 import { execStmt, liveTables } from './catalog'
-import { formatCreateIndex } from './createIndex'
+import {
+	formatCreateIndex,
+	formatDropIndex,
+	indexNullsFirst,
+	otherNullsVariant,
+	type NullSortOrder,
+} from './createIndex'
 import { splitKey, stripIdent, tableKey, tableKeySql, USER_SCHEMA_SQL } from './ident'
 
 /** A toOne relation's local FK columns that ideally have a covering index. */
-export type RelIndexDesired = { table: string; columns: string[] }
+export type RelIndexDesired = { table: string; columns: string[]; nullable: boolean[] }
 
-/** An existing index from the catalog, columns in order. */
-export type ExistingIndex = { name: string; cols: string[] }
+/**
+ * An existing index from the catalog, columns in order. `nullsFirst[i]`: NULLs come first
+ * when scanned ascending (`NULLS FIRST`, or `DESC NULLS LAST` read backward).
+ */
+export type ExistingIndex = { name: string; cols: string[]; nullsFirst: boolean[] }
 
 export type RelIndexPlan = {
 	table: string
@@ -21,9 +30,30 @@ export type RelIndexPlan = {
 	sql: string | null
 }
 
-/** `want` is covered if it's a leftmost prefix of `have` (so the PK covers its own prefix). */
-const isPrefix = (want: string[], have: string[]) =>
-	have.length >= want.length && want.every((c, i) => have[i] === c)
+/**
+ * `want` is covered if it's a leftmost prefix of `have` (so the PK covers its own prefix),
+ * with the NULL order sorts use on nullable columns: Postgres won't follow an index whose
+ * NULL order differs.
+ */
+const covers = (want: RelIndexDesired, have: ExistingIndex, nullsFirst: boolean) =>
+	have.cols.length >= want.columns.length &&
+	want.columns.every(
+		(c, i) => have.cols[i] === c && (!want.nullable[i] || have.nullsFirst[i] === nullsFirst),
+	)
+
+/** With a nullable column, also drops the other NULL-order variant, so a `NullSort` change swaps it. */
+function createSql(d: RelIndexDesired, name: string, nullsFirst: boolean[]) {
+	const where = splitKey(d.table)
+	const sql = formatCreateIndex({
+		name,
+		...where,
+		columns: d.columns,
+		ifNotExists: true,
+		nullsFirst,
+	})
+	if (!d.nullable.some(Boolean)) return sql
+	return `${sql} ${formatDropIndex({ name: otherNullsVariant(name), schema: where.schema })}`
+}
 
 /**
  * Pure: for each (deduped) relation FK, decide whether an index is missing.
@@ -35,7 +65,10 @@ export function planRelationIndexes(
 	desired: RelIndexDesired[],
 	existing: Map<string, ExistingIndex[]>,
 	tables: ReadonlySet<string>,
+	/** Defaults to remult's `NullSort.order`. */
+	opts?: { nullSort?: NullSortOrder },
 ): RelIndexPlan[] {
+	const nullsFirst = indexNullsFirst(opts?.nullSort)
 	const seen = new Set<string>()
 	const plans: RelIndexPlan[] = []
 
@@ -44,12 +77,20 @@ export function planRelationIndexes(
 		if (seen.has(key)) continue
 		seen.add(key)
 
-		const name = `FF_IX_${d.table}_${d.columns.join('_')}`
+		const colNullsFirst = d.nullable.map((n) => nullsFirst && n)
+		const name = `FF_IX_${d.table}_${d.columns.join('_')}${colNullsFirst.some(Boolean) ? '_NF' : ''}`
 		if (!tables.has(d.table)) {
-			plans.push({ ...d, name, action: 'missing', coveredBy: null, sql: null })
+			plans.push({
+				table: d.table,
+				columns: d.columns,
+				name,
+				action: 'missing',
+				coveredBy: null,
+				sql: null,
+			})
 			continue
 		}
-		const cover = (existing.get(d.table) ?? []).find((e) => isPrefix(d.columns, e.cols))
+		const cover = (existing.get(d.table) ?? []).find((e) => covers(d, e, nullsFirst))
 
 		plans.push(
 			cover
@@ -60,12 +101,7 @@ export function planRelationIndexes(
 						name,
 						action: 'create',
 						coveredBy: null,
-						sql: formatCreateIndex({
-							name,
-							...splitKey(d.table),
-							columns: d.columns,
-							ifNotExists: true,
-						}),
+						sql: createSql(d, name, colNullsFirst),
 					},
 		)
 	}
@@ -94,7 +130,11 @@ export async function relationIndexTargets(
 				return !!(o?.sqlExpression || o?.serverExpression)
 			})
 			if (computed) continue
-			desired.push({ table, columns: localKeys.map((k) => stripIdent(names.$dbNameOf(k))) })
+			desired.push({
+				table,
+				columns: localKeys.map((k) => stripIdent(names.$dbNameOf(k))),
+				nullable: localKeys.map((k) => !!meta.fields.find(k)?.allowNull),
+			})
 		}
 	}
 	return desired
@@ -120,20 +160,24 @@ export async function createRelationIndexes(
 	// Every existing index (incl. PK), columns in order, per table.
 	const res = await db.createCommand().execute(`
 		SELECT ${tableKeySql('ns.nspname', 'c.relname')} AS table_key, i.relname AS index_name,
-			array_agg(a.attname::text ORDER BY k.ord) AS cols
+			array_agg(a.attname::text ORDER BY k.ord) AS cols,
+			-- indoption: bit 1 = DESC, bit 2 = NULLS FIRST
+			array_agg(((ix.indoption[k.ord - 1] & 1) <> 0) <> ((ix.indoption[k.ord - 1] & 2) <> 0)
+				ORDER BY k.ord) AS nulls_first
 		FROM pg_class c
 		JOIN pg_namespace ns ON ns.oid = c.relnamespace AND ${USER_SCHEMA_SQL('ns.nspname')}
 		JOIN pg_index ix ON ix.indrelid = c.oid
 		JOIN pg_class i ON i.oid = ix.indexrelid
 		JOIN unnest(ix.indkey) WITH ORDINALITY AS k(attnum, ord) ON true
 		JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum = k.attnum
-		WHERE c.relkind = 'r' AND k.attnum > 0
+		-- A partial or expression index can't serve a plain fk = $1 lookup.
+		WHERE c.relkind = 'r' AND k.attnum > 0 AND ix.indpred IS NULL AND ix.indexprs IS NULL
 		GROUP BY ns.nspname, c.relname, i.relname;
 	`)
 	const existing = new Map<string, ExistingIndex[]>()
 	for (const row of res.rows) {
 		const list = existing.get(row.table_key) ?? []
-		list.push({ name: row.index_name, cols: row.cols })
+		list.push({ name: row.index_name, cols: row.cols, nullsFirst: row.nulls_first })
 		existing.set(row.table_key, list)
 	}
 

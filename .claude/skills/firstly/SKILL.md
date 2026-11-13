@@ -67,6 +67,15 @@ No CLI, no scaffolder. Works in any Remult project.
 
 firstly 0.12+ supports SvelteKit 3 only (Node 22.17+); Kit 2 stays on `0.11.x`. The `firstly()` Vite plugin sets `oxc: { decorator: { legacy: true } }` for remult's decorators. Without the plugin, add it to the Vite config.
 
+Set remult's NULL order app-wide (remult 3.5+), in a module imported by both server and client - the paginator needs both sides to agree, and drift indexes follow it:
+
+```ts
+// shared/null-sort.ts
+import { NullSort } from 'remult/internals'
+
+NullSort.order = { asc: 'NULLS FIRST', desc: 'NULLS LAST' }
+```
+
 ## 📦 Modules (import)
 
 Register like any Remult module.
@@ -114,7 +123,7 @@ The component ships prefilled queries (`Default`, `Tables & Sizes`, `Indexes`, `
 
 `exec(sql, capabilities = ['read'])`: `read` = READ ONLY transaction over the extended protocol (one statement, no `commit; insert` escape), `write` = as is. Opt-in `tokens: { capabilities: ['read'], userFromId? }` adds bearer tokens (`<SqlTokens />`, same `POST /api/ff/sqlAdmin/exec` endpoint, `mintToken(name?, …)` - empty name = `swift-otter-3f9`) so a script or an AI on a dev machine can query prod; the token acts as its minter, answers one path only, needs a live session to mint/revoke, every call logged. Revoke (`update(id, { revokedAt })`) keeps the row and its calls; delete drops both and is refused on a live token, and `purgeTokens()` deletes every dead token at once. `sqlAdmin: false` registers no controller (and throws if `tokens` is set - they share the `exec` endpoint). The pg pool is taken from the data provider, nothing to pass.
 
-Schema drift (FK indexes, PKs, nullability, orphan columns): opt in per check with `sqlAdmin({ drift: { entities: () => collectEntities(modules), relationIndexes: true, primaryKeys: true, nullable: true, orphanColumns: true } })`, then mount `<SqlDrift />` to dry-run / apply - prefer it over hand-written index migrations or `initApi` DDL. For a custom index in code: `sqlCreateIndex(Entity, ['a', 'b'], { ifNotExists: true })` from `firstly/sqlAdmin/server`.
+Schema drift (FK indexes, PKs, nullability, orphan columns): opt in per check with `sqlAdmin({ drift: { entities: () => collectEntities(modules), relationIndexes: true, primaryKeys: true, nullable: true, orphanColumns: true } })`, then mount `<SqlDrift />` to dry-run / apply - prefer it over hand-written index migrations or `initApi` DDL. For a custom index in code: `sqlCreateIndex(Entity, ['a', 'b'], { ifNotExists: true })` from `firstly/sqlAdmin/server`. Both put `NULLS FIRST` on `allowNull` columns when `NullSort.order.asc` is `'NULLS FIRST'` (else Postgres skips the index on those sorts).
 
 #### Writing SQL against a remult schema
 
