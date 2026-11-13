@@ -1,42 +1,53 @@
 import { quoteTable, splitKey } from '../sqlAdmin/server/drift/ident'
-import { formatIndexCols, sqlIndexCols, type IndexSpec } from './indexSpec'
+import { formatIndexSpec, sqlIndexBody, type IndexSpec } from './indexSpec'
+
+const REGEX_NON_IDENT = /[^\w]+/g
+const REGEX_EDGE_UNDERSCORES = /^_+|_+$/g
 
 /**
  * What to ship for a winning index: the SQL, and - when `sqlCreateIndex` can express it - the
- * `initApi` line using it. `nullable` (column -> allows NULL) decides that: the helper puts the
- * `NullSort` NULL order on allowNull fields only.
+ * `initApi` line using it. `nullable` (column -> allows NULL) decides that: the helper puts one
+ * NULL order on all allowNull fields of the list, and none on the others.
  */
 export function indexDdl(spec: IndexSpec, nullable?: Record<string, boolean>) {
 	const { table } = splitKey(spec.table)
 	const nf = spec.cols.some((c) => c.nulls === 'first')
+	const tail = spec.raw
+		? spec.raw.replace(REGEX_NON_IDENT, '_').replace(REGEX_EDGE_UNDERSCORES, '').slice(0, 40)
+		: `${spec.cols.map((c) => c.col).join('_')}${nf ? '_NF' : ''}`
 	// Same derived name as `sqlCreateIndex`: re-running either one is a no-op.
-	const name = `FF_IX_${table}_${spec.cols.map((c) => c.col).join('_')}${nf ? '_NF' : ''}`
-	const sql = `CREATE INDEX IF NOT EXISTS "${name}" ON ${quoteTable(spec.table)} (${sqlIndexCols(spec.cols)});`
+	const name = `${spec.unique ? 'FF_UX' : 'FF_IX'}_${table}_${tail}`
+	const sql = `CREATE ${spec.unique ? 'UNIQUE ' : ''}INDEX IF NOT EXISTS "${name}" ON ${quoteTable(spec.table)} ${sqlIndexBody(spec)};`
 
-	const helperFits = spec.cols.every(
-		(c) =>
-			!c.desc &&
-			c.nulls !== 'last' &&
-			(!nullable || (c.nulls === 'first') === (nf && nullable[c.col] !== false)),
-	)
+	const anyNullable = !!nullable && spec.cols.some((c) => nullable[c.col])
+	const helperFits =
+		!spec.raw &&
+		spec.cols.every(
+			(c) =>
+				!c.desc &&
+				c.nulls !== 'last' &&
+				(!nullable || (c.nulls === 'first') === (nf && !!nullable[c.col])),
+		)
 	const fields = spec.cols.map((c) => `'${c.col}'`).join(', ')
+	const opts = [
+		'ifNotExists: true',
+		...(spec.unique ? ['unique: true'] : []),
+		// Explicit: the tested NULL order ships whatever NullSort says at boot.
+		...(anyNullable || (!nullable && nf) ? [`nullsFirst: ${nf}`] : []),
+	].join(', ')
 	return {
-		cols: formatIndexCols(spec.cols),
+		cols: formatIndexSpec(spec, spec.table),
 		name,
 		sql,
 		initApi: helperFits
-			? `await SqlDatabase.getDb().execute(await sqlCreateIndex(<EntityOf_${table}>, [${fields}], { ifNotExists: true }))`
+			? `await SqlDatabase.getDb().execute(await sqlCreateIndex(<EntityOf_${table}>, [${fields}], { ${opts} }))`
 			: `await SqlDatabase.getDb().execute(\`${sql}\`)`,
 		notes: [
 			'sqlCreateIndex is in firstly/sqlAdmin/server; it takes field keys: the columns above are db names, map them back if a field has a dbName.',
 			...(helperFits
-				? [
-						nf
-							? 'sqlCreateIndex follows NullSort.order: NULLS FIRST here needs NullSort.order.asc = NULLS FIRST in the app (it is, if the captured SQL has it).'
-							: 'sqlCreateIndex follows NullSort.order on allowNull fields: with NULLS FIRST set, it builds the _NF variant, which is what the queries then need.',
-					]
+				? []
 				: [
-						'sqlCreateIndex cannot express it (DESC, NULLS LAST, or a NULL order on a NOT NULL column): raw SQL.',
+						'sqlCreateIndex cannot express it (raw definition, DESC, NULLS LAST, or a NULL order on a NOT NULL column): raw SQL.',
 					]),
 			'Big live table: build it CONCURRENTLY outside a transaction first, then the line above is a no-op.',
 		],

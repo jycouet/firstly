@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import { groupQueries, positionalArgs } from './capture'
 import { indexDdl } from './ddl'
-import { coversCols, parseIndexSpec, sqlIndexCols } from './indexSpec'
-import { parseQuery } from './parseQuery'
+import { coversCols, parseIndexSpec, parseIndexSpecs, sqlIndexBody, sqlIndexCols } from './indexSpec'
+import { groupKeySql, parseQuery } from './parseQuery'
 import { summarizePlan } from './plan'
 import { suggestIndexes } from './suggest'
 
@@ -24,6 +24,13 @@ describe('parseIndexSpec', () => {
 	})
 	it('takes a table prefix', () => {
 		expect(parseIndexSpec('ff.users: email', 't').table).toBe('ff.users')
+	})
+	it('unique, raw (gin / partial), several at once', () => {
+		expect(parseIndexSpec('unique token', 't')).toEqual({ table: 't', cols: [{ col: 'token' }], unique: true })
+		const gin = parseIndexSpec('users: using gin (("referentIds"::jsonb))', 't')
+		expect(gin).toEqual({ table: 'users', cols: [], raw: 'using gin (("referentIds"::jsonb))' })
+		expect(sqlIndexBody(parseIndexSpec('(a) where "b" is null', 't'))).toBe('(a) where "b" is null')
+		expect(parseIndexSpecs('a, b + o: c', 't').map((x) => x.table)).toEqual(['t', 'o'])
 	})
 	it('writes SQL columns', () => {
 		expect(sqlIndexCols(parseIndexSpec('a, b desc nulls last', 't').cols)).toBe(
@@ -74,6 +81,25 @@ describe('parseQuery', () => {
 			{ col: 'b', kind: 'like' },
 		])
 	})
+	it('reads the outer query only: sqlExpression sub-selects are masked', () => {
+		const q = parseQuery(
+			`select "id", ((SELECT json_agg(r.id ORDER BY r.name) FROM "users" r WHERE r."referentIds"::jsonb ? "users"."id")) as x from "users" where "ok" = $1 Order By "name", "id" limit 20 offset 0`,
+		)
+		expect(q).toMatchObject({
+			table: 'users',
+			filters: [{ col: 'ok', kind: 'eq' }],
+			orderBy: [{ col: 'name' }, { col: 'id' }],
+			hasSubquery: true,
+		})
+	})
+	it('skips keywords and positions: CASE ... END = $1, x IS NOT NULL = $1, Order By 1', () => {
+		const q = parseQuery(
+			`select "a" from "t" where (case when "a" > 0 then 1 end) = $1 and "b" is not null = $2 and "c"::text like $3 Order By 1, "a"`,
+		)
+		expect(q.filters.map((f) => f.col)).not.toContain('end')
+		expect(q.filters).toContainEqual({ col: 'c', kind: 'like' })
+		expect(q.orderBy).toEqual([{ col: 'a' }])
+	})
 	it('desc sorts: Remult writes nulls last, which is the asc-nulls-first index backwards', () => {
 		expect(parseQuery(`select "a" from "t" Order By "a" desc nulls last`).orderBy).toEqual([
 			{ col: 'a', desc: true, nulls: 'last' },
@@ -99,6 +125,11 @@ describe('suggestIndexes', () => {
 		const d = parseQuery(`select "id" from "t" Order By "id" nulls first limit 20 offset 0`)
 		expect(suggestIndexes(d)[0]!.cols).toBe('id nulls first')
 	})
+	it('drops columns the table lacks, stops at a unique equality', () => {
+		const cols = (o: Parameters<typeof suggestIndexes>[1]) => suggestIndexes(q, o).map((c) => c.cols)
+		expect(cols({ columns: ['status', 'doneAt', 'id'] })[0]).toBe('status, doneAt nulls first, id')
+		expect(cols({ unique: ['status'] })).toEqual(['status'])
+	})
 	it('marks candidates an existing index covers', () => {
 		const existing = [{ name: 'ix', cols: parseIndexSpec('status', 't').cols }]
 		const c = suggestIndexes(q, { existing }).find((x) => x.cols === 'status')
@@ -118,6 +149,15 @@ describe('capture grouping', () => {
 		])
 		expect(g).toHaveLength(1)
 		expect(g[0]).toMatchObject({ calls: 2, totalMs: 6, maxMs: 5, args: { $1: 'y' }, table: 't' })
+	})
+	it('one group whatever the $in length, replaying the slowest sql', () => {
+		const g = groupQueries([
+			{ sql: 'select 1 from "t" where "a" in ($1,$2)', args: { $1: 1, $2: 2 }, ms: 1, at: '' },
+			{ sql: 'select 1 from "t" where "a" in ($1,$2,$3)', args: { $1: 1, $2: 2, $3: 3 }, ms: 4, at: '' },
+		])
+		expect(g).toHaveLength(1)
+		expect(g[0]!.sql).toContain('$3')
+		expect(groupKeySql('x in ($1, $2)')).toBe('x in ($…)')
 	})
 	it('positional args sort numerically', () => {
 		expect(positionalArgs({ $10: 'j', $2: 'b', $1: 'a' })).toEqual(['a', 'b', 'j'])
@@ -165,13 +205,27 @@ describe('indexDdl', () => {
 			'CREATE INDEX IF NOT EXISTS "FF_IX_tasks_status_doneAt_NF" ON "tasks" ("status", "doneAt" NULLS FIRST);',
 		)
 		expect(d.initApi).toBe(
-			`await SqlDatabase.getDb().execute(await sqlCreateIndex(<EntityOf_tasks>, ['status', 'doneAt'], { ifNotExists: true }))`,
+			`await SqlDatabase.getDb().execute(await sqlCreateIndex(<EntityOf_tasks>, ['status', 'doneAt'], { ifNotExists: true, nullsFirst: true }))`,
 		)
 	})
 	it('raw SQL when NULLS FIRST sits on a NOT NULL column (the helper would drop it)', () => {
 		const spec = parseIndexSpec('doneAt nulls first, id nulls first', 'tasks')
 		expect(indexDdl(spec, { doneAt: true, id: false }).initApi).toContain('CREATE INDEX')
 		expect(indexDdl(spec, { doneAt: true, id: true }).initApi).toContain('sqlCreateIndex')
+	})
+	it('explicit nullsFirst: false on a nullable column, so the helper builds the tested index', () => {
+		const d = indexDdl(parseIndexSpec('status, doneAt', 'tasks'), { status: false, doneAt: true })
+		expect(d.name).toBe('FF_IX_tasks_status_doneAt')
+		expect(d.initApi).toContain('{ ifNotExists: true, nullsFirst: false }')
+		expect(indexDdl(parseIndexSpec('status', 'tasks'), { status: false }).initApi).toContain('{ ifNotExists: true }')
+	})
+	it('unique and raw', () => {
+		const u = indexDdl(parseIndexSpec('unique token', 'sessions'), { token: false })
+		expect(u.name).toBe('FF_UX_sessions_token')
+		expect(u.initApi).toContain('unique: true')
+		const g = indexDdl(parseIndexSpec('using gin (("referentIds"::jsonb))', 'users'))
+		expect(g.sql).toBe('CREATE INDEX IF NOT EXISTS "FF_IX_users_using_gin_referentIds_jsonb" ON "users" using gin (("referentIds"::jsonb));')
+		expect(g.initApi).toContain('execute(`CREATE INDEX')
 	})
 	it('raw SQL for a DESC mix', () => {
 		expect(indexDdl(parseIndexSpec('a, b desc', 't')).initApi).toContain('CREATE INDEX')

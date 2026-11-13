@@ -11,20 +11,24 @@ The plan is the source of truth: every index you recommend comes with its before
 
 ## Loop
 
-1. **Volume.** Point `DATABASE_URL` at a database with production-like row counts (restore a dump, or seed). Done when `schema <table>` shows realistic `rows` for the tables in play: below ~1k rows a Seq Scan is the right plan and every comparison is noise.
+1. **Volume.** Point `DATABASE_URL` at a database with production-like row counts (restore a dump, or seed). Done when `schema <table>` shows realistic `rows` and `analyzed: true` for the tables in play (a restored dump or a clone has no planner stats: `ANALYZE` it). Below ~1k rows a Seq Scan is the right plan and every comparison is noise.
 2. **Capture.** Wire it once on the server, then run the tests / click through the app with `FF_SQL_CAPTURE=tmp/sql-capture.jsonl`:
    ```ts
    SqlDatabase.LogToConsole = withSqlCapture((...a) => FF_LogToConsole(...a))
    ```
    Unset env = untouched logging, so it can stay. Done when `top` lists the queries of the flow you care about.
-3. **Rank.** `top --by total` (cost to the app) and `--by max` (the one slow page). Pick queries by total time, not by count.
-4. **Compare**, per picked query: `compare <id>` runs the baseline and every uncovered suggestion; add your own with `--variant "<cols>"`. Read `tree`: the win is the Sort node gone, the Seq Scan turned into an Index (Only) Scan, `rowsRemovedByFilter` near zero. A variant with `usesIndex: false` is ignored by the planner, whatever its timing. Done when every picked query has a winner or a reason it needs none.
+3. **Rank.** `top --by total --explain` (cost to the app) and `--by max --explain` (the one slow page). Captured ms is the app round trip, pool wait included; `dbMs` is the database alone. Pick queries where `dbMs` is high: a big gap between the two is load or N+1, not an index problem.
+4. **Compare**, per picked query: `compare <id>` runs the baseline and every uncovered suggestion; `--variant "<spec>"` replaces them with your own (unique, gin, expression, partial, several indexes at once: syntax in `help`). Read `tree`: the win is the Sort node gone, the Seq Scan turned into an Index (Only) Scan, `rowsRemovedByFilter` near zero. `speedup: null` means the planner ignored the index. `winner` already applies the noise floor and picks the simplest of near-ties. Done when every picked query has a winner or a reason it needs none.
 5. **Consolidate.** One index often serves several queries (same equality columns, same sort). Re-run `compare <id> --variant` with the shared index on each query it should serve, and prefer the one index over several near-twins. Check `audit` for indexes made redundant by yours.
-6. **Recommend.** Per index: the table and columns, the query ids it serves, baseline vs winner ms and plan lines, and the `initApi` line from `winner.ddl` (or `ddl <table> "<cols>"`). Indexes ship as code in the app's `initApi` (or the module's), with `sqlCreateIndex` from `firstly/sqlAdmin/server` when it fits, raw SQL when `ddl` says it can't. Find the entity with `@Entity('<table>')` / `FF_Entity('<table>')` and map db column names back to field keys.
+6. **Recommend.** Per index: the table and columns, the query ids it serves, baseline vs winner ms and plan lines, and the `initApi` line(s) from `winner.ddl` (or `ddl <table> "<spec>"`). Indexes ship as code in the app's `initApi` (or the module's), with `sqlCreateIndex` from `firstly/sqlAdmin/server` when it fits, raw SQL when `ddl` says it can't. Find the entity with `@Entity('<table>')` / `FF_Entity('<table>')` and map db column names back to field keys.
 
 ## NULLS order
 
 Postgres uses an index for a sort only when each column's direction and NULL placement match (or are all flipped: a backward scan), NOT NULL columns included. The query decides: with `NullSort.order` set, Remult writes the NULL order on allowNull columns, and `sqlCreateIndex` builds the matching `_NF` variant. Keep the sort exactly as the captured SQL writes it; `suggest` already does.
+
+## Beyond indexes
+
+The slowest queries are often shaped wrong, and no index fixes them: an sqlExpression sub-select run per row, a list without limit, a `count()` used as an existence check, the same lookup on every request. Report them with their ids and `dbMs`, next to the indexes.
 
 ## Cost side
 

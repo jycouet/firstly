@@ -1,5 +1,5 @@
 import { quoteTable, splitKey } from '../sqlAdmin/server/drift/ident'
-import { coversCols, sqlIndexCols, type IndexCol, type IndexSpec } from './indexSpec'
+import { coversCols, sqlIndexBody, type IndexCol, type IndexSpec } from './indexSpec'
 import { median, summarizePlan, type ExplainJson, type PlanSummary } from './plan'
 import type { ExistingIndex } from './suggest'
 
@@ -15,13 +15,8 @@ export type ExplainResult = {
 	raw: ExplainJson
 }
 
-const REGEX_QUOTED = /^".*"$/
-
-const quoteIndexName = (name: string) =>
-	name
-		.split('.')
-		.map((p) => (REGEX_QUOTED.test(p) ? p : `"${p}"`))
-		.join('.')
+// Index names may hold dots (`FF_PK_public.user_id`): quote whole, unless already quoted.
+const quoteIndexName = (name: string) => (name.includes('"') ? name : `"${name}"`)
 
 /**
  * EXPLAIN (ANALYZE, BUFFERS) a query with indexes created / dropped, all inside one transaction
@@ -40,7 +35,7 @@ export async function explainWith(
 		for (const name of o.drop ?? []) await db.query(`DROP INDEX ${quoteIndexName(name)}`)
 		for (const [i, spec] of (o.create ?? []).entries()) {
 			await db.query(
-				`CREATE INDEX "ffopt_${i + 1}" ON ${quoteTable(spec.table)} (${sqlIndexCols(spec.cols)})`,
+				`CREATE ${spec.unique ? 'UNIQUE ' : ''}INDEX "ffopt_${i + 1}" ON ${quoteTable(spec.table)} ${sqlIndexBody(spec)}`,
 			)
 		}
 		const explain = async () => {
@@ -126,8 +121,10 @@ export async function tableSchema(db: Db, table: string) {
 		`
 		SELECT c.reltuples::bigint AS rows_estimate, pg_total_relation_size(c.oid) AS bytes,
 			s.n_live_tup AS live_rows, s.seq_scan, s.idx_scan, s.seq_tup_read,
-			greatest(s.last_analyze, s.last_autoanalyze) AS analyzed_at
-		FROM pg_class c LEFT JOIN pg_stat_user_tables s ON s.relid = c.oid
+			greatest(s.last_analyze, s.last_autoanalyze) AS analyzed_at,
+			EXISTS (SELECT 1 FROM pg_stats st WHERE st.schemaname = n.nspname AND st.tablename = c.relname) AS has_stats
+		FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+		LEFT JOIN pg_stat_user_tables s ON s.relid = c.oid
 		WHERE ${tableFilterSql(1)}`,
 		[quoteTable(table)],
 	)
@@ -145,6 +142,7 @@ export async function tableSchema(db: Db, table: string) {
 		[quoteTable(table), schema ?? 'public', name],
 	)
 	const r = t.rows[0]
+	const indexes = await existingIndexes(db, table)
 	return {
 		table,
 		// reltuples is exact after ANALYZE; the stats counters lag behind (or are reset).
@@ -153,7 +151,9 @@ export async function tableSchema(db: Db, table: string) {
 		seqScans: Number(r.seq_scan ?? 0),
 		idxScans: Number(r.idx_scan ?? 0),
 		seqTupRead: Number(r.seq_tup_read ?? 0),
-		/** null = never analyzed: planner estimates are guesses, run `ANALYZE` first. */
+		/** false = no planner stats: estimates are guesses, run `ANALYZE` first. */
+		analyzed: r.has_stats as boolean,
+		/** From stats counters, which a crash or a clone resets: `analyzed` is the one to trust. */
 		analyzedAt: r.analyzed_at as Date | null,
 		columns: cols.rows.map((c) => ({
 			col: c.col as string,
@@ -164,7 +164,11 @@ export async function tableSchema(db: Db, table: string) {
 			nDistinct: c.n_distinct === null ? null : Number(c.n_distinct),
 			correlation: c.correlation === null ? null : Number(c.correlation),
 		})),
-		indexes: await existingIndexes(db, table),
+		indexes,
+		/** Columns with a single-column unique index. */
+		uniqueCols: indexes
+			.filter((i) => i.unique && !i.partial && i.cols.length === 1)
+			.map((i) => i.cols[0]!.col),
 	}
 }
 
@@ -174,8 +178,11 @@ export async function auditIndexes(db: Db, o: { minRows?: number } = {}) {
 	const tables = await db.query(`
 		SELECT CASE WHEN schemaname = 'public' THEN relname ELSE schemaname || '.' || relname END AS table,
 			greatest(n_live_tup, (SELECT reltuples::bigint FROM pg_class WHERE oid = relid)) AS rows, seq_scan, seq_tup_read, coalesce(idx_scan, 0) AS idx_scan,
-			greatest(last_analyze, last_autoanalyze) AS analyzed_at
-		FROM pg_stat_user_tables ORDER BY seq_tup_read DESC`)
+			EXISTS (SELECT 1 FROM pg_stats st WHERE st.schemaname = t.schemaname AND st.tablename = t.relname) AS has_stats
+		FROM pg_stat_user_tables t ORDER BY seq_tup_read DESC`)
+	const reset = await db.query(
+		`SELECT stats_reset FROM pg_stat_database WHERE datname = current_database()`,
+	)
 
 	const unused: { table: string; index: string; bytes: number }[] = []
 	const redundant: { table: string; index: string; coveredBy: string }[] = []
@@ -191,7 +198,9 @@ export async function auditIndexes(db: Db, o: { minRows?: number } = {}) {
 		}
 	}
 	return {
-		note: 'scans count since the last pg_stat_reset(): only meaningful after a representative run',
+		/** Usage counters start here (reset, crash, or clone). */
+		statsReset: (reset.rows[0]?.stats_reset as Date | null) ?? null,
+		note: 'unused / seqScanHeavy count since statsReset, sql-opt EXPLAIN runs included: meaningful only after a representative run',
 		unused,
 		redundant,
 		seqScanHeavy: tables.rows
@@ -204,7 +213,7 @@ export async function auditIndexes(db: Db, o: { minRows?: number } = {}) {
 				seqTupRead: Number(t.seq_tup_read),
 			})),
 		neverAnalyzed: tables.rows
-			.filter((t) => !t.analyzed_at && Number(t.rows) > 0)
+			.filter((t) => !t.has_stats && Number(t.rows) > 0)
 			.map((t) => t.table as string),
 	}
 }

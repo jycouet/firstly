@@ -1,17 +1,31 @@
 /** One index column. `nulls` omitted = PG default (LAST for asc, FIRST for desc). */
 export type IndexCol = { col: string; desc?: boolean; nulls?: 'first' | 'last' }
 
-/** A candidate index: `table` is a tableKey (`name`, or `schema.name` outside public). */
-export type IndexSpec = { table: string; cols: IndexCol[] }
+/**
+ * A candidate index: `table` is a tableKey (`name`, or `schema.name` outside public). `raw` is a
+ * definition btree columns can't say (`using gin (...)`, `(expr)`, `... where ...`, `include`):
+ * `cols` is then empty.
+ */
+export type IndexSpec = { table: string; cols: IndexCol[]; unique?: boolean; raw?: string }
 
 const REGEX_COL = /^"?([^"\s]+)"?(?:\s+(asc|desc))?(?:\s+nulls\s+(first|last))?$/i
-const REGEX_TABLE_PREFIX = /^\s*([^\s:]+)\s*:\s*(.*)$/
+const REGEX_TABLE_PREFIX = /^\s*([^\s:("]+)\s*:(?!:)\s*(.*)$/
+const REGEX_UNIQUE = /^unique\s+/i
+const REGEX_RAW = /^(using\s|\()|\s(where|include)\s/i
+const REGEX_PLUS = /\s\+\s/
 
-/** `"a, b desc nulls first"`, or `"table: a, b"` to target another table than `defaultTable`. */
+/**
+ * `"a, b desc nulls first"`; `"table: a, b"` targets another table than `defaultTable`;
+ * `"unique a"`; raw: `"using gin (("x"::jsonb))"`, `"(a, b) where "c" is null"`.
+ */
 export function parseIndexSpec(spec: string, defaultTable: string): IndexSpec {
 	const m = REGEX_TABLE_PREFIX.exec(spec)
 	const table = m ? m[1]! : defaultTable
-	const body = m ? m[2]! : spec
+	let body = (m ? m[2]! : spec).trim()
+	const unique = REGEX_UNIQUE.test(body)
+	if (unique) body = body.replace(REGEX_UNIQUE, '')
+	const u = unique ? { unique } : {}
+	if (REGEX_RAW.test(body)) return { table, cols: [], raw: body, ...u }
 	const cols = body
 		.split(',')
 		.map((s) => s.trim())
@@ -25,8 +39,21 @@ export function parseIndexSpec(spec: string, defaultTable: string): IndexSpec {
 			return normalizeNulls(col)
 		})
 	if (cols.length === 0) throw new Error(`Empty index spec "${spec}"`)
-	return { table, cols }
+	return { table, cols, ...u }
 }
+
+/** Several indexes tested together: `"a, b + other: c"`. */
+export const parseIndexSpecs = (spec: string, defaultTable: string) =>
+	spec.split(REGEX_PLUS).map((s) => parseIndexSpec(s, defaultTable))
+
+/** Back to `--variant` syntax; table prefix only when it is not `defaultTable`. */
+export function formatIndexSpec(spec: IndexSpec, defaultTable?: string) {
+	const prefix = spec.table === defaultTable ? '' : `${spec.table}: `
+	return `${prefix}${spec.unique ? 'unique ' : ''}${spec.raw ?? formatIndexCols(spec.cols)}`
+}
+
+/** What follows `ON <table>` in `CREATE INDEX`. */
+export const sqlIndexBody = (spec: IndexSpec) => spec.raw ?? `(${sqlIndexCols(spec.cols)})`
 
 /** Drop a `nulls` that is the PG default, so equal indexes compare equal. */
 export function normalizeNulls(c: IndexCol): IndexCol {
@@ -60,7 +87,7 @@ export function sqlIndexCols(cols: IndexCol[]) {
  * Columns before `orderFrom` are equality filters: their direction doesn't matter.
  */
 export function coversCols(want: IndexCol[], have: IndexCol[], orderFrom = 0) {
-	if (have.length < want.length) return false
+	if (want.length === 0 || have.length < want.length) return false
 	if (!want.every((c, i) => have[i]!.col === c.col)) return false
 	const sorted = want.map((c, i) => [c, have[i]!] as const).slice(orderFrom)
 	const same = sorted.every(([a, b]) => !!a.desc === !!b.desc && isNullsFirst(a) === isNullsFirst(b))

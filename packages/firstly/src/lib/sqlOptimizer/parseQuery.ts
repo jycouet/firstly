@@ -12,7 +12,7 @@ export type ParsedQuery = {
 	hasLimit: boolean
 	/** An `or` in the where: single-index plans get unlikely, read the plan. */
 	hasOr: boolean
-	/** A sub-select (sqlExpression, relation filter): parse covers the outer query only. */
+	/** A sub-select (sqlExpression, relation filter): masked, parse covers the outer query only. */
 	hasSubquery: boolean
 }
 
@@ -27,17 +27,21 @@ const REGEX_WHERE_END = /\s(order\s+by|limit|offset|group\s+by)\s/i
 const REGEX_ORDER_END = /\s(limit|offset)\s/i
 const REGEX_OR = /\sor\s/i
 const REGEX_SUBQUERY = /\(\s*select\s/i
+const REGEX_SELECT_AHEAD = /^\(\s*select\s/i
+const REGEX_IN_LIST = /\sin\s*\(\s*\$\d+(?:\s*,\s*\$\d+)*\s*\)/gi
 const IDENT = String.raw`((?:"[^"]+"|[\w$]+)(?:\.(?:"[^"]+"|[\w$]+))?)`
 const REGEX_CMP = new RegExp(String.raw`${IDENT}\s*(=|<>|!=|>=|<=|>|<)\s*`, 'g')
 const REGEX_IN = new RegExp(String.raw`${IDENT}\s+in\s*\(`, 'gi')
 const REGEX_IS_NULL = new RegExp(String.raw`${IDENT}\s+is\s+(not\s+)?null`, 'gi')
-const REGEX_LIKE = new RegExp(String.raw`lower\s*\(\s*${IDENT}\s*\)\s*(?:not\s+)?like`, 'gi')
+const REGEX_LIKE = new RegExp(String.raw`lower\s*\(\s*${IDENT}\s*\)\s*(?:not\s+)?i?like`, 'gi')
+const REGEX_LIKE_CAST = new RegExp(String.raw`${IDENT}(?:::\w+)?\s+(?:not\s+)?i?like\s`, 'gi')
 const REGEX_ORDER_COL = new RegExp(
 	String.raw`^${IDENT}(?:\s+(asc|desc))?(?:\s+nulls\s+(first|last))?$`,
 	'i',
 )
 const REGEX_PARAM_OR_LITERAL = /^(\$\d+|'|\d|true|false|null)/i
 const REGEX_DIGITS = /^\d+$/
+const REGEX_KEYWORD = /^(end|null|true|false|not|and|or|case|when|then|else)$/i
 
 /** Last part of a possibly qualified identifier, unquoted. */
 const colName = (ident: string) => ident.split('.').pop()!.replaceAll('"', '')
@@ -50,6 +54,39 @@ export function tableKeyOf(ident: string) {
 
 export function normalizeSql(sql: string) {
 	return sql.replace(REGEX_SQL_COMMENT, '').replace(REGEX_WS, ' ').trim()
+}
+
+/** Same query shape whatever the `$in` list length: one group. */
+export const groupKeySql = (sql: string) => normalizeSql(sql).replace(REGEX_IN_LIST, ' in ($…)')
+
+/** Sub-selects (sqlExpression columns, relation filters) become `(…)`: the rest is the outer query. */
+export function maskSubqueries(sql: string) {
+	let out = ''
+	for (let i = 0; i < sql.length; i++) {
+		const ch = sql[i]!
+		if (ch === "'" || ch === '"') {
+			const end = sql.indexOf(ch, i + 1)
+			const j = end < 0 ? sql.length - 1 : end
+			out += sql.slice(i, j + 1)
+			i = j
+			continue
+		}
+		if (ch === '(' && REGEX_SELECT_AHEAD.test(sql.slice(i, i + 20))) {
+			let depth = 0
+			let j = i
+			for (; j < sql.length; j++) {
+				const c = sql[j]
+				if (c === "'" || c === '"') j = Math.max(j, sql.indexOf(c, j + 1))
+				else if (c === '(') depth++
+				else if (c === ')' && --depth === 0) break
+			}
+			out += '(…)'
+			i = j
+			continue
+		}
+		out += ch
+	}
+	return out
 }
 
 function section(sql: string, start: RegExp, end: RegExp) {
@@ -65,7 +102,8 @@ function section(sql: string, start: RegExp, end: RegExp) {
  * Good enough to propose candidate indexes; the plan is the source of truth.
  */
 export function parseQuery(rawSql: string): ParsedQuery {
-	const sql = normalizeSql(rawSql)
+	const full = normalizeSql(rawSql)
+	const sql = maskSubqueries(full)
 	const first = sql.split(' ')[0]!.toLowerCase()
 	const kind = first !== 'select' ? 'other' : REGEX_COUNT.test(sql) ? 'count' : 'select'
 	const from = REGEX_FROM.exec(sql)
@@ -75,7 +113,8 @@ export function parseQuery(rawSql: string): ParsedQuery {
 	const filters: ParsedQuery['filters'] = []
 	const add = (ident: string, k: FilterKind) => {
 		const col = colName(ident)
-		if (REGEX_DIGITS.test(col)) return // `1 = 0` (empty $in)
+		// `1 = 0` (empty $in), `CASE ... END = $1`, `x IS NOT NULL = $1`
+		if (REGEX_DIGITS.test(col) || (!ident.startsWith('"') && REGEX_KEYWORD.test(col))) return
 		if (!filters.some((f) => f.col === col && f.kind === k)) filters.push({ col, kind: k })
 	}
 	for (const m of where.matchAll(REGEX_CMP)) {
@@ -88,6 +127,7 @@ export function parseQuery(rawSql: string): ParsedQuery {
 	for (const m of where.matchAll(REGEX_IN)) add(m[1]!, 'in')
 	for (const m of where.matchAll(REGEX_IS_NULL)) add(m[1]!, m[2] ? 'neq' : 'null')
 	for (const m of where.matchAll(REGEX_LIKE)) add(m[1]!, 'like')
+	for (const m of where.matchAll(REGEX_LIKE_CAST)) add(m[1]!, 'like')
 
 	const orderBy: IndexCol[] = []
 	for (const part of order ? order.split(',') : []) {
@@ -97,6 +137,7 @@ export function parseQuery(rawSql: string): ParsedQuery {
 		const nulls = m[3]?.toLowerCase() as 'first' | 'last' | undefined
 		const nullsFirst = nulls ? nulls === 'first' : desc
 		const c: IndexCol = { col: colName(m[1]!) }
+		if (REGEX_DIGITS.test(c.col)) continue
 		if (desc) c.desc = true
 		if (nullsFirst !== desc) c.nulls = nullsFirst ? 'first' : 'last'
 		orderBy.push(c)
@@ -109,6 +150,6 @@ export function parseQuery(rawSql: string): ParsedQuery {
 		orderBy,
 		hasLimit: REGEX_LIMIT.test(sql),
 		hasOr: REGEX_OR.test(` ${where} `),
-		hasSubquery: REGEX_SUBQUERY.test(sql),
+		hasSubquery: REGEX_SUBQUERY.test(full),
 	}
 }

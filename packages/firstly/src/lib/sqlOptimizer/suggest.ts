@@ -31,16 +31,25 @@ const stripNulls = (c: IndexCol): IndexCol => (c.desc ? { col: c.col, desc: true
  */
 export function suggestIndexes(
 	q: ParsedQuery,
-	o: { existing?: ExistingIndex[] } = {},
+	o: {
+		existing?: ExistingIndex[]
+		/** The table's columns: anything else the parser picked up (alias, joined table) is dropped. */
+		columns?: string[]
+		/** Columns known unique: an equality on one returns a single row, nothing to add after it. */
+		unique?: string[]
+	} = {},
 ): Candidate[] {
 	if (!q.table) return []
 	const table = q.table
-	const eq = q.filters.filter((f) => f.kind === 'eq' || f.kind === 'in' || f.kind === 'null')
-	const range = q.filters.filter((f) => f.kind === 'range')
-	const eqCols = [...new Set(eq.map((f) => f.col))]
+	const known = (col: string) => !o.columns || o.columns.includes(col)
+	const filters = q.filters.filter((f) => known(f.col))
+	const eq = filters.filter((f) => f.kind === 'eq' || f.kind === 'in' || f.kind === 'null')
+	const range = filters.filter((f) => f.kind === 'range')
+	const uniqueEq = eq.find((f) => f.kind === 'eq' && o.unique?.includes(f.col))
+	const eqCols = uniqueEq ? [uniqueEq.col] : [...new Set(eq.map((f) => f.col))]
 
-	// A sort on an equality-filtered column is constant.
-	let order = q.orderBy.filter((c) => !eqCols.includes(c.col))
+	// A sort on an equality-filtered column is constant; after a unique equality, any sort is.
+	let order = uniqueEq ? [] : q.orderBy.filter((c) => known(c.col) && !eqCols.includes(c.col))
 	// Canonical direction: the first sort column ascending (PG scans backwards for free).
 	if (order[0]?.desc) order = order.map(flip)
 
@@ -75,13 +84,13 @@ export function suggestIndexes(
 			)
 		}
 	}
-	if (range.length > 0) {
+	if (range.length > 0 && !uniqueEq) {
 		push([...eqIx, { col: range[0]!.col }], 'equality filters, then the range', eqIx.length + 1)
 	}
 	if (eqIx.length > 1 || (eqIx.length === 1 && order.length === 0)) {
 		push(eqIx, 'equality filters only', eqIx.length)
 	}
-	for (const col of [...eqCols, ...range.map((f) => f.col)]) {
+	for (const col of [...eqCols, ...(uniqueEq ? [] : range.map((f) => f.col))]) {
 		push([{ col }], 'single column: the most selective filter alone', 1)
 	}
 	return out

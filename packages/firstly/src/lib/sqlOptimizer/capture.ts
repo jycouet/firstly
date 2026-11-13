@@ -4,7 +4,7 @@ import { dirname } from 'node:path'
 
 import { SqlDatabase } from 'remult'
 
-import { normalizeSql, parseQuery } from './parseQuery'
+import { groupKeySql, normalizeSql, parseQuery } from './parseQuery'
 
 type LogFn = (duration: number, query: string, args: Record<string, any>) => void
 
@@ -50,8 +50,9 @@ export function readCapture(file: string): CapturedQuery[] {
 }
 
 export type QueryGroup = {
-	/** Stable across captures: hash of the normalized SQL. */
+	/** Stable across captures: hash of the normalized SQL, `$in` lists of any length alike. */
 	id: string
+	/** SQL of the slowest call, matching `args`. */
 	sql: string
 	table: string | null
 	calls: number
@@ -63,7 +64,7 @@ export type QueryGroup = {
 }
 
 export const queryId = (sql: string) =>
-	createHash('sha1').update(normalizeSql(sql)).digest('hex').slice(0, 8)
+	createHash('sha1').update(groupKeySql(sql)).digest('hex').slice(0, 8)
 
 export function groupQueries(entries: CapturedQuery[]): QueryGroup[] {
 	const groups = new Map<string, QueryGroup>()
@@ -90,6 +91,7 @@ export function groupQueries(entries: CapturedQuery[]): QueryGroup[] {
 		if (e.ms > g.maxMs) {
 			g.maxMs = e.ms
 			g.args = e.args
+			g.sql = sql
 		}
 	}
 	return [...groups.values()]
