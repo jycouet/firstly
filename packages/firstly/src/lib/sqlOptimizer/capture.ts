@@ -25,10 +25,10 @@ export type RequestContext = { route: string; page?: string; key: object }
 
 const REGEX_CATALOG = /\s(from|join)\s+"?(information_schema|pg_)/i
 const REGEX_CATCH_ALL = /\[\.\.\./
-// An id segment (number, uuid, cuid...): one route whatever the record. Dashed names like
+// An id segment (number, uuid, atproto tid, cuid...): one route whatever the record. Dashed names like
 // `site-loc1-buildings` are entity keys, not ids.
 const REGEX_ID_SEGMENT =
-	/\/(?:\d+|[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}|(?=\w*\d)\w{16,})(?=\/|$)/gi
+	/\/(?:\d+|[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}|[2-7a-z]{13}(?<=\d\w*)|(?=\w*\d)\w{16,})(?=\/|$)/gi
 
 export const idless = (path: string) => path.replace(REGEX_ID_SEGMENT, '/[id]')
 

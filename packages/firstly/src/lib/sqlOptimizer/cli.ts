@@ -221,13 +221,14 @@ if (flags.help || !cmd || cmd === 'help') {
 		flags.by as 'total'
 	]
 	if (!key) fail(`--by: total | mean | max | calls`)
-	const all = groups()
-	const allMs = capturedMs()
-	const hasContext = entries().some((e) => e.req !== undefined)
-	const top = all
-		.filter((g) => !flags.route || Object.keys(g.routes).some((r) => r.includes(flags.route!)))
-		.toSorted((a, b) => b[key] - a[key])
-		.slice(0, Number(flags.limit))
+	// --route: calls and ms of that route only, not of the whole capture.
+	const scoped = flags.route
+		? entries().filter((e) => e.route?.includes(flags.route!) || e.page?.includes(flags.route!))
+		: entries()
+	const all = groupQueries(scoped)
+	const allMs = scoped.reduce((n, e) => n + e.ms, 0)
+	const hasContext = scoped.some((e) => e.req !== undefined)
+	const top = all.toSorted((a, b) => b[key] - a[key]).slice(0, Number(flags.limit))
 	const dbMs = new Map<string, { dbMs?: number; plan?: string[]; error?: string }>()
 	if (flags.explain) {
 		await withDb(async (db) => {
@@ -346,7 +347,19 @@ if (flags.help || !cmd || cmd === 'help') {
 		ofQueryDbMs: w.queryDbMs ? pct(w.savedMs, w.queryDbMs) : '',
 		routes: topRoutes(Object.fromEntries(routes)),
 	})).toSorted((a, b) => b.savedMs - a.savedMs)
-	const none = rows.filter((c) => !c.winner).map((c) => c.id as string)
+	const none = rows
+		.filter((c) => !c.winner)
+		.map((c) => {
+			const v = (c.variants ?? []) as { usesIndex?: boolean; error?: string }[]
+			const why = !v.length
+				? 'no candidate'
+				: v.every((x) => x.error)
+					? 'every variant failed'
+					: v.some((x) => x.usesIndex)
+						? 'gain below the noise floor'
+						: 'planner ignored every index'
+			return `${c.id} (${why})`
+		})
 	if (flags.md) {
 		const line = (r: (typeof wins)[number]) =>
 			`| ${r.table} | \`${r.index}\` | ${r.queries.join(', ')} | ${r.perCall.join('<br>')} ms | ${r.calls} | ${r.savedMs} ms | ${r.share} | ${r.routes[0] ?? ''} |`
@@ -418,6 +431,8 @@ if (flags.help || !cmd || cmd === 'help') {
 						why: v.why,
 						specs: v.specs,
 						ms: round(r.ms),
+						// Min-max of the timed runs: overlapping with the baseline's = not a real gain.
+						spread: [round(Math.min(...r.runsMs)), round(Math.max(...r.runsMs))],
 						usesIndex,
 						// Unused index = same plan: any timing gap is noise.
 						speedup: usesIndex ? round(base.ms / Math.max(r.ms, 0.001), 2) : null,
@@ -471,7 +486,12 @@ if (flags.help || !cmd || cmd === 'help') {
 				covered: cands
 					.filter((c) => c.coveredBy)
 					.map((c) => ({ cols: c.cols, coveredBy: c.coveredBy })),
-				baseline: { ms: round(base.ms), buffers: base.plan.buffers, tree: base.plan.tree },
+				baseline: {
+					ms: round(base.ms),
+					spread: [round(Math.min(...base.runsMs)), round(Math.max(...base.runsMs))],
+					buffers: base.plan.buffers,
+					tree: base.plan.tree,
+				},
 				variants: [...ok.map(({ specs: _, ...r }) => r), ...results.filter((r) => 'error' in r)],
 				winner: best
 					? {

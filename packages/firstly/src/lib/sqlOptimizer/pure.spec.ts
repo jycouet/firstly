@@ -272,6 +272,8 @@ describe('capture grouping', () => {
 		expect(idless('/u/3f2b8a1e-0c4d-4e5f-8a9b-1c2d3e4f5a6b/x')).toBe('/u/[id]/x')
 		expect(idless('/u/clx8a9b0c0000abcd1234efgh')).toBe('/u/[id]')
 		expect(idless('/api/site-loc1-buildings')).toBe('/api/site-loc1-buildings')
+		expect(idless('/a/3lbxk2xyz7a2c')).toBe('/a/[id]')
+		expect(idless('/a/journalentries')).toBe('/a/journalentries')
 	})
 	it('positional args sort numerically', () => {
 		expect(positionalArgs({ $10: 'j', $2: 'b', $1: 'a' })).toEqual(['a', 'b', 'j'])
