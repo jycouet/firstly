@@ -1,5 +1,5 @@
 ---
-'firstly': patch
+'firstly': minor
 ---
 
-sqlAdmin drift: index builders and relation index coverage put `NULLS FIRST` on `allowNull` columns when remult `NullSort.order.asc` is `NULLS FIRST` (remult 3.5), and drop the other `X` / `X_NF` variant so the index swaps. `nullsFirst` overrides.
+Requires remult >= 3.5. sqlAdmin drift: index builders and relation index coverage follow remult `NullSort.order`, with `NULLS FIRST` on `allowNull` columns when `asc` is `NULLS FIRST`, and drop the other `X` / `X_NF` variant so the index swaps. `nullSort` overrides.

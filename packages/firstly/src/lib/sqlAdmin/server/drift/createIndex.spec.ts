@@ -6,11 +6,14 @@ import { NullSort } from 'remult/internals'
 import {
 	formatCreateIndex,
 	formatDropIndex,
-	nullsFirstDefault,
+	indexNullsFirst,
 	otherNullsVariant,
 	sqlCreateIndex,
+	type NullSortOrder,
 } from './createIndex'
 
+const NF: NullSortOrder = { asc: 'NULLS FIRST', desc: 'NULLS LAST' }
+const NATIVE: NullSortOrder = 'native'
 const REGEX_DROP_PLAIN = /DROP INDEX IF EXISTS \W?FF_IX_idx_things_archivedBy\W?;$/
 const REGEX_DROP_NF = /DROP INDEX IF EXISTS \W?FF_IX_idx_things_archivedBy_NF\W?;$/
 
@@ -25,23 +28,23 @@ describe('otherNullsVariant / formatDropIndex', () => {
 	})
 })
 
-describe('nullsFirstDefault (remult NullSort)', () => {
+describe('indexNullsFirst', () => {
 	afterEach(() => {
 		NullSort.order = 'native'
 	})
 
 	it('native: Postgres default order, no NULLS FIRST', () => {
-		expect(nullsFirstDefault()).toBe(false)
+		expect(indexNullsFirst()).toBe(false)
 	})
 
-	it('asc NULLS FIRST / desc NULLS LAST: NULLS FIRST', () => {
-		NullSort.order = { asc: 'NULLS FIRST', desc: 'NULLS LAST' }
-		expect(nullsFirstDefault()).toBe(true)
+	it('reads remult NullSort.order by default', () => {
+		NullSort.order = NF
+		expect(indexNullsFirst()).toBe(true)
 	})
 
-	it('asc NULLS LAST: no NULLS FIRST', () => {
-		NullSort.order = { asc: 'NULLS LAST', desc: 'NULLS FIRST' }
-		expect(nullsFirstDefault()).toBe(false)
+	it('asc decides', () => {
+		expect(indexNullsFirst(NF)).toBe(true)
+		expect(indexNullsFirst({ asc: 'NULLS LAST', desc: 'NULLS FIRST' })).toBe(false)
 	})
 })
 
@@ -115,19 +118,19 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		expect(sql).toContain('FF_UX_idx_things_provider')
 	})
 
-	it('nullsFirst: NULLS FIRST + _NF only for allowNull fields', async () => {
-		const sql = await sqlCreateIndex(Thing, ['provider', 'archivedBy'], { nullsFirst: true })
+	it('NULLS FIRST + _NF only for allowNull fields', async () => {
+		const sql = await sqlCreateIndex(Thing, ['provider', 'archivedBy'], { nullSort: NF })
 		expect(sql).toContain('FF_IX_idx_things_provider_archivedBy_NF')
 		expect(sql).toContain('archivedBy NULLS FIRST')
 		expect(sql).not.toContain('provider NULLS FIRST')
 	})
 
-	it('follows NullSort by default; `nullsFirst` overrides', async () => {
+	it('follows NullSort by default; `nullSort` overrides', async () => {
 		expect(await sqlCreateIndex(Thing, ['archivedBy'])).not.toContain('NULLS FIRST')
-		NullSort.order = { asc: 'NULLS FIRST', desc: 'NULLS LAST' }
+		NullSort.order = NF
 		try {
 			expect(await sqlCreateIndex(Thing, ['archivedBy'])).toContain('archivedBy NULLS FIRST')
-			expect(await sqlCreateIndex(Thing, ['archivedBy'], { nullsFirst: false })).not.toContain(
+			expect(await sqlCreateIndex(Thing, ['archivedBy'], { nullSort: NATIVE })).not.toContain(
 				'NULLS FIRST',
 			)
 		} finally {
@@ -135,22 +138,22 @@ describe('sqlCreateIndex (entity + fields)', () => {
 		}
 	})
 
-	it('nullsFirst on NOT NULL fields only: plain index, no _NF, nothing to drop', async () => {
-		const sql = await sqlCreateIndex(Thing, ['provider'], { nullsFirst: true })
+	it('NULLS FIRST on NOT NULL fields only: plain index, no _NF, nothing to drop', async () => {
+		const sql = await sqlCreateIndex(Thing, ['provider'], { nullSort: NF })
 		expect(sql).not.toContain('NULLS FIRST')
 		expect(sql).not.toContain('_NF')
 		expect(sql).not.toContain('DROP')
 	})
 
 	it('swaps the other NULL-order variant of a derived name, both ways', async () => {
-		const nf = await sqlCreateIndex(Thing, ['archivedBy'], { nullsFirst: true })
+		const nf = await sqlCreateIndex(Thing, ['archivedBy'], { nullSort: NF })
 		expect(nf).toMatch(REGEX_DROP_PLAIN)
-		const plain = await sqlCreateIndex(Thing, ['archivedBy'], { nullsFirst: false })
+		const plain = await sqlCreateIndex(Thing, ['archivedBy'], { nullSort: NATIVE })
 		expect(plain).toMatch(REGEX_DROP_NF)
 	})
 
 	it('drops nothing with an explicit name or concurrently', async () => {
-		const opts = { nullsFirst: true }
+		const opts = { nullSort: NF }
 		expect(await sqlCreateIndex(Thing, ['archivedBy'], { ...opts, name: 'mine' })).not.toContain(
 			'DROP',
 		)

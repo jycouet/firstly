@@ -41,7 +41,7 @@
   },
   "peerDependencies": {
     "@sveltejs/kit": "^3.0.0",
-    "remult": ">=3.3.7 || >=3.5.0-next.0",
+    "remult": ">=3.5.0-next.1",
     "svelte": ">=5"
   },
   "peerDependenciesMeta": {

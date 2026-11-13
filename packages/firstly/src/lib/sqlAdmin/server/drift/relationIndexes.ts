@@ -5,8 +5,9 @@ import { execStmt, liveTables } from './catalog'
 import {
 	formatCreateIndex,
 	formatDropIndex,
-	nullsFirstDefault,
+	indexNullsFirst,
 	otherNullsVariant,
+	type NullSortOrder,
 } from './createIndex'
 import { splitKey, stripIdent, tableKey, tableKeySql, USER_SCHEMA_SQL } from './ident'
 
@@ -64,9 +65,10 @@ export function planRelationIndexes(
 	desired: RelIndexDesired[],
 	existing: Map<string, ExistingIndex[]>,
 	tables: ReadonlySet<string>,
-	opts?: { nullsFirst?: boolean },
+	/** Defaults to remult's `NullSort.order`. */
+	opts?: { nullSort?: NullSortOrder },
 ): RelIndexPlan[] {
-	const nullsFirst = !!opts?.nullsFirst
+	const nullsFirst = indexNullsFirst(opts?.nullSort)
 	const seen = new Set<string>()
 	const plans: RelIndexPlan[] = []
 
@@ -181,7 +183,7 @@ export async function createRelationIndexes(
 
 	const tables = await liveTables(db)
 
-	const plans = planRelationIndexes(desired, existing, tables, { nullsFirst: nullsFirstDefault() })
+	const plans = planRelationIndexes(desired, existing, tables)
 
 	if (opts?.apply) {
 		for (const plan of plans) if (plan.sql) await execStmt(db, plan.sql)

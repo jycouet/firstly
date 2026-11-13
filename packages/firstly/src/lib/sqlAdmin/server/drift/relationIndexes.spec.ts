@@ -2,8 +2,10 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { Entity, Fields, InMemoryDataProvider, Relations, remult } from 'remult'
 
+import type { NullSortOrder } from './createIndex'
 import { planRelationIndexes, relationIndexTargets, type ExistingIndex } from './relationIndexes'
 
+const NF: NullSortOrder = { asc: 'NULLS FIRST', desc: 'NULLS LAST' }
 const existing = (entries: Record<string, ExistingIndex[]>) => new Map(Object.entries(entries))
 const live = (...names: string[]) => new Set(names)
 
@@ -93,14 +95,14 @@ describe('planRelationIndexes', () => {
 		expect(plans[0].coveredBy).toBe('FF_IX_coachings_athleteDid')
 	})
 
-	it('with nullsFirst, a default-order index does not cover: plans a NULLS FIRST one', () => {
+	it('with NULLS FIRST, a default-order index does not cover: plans a NULLS FIRST one', () => {
 		const plans = planRelationIndexes(
 			[{ table: 'activities', columns: ['did'], nullable: [true] }],
 			existing({
 				activities: [{ name: 'activities_pkey', cols: ['did', 'rkey'], nullsFirst: [false, false] }],
 			}),
 			live('activities'),
-			{ nullsFirst: true },
+			{ nullSort: NF },
 		)
 		expect(plans[0]).toMatchObject({
 			action: 'create',
@@ -109,17 +111,17 @@ describe('planRelationIndexes', () => {
 		})
 	})
 
-	it('with nullsFirst, a NULLS FIRST index covers', () => {
+	it('with NULLS FIRST, a NULLS FIRST index covers', () => {
 		const plans = planRelationIndexes(
 			[{ table: 'activities', columns: ['did'], nullable: [true] }],
 			existing({ activities: [{ name: 'ix', cols: ['did'], nullsFirst: [true] }] }),
 			live('activities'),
-			{ nullsFirst: true },
+			{ nullSort: NF },
 		)
 		expect(plans[0]).toMatchObject({ action: 'ok', coveredBy: 'ix' })
 	})
 
-	it('without nullsFirst, a NULLS FIRST index does not cover', () => {
+	it('natively, a NULLS FIRST index does not cover', () => {
 		const plans = planRelationIndexes(
 			[{ table: 'activities', columns: ['did'], nullable: [true] }],
 			existing({ activities: [{ name: 'ix', cols: ['did'], nullsFirst: [true] }] }),
@@ -128,18 +130,18 @@ describe('planRelationIndexes', () => {
 		expect(plans[0].action).toBe('create')
 	})
 
-	it('with nullsFirst, a NOT NULL column keeps the default order and any order covers', () => {
+	it('with NULLS FIRST, a NOT NULL column keeps the default order and any order covers', () => {
 		const desired = [{ table: 'activities', columns: ['did'], nullable: [false] }]
 		const covered = planRelationIndexes(
 			desired,
 			existing({ activities: [{ name: 'ix', cols: ['did'], nullsFirst: [false] }] }),
 			live('activities'),
-			{ nullsFirst: true },
+			{ nullSort: NF },
 		)
 		expect(covered[0]).toMatchObject({ action: 'ok', coveredBy: 'ix' })
 
 		const planned = planRelationIndexes(desired, existing({}), live('activities'), {
-			nullsFirst: true,
+			nullSort: NF,
 		})
 		expect(planned[0]).toMatchObject({
 			name: 'FF_IX_activities_did',
@@ -147,12 +149,12 @@ describe('planRelationIndexes', () => {
 		})
 	})
 
-	it('with nullsFirst, only nullable columns of a composite FK get NULLS FIRST', () => {
+	it('with NULLS FIRST, only nullable columns of a composite FK get NULLS FIRST', () => {
 		const plans = planRelationIndexes(
 			[{ table: 't', columns: ['a', 'b'], nullable: [false, true] }],
 			existing({}),
 			live('t'),
-			{ nullsFirst: true },
+			{ nullSort: NF },
 		)
 		expect(plans[0].sql).toBe(
 			'CREATE INDEX IF NOT EXISTS "FF_IX_t_a_b_NF" ON "t" ("a", "b" NULLS FIRST); DROP INDEX IF EXISTS "FF_IX_t_a_b";',

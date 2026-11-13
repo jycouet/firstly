@@ -1,20 +1,17 @@
 import { dbNamesOf, repo, type ClassType, type MembersOnly } from 'remult'
-import * as internals from 'remult/internals'
+import { NullSort } from 'remult/internals'
 
 import { stripIdent } from './ident'
 
+export type NullSortOrder = typeof NullSort.order
+
 /**
- * Whether index columns should be `NULLS FIRST`, from remult's app-wide `NullSort.order`.
- * One btree serves asc forward and desc backward, so `asc` decides: `{ asc: 'NULLS FIRST',
- * desc: 'NULLS LAST' }` is served by a `NULLS FIRST` index. `native` is Postgres' own
- * (NULLS LAST on asc): default index.
+ * One btree is read forward for asc and backward for desc, so `asc` decides its NULL order:
+ * `{ asc: 'NULLS FIRST', desc: 'NULLS LAST' }` is one `NULLS FIRST` index. `native` is
+ * Postgres' own order: plain index.
  */
-export function nullsFirstDefault() {
-	// TODO: import `NullSort` directly once remult >= 3.5 is the minimum peer
-	const nullSort = (internals as { NullSort?: { order: 'native' | { asc: string } } }).NullSort
-	const order = nullSort?.order ?? 'native'
-	return order !== 'native' && order.asc === 'NULLS FIRST'
-}
+export const indexNullsFirst = (order: NullSortOrder = NullSort.order) =>
+	order !== 'native' && order.asc === 'NULLS FIRST'
 
 export type IndexOptions = {
 	unique?: boolean
@@ -22,10 +19,10 @@ export type IndexOptions = {
 	concurrently?: boolean
 	ifNotExists?: boolean
 	/**
-	 * Match `NullSort` sorts, else Postgres skips the index. Applies to `allowNull` fields
-	 * only; derived name gets `_NF` when any does. Defaults to `nullsFirstDefault()`.
+	 * Match the sorts, else Postgres skips the index. Applies to `allowNull` fields only;
+	 * derived name gets `_NF` when any is `NULLS FIRST`. Defaults to remult's `NullSort.order`.
 	 */
-	nullsFirst?: boolean
+	nullSort?: NullSortOrder
 	/** Override the derived `FF_IX_<table>_<cols>` / `FF_UX_...` name. */
 	name?: string
 }
@@ -94,7 +91,7 @@ export async function sqlCreateIndex<T>(
 	const columns = fields.map((f) => stripIdent(db.$dbNameOf(f)))
 	const fieldsMeta = repo(entity).metadata.fields
 	// A NOT NULL column has no NULLs to place.
-	const wanted = opts.nullsFirst ?? nullsFirstDefault()
+	const wanted = indexNullsFirst(opts.nullSort)
 	const nullable = fields.map((f) => !!fieldsMeta.find(f)?.allowNull)
 	const nullsFirst = nullable.map((n) => wanted && n)
 	const name =
