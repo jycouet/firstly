@@ -1,3 +1,5 @@
+/* firstly's skin after preflight, before utilities */
+@layer theme, base, firstly, components, utilities;
 @import 'tailwindcss';
 
 /* Semantic UI tokens (shadcn-style). firstly's shipped headless components

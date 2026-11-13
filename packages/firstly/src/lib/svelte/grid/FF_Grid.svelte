@@ -240,149 +240,151 @@
 </div>
 
 <style>
-	/* default skin bundled with the published FF_Grid. :global reaches the portaled dialog. */
-	:global([data-ff-grid] table) {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: 14px;
-	}
-	:global([data-ff-grid] :is(th, td)) {
-		padding: 6px 9px;
-		border-bottom: 1px solid color-mix(in srgb, currentColor 13%, transparent);
-		text-align: left;
-		white-space: nowrap;
-	}
-	:global([data-ff-grid] th:first-child),
-	:global([data-ff-grid] td:first-child) {
-		width: 100%;
-	}
-	:global([data-ff-grid] th) {
-		font-weight: 600;
-		user-select: none;
-	}
-	:global([data-ff-grid] th[data-sortable]) {
-		cursor: pointer;
-	}
-	:global([data-ff-grid] tbody tr:hover) {
-		background: color-mix(in srgb, currentColor 6%, transparent);
-	}
-	:global([data-ff-grid-toolbar]) {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		margin-bottom: 8px;
-	}
-	:global([data-ff-grid-count]) {
-		margin-left: auto;
-		font-size: 15px;
-		opacity: 0.75;
-		font-variant-numeric: tabular-nums;
-	}
-	:global([data-ff-grid-empty]) {
-		opacity: 0.6;
-		font-size: 14px;
-		padding: 8px 0;
-	}
-	:global([data-ff-grid-actions]) {
-		text-align: right;
-	}
-	:global([data-ff-grid] button) {
-		display: inline-flex;
-		align-items: center;
-		gap: 5px;
-		font: inherit;
-		cursor: pointer;
-		padding: 5px 9px;
-		color: inherit;
-		background: color-mix(in srgb, currentColor 8%, transparent);
-		border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
-		border-radius: 7px;
-	}
-	:global([data-ff-grid] button:disabled) {
-		opacity: 0.45;
-		cursor: not-allowed;
-	}
-	:global([data-ff-grid] [data-ff-grid-edit]),
-	:global([data-ff-grid] [data-ff-grid-new]) {
-		background: transparent;
-		border-color: transparent;
-		padding: 3px 5px;
-		opacity: 0.6;
-	}
-	:global([data-ff-grid] [data-ff-grid-edit]:hover),
-	:global([data-ff-grid] [data-ff-grid-new]:hover) {
-		background: color-mix(in srgb, currentColor 12%, transparent);
-		opacity: 1;
-	}
-	:global([data-ff-grid] [data-ff-grid-more]) {
-		display: flex;
-		margin: 12px auto 0;
-	}
-	:global([data-ff-grid] [data-sk]) {
-		display: inline-block;
-		width: 70%;
-		height: 1.05em;
-		border-radius: 4px;
-		background: color-mix(in srgb, currentColor 14%, transparent);
-		animation: -global-ff-sk 1.2s ease-in-out infinite;
-	}
-	:global([data-ff-grid] [data-sk-btn]) {
-		width: 1.4em;
-	}
-	@keyframes -global-ff-sk {
-		0%,
-		100% {
-			opacity: 0.4;
+	@layer firstly {
+		/* default skin bundled with the published FF_Grid. :global reaches the portaled dialog. */
+		:global([data-ff-grid] table) {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 14px;
 		}
-		50% {
-			opacity: 0.85;
+		:global([data-ff-grid] :is(th, td)) {
+			padding: 6px 9px;
+			border-bottom: 1px solid color-mix(in srgb, currentColor 13%, transparent);
+			text-align: left;
+			white-space: nowrap;
 		}
-	}
-	/* dialog form (portaled) */
-	:global([data-ff-form]),
-	:global([data-ff-group]) {
-		display: block;
-		min-width: 280px;
-	}
-	:global([data-ff-form] button) {
-		display: inline-flex;
-		align-items: center;
-		gap: 5px;
-		font: inherit;
-		cursor: pointer;
-		padding: 5px 11px;
-		color: inherit;
-		background: color-mix(in srgb, currentColor 8%, transparent);
-		border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
-		border-radius: 7px;
-	}
-	:global([data-ff-form-actions]) {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		margin-top: 8px;
-	}
-	:global([data-ff-form-actions] [data-primary]) {
-		margin-left: auto;
-		font-weight: 600;
-	}
-	:global([data-ff-form-actions] [data-danger]) {
-		color: var(--color-error, #dc2626);
-		border-color: color-mix(in srgb, var(--color-error, #dc2626) 45%, transparent);
-	}
-	:global([data-ff-readonly]) {
-		display: block;
-		box-sizing: border-box;
-		padding: 5px 8px;
-	}
-	:global([data-ff-form-error]) {
-		color: var(--color-error, #dc2626);
-		font-size: 13px;
-		margin: 4px 0 0;
-	}
-	:global([data-ff-cell-error]) {
-		color: var(--color-error, #dc2626);
-		font-size: 12px;
+		:global([data-ff-grid] th:first-child),
+		:global([data-ff-grid] td:first-child) {
+			width: 100%;
+		}
+		:global([data-ff-grid] th) {
+			font-weight: 600;
+			user-select: none;
+		}
+		:global([data-ff-grid] th[data-sortable]) {
+			cursor: pointer;
+		}
+		:global([data-ff-grid] tbody tr:hover) {
+			background: color-mix(in srgb, currentColor 6%, transparent);
+		}
+		:global([data-ff-grid-toolbar]) {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			margin-bottom: 8px;
+		}
+		:global([data-ff-grid-count]) {
+			margin-left: auto;
+			font-size: 15px;
+			opacity: 0.75;
+			font-variant-numeric: tabular-nums;
+		}
+		:global([data-ff-grid-empty]) {
+			opacity: 0.6;
+			font-size: 14px;
+			padding: 8px 0;
+		}
+		:global([data-ff-grid-actions]) {
+			text-align: right;
+		}
+		:global([data-ff-grid] button) {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			font: inherit;
+			cursor: pointer;
+			padding: 5px 9px;
+			color: inherit;
+			background: color-mix(in srgb, currentColor 8%, transparent);
+			border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+			border-radius: 7px;
+		}
+		:global([data-ff-grid] button:disabled) {
+			opacity: 0.45;
+			cursor: not-allowed;
+		}
+		:global([data-ff-grid] [data-ff-grid-edit]),
+		:global([data-ff-grid] [data-ff-grid-new]) {
+			background: transparent;
+			border-color: transparent;
+			padding: 3px 5px;
+			opacity: 0.6;
+		}
+		:global([data-ff-grid] [data-ff-grid-edit]:hover),
+		:global([data-ff-grid] [data-ff-grid-new]:hover) {
+			background: color-mix(in srgb, currentColor 12%, transparent);
+			opacity: 1;
+		}
+		:global([data-ff-grid] [data-ff-grid-more]) {
+			display: flex;
+			margin: 12px auto 0;
+		}
+		:global([data-ff-grid] [data-sk]) {
+			display: inline-block;
+			width: 70%;
+			height: 1.05em;
+			border-radius: 4px;
+			background: color-mix(in srgb, currentColor 14%, transparent);
+			animation: -global-ff-sk 1.2s ease-in-out infinite;
+		}
+		:global([data-ff-grid] [data-sk-btn]) {
+			width: 1.4em;
+		}
+		@keyframes -global-ff-sk {
+			0%,
+			100% {
+				opacity: 0.4;
+			}
+			50% {
+				opacity: 0.85;
+			}
+		}
+		/* dialog form (portaled) */
+		:global([data-ff-form]),
+		:global([data-ff-group]) {
+			display: block;
+			min-width: 280px;
+		}
+		:global([data-ff-form] button) {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			font: inherit;
+			cursor: pointer;
+			padding: 5px 11px;
+			color: inherit;
+			background: color-mix(in srgb, currentColor 8%, transparent);
+			border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+			border-radius: 7px;
+		}
+		:global([data-ff-form-actions]) {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			width: 100%;
+			margin-top: 8px;
+		}
+		:global([data-ff-form-actions] [data-primary]) {
+			margin-left: auto;
+			font-weight: 600;
+		}
+		:global([data-ff-form-actions] [data-danger]) {
+			color: var(--color-error, #dc2626);
+			border-color: color-mix(in srgb, var(--color-error, #dc2626) 45%, transparent);
+		}
+		:global([data-ff-readonly]) {
+			display: block;
+			box-sizing: border-box;
+			padding: 5px 8px;
+		}
+		:global([data-ff-form-error]) {
+			color: var(--color-error, #dc2626);
+			font-size: 13px;
+			margin: 4px 0 0;
+		}
+		:global([data-ff-cell-error]) {
+			color: var(--color-error, #dc2626);
+			font-size: 12px;
+		}
 	}
 </style>

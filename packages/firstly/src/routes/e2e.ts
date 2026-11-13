@@ -96,3 +96,20 @@ for (const [ssr, symbols, uses] of [
 		expect(logs).toEqual([])
 	})
 }
+
+test('FF_Grid skin keeps its look and yields to utilities', async ({ page }) => {
+	await page.goto('/ff-repo')
+	const btn = page.locator('[data-ff-grid] button[data-ff-grid-new]').first()
+	await expect(btn).toHaveCSS('padding', '3px 5px')
+
+	const padding = await page.evaluate(() => {
+		const style = document.createElement('style')
+		style.textContent = '@layer utilities { .p-test { padding: 20px } }'
+		document.head.append(style)
+		const b = document.createElement('button')
+		b.className = 'p-test'
+		document.querySelector('[data-ff-grid]')!.append(b)
+		return getComputedStyle(b).padding
+	})
+	expect(padding).toBe('20px')
+})

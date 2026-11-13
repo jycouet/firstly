@@ -60,39 +60,41 @@
 </div>
 
 <style>
-	[data-ff-cells] {
-		width: 100%;
-		display: flex;
-		flex-wrap: wrap;
-	}
-	[data-ff-cell] {
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		align-content: flex-start;
-		box-sizing: border-box;
-		padding: var(--ff-spacing, 0.5rem);
-		flex: 1 1 calc(var(--width, 100) * 1%);
-		max-width: calc(var(--width, 100) * 1%);
-		min-width: 0;
-		margin-left: calc(var(--margin-left, 0) * 1%);
-		margin-right: calc(var(--margin-right, 0) * 1%);
-	}
-	:global([data-ff-cell] > *) {
-		flex: 0 0 100%;
-		width: 100%;
-	}
-	[data-ff-cell][data-ff-cell-debug] {
-		outline: 1px solid var(--destructive, red);
-		outline-offset: -1px;
-	}
-	@media screen and (max-width: 40rem) {
+	@layer firstly {
+		[data-ff-cells] {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+		}
 		[data-ff-cell] {
-			flex: 1 1 calc(var(--width-mobile, 100) * 1%);
-			max-width: calc(var(--width-mobile, 100) * 1%);
-			margin-left: calc(var(--margin-left-mobile, 0) * 1%);
-			margin-right: calc(var(--margin-right-mobile, 0) * 1%);
-			padding: 0.15rem;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			align-content: flex-start;
+			box-sizing: border-box;
+			padding: var(--ff-spacing, 0.5rem);
+			flex: 1 1 calc(var(--width, 100) * 1%);
+			max-width: calc(var(--width, 100) * 1%);
+			min-width: 0;
+			margin-left: calc(var(--margin-left, 0) * 1%);
+			margin-right: calc(var(--margin-right, 0) * 1%);
+		}
+		:global([data-ff-cell] > *) {
+			flex: 0 0 100%;
+			width: 100%;
+		}
+		[data-ff-cell][data-ff-cell-debug] {
+			outline: 1px solid var(--destructive, red);
+			outline-offset: -1px;
+		}
+		@media screen and (max-width: 40rem) {
+			[data-ff-cell] {
+				flex: 1 1 calc(var(--width-mobile, 100) * 1%);
+				max-width: calc(var(--width-mobile, 100) * 1%);
+				margin-left: calc(var(--margin-left-mobile, 0) * 1%);
+				margin-right: calc(var(--margin-right-mobile, 0) * 1%);
+				padding: 0.15rem;
+			}
 		}
 	}
 </style>
