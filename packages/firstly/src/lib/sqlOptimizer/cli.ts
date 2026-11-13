@@ -8,14 +8,14 @@ import {
 	everyRequestQueries,
 	groupRoutes,
 	positionalArgs,
-	queryId,
+	entryId,
 	readCapture,
 	type CapturedQuery,
 	type QueryGroup,
 } from './capture.js'
 import { indexDdl } from './ddl.js'
 import { formatIndexSpec, parseIndexSpecs, type IndexSpec } from './indexSpec.js'
-import { normalizeSql, parseQuery } from './parseQuery.js'
+import { parseQuery } from './parseQuery.js'
 import { auditIndexes, explainWith, tableSchema, type Db } from './pg.js'
 import { suggestIndexes } from './suggest.js'
 
@@ -58,14 +58,11 @@ Capture: SqlDatabase.LogToConsole = withSqlCapture(...) + FF_SQL_CAPTURE=tmp/sql
 Indexes are created and dropped inside a rolled back transaction: the database is left as is.
 Use a local database with realistic volume: on a tiny table a Seq Scan IS the best plan.`
 
-/** Below this, a "win" is timer noise... */
-const MIN_GAIN_MS = 0.05
-/** ...unless the plan changed this much: tiny per call, real on a query every request runs. */
-const SURE_SPEEDUP = 2
 const MIN_SPEEDUP = 1.2
+/** Under this baseline, timer jitter is of the same order as any gain. */
+const FAST_MS = 0.2
 /** Variants within this of the fastest tie: the simplest one wins. */
 const TIE_RATIO = 1.1
-const REGEX_ROUTE_CALLS = /^(.*) \((\d+)\)$/
 
 const { values: flags, positionals } = parseArgs({
 	allowPositionals: true,
@@ -107,13 +104,12 @@ function entries() {
 	if (captured) return captured
 	const file = resolve(cwd, flags.file ?? process.env.FF_SQL_CAPTURE ?? 'tmp/sql-capture.jsonl')
 	if (!existsSync(file)) fail(`No capture at ${file}. Set FF_SQL_CAPTURE and run the app / tests.`)
-	const skip = new Set(flags.exclude ?? [])
-	return (captured = readCapture(file).filter(
-		(e) => !skip.size || ![...skip].some((id) => queryId(normalizeSql(e.sql)).startsWith(id)),
-	))
+	const skip = flags.exclude ?? []
+	return (captured = readCapture(file).filter((e) => !skip.some((id) => entryId(e).startsWith(id))))
 }
 const groups = () => groupQueries(entries())
-const capturedMs = () => entries().reduce((n, e) => n + e.ms, 0)
+const sumMs = (es: CapturedQuery[]) => es.reduce((n, e) => n + e.ms, 0)
+const capturedMs = () => sumMs(entries())
 const pct = (part: number, all: number) => {
 	const p = all ? (100 * part) / all : 0
 	return `${p > 0 && p < 0.1 ? '<0.1' : round(p, 1)}%`
@@ -192,10 +188,10 @@ async function unknownCols(specs: IndexSpec[], schemaOf: (t: string) => Promise<
 	return missing
 }
 
-async function candidates(db: Db, q: QueryGroup) {
+async function candidates(db: Db, q: QueryGroup, schemaOf = schemas(db)) {
 	const parsed = parseQuery(q.sql)
-	if (!parsed.table) return { parsed, candidates: [] }
-	const schema = await tableSchema(db, parsed.table)
+	const schema = parsed.table ? await schemaOf(parsed.table) : null
+	if (!schema) return { parsed, candidates: [] }
 	return {
 		parsed,
 		rows: schema.rows,
@@ -226,7 +222,7 @@ if (flags.help || !cmd || cmd === 'help') {
 		? entries().filter((e) => e.route?.includes(flags.route!) || e.page?.includes(flags.route!))
 		: entries()
 	const all = groupQueries(scoped)
-	const allMs = scoped.reduce((n, e) => n + e.ms, 0)
+	const allMs = sumMs(scoped)
 	const hasContext = scoped.some((e) => e.req !== undefined)
 	const top = all.toSorted((a, b) => b[key] - a[key]).slice(0, Number(flags.limit))
 	const dbMs = new Map<string, { dbMs?: number; plan?: string[]; error?: string }>()
@@ -334,10 +330,8 @@ if (flags.help || !cmd || cmd === 'help') {
 		w.capturedMs = Math.max(w.capturedMs, c.impact?.capturedMs ?? 0)
 		w.perCall.push(`${c.baseline.ms} -> ${c.winner.ms} (x${c.winner.speedup})`)
 		w.queryDbMs += c.impact?.queryDbMs ?? 0
-		for (const r of (c.impact?.routes ?? []) as string[]) {
-			const m = REGEX_ROUTE_CALLS.exec(r)
-			if (m) w.routes.set(m[1]!, (w.routes.get(m[1]!) ?? 0) + Number(m[2]))
-		}
+		for (const [r, n] of Object.entries((c.impact?.routes ?? {}) as Record<string, number>))
+			w.routes.set(r, (w.routes.get(r) ?? 0) + n)
 	}
 	const wins = Array.from(byIndex.values(), ({ routes, ...w }) => ({
 		...w,
@@ -347,19 +341,7 @@ if (flags.help || !cmd || cmd === 'help') {
 		ofQueryDbMs: w.queryDbMs ? pct(w.savedMs, w.queryDbMs) : '',
 		routes: topRoutes(Object.fromEntries(routes)),
 	})).toSorted((a, b) => b.savedMs - a.savedMs)
-	const none = rows
-		.filter((c) => !c.winner)
-		.map((c) => {
-			const v = (c.variants ?? []) as { usesIndex?: boolean; error?: string }[]
-			const why = !v.length
-				? 'no candidate'
-				: v.every((x) => x.error)
-					? 'every variant failed'
-					: v.some((x) => x.usesIndex)
-						? 'gain below the noise floor'
-						: 'planner ignored every index'
-			return `${c.id} (${why})`
-		})
+	const none = rows.filter((c) => !c.winner).map((c) => `${c.id} (${c.noWinner})`)
 	if (flags.md) {
 		const line = (r: (typeof wins)[number]) =>
 			`| ${r.table} | \`${r.index}\` | ${r.queries.join(', ')} | ${r.perCall.join('<br>')} ms | ${r.calls} | ${r.savedMs} ms | ${r.share} | ${r.routes[0] ?? ''} |`
@@ -408,7 +390,7 @@ if (flags.help || !cmd || cmd === 'help') {
 	out(
 		await withDb(async (db) => {
 			const schemaOf = schemas(db)
-			const { parsed, rows, analyzed, candidates: cands } = await candidates(db, q)
+			const { parsed, rows, analyzed, candidates: cands } = await candidates(db, q, schemaOf)
 			const table = parsed.table ?? ''
 			const variants = flags.variant?.length
 				? flags.variant.map((s) => ({ specs: parseIndexSpecs(s, table), why: 'given' }))
@@ -431,8 +413,7 @@ if (flags.help || !cmd || cmd === 'help') {
 						why: v.why,
 						specs: v.specs,
 						ms: round(r.ms),
-						// Min-max of the timed runs: overlapping with the baseline's = not a real gain.
-						spread: [round(Math.min(...r.runsMs)), round(Math.max(...r.runsMs))],
+						spread: r.spread.map((x) => round(x)),
 						usesIndex,
 						// Unused index = same plan: any timing gap is noise.
 						speedup: usesIndex ? round(base.ms / Math.max(r.ms, 0.001), 2) : null,
@@ -446,11 +427,9 @@ if (flags.help || !cmd || cmd === 'help') {
 			}
 			const ok = results.filter((r) => 'ms' in r && r.ms !== undefined)
 			ok.sort((a, b) => a.ms! - b.ms!)
+			// Noise floor: the variant's slowest run beats the baseline's fastest one.
 			const wins = ok.filter(
-				(r) =>
-					r.usesIndex &&
-					r.speedup! >= MIN_SPEEDUP &&
-					(base.ms - r.ms! >= MIN_GAIN_MS || r.speedup! >= SURE_SPEEDUP),
+				(r) => r.usesIndex && r.speedup! >= MIN_SPEEDUP && r.spread![1]! < base.spread[0],
 			)
 			const unique = (r: (typeof ok)[number]) => (r.specs!.some((s) => s.unique) ? 1 : 0)
 			const size = (r: (typeof ok)[number]) =>
@@ -464,10 +443,8 @@ if (flags.help || !cmd || cmd === 'help') {
 					? [`${rows} rows: plans on a tiny table don't transfer to production volume`]
 					: []),
 				...(analyzed === false ? [`${table} has no planner stats: run ANALYZE "${table}" first`] : []),
-				...(base.ms < MIN_GAIN_MS * 4
-					? [
-							`baseline ${round(base.ms)} ms: already fast, gains below ${MIN_GAIN_MS} ms count only from x${SURE_SPEEDUP}: judge them by impact.calls`,
-						]
+				...(base.ms < FAST_MS
+					? [`baseline ${round(base.ms)} ms: already fast, judge a win by impact.savedMs`]
 					: []),
 				...(parsed.hasSubquery
 					? ['sub-selects were masked: suggestions cover the outer query, read the tree for the rest']
@@ -488,11 +465,22 @@ if (flags.help || !cmd || cmd === 'help') {
 					.map((c) => ({ cols: c.cols, coveredBy: c.coveredBy })),
 				baseline: {
 					ms: round(base.ms),
-					spread: [round(Math.min(...base.runsMs)), round(Math.max(...base.runsMs))],
+					spread: base.spread.map((x) => round(x)),
 					buffers: base.plan.buffers,
 					tree: base.plan.tree,
 				},
 				variants: [...ok.map(({ specs: _, ...r }) => r), ...results.filter((r) => 'error' in r)],
+				...(best
+					? {}
+					: {
+							noWinner: !results.length
+								? 'no candidate'
+								: !ok.length
+									? 'every variant failed'
+									: !ok.some((r) => r.usesIndex)
+										? 'planner ignored every index'
+										: `no variant x${MIN_SPEEDUP} faster with runs clear of the baseline's`,
+						}),
 				winner: best
 					? {
 							cols: best.cols,
@@ -506,7 +494,7 @@ if (flags.help || !cmd || cmd === 'help') {
 				impact: {
 					calls,
 					callsFrom: flags.calls ? '--calls' : adhoc ? 'adhoc: pass --calls' : 'capture',
-					routes: topRoutes(q.routes),
+					routes: q.routes,
 					maxPerRequest: q.maxPerRequest,
 					savedMsPerCall: round(savedMsPerCall),
 					savedMs: calls === null ? null : round(savedMsPerCall * calls, 1),

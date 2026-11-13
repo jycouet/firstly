@@ -9,6 +9,8 @@ export type Db = { query: (sql: string, params?: unknown[]) => Promise<{ rows: a
 export type ExplainResult = {
 	/** Median execution time over `runs` (a warm-up run is discarded). */
 	ms: number
+	/** Fastest and slowest run. */
+	spread: [number, number]
 	planningMs: number
 	runsMs: number[]
 	plan: PlanSummary
@@ -53,6 +55,7 @@ export async function explainWith(
 		)
 		return {
 			ms,
+			spread: [Math.min(...runsMs), Math.max(...runsMs)],
 			planningMs: median(all.map((r) => r['Planning Time'])),
 			runsMs,
 			plan: summarizePlan(raw),
