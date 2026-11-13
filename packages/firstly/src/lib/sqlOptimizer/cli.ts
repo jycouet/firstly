@@ -120,7 +120,11 @@ type Schema = Awaited<ReturnType<typeof tableSchema>>
 function schemas(db: Db) {
 	const cache = new Map<string, Promise<Schema | null>>()
 	return (table: string) => {
-		if (!cache.has(table)) cache.set(table, tableSchema(db, table).catch(() => null))
+		if (!cache.has(table))
+			cache.set(
+				table,
+				tableSchema(db, table).catch(() => null),
+			)
 		return cache.get(table)!
 	}
 }
@@ -194,7 +198,8 @@ if (flags.help || !cmd || cmd === 'help') {
 		queries: all.length,
 		...(flags.explain
 			? {
-					note: 'meanMs is app round trip (pool wait included), dbMs is EXPLAIN ANALYZE: a big gap is not an index problem',
+					note:
+						'meanMs is app round trip (pool wait included), dbMs is EXPLAIN ANALYZE: a big gap is not an index problem',
 				}
 			: {}),
 		top: top.map(({ args: _, sql, ...g }) => ({
@@ -303,10 +308,7 @@ if (flags.help || !cmd || cmd === 'help') {
 					.filter((c) => c.coveredBy)
 					.map((c) => ({ cols: c.cols, coveredBy: c.coveredBy })),
 				baseline: { ms: round(base.ms), buffers: base.plan.buffers, tree: base.plan.tree },
-				variants: [
-					...ok.map(({ specs: _, ...r }) => r),
-					...results.filter((r) => 'error' in r),
-				],
+				variants: [...ok.map(({ specs: _, ...r }) => r), ...results.filter((r) => 'error' in r)],
 				winner: best
 					? {
 							cols: best.cols,

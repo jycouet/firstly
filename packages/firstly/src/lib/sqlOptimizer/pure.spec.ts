@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest'
 
 import { groupQueries, positionalArgs } from './capture'
 import { indexDdl } from './ddl'
-import { coversCols, parseIndexSpec, parseIndexSpecs, sqlIndexBody, sqlIndexCols } from './indexSpec'
+import {
+	coversCols,
+	parseIndexSpec,
+	parseIndexSpecs,
+	sqlIndexBody,
+	sqlIndexCols,
+} from './indexSpec'
 import { groupKeySql, parseQuery } from './parseQuery'
 import { summarizePlan } from './plan'
 import { suggestIndexes } from './suggest'
@@ -26,7 +32,11 @@ describe('parseIndexSpec', () => {
 		expect(parseIndexSpec('ff.users: email', 't').table).toBe('ff.users')
 	})
 	it('unique, raw (gin / partial), several at once', () => {
-		expect(parseIndexSpec('unique token', 't')).toEqual({ table: 't', cols: [{ col: 'token' }], unique: true })
+		expect(parseIndexSpec('unique token', 't')).toEqual({
+			table: 't',
+			cols: [{ col: 'token' }],
+			unique: true,
+		})
 		const gin = parseIndexSpec('users: using gin (("referentIds"::jsonb))', 't')
 		expect(gin).toEqual({ table: 'users', cols: [], raw: 'using gin (("referentIds"::jsonb))' })
 		expect(sqlIndexBody(parseIndexSpec('(a) where "b" is null', 't'))).toBe('(a) where "b" is null')
@@ -153,7 +163,12 @@ describe('capture grouping', () => {
 	it('one group whatever the $in length, replaying the slowest sql', () => {
 		const g = groupQueries([
 			{ sql: 'select 1 from "t" where "a" in ($1,$2)', args: { $1: 1, $2: 2 }, ms: 1, at: '' },
-			{ sql: 'select 1 from "t" where "a" in ($1,$2,$3)', args: { $1: 1, $2: 2, $3: 3 }, ms: 4, at: '' },
+			{
+				sql: 'select 1 from "t" where "a" in ($1,$2,$3)',
+				args: { $1: 1, $2: 2, $3: 3 },
+				ms: 4,
+				at: '',
+			},
 		])
 		expect(g).toHaveLength(1)
 		expect(g[0]!.sql).toContain('$3')
@@ -217,14 +232,18 @@ describe('indexDdl', () => {
 		const d = indexDdl(parseIndexSpec('status, doneAt', 'tasks'), { status: false, doneAt: true })
 		expect(d.name).toBe('FF_IX_tasks_status_doneAt')
 		expect(d.initApi).toContain('{ ifNotExists: true, nullsFirst: false }')
-		expect(indexDdl(parseIndexSpec('status', 'tasks'), { status: false }).initApi).toContain('{ ifNotExists: true }')
+		expect(indexDdl(parseIndexSpec('status', 'tasks'), { status: false }).initApi).toContain(
+			'{ ifNotExists: true }',
+		)
 	})
 	it('unique and raw', () => {
 		const u = indexDdl(parseIndexSpec('unique token', 'sessions'), { token: false })
 		expect(u.name).toBe('FF_UX_sessions_token')
 		expect(u.initApi).toContain('unique: true')
 		const g = indexDdl(parseIndexSpec('using gin (("referentIds"::jsonb))', 'users'))
-		expect(g.sql).toBe('CREATE INDEX IF NOT EXISTS "FF_IX_users_using_gin_referentIds_jsonb" ON "users" using gin (("referentIds"::jsonb));')
+		expect(g.sql).toBe(
+			'CREATE INDEX IF NOT EXISTS "FF_IX_users_using_gin_referentIds_jsonb" ON "users" using gin (("referentIds"::jsonb));',
+		)
 		expect(g.initApi).toContain('execute(`CREATE INDEX')
 	})
 	it('raw SQL for a DESC mix', () => {

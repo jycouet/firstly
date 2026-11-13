@@ -200,7 +200,8 @@ export async function auditIndexes(db: Db, o: { minRows?: number } = {}) {
 	return {
 		/** Usage counters start here (reset, crash, or clone). */
 		statsReset: (reset.rows[0]?.stats_reset as Date | null) ?? null,
-		note: 'unused / seqScanHeavy count since statsReset, sql-opt EXPLAIN runs included: meaningful only after a representative run',
+		note:
+			'unused / seqScanHeavy count since statsReset, sql-opt EXPLAIN runs included: meaningful only after a representative run',
 		unused,
 		redundant,
 		seqScanHeavy: tables.rows
