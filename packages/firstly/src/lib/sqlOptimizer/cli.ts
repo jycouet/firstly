@@ -1,29 +1,41 @@
 // Index tooling for agents: every command prints JSON. `sql-opt help` for usage.
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { parseArgs } from 'node:util'
-import pg from 'pg'
 
-import { groupQueries, positionalArgs, readCapture, type QueryGroup } from './capture'
-import { indexDdl } from './ddl'
-import { formatIndexSpec, parseIndexSpecs, type IndexSpec } from './indexSpec'
-import { parseQuery } from './parseQuery'
-import { auditIndexes, explainWith, tableSchema, type Db } from './pg'
-import { suggestIndexes } from './suggest'
+import {
+	groupQueries,
+	groupRoutes,
+	positionalArgs,
+	readCapture,
+	type CapturedQuery,
+	type QueryGroup,
+} from './capture.js'
+import { indexDdl } from './ddl.js'
+import { formatIndexSpec, parseIndexSpecs, type IndexSpec } from './indexSpec.js'
+import { parseQuery } from './parseQuery.js'
+import { auditIndexes, explainWith, tableSchema, type Db } from './pg.js'
+import { suggestIndexes } from './suggest.js'
 
 const HELP = `sql-opt - find the right Postgres indexes from captured queries (JSON out)
 
 Capture: SqlDatabase.LogToConsole = withSqlCapture(...) + FF_SQL_CAPTURE=tmp/sql-capture.jsonl
 
-  top [--by total|mean|max|calls] [--limit 20] [--explain] [--full]
-                                                 hot queries, grouped, with ids
+  top [--by total|mean|max|calls] [--limit 20] [--explain] [--full] [--route <part>]
+                                                 hot queries, grouped, with ids, share of the
+                                                 captured ms, routes, maxPerRequest (N+1)
                                                  --explain: + dbMs (EXPLAIN ANALYZE, no pool wait)
+  routes [--limit 20]                            per route: requests, queries and ms per request,
+                                                 the most repeated query in one request
   show <id>                                      full sql, slowest args, parsed shape
   schema <table>                                 rows, column stats, indexes (+ usage)
   suggest <id>                                   candidate indexes (starting points)
   explain <id> [--index "<spec>"]... [--drop <index>]... [--raw]
-  compare <id> [--variant "<spec>"]...           baseline vs each variant (default: suggestions;
-                                                 --variant replaces them)
+  compare <id> [--variant "<spec>"]... [--calls <n>]
+                                                 baseline vs each variant (default: suggestions;
+                                                 --variant replaces them), impact = calls x ms saved
+                                                 --calls: real frequency (prod pg_stat_statements)
+  report <compare.json>... [--md]                winners ranked by impact (saved ms), not speedup
   audit                                          unused / redundant indexes, seq-scan heavy tables
   ddl <table> "<spec>"                           CREATE INDEX + initApi line (sqlCreateIndex)
 
@@ -54,6 +66,9 @@ const { values: flags, positionals } = parseArgs({
 		limit: { type: 'string', default: '20' },
 		explain: { type: 'boolean', default: false },
 		full: { type: 'boolean', default: false },
+		route: { type: 'string' },
+		calls: { type: 'string' },
+		md: { type: 'boolean', default: false },
 		index: { type: 'string', multiple: true },
 		variant: { type: 'string', multiple: true },
 		drop: { type: 'string', multiple: true },
@@ -77,11 +92,21 @@ const fail = (msg: string): never => {
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : String(e))
 const round = (n: number, d = 3) => +n.toFixed(d)
 
-function groups() {
+let captured: CapturedQuery[] | undefined
+function entries() {
+	if (captured) return captured
 	const file = resolve(cwd, flags.file ?? process.env.FF_SQL_CAPTURE ?? 'tmp/sql-capture.jsonl')
 	if (!existsSync(file)) fail(`No capture at ${file}. Set FF_SQL_CAPTURE and run the app / tests.`)
-	return groupQueries(readCapture(file))
+	return (captured = readCapture(file))
 }
+const groups = () => groupQueries(entries())
+const capturedMs = () => entries().reduce((n, e) => n + e.ms, 0)
+const pct = (part: number, all: number) => `${all ? round((100 * part) / all, 1) : 0}%`
+const topRoutes = (routes: Record<string, number>, n = 3) =>
+	Object.entries(routes)
+		.toSorted((a, b) => b[1] - a[1])
+		.slice(0, n)
+		.map(([r, c]) => `${r} (${c})`)
 
 function target(id?: string): QueryGroup {
 	if (flags.sql) {
@@ -95,6 +120,8 @@ function target(id?: string): QueryGroup {
 			meanMs: 0,
 			maxMs: 0,
 			args,
+			routes: {},
+			maxPerRequest: 1,
 		}
 	}
 	if (!id) fail('Missing <id> (see `top`) or --sql')
@@ -107,7 +134,10 @@ async function withDb<T>(fn: (db: Db) => Promise<T>): Promise<T> {
 	if (!flags.url && !process.env.DATABASE_URL && existsSync(envFile)) process.loadEnvFile(envFile)
 	const url = flags.url ?? process.env.DATABASE_URL
 	if (!url) fail('No database: --url or DATABASE_URL')
-	const client = new pg.Client({ connectionString: url })
+	const pg = await import('pg').catch(() =>
+		fail('sql-opt needs the `pg` package (already there with remult/postgres): pnpm add -D pg'),
+	)
+	const client = new pg.default.Client({ connectionString: url })
 	await client.connect()
 	try {
 		return await fn(client)
@@ -176,7 +206,11 @@ if (flags.help || !cmd || cmd === 'help') {
 	]
 	if (!key) fail(`--by: total | mean | max | calls`)
 	const all = groups()
-	const top = all.toSorted((a, b) => b[key] - a[key]).slice(0, Number(flags.limit))
+	const allMs = capturedMs()
+	const top = all
+		.filter((g) => !flags.route || Object.keys(g.routes).some((r) => r.includes(flags.route!)))
+		.toSorted((a, b) => b[key] - a[key])
+		.slice(0, Number(flags.limit))
 	const dbMs = new Map<string, { dbMs?: number; plan?: string[]; error?: string }>()
 	if (flags.explain) {
 		await withDb(async (db) => {
@@ -202,15 +236,70 @@ if (flags.help || !cmd || cmd === 'help') {
 						'meanMs is app round trip (pool wait included), dbMs is EXPLAIN ANALYZE: a big gap is not an index problem',
 				}
 			: {}),
-		top: top.map(({ args: _, sql, ...g }) => ({
+		capturedMs: round(allMs, 1),
+		top: top.map(({ args: _, sql, routes, maxPerRequest, ...g }) => ({
 			...g,
+			share: pct(g.totalMs, allMs),
 			totalMs: round(g.totalMs, 1),
 			meanMs: round(g.meanMs, 2),
 			maxMs: round(g.maxMs, 2),
 			...dbMs.get(g.id),
+			...(Object.keys(routes).length ? { routes: topRoutes(routes), maxPerRequest } : {}),
 			sql: !flags.full && sql.length > 240 ? sql.slice(0, 240) + '…' : sql,
 		})),
 	})
+} else if (cmd === 'routes') {
+	const allMs = capturedMs()
+	const stats = groupRoutes(entries())
+	if (stats.length === 0)
+		fail('No route in the capture: it predates request context, or ran outside a remult request')
+	out({
+		requests: stats.reduce((n, r) => n + r.requests, 0),
+		capturedMs: round(allMs, 1),
+		note: 'mostRepeated.perRequest > 2: same query many times in one request, likely N+1 (show <id>)',
+		routes: stats
+			.toSorted((a, b) => b.totalMs - a.totalMs)
+			.slice(0, Number(flags.limit))
+			.map((r) => ({
+				...r,
+				share: pct(r.totalMs, allMs),
+				totalMs: round(r.totalMs, 1),
+				queriesPerRequest: round(r.queriesPerRequest, 1),
+				msPerRequest: round(r.msPerRequest, 2),
+			})),
+	})
+} else if (cmd === 'report') {
+	if (!rest.length) fail('report <compare.json>...')
+	const rows = rest.map((f) => JSON.parse(readFileSync(resolve(cwd, f), 'utf8')))
+	const wins = rows
+		.filter((c) => c.winner)
+		.map((c) => ({
+			id: c.id as string,
+			table: c.table as string,
+			index: c.winner.cols as string,
+			baselineMs: c.baseline.ms as number,
+			winnerMs: c.winner.ms as number,
+			speedup: c.winner.speedup as number,
+			calls: (c.impact?.calls ?? 0) as number,
+			savedMs: (c.impact?.savedMs ?? 0) as number,
+			share: (c.impact?.share ?? '') as string,
+			routes: (c.impact?.routes ?? []) as string[],
+		}))
+		.toSorted((a, b) => b.savedMs - a.savedMs)
+	const none = rows.filter((c) => !c.winner).map((c) => c.id as string)
+	if (flags.md) {
+		const line = (r: (typeof wins)[number]) =>
+			`| ${r.table} | \`${r.index}\` | ${r.baselineMs} -> ${r.winnerMs} ms | x${r.speedup} | ${r.calls} | ${r.savedMs} ms | ${r.share} | ${r.routes[0] ?? ''} |`
+		console.info(
+			[
+				'| table | index | per call | speedup | calls | saved | of captured | top route |',
+				'|---|---|---|---|---|---|---|---|',
+				...wins.map(line),
+				...(none.length ? ['', `No winner: ${none.join(', ')}`] : []),
+			].join('\n'),
+		)
+	} else
+		out({ note: 'ranked by savedMs = calls x ms saved per call', winners: wins, noWinner: none })
 } else if (cmd === 'show') {
 	const q = target(rest[0])
 	out({ ...q, parsed: parseQuery(q.sql) })
@@ -298,6 +387,9 @@ if (flags.help || !cmd || cmd === 'help') {
 					? ['sub-selects were masked: suggestions cover the outer query, read the tree for the rest']
 					: []),
 			]
+			const calls = flags.calls ? Number(flags.calls) : q.calls
+			const savedMsPerCall = best ? base.ms - best.ms! : 0
+			const allMs = q.id === 'adhoc' ? 0 : capturedMs()
 			return {
 				id: q.id,
 				sql: q.sql,
@@ -319,6 +411,16 @@ if (flags.help || !cmd || cmd === 'help') {
 							),
 						}
 					: null,
+				impact: {
+					calls,
+					callsFrom: flags.calls ? '--calls' : 'capture',
+					routes: topRoutes(q.routes),
+					maxPerRequest: q.maxPerRequest,
+					savedMsPerCall: round(savedMsPerCall),
+					savedMs: round(savedMsPerCall * calls, 1),
+					// db ms saved over app ms captured: a lower bound of the real share.
+					share: flags.calls ? undefined : pct(savedMsPerCall * calls, allMs),
+				},
 			}
 		}),
 	)

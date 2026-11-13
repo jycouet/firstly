@@ -5,8 +5,8 @@ import {
 	normalizeNulls,
 	type IndexCol,
 	type IndexSpec,
-} from './indexSpec'
-import type { ParsedQuery } from './parseQuery'
+} from './indexSpec.js'
+import type { ParsedQuery } from './parseQuery.js'
 
 export type ExistingIndex = { name: string; cols: IndexCol[] }
 

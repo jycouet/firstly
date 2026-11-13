@@ -1,7 +1,7 @@
-import { quoteTable, splitKey } from '../sqlAdmin/server/drift/ident'
-import { coversCols, sqlIndexBody, type IndexCol, type IndexSpec } from './indexSpec'
-import { median, summarizePlan, type ExplainJson, type PlanSummary } from './plan'
-import type { ExistingIndex } from './suggest'
+import { quoteTable, splitKey } from '../sqlAdmin/server/drift/ident.js'
+import { coversCols, sqlIndexBody, type IndexCol, type IndexSpec } from './indexSpec.js'
+import { median, summarizePlan, type ExplainJson, type PlanSummary } from './plan.js'
+import type { ExistingIndex } from './suggest.js'
 
 /** What we need from a pg client (`pg.Client` / `pg.Pool` fit). */
 export type Db = { query: (sql: string, params?: unknown[]) => Promise<{ rows: any[] }> }

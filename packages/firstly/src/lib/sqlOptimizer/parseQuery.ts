@@ -1,4 +1,4 @@
-import type { IndexCol } from './indexSpec'
+import type { IndexCol } from './indexSpec.js'
 
 export type FilterKind = 'eq' | 'in' | 'null' | 'range' | 'neq' | 'like'
 

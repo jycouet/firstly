@@ -22,8 +22,8 @@ class Task {
 	@Fields.date({ allowNull: true }) doneAt: Date | null = null
 }
 
-// Real Postgres: a binary download on the first run, then ~1s.
-describe('sqlOptimizer on Postgres', { timeout: 120_000 }, () => {
+// Real Postgres: a binary download on the first run, then ~1s. A dev tool: not run on CI.
+describe.skipIf(!!process.env.CI)('sqlOptimizer on Postgres', { timeout: 120_000 }, () => {
 	let server: TestServer
 	let db: pg.Client
 	let dir: string
@@ -53,7 +53,7 @@ describe('sqlOptimizer on Postgres', { timeout: 120_000 }, () => {
 
 	it('capture -> suggest -> explain: NULLS FIRST index removes the sort', async () => {
 		const file = join(dir, 'capture.jsonl')
-		SqlDatabase.LogToConsole = withSqlCapture(undefined, file)
+		SqlDatabase.LogToConsole = withSqlCapture(undefined, { file })
 		NullSort.order = { asc: 'NULLS FIRST', desc: 'NULLS LAST' }
 		const dp = await createPostgresDataProvider({ connectionString: server.url() })
 		const remult = new Remult(dp)

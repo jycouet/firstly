@@ -1,6 +1,18 @@
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { groupQueries, positionalArgs } from './capture'
+import { SqlDatabase } from 'remult'
+
+import {
+	groupQueries,
+	groupRoutes,
+	positionalArgs,
+	readCapture,
+	withSqlCapture,
+	type CapturedQuery,
+} from './capture'
 import { indexDdl } from './ddl'
 import {
 	coversCols,
@@ -173,6 +185,62 @@ describe('capture grouping', () => {
 		expect(g).toHaveLength(1)
 		expect(g[0]!.sql).toContain('$3')
 		expect(groupKeySql('x in ($1, $2)')).toBe('x in ($…)')
+	})
+	it('routes, requests and the most repeated query per request', () => {
+		const q = (sql: string, route: string, req: number): CapturedQuery => ({
+			sql,
+			args: {},
+			ms: 2,
+			at: '',
+			route,
+			req,
+		})
+		const one = 'select 1 from "t" where "id" = $1'
+		const entries = [
+			q(one, 'GET /list', 1),
+			q(one, 'GET /list', 1),
+			q(one, 'GET /list', 1),
+			q('select 2 from "u"', 'GET /list', 1),
+			q(one, 'GET /list', 2),
+			q(one, 'GET /item/[id]', 3),
+		]
+		const [g] = groupQueries(entries).filter((x) => x.table === 't')
+		expect(g).toMatchObject({
+			calls: 5,
+			maxPerRequest: 3,
+			routes: { 'GET /list': 4, 'GET /item/[id]': 1 },
+		})
+		const list = groupRoutes(entries).find((r) => r.route === 'GET /list')!
+		expect(list).toMatchObject({ requests: 2, queries: 5, totalMs: 10, queriesPerRequest: 2.5 })
+		expect(list.mostRepeated).toEqual({ id: g!.id, perRequest: 3 })
+	})
+	it('withSqlCapture numbers requests from the context, seconds to ms', () => {
+		const dir = mkdtempSync(join(tmpdir(), 'ffopt-'))
+		const file = join(dir, 'c.jsonl')
+		const threshold = SqlDatabase.durationThreshold
+		try {
+			const a = {}
+			const b = {}
+			let cur: object = a
+			const log = withSqlCapture(undefined, {
+				file,
+				context: () => ({ route: cur === a ? 'GET /a' : 'GET /b', key: cur }),
+			}) as (d: number, q: string, args: object) => void
+			log(0.002, 'select 1 from "t"', {})
+			cur = b
+			log(0.001, 'select 1 from "t"', {})
+			cur = a
+			log(0.001, 'update "t" set "a" = 1', {})
+			log(0.001, 'select 2 from "t"', {})
+			expect(readCapture(file).map(({ ms, route, req }) => ({ ms, route, req }))).toEqual([
+				{ ms: 2, route: 'GET /a', req: 1 },
+				{ ms: 1, route: 'GET /b', req: 2 },
+				{ ms: 1, route: 'GET /a', req: 1 },
+			])
+		} finally {
+			SqlDatabase.durationThreshold = threshold
+			rmSync(dir, { recursive: true, force: true })
+		}
 	})
 	it('positional args sort numerically', () => {
 		expect(positionalArgs({ $10: 'j', $2: 'b', $1: 'a' })).toEqual(['a', 'b', 'j'])

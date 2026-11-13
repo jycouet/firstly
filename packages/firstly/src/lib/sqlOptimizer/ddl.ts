@@ -1,5 +1,5 @@
-import { quoteTable, splitKey } from '../sqlAdmin/server/drift/ident'
-import { formatIndexSpec, sqlIndexBody, type IndexSpec } from './indexSpec'
+import { quoteTable, splitKey } from '../sqlAdmin/server/drift/ident.js'
+import { formatIndexSpec, sqlIndexBody, type IndexSpec } from './indexSpec.js'
 
 const REGEX_NON_IDENT = /[^\w]+/g
 const REGEX_EDGE_UNDERSCORES = /^_+|_+$/g

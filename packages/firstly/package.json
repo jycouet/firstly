@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Firstly, an opinionated Remult setup!",
   "bin": {
-    "ff-sql": "./bin/ff-sql.js"
+    "ff-sql": "./bin/ff-sql.js",
+    "ff-sql-opt": "./bin/ff-sql-opt.js"
   },
   "funding": "https://github.com/sponsors/jycouet",
   "homepage": "https://firstly.fun/",
@@ -176,6 +177,10 @@
     "./sqlAdmin/server": {
       "types": "./esm/sqlAdmin/server/index.d.ts",
       "default": "./esm/sqlAdmin/server/index.js"
+    },
+    "./sqlOptimizer/server": {
+      "types": "./esm/sqlOptimizer/server/index.d.ts",
+      "default": "./esm/sqlOptimizer/server/index.js"
     }
   },
   "files": [
