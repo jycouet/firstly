@@ -1,6 +1,6 @@
+import type { ToastRegionOptions } from '@ui-sdk/svelte/toast'
 import { getContext, setContext } from 'svelte'
 import type { Component, Snippet } from 'svelte'
-import type { ToasterProps } from 'svelte-sonner'
 
 import type { LocalizedMessage } from '../core/FF_Validators.js'
 import type { DialogConfirmArgs, DialogPromptArgs, DialogShellArgs } from './dialog.svelte.js'
@@ -40,8 +40,8 @@ export type FF_ConfigValue = {
 		confirm?: Snippet<[DialogConfirmArgs]>
 		prompt?: Snippet<[DialogPromptArgs]>
 	}
-	/** svelte-sonner `<Toaster>` defaults applied by `<FF_ToastManager>` (position, richColors, …). */
-	toast?: Partial<ToasterProps>
+	/** Toast region defaults applied by `<FF_ToastManager>` (side, align, maxVisible, …). */
+	toast?: Partial<ToastRegionOptions>
 	/**
 	 * Cell/Grid/Form skin, applied once at the app root. firstly ships no styled input -
 	 * register your own per-inputType components here so the app keeps its look.

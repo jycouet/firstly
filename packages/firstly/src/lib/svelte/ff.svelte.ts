@@ -826,7 +826,7 @@ class FF_ManyHandle<Entity, O extends FF_RepoOptions<Entity> = FF_RepoOptions<En
 			return { ok: true, data: undefined }
 		} catch (e) {
 			if (opts?.toast !== false) {
-				// Lazy import keeps `ff` users who never toast from pulling svelte-sonner.
+				// Lazy import keeps `ff` users who never toast from pulling the toast layer.
 				const { toast } = await import('./toast.js')
 				toast.fromError(e)
 			}

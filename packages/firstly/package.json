@@ -84,7 +84,8 @@
     "cron": "catalog:lib-dep-publish",
     "esm-env": "catalog:lib-dep-publish",
     "nodemailer": "catalog:lib-dep-publish",
-    "svelte-sonner": "catalog:lib-dep-publish",
+    "@ui-sdk/core": "catalog:lib-dep-publish",
+    "@ui-sdk/svelte": "catalog:lib-dep-publish",
     "tailwind-merge": "catalog:lib-dep-publish",
     "vite-plugin-kit-routes": "catalog:lib-dep-publish",
     "vite-plugin-stripper": "catalog:lib-dep-publish"

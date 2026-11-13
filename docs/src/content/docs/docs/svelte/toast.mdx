@@ -3,11 +3,11 @@ title: toast
 ---
 
 `toast` (from `firstly/svelte`) is a thin, `LocalizedMessage`-aware wrapper over
-[svelte-sonner](https://svelte-sonner.vercel.app) - a **direct firstly dependency**, so consumers
-install nothing extra. firstly owns the label resolution and the API; sonner owns the queue, timers,
-animation, stacking and accessibility.
+[ui-sdk](https://ui-sdk.dev)'s toast - a **direct firstly dependency**, so consumers
+install nothing extra. firstly owns the label resolution, the API and the look; ui-sdk owns the
+queue, timers, swipe, stacking state and accessibility.
 
-Mount `<FF_ToastManager>` once near the app root (it renders sonner's `<Toaster>`), then call `toast`
+Mount `<FF_ToastManager>` once near the app root (it renders the toast region), then call `toast`
 from anywhere.
 
 ```svelte
@@ -40,7 +40,7 @@ i18next), resolved at call time.
 ```ts
 opts = {
 	title?: LocalizedMessage // bold heading; defaults per kind
-	duration?: number // ms (passed through to svelte-sonner)
+	duration?: number // ms
 	action?: { label: LocalizedMessage; onClick: () => void }
 }
 ```
@@ -58,14 +58,15 @@ text to `toast.success/error/info/warning` - it would execute as HTML (XSS). For
 `toast.fromError`, which HTML-escapes the extracted message so it always renders as plain text.
 Titles are always plain text.
 
-## Configuring `<Toaster>`
+## Configuring the region
 
-`<FF_ToastManager>` defaults to `richColors` + `position="top-right"`. Override per-app through
-`<FF_Config toast={{ ... }}>` (any svelte-sonner `<Toaster>` prop), or per-mount with explicit props
-(props win over config win over defaults):
+`<FF_ToastManager>` defaults to `side="top"` + `align="end"`, colored per kind. Override per-app
+through `<FF_Config toast={{ ... }}>` (any ui-sdk toast region option: `side`, `align`,
+`maxVisible`, `expanded`, `shortcut`), or per-mount with explicit props (props win over config win
+over defaults):
 
 ```svelte
-<FF_Config toast={{ position: 'bottom-right', closeButton: true }}>
+<FF_Config toast={{ side: 'bottom', maxVisible: 5 }}>
 	<FF_ToastManager />
 </FF_Config>
 ```

@@ -58,7 +58,16 @@
 		placeholder="Type something"
 		class="mb-4 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
 	/>
-	<div class="flex justify-end">
+	<div class="flex justify-end gap-2">
+		<button
+			class="rounded-md border border-border px-3 py-1.5 text-sm"
+			onclick={async () => {
+				const { ok } = await dialog.confirm('Opened on top of the dialog.', { title: 'Nested' })
+				lastResult = `nested confirm -> ${ok}`
+			}}
+		>
+			Nested confirm
+		</button>
 		<button
 			class="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
 			onclick={() => close({ ok: true, data: { name } })}

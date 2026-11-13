@@ -16,7 +16,22 @@ export { infiniteScroll } from './infiniteScroll.js'
 export type { InfiniteScrollOptions } from './infiniteScroll.js'
 export { reloadOnStaleChunk, stackHandleClientError, withStaleDeployReload } from './handleError.js'
 export type { HandleClientErrorMiddleware } from './handleError.js'
-export { dialog, ffAutofocus, ffTrapFocus, resolveMessage } from './dialog.svelte.js'
+export { dialog, resolveMessage } from './dialog.svelte.js'
+// A custom shell/confirm/prompt renders inside the manager's ui-sdk root, so it needs these parts.
+export {
+	DialogBackdrop as FF_DialogBackdrop,
+	DialogClose as FF_DialogClose,
+	DialogContent as FF_DialogContent,
+	DialogDescription as FF_DialogDescription,
+	DialogTitle as FF_DialogTitle,
+} from '@ui-sdk/svelte/dialog'
+export {
+	AlertDialogBackdrop as FF_AlertDialogBackdrop,
+	AlertDialogClose as FF_AlertDialogClose,
+	AlertDialogContent as FF_AlertDialogContent,
+	AlertDialogDescription as FF_AlertDialogDescription,
+	AlertDialogTitle as FF_AlertDialogTitle,
+} from '@ui-sdk/svelte/alert-dialog'
 export type {
 	DialogResult,
 	DialogClose,
