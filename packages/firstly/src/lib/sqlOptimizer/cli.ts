@@ -8,13 +8,14 @@ import {
 	everyRequestQueries,
 	groupRoutes,
 	positionalArgs,
+	queryId,
 	readCapture,
 	type CapturedQuery,
 	type QueryGroup,
 } from './capture.js'
 import { indexDdl } from './ddl.js'
 import { formatIndexSpec, parseIndexSpecs, type IndexSpec } from './indexSpec.js'
-import { parseQuery } from './parseQuery.js'
+import { normalizeSql, parseQuery } from './parseQuery.js'
 import { auditIndexes, explainWith, tableSchema, type Db } from './pg.js'
 import { suggestIndexes } from './suggest.js'
 
@@ -52,6 +53,7 @@ Capture: SqlDatabase.LogToConsole = withSqlCapture(...) + FF_SQL_CAPTURE=tmp/sql
   --file <jsonl>   capture (default: $FF_SQL_CAPTURE, else tmp/sql-capture.jsonl)
   --url <pg url>   database (default: $DATABASE_URL, .env read if present)
   --runs <n>       timed runs per plan, median kept (default 3)
+  --exclude <id>   drop a query from the capture (dev-only, test noise...), repeatable
 
 Indexes are created and dropped inside a rolled back transaction: the database is left as is.
 Use a local database with realistic volume: on a tiny table a Seq Scan IS the best plan.`
@@ -63,6 +65,7 @@ const SURE_SPEEDUP = 2
 const MIN_SPEEDUP = 1.2
 /** Variants within this of the fastest tie: the simplest one wins. */
 const TIE_RATIO = 1.1
+const REGEX_ROUTE_CALLS = /^(.*) \((\d+)\)$/
 
 const { values: flags, positionals } = parseArgs({
 	allowPositionals: true,
@@ -75,6 +78,7 @@ const { values: flags, positionals } = parseArgs({
 		calls: { type: 'string' },
 		md: { type: 'boolean', default: false },
 		page: { type: 'boolean', default: false },
+		exclude: { type: 'string', multiple: true },
 		index: { type: 'string', multiple: true },
 		variant: { type: 'string', multiple: true },
 		drop: { type: 'string', multiple: true },
@@ -103,7 +107,10 @@ function entries() {
 	if (captured) return captured
 	const file = resolve(cwd, flags.file ?? process.env.FF_SQL_CAPTURE ?? 'tmp/sql-capture.jsonl')
 	if (!existsSync(file)) fail(`No capture at ${file}. Set FF_SQL_CAPTURE and run the app / tests.`)
-	return (captured = readCapture(file))
+	const skip = new Set(flags.exclude ?? [])
+	return (captured = readCapture(file).filter(
+		(e) => !skip.size || ![...skip].some((id) => queryId(normalizeSql(e.sql)).startsWith(id)),
+	))
 }
 const groups = () => groupQueries(entries())
 const capturedMs = () => entries().reduce((n, e) => n + e.ms, 0)
@@ -299,7 +306,8 @@ if (flags.help || !cmd || cmd === 'help') {
 			savedMs: number
 			capturedMs: number
 			perCall: string[]
-			routes: Set<string>
+			routes: Map<string, number>
+			queryDbMs: number
 		}
 	>()
 	for (const c of rows.filter((c) => c.winner)) {
@@ -314,7 +322,8 @@ if (flags.help || !cmd || cmd === 'help') {
 				savedMs: 0,
 				capturedMs: 0,
 				perCall: [],
-				routes: new Set(),
+				routes: new Map(),
+				queryDbMs: 0,
 			}
 			byIndex.set(key, w)
 		}
@@ -323,13 +332,19 @@ if (flags.help || !cmd || cmd === 'help') {
 		w.savedMs += c.impact?.savedMs ?? 0
 		w.capturedMs = Math.max(w.capturedMs, c.impact?.capturedMs ?? 0)
 		w.perCall.push(`${c.baseline.ms} -> ${c.winner.ms} (x${c.winner.speedup})`)
-		for (const r of c.impact?.routes ?? []) w.routes.add(r)
+		w.queryDbMs += c.impact?.queryDbMs ?? 0
+		for (const r of (c.impact?.routes ?? []) as string[]) {
+			const m = REGEX_ROUTE_CALLS.exec(r)
+			if (m) w.routes.set(m[1]!, (w.routes.get(m[1]!) ?? 0) + Number(m[2]))
+		}
 	}
 	const wins = Array.from(byIndex.values(), ({ routes, ...w }) => ({
 		...w,
 		savedMs: round(w.savedMs, 1),
+		queryDbMs: round(w.queryDbMs, 1),
 		share: w.capturedMs ? pct(w.savedMs, w.capturedMs) : '',
-		routes: [...routes].slice(0, 3),
+		ofQueryDbMs: w.queryDbMs ? pct(w.savedMs, w.queryDbMs) : '',
+		routes: topRoutes(Object.fromEntries(routes)),
 	})).toSorted((a, b) => b.savedMs - a.savedMs)
 	const none = rows.filter((c) => !c.winner).map((c) => c.id as string)
 	if (flags.md) {
@@ -422,11 +437,13 @@ if (flags.help || !cmd || cmd === 'help') {
 					r.speedup! >= MIN_SPEEDUP &&
 					(base.ms - r.ms! >= MIN_GAIN_MS || r.speedup! >= SURE_SPEEDUP),
 			)
+			const unique = (r: (typeof ok)[number]) => (r.specs!.some((s) => s.unique) ? 1 : 0)
 			const size = (r: (typeof ok)[number]) =>
 				r.specs!.reduce((n, s) => n + (s.raw ? 3 : s.cols.length), 0)
 			const best = wins
 				.filter((r) => r.ms! <= wins[0]!.ms! * TIE_RATIO)
-				.toSorted((a, b) => size(a) - size(b) || a.ms! - b.ms!)[0]
+				// Unique when the data allows it: a free guard, not a speed choice.
+				.toSorted((a, b) => size(a) - size(b) || unique(b) - unique(a) || a.ms! - b.ms!)[0]
 			const warnings = [
 				...(rows !== undefined && rows < 1000
 					? [`${rows} rows: plans on a tiny table don't transfer to production volume`]
@@ -441,9 +458,10 @@ if (flags.help || !cmd || cmd === 'help') {
 					? ['sub-selects were masked: suggestions cover the outer query, read the tree for the rest']
 					: []),
 			]
-			const calls = flags.calls ? Number(flags.calls) : q.calls
+			const adhoc = q.id === 'adhoc'
+			const calls = flags.calls ? Number(flags.calls) : adhoc ? null : q.calls
 			const savedMsPerCall = best ? base.ms - best.ms! : 0
-			const allMs = q.id === 'adhoc' ? 0 : capturedMs()
+			const allMs = adhoc ? 0 : capturedMs()
 			return {
 				id: q.id,
 				sql: q.sql,
@@ -467,14 +485,16 @@ if (flags.help || !cmd || cmd === 'help') {
 					: null,
 				impact: {
 					calls,
-					callsFrom: flags.calls ? '--calls' : 'capture',
+					callsFrom: flags.calls ? '--calls' : adhoc ? 'adhoc: pass --calls' : 'capture',
 					routes: topRoutes(q.routes),
 					maxPerRequest: q.maxPerRequest,
 					savedMsPerCall: round(savedMsPerCall),
-					savedMs: round(savedMsPerCall * calls, 1),
+					savedMs: calls === null ? null : round(savedMsPerCall * calls, 1),
+					/** This query's DB time over the capture: savedMs / queryDbMs is the DB-side gain. */
+					queryDbMs: calls === null ? null : round(base.ms * calls, 1),
 					capturedMs: round(allMs, 1),
-					// db ms saved over app ms captured: a lower bound of the real share.
-					share: flags.calls ? undefined : pct(savedMsPerCall * calls, allMs),
+					// db ms saved over app ms captured (pool wait included): a lower bound of the real share.
+					share: flags.calls || adhoc ? undefined : pct(savedMsPerCall * calls!, allMs),
 				},
 			}
 		}),

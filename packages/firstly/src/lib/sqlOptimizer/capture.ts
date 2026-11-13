@@ -55,11 +55,16 @@ export function remultRequestContext(): RequestContext | undefined {
 	if (!r || typeof r !== 'object') return undefined
 	if (r.url instanceof URL) {
 		const id: string | null | undefined = r.route?.id
-		const page = id && !REGEX_CATCH_ALL.test(id) ? id : undefined
-		const path = page ?? idless(r.url.pathname)
+		const path = id && !REGEX_CATCH_ALL.test(id) ? id : idless(r.url.pathname)
+		const headers = r.request?.headers
+		// A page load is its own page; anything else (api call, image, endpoint) belongs to the
+		// page that asked for it.
+		const isDocument =
+			headers?.get?.('sec-fetch-dest') === 'document' ||
+			(!REGEX_CATCH_ALL.test(id ?? '') && !!headers?.get?.('accept')?.includes('text/html'))
 		return {
 			route: `${r.request?.method ?? 'GET'} ${path}`,
-			page: page ?? refererPath(r.request?.headers?.get?.('referer')),
+			page: isDocument ? path : refererPath(headers?.get?.('referer')),
 			key: r,
 		}
 	}
