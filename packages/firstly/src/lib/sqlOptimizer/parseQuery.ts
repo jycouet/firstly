@@ -28,6 +28,7 @@ const REGEX_ORDER_END = /\s(limit|offset)\s/i
 const REGEX_OR = /\sor\s/i
 const REGEX_SUBQUERY = /\(\s*select\s/i
 const REGEX_SELECT_AHEAD = /^\(\s*select\s/i
+const REGEX_ANY_PAREN = /^\(/
 const REGEX_IN_LIST = /\sin\s*\(\s*\$\d+(?:\s*,\s*\$\d+)*\s*\)/gi
 const IDENT = String.raw`((?:"[^"]+"|[\w$]+)(?:\.(?:"[^"]+"|[\w$]+))?)`
 const REGEX_CMP = new RegExp(String.raw`${IDENT}\s*(=|<>|!=|>=|<=|>|<)\s*`, 'g')
@@ -60,7 +61,12 @@ export function normalizeSql(sql: string) {
 export const groupKeySql = (sql: string) => normalizeSql(sql).replace(REGEX_IN_LIST, ' in ($…)')
 
 /** Sub-selects (sqlExpression columns, relation filters) become `(…)`: the rest is the outer query. */
-export function maskSubqueries(sql: string) {
+export const maskSubqueries = (sql: string) => maskParens(sql, REGEX_SELECT_AHEAD)
+
+/** Every `(...)` masked: what is left is depth 0 (`extract(x from y)` holds no table). */
+const maskAllParens = (sql: string) => maskParens(sql, REGEX_ANY_PAREN)
+
+function maskParens(sql: string, opening: RegExp) {
 	let out = ''
 	for (let i = 0; i < sql.length; i++) {
 		const ch = sql[i]!
@@ -71,7 +77,7 @@ export function maskSubqueries(sql: string) {
 			i = j
 			continue
 		}
-		if (ch === '(' && REGEX_SELECT_AHEAD.test(sql.slice(i, i + 20))) {
+		if (ch === '(' && opening.test(sql.slice(i, i + 20))) {
 			let depth = 0
 			let j = i
 			for (; j < sql.length; j++) {
@@ -106,7 +112,8 @@ export function parseQuery(rawSql: string): ParsedQuery {
 	const sql = maskSubqueries(full)
 	const first = sql.split(' ')[0]!.toLowerCase()
 	const kind = first !== 'select' ? 'other' : REGEX_COUNT.test(sql) ? 'count' : 'select'
-	const from = REGEX_FROM.exec(sql)
+	// A CTE name is not a table.
+	const from = first === 'with' ? null : REGEX_FROM.exec(maskAllParens(sql))
 	const where = section(sql, REGEX_WHERE_START, REGEX_WHERE_END)
 	const order = section(sql, REGEX_ORDER_START, REGEX_ORDER_END)
 

@@ -6,8 +6,10 @@ import { describe, expect, it } from 'vitest'
 import { SqlDatabase } from 'remult'
 
 import {
+	everyRequestQueries,
 	groupQueries,
 	groupRoutes,
+	idless,
 	positionalArgs,
 	readCapture,
 	withSqlCapture,
@@ -77,6 +79,10 @@ describe('coversCols', () => {
 })
 
 describe('parseQuery', () => {
+	it('table is the depth-0 from: not inside extract(), not a CTE', () => {
+		expect(parseQuery('select extract(year from "enregistrementDate") from "q"').table).toBe('q')
+		expect(parseQuery('with x as (select 1 from "a") select * from x').table).toBe(null)
+	})
 	it('reads the Remult shape', () => {
 		expect(parseQuery(REMULT_SQL)).toEqual({
 			kind: 'select',
@@ -241,6 +247,31 @@ describe('capture grouping', () => {
 			SqlDatabase.durationThreshold = threshold
 			rmSync(dir, { recursive: true, force: true })
 		}
+	})
+	it('routes by page, queries every request runs', () => {
+		const e = (sql: string, req: number, page?: string): CapturedQuery => ({
+			sql,
+			args: {},
+			ms: 1,
+			at: '',
+			route: 'GET /api/x',
+			req,
+			...(page ? { page } : {}),
+		})
+		const auth = 'select 1 from "session" where "token" = $1'
+		const entries = [e(auth, 1, '/a'), e('select 2 from "x"', 1, '/a'), e(auth, 2, '/b'), e(auth, 3)]
+		expect(groupRoutes(entries, 'page').map((r) => [r.route, r.requests])).toEqual([
+			['/a', 1],
+			['/b', 1],
+			['(no page)', 1],
+		])
+		expect(everyRequestQueries(entries)).toMatchObject([{ ofRequests: 1, calls: 3 }])
+	})
+	it('id segments collapse, entity keys stay', () => {
+		expect(idless('/api/users/123')).toBe('/api/users/[id]')
+		expect(idless('/u/3f2b8a1e-0c4d-4e5f-8a9b-1c2d3e4f5a6b/x')).toBe('/u/[id]/x')
+		expect(idless('/u/clx8a9b0c0000abcd1234efgh')).toBe('/u/[id]')
+		expect(idless('/api/site-loc1-buildings')).toBe('/api/site-loc1-buildings')
 	})
 	it('positional args sort numerically', () => {
 		expect(positionalArgs({ $10: 'j', $2: 'b', $1: 'a' })).toEqual(['a', 'b', 'j'])

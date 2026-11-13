@@ -15,18 +15,31 @@ export type CapturedQuery = {
 	at: string
 	/** `GET /athletes/[handle]`: the route (or api path) that ran it. */
 	route?: string
+	/** The page the user was on: the route itself, or the referer of an api call. */
+	page?: string
 	/** Same number = same request: N+1 shows as one query many times under one `req`. */
 	req?: number
 }
 
-export type RequestContext = { route: string; key: object }
+export type RequestContext = { route: string; page?: string; key: object }
 
 const REGEX_CATALOG = /\s(from|join)\s+"?(information_schema|pg_)/i
 const REGEX_CATCH_ALL = /\[\.\.\./
-// An id segment (number, uuid, cuid...): one route whatever the record.
-const REGEX_ID_SEGMENT = /\/(?:\d+|(?=[\w-]*\d)[\w-]{16,})(?=\/|$)/g
+// An id segment (number, uuid, cuid...): one route whatever the record. Dashed names like
+// `site-loc1-buildings` are entity keys, not ids.
+const REGEX_ID_SEGMENT =
+	/\/(?:\d+|[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}|(?=\w*\d)\w{16,})(?=\/|$)/gi
 
-const idless = (path: string) => path.replace(REGEX_ID_SEGMENT, '/[id]')
+export const idless = (path: string) => path.replace(REGEX_ID_SEGMENT, '/[id]')
+
+function refererPath(referer: unknown) {
+	if (typeof referer !== 'string' || !referer) return undefined
+	try {
+		return idless(new URL(referer).pathname)
+	} catch {
+		return undefined
+	}
+}
 
 /**
  * Route of the current remult request: SvelteKit `RequestEvent` (route id, or path for a
@@ -42,12 +55,21 @@ export function remultRequestContext(): RequestContext | undefined {
 	if (!r || typeof r !== 'object') return undefined
 	if (r.url instanceof URL) {
 		const id: string | null | undefined = r.route?.id
-		const path = id && !REGEX_CATCH_ALL.test(id) ? id : idless(r.url.pathname)
-		return { route: `${r.request?.method ?? 'GET'} ${path}`, key: r }
+		const page = id && !REGEX_CATCH_ALL.test(id) ? id : undefined
+		const path = page ?? idless(r.url.pathname)
+		return {
+			route: `${r.request?.method ?? 'GET'} ${path}`,
+			page: page ?? refererPath(r.request?.headers?.get?.('referer')),
+			key: r,
+		}
 	}
 	const url: string | undefined = r.originalUrl ?? r.url
 	if (!url) return undefined
-	return { route: `${r.method ?? 'GET'} ${idless(url.split('?')[0]!)}`, key: r }
+	return {
+		route: `${r.method ?? 'GET'} ${idless(url.split('?')[0]!)}`,
+		page: refererPath(r.headers?.referer),
+		key: r,
+	}
 }
 
 /**
@@ -86,7 +108,7 @@ export function withSqlCapture(
 				// Remult reports seconds.
 				ms: duration * 1000,
 				at: new Date().toISOString(),
-				...(ctx ? { route: ctx.route, req } : {}),
+				...(ctx ? { route: ctx.route, ...(ctx.page ? { page: ctx.page } : {}), req } : {}),
 			}
 			// Sync: a test run may exit right after its last query.
 			appendFileSync(file, JSON.stringify(line) + '\n')
@@ -180,16 +202,20 @@ export type RouteStat = {
 	mostRepeated: { id: string; perRequest: number } | null
 }
 
-/** Per route: how many requests, how many queries each, and the worst repeat (N+1). */
-export function groupRoutes(entries: CapturedQuery[]): RouteStat[] {
+/**
+ * Per route (or per page: api calls land on the page that made them): how many requests, how
+ * many queries each, and the worst repeat (N+1).
+ */
+export function groupRoutes(entries: CapturedQuery[], by: 'route' | 'page' = 'route'): RouteStat[] {
 	const routes = new Map<
 		string,
 		{ reqs: Set<number>; queries: number; totalMs: number; repeat: Map<string, number> }
 	>()
 	for (const e of entries) {
-		if (!e.route || e.req === undefined) continue
-		let r = routes.get(e.route)
-		if (!r) routes.set(e.route, (r = { reqs: new Set(), queries: 0, totalMs: 0, repeat: new Map() }))
+		const name = by === 'page' ? (e.page ?? (e.route ? '(no page)' : undefined)) : e.route
+		if (!name || e.req === undefined) continue
+		let r = routes.get(name)
+		if (!r) routes.set(name, (r = { reqs: new Set(), queries: 0, totalMs: 0, repeat: new Map() }))
 		r.reqs.add(e.req)
 		r.queries++
 		r.totalMs += e.ms
@@ -211,6 +237,29 @@ export function groupRoutes(entries: CapturedQuery[]): RouteStat[] {
 			mostRepeated: worst,
 		}
 	})
+}
+
+/**
+ * Queries run by at least `ratio` of all requests (session, current user...): no index makes a
+ * round trip free, removing or caching the query does.
+ */
+export function everyRequestQueries(entries: CapturedQuery[], ratio = 0.5) {
+	const reqs = new Set<number>()
+	const seen = new Map<string, { reqs: Set<number>; ms: number; calls: number }>()
+	for (const e of entries) {
+		if (e.req === undefined) continue
+		reqs.add(e.req)
+		const id = queryId(normalizeSql(e.sql))
+		let s = seen.get(id)
+		if (!s) seen.set(id, (s = { reqs: new Set(), ms: 0, calls: 0 }))
+		s.reqs.add(e.req)
+		s.ms += e.ms
+		s.calls++
+	}
+	return [...seen]
+		.filter(([, s]) => s.reqs.size >= reqs.size * ratio)
+		.map(([id, s]) => ({ id, ofRequests: s.reqs.size / reqs.size, calls: s.calls, totalMs: s.ms }))
+		.toSorted((a, b) => b.totalMs - a.totalMs)
 }
 
 /** Remult names params `$1..$n`: positional values for a pg driver. */

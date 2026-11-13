@@ -121,7 +121,6 @@ export async function tableSchema(db: Db, table: string) {
 		`
 		SELECT c.reltuples::bigint AS rows_estimate, pg_total_relation_size(c.oid) AS bytes,
 			s.n_live_tup AS live_rows, s.seq_scan, s.idx_scan, s.seq_tup_read,
-			greatest(s.last_analyze, s.last_autoanalyze) AS analyzed_at,
 			EXISTS (SELECT 1 FROM pg_stats st WHERE st.schemaname = n.nspname AND st.tablename = c.relname) AS has_stats
 		FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
 		LEFT JOIN pg_stat_user_tables s ON s.relid = c.oid
@@ -153,8 +152,6 @@ export async function tableSchema(db: Db, table: string) {
 		seqTupRead: Number(r.seq_tup_read ?? 0),
 		/** false = no planner stats: estimates are guesses, run `ANALYZE` first. */
 		analyzed: r.has_stats as boolean,
-		/** From stats counters, which a crash or a clone resets: `analyzed` is the one to trust. */
-		analyzedAt: r.analyzed_at as Date | null,
 		columns: cols.rows.map((c) => ({
 			col: c.col as string,
 			type: c.type as string,
@@ -201,7 +198,7 @@ export async function auditIndexes(db: Db, o: { minRows?: number } = {}) {
 		/** Usage counters start here (reset, crash, or clone). */
 		statsReset: (reset.rows[0]?.stats_reset as Date | null) ?? null,
 		note:
-			'unused / seqScanHeavy count since statsReset, sql-opt EXPLAIN runs included: meaningful only after a representative run',
+			'unused / seqScanHeavy count since statsReset (null: since the cluster started; a crash wipes them too), any session included (sql-opt EXPLAIN, your own queries): meaningful only after a representative run',
 		unused,
 		redundant,
 		seqScanHeavy: tables.rows

@@ -5,6 +5,7 @@ import { parseArgs } from 'node:util'
 
 import {
 	groupQueries,
+	everyRequestQueries,
 	groupRoutes,
 	positionalArgs,
 	readCapture,
@@ -25,8 +26,10 @@ Capture: SqlDatabase.LogToConsole = withSqlCapture(...) + FF_SQL_CAPTURE=tmp/sql
                                                  hot queries, grouped, with ids, share of the
                                                  captured ms, routes, maxPerRequest (N+1)
                                                  --explain: + dbMs (EXPLAIN ANALYZE, no pool wait)
-  routes [--limit 20]                            per route: requests, queries and ms per request,
-                                                 the most repeated query in one request
+  routes [--limit 20] [--page]                   per route (--page: per page the user was on,
+                                                 api calls included): requests, queries and ms per
+                                                 request, the most repeated query in one request,
+                                                 and the queries nearly every request runs
   show <id>                                      full sql, slowest args, parsed shape
   schema <table>                                 rows, column stats, indexes (+ usage)
   suggest <id>                                   candidate indexes (starting points)
@@ -53,8 +56,10 @@ Capture: SqlDatabase.LogToConsole = withSqlCapture(...) + FF_SQL_CAPTURE=tmp/sql
 Indexes are created and dropped inside a rolled back transaction: the database is left as is.
 Use a local database with realistic volume: on a tiny table a Seq Scan IS the best plan.`
 
-/** Below this, a "win" is timer noise, whatever the ratio. */
+/** Below this, a "win" is timer noise... */
 const MIN_GAIN_MS = 0.05
+/** ...unless the plan changed this much: tiny per call, real on a query every request runs. */
+const SURE_SPEEDUP = 2
 const MIN_SPEEDUP = 1.2
 /** Variants within this of the fastest tie: the simplest one wins. */
 const TIE_RATIO = 1.1
@@ -69,6 +74,7 @@ const { values: flags, positionals } = parseArgs({
 		route: { type: 'string' },
 		calls: { type: 'string' },
 		md: { type: 'boolean', default: false },
+		page: { type: 'boolean', default: false },
 		index: { type: 'string', multiple: true },
 		variant: { type: 'string', multiple: true },
 		drop: { type: 'string', multiple: true },
@@ -101,7 +107,10 @@ function entries() {
 }
 const groups = () => groupQueries(entries())
 const capturedMs = () => entries().reduce((n, e) => n + e.ms, 0)
-const pct = (part: number, all: number) => `${all ? round((100 * part) / all, 1) : 0}%`
+const pct = (part: number, all: number) => {
+	const p = all ? (100 * part) / all : 0
+	return `${p > 0 && p < 0.1 ? '<0.1' : round(p, 1)}%`
+}
 const topRoutes = (routes: Record<string, number>, n = 3) =>
 	Object.entries(routes)
 		.toSorted((a, b) => b[1] - a[1])
@@ -207,6 +216,7 @@ if (flags.help || !cmd || cmd === 'help') {
 	if (!key) fail(`--by: total | mean | max | calls`)
 	const all = groups()
 	const allMs = capturedMs()
+	const hasContext = entries().some((e) => e.req !== undefined)
 	const top = all
 		.filter((g) => !flags.route || Object.keys(g.routes).some((r) => r.includes(flags.route!)))
 		.toSorted((a, b) => b[key] - a[key])
@@ -244,19 +254,20 @@ if (flags.help || !cmd || cmd === 'help') {
 			meanMs: round(g.meanMs, 2),
 			maxMs: round(g.maxMs, 2),
 			...dbMs.get(g.id),
-			...(Object.keys(routes).length ? { routes: topRoutes(routes), maxPerRequest } : {}),
+			...(hasContext ? { routes: topRoutes(routes), maxPerRequest } : {}),
 			sql: !flags.full && sql.length > 240 ? sql.slice(0, 240) + '…' : sql,
 		})),
 	})
 } else if (cmd === 'routes') {
 	const allMs = capturedMs()
-	const stats = groupRoutes(entries())
+	const stats = groupRoutes(entries(), flags.page ? 'page' : 'route')
 	if (stats.length === 0)
 		fail('No route in the capture: it predates request context, or ran outside a remult request')
 	out({
 		requests: stats.reduce((n, r) => n + r.requests, 0),
 		capturedMs: round(allMs, 1),
-		note: 'mostRepeated.perRequest > 2: same query many times in one request, likely N+1 (show <id>)',
+		note:
+			'mostRepeated.perRequest > 2: same query many times in one request, likely N+1 (show <id>). everyRequest: run by most requests (auth, current user): cut or cache them, an index cannot',
 		routes: stats
 			.toSorted((a, b) => b.totalMs - a.totalMs)
 			.slice(0, Number(flags.limit))
@@ -267,39 +278,77 @@ if (flags.help || !cmd || cmd === 'help') {
 				queriesPerRequest: round(r.queriesPerRequest, 1),
 				msPerRequest: round(r.msPerRequest, 2),
 			})),
+		everyRequest: everyRequestQueries(entries()).map((q) => ({
+			...q,
+			ofRequests: pct(q.ofRequests, 1),
+			share: pct(q.totalMs, allMs),
+			totalMs: round(q.totalMs, 1),
+		})),
 	})
 } else if (cmd === 'report') {
 	if (!rest.length) fail('report <compare.json>...')
 	const rows = rest.map((f) => JSON.parse(readFileSync(resolve(cwd, f), 'utf8')))
-	const wins = rows
-		.filter((c) => c.winner)
-		.map((c) => ({
-			id: c.id as string,
-			table: c.table as string,
-			index: c.winner.cols as string,
-			baselineMs: c.baseline.ms as number,
-			winnerMs: c.winner.ms as number,
-			speedup: c.winner.speedup as number,
-			calls: (c.impact?.calls ?? 0) as number,
-			savedMs: (c.impact?.savedMs ?? 0) as number,
-			share: (c.impact?.share ?? '') as string,
-			routes: (c.impact?.routes ?? []) as string[],
-		}))
-		.toSorted((a, b) => b.savedMs - a.savedMs)
+	// One row per index: the same index winning on several queries adds up.
+	const byIndex = new Map<
+		string,
+		{
+			table: string
+			index: string
+			queries: string[]
+			calls: number
+			savedMs: number
+			capturedMs: number
+			perCall: string[]
+			routes: Set<string>
+		}
+	>()
+	for (const c of rows.filter((c) => c.winner)) {
+		const key = (c.winner.ddl as { name: string }[]).map((d) => d.name).join(' + ')
+		let w = byIndex.get(key)
+		if (!w) {
+			w = {
+				table: c.table,
+				index: c.winner.cols,
+				queries: [],
+				calls: 0,
+				savedMs: 0,
+				capturedMs: 0,
+				perCall: [],
+				routes: new Set(),
+			}
+			byIndex.set(key, w)
+		}
+		w.queries.push(c.id)
+		w.calls += c.impact?.calls ?? 0
+		w.savedMs += c.impact?.savedMs ?? 0
+		w.capturedMs = Math.max(w.capturedMs, c.impact?.capturedMs ?? 0)
+		w.perCall.push(`${c.baseline.ms} -> ${c.winner.ms} (x${c.winner.speedup})`)
+		for (const r of c.impact?.routes ?? []) w.routes.add(r)
+	}
+	const wins = Array.from(byIndex.values(), ({ routes, ...w }) => ({
+		...w,
+		savedMs: round(w.savedMs, 1),
+		share: w.capturedMs ? pct(w.savedMs, w.capturedMs) : '',
+		routes: [...routes].slice(0, 3),
+	})).toSorted((a, b) => b.savedMs - a.savedMs)
 	const none = rows.filter((c) => !c.winner).map((c) => c.id as string)
 	if (flags.md) {
 		const line = (r: (typeof wins)[number]) =>
-			`| ${r.table} | \`${r.index}\` | ${r.baselineMs} -> ${r.winnerMs} ms | x${r.speedup} | ${r.calls} | ${r.savedMs} ms | ${r.share} | ${r.routes[0] ?? ''} |`
+			`| ${r.table} | \`${r.index}\` | ${r.queries.join(', ')} | ${r.perCall.join('<br>')} ms | ${r.calls} | ${r.savedMs} ms | ${r.share} | ${r.routes[0] ?? ''} |`
 		console.info(
 			[
-				'| table | index | per call | speedup | calls | saved | of captured | top route |',
+				'| table | index | queries | per call | calls | saved | of captured | top route |',
 				'|---|---|---|---|---|---|---|---|',
 				...wins.map(line),
 				...(none.length ? ['', `No winner: ${none.join(', ')}`] : []),
 			].join('\n'),
 		)
 	} else
-		out({ note: 'ranked by savedMs = calls x ms saved per call', winners: wins, noWinner: none })
+		out({
+			note: 'one row per index, ranked by savedMs = calls x ms saved per call',
+			winners: wins,
+			noWinner: none,
+		})
 } else if (cmd === 'show') {
 	const q = target(rest[0])
 	out({ ...q, parsed: parseQuery(q.sql) })
@@ -368,7 +417,10 @@ if (flags.help || !cmd || cmd === 'help') {
 			const ok = results.filter((r) => 'ms' in r && r.ms !== undefined)
 			ok.sort((a, b) => a.ms! - b.ms!)
 			const wins = ok.filter(
-				(r) => r.usesIndex && r.speedup! >= MIN_SPEEDUP && base.ms - r.ms! >= MIN_GAIN_MS,
+				(r) =>
+					r.usesIndex &&
+					r.speedup! >= MIN_SPEEDUP &&
+					(base.ms - r.ms! >= MIN_GAIN_MS || r.speedup! >= SURE_SPEEDUP),
 			)
 			const size = (r: (typeof ok)[number]) =>
 				r.specs!.reduce((n, s) => n + (s.raw ? 3 : s.cols.length), 0)
@@ -381,7 +433,9 @@ if (flags.help || !cmd || cmd === 'help') {
 					: []),
 				...(analyzed === false ? [`${table} has no planner stats: run ANALYZE "${table}" first`] : []),
 				...(base.ms < MIN_GAIN_MS * 4
-					? [`baseline ${round(base.ms)} ms: already fast, gains below ${MIN_GAIN_MS} ms are ignored`]
+					? [
+							`baseline ${round(base.ms)} ms: already fast, gains below ${MIN_GAIN_MS} ms count only from x${SURE_SPEEDUP}: judge them by impact.calls`,
+						]
 					: []),
 				...(parsed.hasSubquery
 					? ['sub-selects were masked: suggestions cover the outer query, read the tree for the rest']
@@ -418,6 +472,7 @@ if (flags.help || !cmd || cmd === 'help') {
 					maxPerRequest: q.maxPerRequest,
 					savedMsPerCall: round(savedMsPerCall),
 					savedMs: round(savedMsPerCall * calls, 1),
+					capturedMs: round(allMs, 1),
 					// db ms saved over app ms captured: a lower bound of the real share.
 					share: flags.calls ? undefined : pct(savedMsPerCall * calls, allMs),
 				},
