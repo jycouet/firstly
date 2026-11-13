@@ -7,7 +7,7 @@ description: 'Decide Postgres indexes for a Remult app from its real queries, wi
 
 The plan is the source of truth: every index you recommend comes with its before / after plan from `sql-opt compare`. Candidates from `suggest` are starting points.
 
-`sql-opt` ships with firstly as the `ff-sql-opt` bin (`pnpm -F firstly sql-opt` inside the firstly repo): `help` lists every command and flag. It prints JSON, runs against a local database (`DATABASE_URL`), and builds each candidate index inside a rolled back transaction, so the database ends as it started.
+`sql-opt` ships with firstly as the `ff-sql-opt` bin (`npx ff-sql-opt`; inside the firstly repo, `pnpm compile` then `node dist/bin/ff-sql-opt.js`): `help` lists every command and flag. It prints JSON, runs against a local database (`DATABASE_URL`), and builds each candidate index inside a rolled back transaction, so the database ends as it started.
 
 ## Loop
 

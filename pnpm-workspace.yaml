@@ -42,7 +42,6 @@ catalogs:
     '@kitql/postgres': 0.2.2
     pg: 8.23.1
     '@types/pg': 8.23.1
-    tsx: 4.23.15
 
   testing:
     '@mdi/js': 7.4.47
