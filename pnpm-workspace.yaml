@@ -38,6 +38,11 @@ catalogs:
     eslint: 10.14.0
     oxfmt: 0.78.0
 
+  db:
+    '@kitql/postgres': 0.2.2
+    pg: 8.23.1
+    '@types/pg': 8.23.1
+
   testing:
     '@mdi/js': 7.4.47
     '@playwright/test': 1.65.0
