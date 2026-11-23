@@ -125,6 +125,8 @@ The component ships prefilled queries (`Default`, `Tables & Sizes`, `Indexes`, `
 
 Schema drift (FK indexes, PKs, nullability, orphan columns): opt in per check with `sqlAdmin({ drift: { entities: () => collectEntities(modules), relationIndexes: true, primaryKeys: true, nullable: true, orphanColumns: true } })`, then mount `<SqlDrift />` to dry-run / apply - prefer it over hand-written index migrations or `initApi` DDL. For a custom index in code: `sqlCreateIndex(Entity, ['a', 'b'], { ifNotExists: true })` from `firstly/sqlAdmin/server`. Both put `NULLS FIRST` on `allowNull` columns when `NullSort.order.asc` is `'NULLS FIRST'` (else Postgres skips the index on those sorts).
 
+Which indexes to add: every now and then (a slow page, a new list or grid, before a release), capture the real queries with `withSqlCapture` (`firstly/sqlOptimizer/server`) and let the `ff-sql-opt` (optimizer) bin pick them, with EXPLAIN evidence and impact per route. The `sql-optimizer` skill runs that loop.
+
 #### Writing SQL against a remult schema
 
 The caller is a script or an AI that cannot see the database, and nearly every failed query is a misremembered identifier. Before writing SQL:
