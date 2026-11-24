@@ -39,7 +39,7 @@ catalogs:
     oxfmt: 0.78.0
 
   db:
-    '@kitql/postgres': 0.2.2
+    '@kitql/postgres': 0.3.0
     pg: 8.23.1
     '@types/pg': 8.23.1
 

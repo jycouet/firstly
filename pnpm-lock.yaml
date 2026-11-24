@@ -11,8 +11,8 @@ catalogs:
       version: 3.5.0-next.1
   db:
     '@kitql/postgres':
-      specifier: 0.2.2
-      version: 0.2.2
+      specifier: 0.3.0
+      version: 0.3.0
     '@types/pg':
       specifier: 8.23.1
       version: 8.23.1
@@ -223,14 +223,14 @@ importers:
         version: 3.7.0
       vite-plugin-kit-routes:
         specifier: catalog:lib-dep-publish
-        version: 1.1.1(@sveltejs/kit@3.2.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)))(@typescript-eslint/types@8.72.1)(rolldown@1.2.16)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1))
+        version: 1.1.1(@sveltejs/kit@3.2.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)))(@typescript-eslint/types@8.72.1)(rolldown@1.2.19)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1))
       vite-plugin-stripper:
         specifier: catalog:lib-dep-publish
         version: 0.10.6(@typescript-eslint/types@8.72.1)(rolldown@1.2.19)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1))
     devDependencies:
       '@kitql/postgres':
         specifier: catalog:db
-        version: 0.2.2
+        version: 0.3.0
       '@mdi/js':
         specifier: catalog:testing
         version: 7.4.47
@@ -1304,8 +1304,8 @@ packages:
     peerDependencies:
       svelte: ^5.0.0
 
-  '@kitql/postgres@0.2.2':
-    resolution: {integrity: sha512-61T1lXXBWNjE0vAKM/jZYoKTiTaNwTSS1bJ2yCdYn1BcfSyTmI5yKSX/OzeIVVQTlQUVSomrCdjLQu4v7ltqdA==}
+  '@kitql/postgres@0.3.0':
+    resolution: {integrity: sha512-hXWHHbUVMqb+cQ6XaU114dF9ztNka/fqvdlqpu4+4aGH8AbzB40vQidXKJBZOPiWAxqcua+dTmOV+ktvvYjGwA==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -5240,17 +5240,6 @@ snapshots:
     dependencies:
       esm-env: 1.2.2
 
-  '@kitql/internals@0.11.5(@typescript-eslint/types@8.72.1)(rolldown@1.2.16)(svelte@5.57.3(@typescript-eslint/types@8.72.1))':
-    dependencies:
-      '@kitql/helpers': 0.8.15
-      esrap: 2.4.0(@typescript-eslint/types@8.72.1)
-      oxc-parser: 0.151.0
-      oxc-walker: 1.0.0(oxc-parser@0.151.0)(rolldown@1.2.16)
-      svelte: 5.57.3(@typescript-eslint/types@8.72.1)
-    transitivePeerDependencies:
-      - '@typescript-eslint/types'
-      - rolldown
-
   '@kitql/internals@0.11.5(@typescript-eslint/types@8.72.1)(rolldown@1.2.19)(svelte@5.57.3(@typescript-eslint/types@8.72.1))':
     dependencies:
       '@kitql/helpers': 0.8.15
@@ -5262,7 +5251,7 @@ snapshots:
       - '@typescript-eslint/types'
       - rolldown
 
-  '@kitql/postgres@0.2.2':
+  '@kitql/postgres@0.3.0':
     dependencies:
       '@kitql/helpers': 0.8.15
 
@@ -7344,13 +7333,6 @@ snapshots:
       '@oxc-parser/binding-win32-ia32-msvc': 0.151.0
       '@oxc-parser/binding-win32-x64-msvc': 0.151.0
 
-  oxc-walker@1.0.0(oxc-parser@0.151.0)(rolldown@1.2.16):
-    dependencies:
-      magic-regexp: 0.11.0
-    optionalDependencies:
-      oxc-parser: 0.151.0
-      rolldown: 1.2.16
-
   oxc-walker@1.0.0(oxc-parser@0.151.0)(rolldown@1.2.19):
     dependencies:
       magic-regexp: 0.11.0
@@ -8062,10 +8044,10 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-kit-routes@1.1.1(@sveltejs/kit@3.2.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)))(@typescript-eslint/types@8.72.1)(rolldown@1.2.16)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)):
+  vite-plugin-kit-routes@1.1.1(@sveltejs/kit@3.2.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)))(@typescript-eslint/types@8.72.1)(rolldown@1.2.19)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)):
     dependencies:
       '@kitql/helpers': 0.8.15
-      '@kitql/internals': 0.11.5(@typescript-eslint/types@8.72.1)(rolldown@1.2.16)(svelte@5.57.3(@typescript-eslint/types@8.72.1))
+      '@kitql/internals': 0.11.5(@typescript-eslint/types@8.72.1)(rolldown@1.2.19)(svelte@5.57.3(@typescript-eslint/types@8.72.1))
       '@sveltejs/kit': 3.2.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1))
       vite: 8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1)
       vite-plugin-watch-and-run: 1.8.3(vite@8.3.5(@types/node@25.5.2)(esbuild@0.28.2)(jiti@2.6.1)(yaml@2.9.1))
