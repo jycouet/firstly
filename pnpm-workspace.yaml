@@ -39,7 +39,7 @@ catalogs:
     oxfmt: 0.78.0
 
   db:
-    '@kitql/postgres': 0.2.2
+    '@kitql/postgres': 0.3.0
     pg: 8.23.1
     '@types/pg': 8.23.1
 
@@ -81,8 +81,8 @@ catalogs:
     nodemailer: ^10.0.10
     svelte-sonner: ^1.2.1
     tailwind-merge: ^3.7.0
-    vite-plugin-kit-routes: ^1.1.1
-    vite-plugin-stripper: ^0.10.6
+    vite-plugin-kit-routes: ^1.1.2
+    vite-plugin-stripper: ^0.10.7
 
 allowBuilds:
   esbuild: true
