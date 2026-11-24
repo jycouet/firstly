@@ -2,6 +2,9 @@ import { remult } from 'remult'
 
 import { containsWords } from './containsWords.js'
 
+// Never `[undefined]`: a null in `$in` matches `is null`, exposing ownerless rows to anonymous users.
+const ownerFilter = (col: string) => ({ [col]: remult.user?.id ? [remult.user.id] : [] }) as any
+
 /**
  * Filter helpers that build a remult `EntityFilter`.
  *
@@ -17,8 +20,8 @@ export const FF_Filter = {
 	/**
 	 * Prefilter rows where `col` equals the current user id.
 	 *
-	 * `col` defaults to `'userId'` if omitted. When anonymous, yields
-	 * `IN (NULL)` which matches nothing.
+	 * `col` defaults to `'userId'` if omitted. When anonymous, matches nothing
+	 * (not even rows with a null owner).
 	 *
 	 * @example
 	 * Owner-only prefilter (typed):
@@ -34,8 +37,7 @@ export const FF_Filter = {
 	 * For "admin sees all, others see only their own", prefer
 	 * `FF_Filter.ownerOr` instead of inlining the combination yourself.
 	 */
-	owner: <T>(col: keyof T & string = 'userId' as keyof T & string) =>
-		({ [col]: [remult.user?.id] }) as any,
+	owner: <T>(col: keyof T & string = 'userId' as keyof T & string) => ownerFilter(col),
 
 	/**
 	 * Prefilter that returns `{}` (no filter) when the current user has any of
@@ -64,7 +66,7 @@ export const FF_Filter = {
 		roles: string[]
 	}) => {
 		if (roles.some((r) => remult.isAllowed(r))) return {} as any
-		return { [col]: [remult.user?.id] } as any
+		return ownerFilter(col)
 	},
 
 	/**
