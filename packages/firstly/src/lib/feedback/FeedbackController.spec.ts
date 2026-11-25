@@ -38,7 +38,7 @@ describe('feedback createIssue', () => {
 	it('throws a clear error when GitHub answers without data', async () => {
 		vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(rateLimited())
 
-		await expect(FeedbackController.createIssue('M1', 't', 'b', {})).rejects.toThrow(
+		await expect(FeedbackController.createIssue('M1', 't', 'b', { page: '/x' })).rejects.toThrow(
 			'GitHub request failed (403)',
 		)
 	})
