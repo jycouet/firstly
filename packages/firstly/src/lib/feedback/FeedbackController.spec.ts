@@ -1,5 +1,6 @@
-import { InMemoryDataProvider, remult } from 'remult'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { InMemoryDataProvider, remult } from 'remult'
 
 import { FeedbackController } from './FeedbackController'
 
