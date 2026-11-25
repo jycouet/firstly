@@ -8,27 +8,38 @@ async function getGitHub(query: string, variables?: Record<string, any>) {
 			throw new EntityError({ message: 'Feedback module not well configured' })
 		}
 
-		try {
-			const headers: Headers = new Headers({
-				Authorization: 'Bearer ' + remult.context.feedbackOptions.GITHUB_API_TOKEN,
-				'Content-Type': 'application/json',
-			})
-			const body = stry({ query, variables }, 0)
-			const GITHUB_GRAPHQL_ENDPOINT = 'https://api.github.com/graphql'
-			const response = await fetch(GITHUB_GRAPHQL_ENDPOINT, { method: 'POST', headers, body })
-			const result = await response.json()
-			if (result.errors) {
-				console.error(`result ERRORS`, body, stry(result))
-			}
-			return result.data
-		} catch (error) {
-			console.error(`error`, error)
+		const headers: Headers = new Headers({
+			Authorization: 'Bearer ' + remult.context.feedbackOptions.GITHUB_API_TOKEN,
+			'Content-Type': 'application/json',
+		})
+		const body = stry({ query, variables }, 0)
+		const GITHUB_GRAPHQL_ENDPOINT = 'https://api.github.com/graphql'
+		const response = await fetch(GITHUB_GRAPHQL_ENDPOINT, { method: 'POST', headers, body })
+		const result = await response.json().catch(() => ({}))
+		if (!response.ok || result.errors) {
+			console.error(`GitHub ${response.status}`, body, stry(result))
 		}
+		// Rate limits (403) and outages come back without `data`: fail loud, not with a TypeError later.
+		if (!result.data) {
+			throw new EntityError({ message: `GitHub request failed (${response.status})` })
+		}
+		return result.data
 	}
 	return null
 }
 
+// Best-effort: the issue or comment already exists, a lost metadata comment must not fail the call.
 async function addMetaData(issueId: string, obj: Record<string, any>) {
+	if (import.meta.env.SSR) {
+		try {
+			await addMinimizedComment(issueId, obj)
+		} catch (error) {
+			console.error(`feedback metadata not saved on ${issueId}`, stry(obj), error)
+		}
+	}
+}
+
+async function addMinimizedComment(issueId: string, obj: Record<string, any>) {
 	if (import.meta.env.SSR) {
 		const commentToMinimize = await getGitHub(
 			`mutation AddComment($input: AddCommentInput!) {
