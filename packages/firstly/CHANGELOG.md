@@ -1,5 +1,19 @@
 # firstly
 
+## 0.15.0
+
+### Minor Changes
+
+- [#435](https://github.com/jycouet/firstly/pull/435) [`cee0dd2`](https://github.com/jycouet/firstly/commit/cee0dd29f261742fa254cf375a8bae52eb5e0984) Thanks [@jycouet](https://github.com/jycouet)! - `ff-sql-opt` CLI: picks Postgres indexes from captured queries with EXPLAIN evidence, ranked by real impact (calls x ms saved, per route and page). Capture with `withSqlCapture` from `firstly/sqlOptimizer/server`.
+
+### Patch Changes
+
+- [#448](https://github.com/jycouet/firstly/pull/448) [`e873330`](https://github.com/jycouet/firstly/commit/e873330cefc87a6ee99d62085c0d8aa951bf2518) Thanks [@jycouet](https://github.com/jycouet)! - fix(feedback): a failed metadata comment no longer fails `createIssue` / `addCommentOnIssue`, GitHub errors without `data` throw a clear error
+
+- [#446](https://github.com/jycouet/firstly/pull/446) [`aa3dd22`](https://github.com/jycouet/firstly/commit/aa3dd229b4097ee2da44e764ce38273b3a199544) Thanks [@jycouet](https://github.com/jycouet)! - Bump `@kitql/helpers` to ^0.9.0, `vite-plugin-kit-routes` to ^1.1.3 and `vite-plugin-stripper` to ^0.11.0
+
+- [#445](https://github.com/jycouet/firstly/pull/445) [`4d67d08`](https://github.com/jycouet/firstly/commit/4d67d08988c2784fa45b7aa8a385dfd4edcc17bb) Thanks [@jycouet](https://github.com/jycouet)! - fix(FF_Filter): `owner` / `ownerOr` match nothing when anonymous, no longer rows with a null owner
+
 ## 0.14.0
 
 ### Minor Changes
