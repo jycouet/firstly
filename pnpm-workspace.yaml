@@ -36,7 +36,7 @@ catalogs:
   kitql:
     '@kitql/eslint-config': 0.10.3
     eslint: 10.14.0
-    oxfmt: 0.78.0
+    oxfmt: 0.80.0
 
   db:
     '@kitql/postgres': 0.3.1
