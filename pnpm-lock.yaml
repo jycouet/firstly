@@ -117,8 +117,8 @@ catalogs:
       specifier: 5.1.0
       version: 5.1.0
     lucide:
-      specifier: 1.79.0
-      version: 1.79.0
+      specifier: 1.82.0
+      version: 1.82.0
     playwright:
       specifier: 1.65.0
       version: 1.65.0
@@ -263,7 +263,7 @@ importers:
         version: 10.15.0(jiti@2.6.1)
       lucide:
         specifier: catalog:testing
-        version: 1.79.0
+        version: 1.82.0
       pg:
         specifier: catalog:db
         version: 8.23.1
@@ -3207,8 +3207,8 @@ packages:
     resolution: {integrity: sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==}
     engines: {node: 20 || >=22}
 
-  lucide@1.79.0:
-    resolution: {integrity: sha512-y96g6/Pca8ZoMt1F8P2K3T5t1ABrFDeJW5h7IM2CyAGton1lbdMzHn4u0qAGI0j9nZ2OArUTqekDZyBTW2pRUQ==}
+  lucide@1.82.0:
+    resolution: {integrity: sha512-c4S0RMNDjGQ5Qu791zF+jIlQkNLlSZUCPFqVnYuuBDVP59kSkcHw8230E9Xwo9HR++JDXyIALNFW/Kc6t3zHlg==}
 
   luxon@3.7.2:
     resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
@@ -6853,7 +6853,7 @@ snapshots:
 
   lru-cache@11.5.3: {}
 
-  lucide@1.79.0: {}
+  lucide@1.82.0: {}
 
   luxon@3.7.2: {}
 
